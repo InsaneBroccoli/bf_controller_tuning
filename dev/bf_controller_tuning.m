@@ -21,7 +21,10 @@ file_path = fullfile(flight_folder, log_name);
 
 % parameters
 do_compensate_iterm   = false;
+do_show_dev_figures   = false;
 do_show_spec_figures  = true;
+do_show_motor_figures = false;
+do_show_motor_p_cntrl = false; % has only an effect if do_show_motor_figures = true
 do_insert_legends     = false;
 
 multp_fig_nr = ind_ax;
@@ -196,6 +199,18 @@ end
 
 %%
 
+if (do_show_dev_figures)
+    figure(222)
+    ax(1) = subplot(211);
+    plot(ax(1), time, data(:,ind.setpoint(1:3))), grid on, ylabel('Setpoint (deg/sec)')
+    title('Chirp Excitation Signals')
+    if do_insert_legends, legend('setpoint Roll', 'setpoint Pitch', 'setpoint Yaw', 'location', 'best'), end
+    ax(2) = subplot(212);
+    plot(ax(2), time, data(:,ind.sinarg)), grid on, ylabel('Sinarg (rad)'), xlabel('Time (sec)')
+    linkaxes(ax, 'x'), clear ax, xlim([0, time(end)])
+    set(findall(gcf, 'type', 'line'), 'linewidth', linewidth)
+end
+
 figure(3)
 ax(1) = subplot(411);
 plot(ax(1), time, data(:,ind.gyroUnfilt)), grid on, ylabel('Gyro (deg/sec)')
@@ -249,6 +264,183 @@ Cd  = Guw * Gvw / T * (1 / Guw - 1 / Gvw);
 % index and frequency for bode plots
 ind_freq = P.Frequency <= 1/2/Ts_log;
 omega_bode = 2*pi*P.Frequency(ind_freq);
+
+if (do_show_dev_figures)
+    figure(30)
+    ax(1) = subplot('Position', pos_bode(1,:));
+    opt.YLimMode = {'auto'}; opt.MagScale = 'log';
+    bode(ax(1), T, 'b', omega_bode, opt), title('Tracking T')
+    ax(2) = subplot('Position', pos_bode(2,:));
+    opt.MagScale = 'linear';
+    bodemag(ax(2), C_T, 'b', omega_bode, opt), title(''), ylabel('Coherence')
+    linkaxes(ax, 'x'), clear ax
+    set(findall(gcf, 'type', 'line'), 'linewidth', linewidth)
+
+    figure(31)
+    ax(1) = subplot('Position', pos_bode(1,:));
+    opt.YLimMode = {'auto'}; opt.MagScale = 'log';
+    bode(ax(1), Guw, 'g', omega_bode, opt), title('Guw')
+    ax(2) = subplot('Position', pos_bode(2,:));
+    opt.MagScale = 'linear';
+    bodemag(ax(2), C_Guw, 'g', omega_bode, opt), grid on, title(''), ylabel('Coherence')
+    linkaxes(ax, 'x'), clear ax
+    set(findall(gcf, 'type', 'line'), 'linewidth', linewidth)
+
+    figure(32)
+    ax(1) = subplot('Position', pos_bode(1,:));
+    opt.YLimMode = {'auto'}; opt.MagScale = 'log';
+    bode(ax(1), Gvw, 'r', omega_bode, opt), title('Gvw')
+    ax(2) = subplot('Position', pos_bode(2,:));
+    opt.MagScale = 'linear';
+    bodemag(ax(2), C_Gvw, 'r', omega_bode, opt), title(''), ylabel('Coherence')
+    linkaxes(ax, 'x'), clear ax
+    set(findall(gcf, 'type', 'line'), 'linewidth', linewidth)
+end
+
+%%
+
+% clear motors
+% P_motor = 50;
+% 
+% M_mod = c2d(ss(tf(0.09, [1/(2*pi*8) 1])), Ts_log);
+% Tt_M = (50) / (2*pi*100) * pi/180;
+% M_mod.InputDelay = round(Tt_M / Ts_log);
+% 
+% damp(feedback(M_mod * P_motor, 1))
+
+%%
+
+if do_show_motor_figures
+    P_motor = 0.1;
+
+    clear motors
+    for motor_nr = 1:4
+        motor_str = num2str(motor_nr);
+
+        motor_magic_offset = 2.4;
+
+        inp = data(:,ind.motor(motor_nr)) * 100 / 2000 - motor_magic_offset;
+        out = data(:,ind.eRPM(motor_nr)) * 200 / (para.motor_poles * 60);
+
+        figure(300)
+        subplot(220 + motor_nr)
+        hist3([out, inp], [100 100], ...
+              'EdgeColor', 'interp', 'CDataMode', 'auto')
+        title(['Motor ', motor_str])
+        xlabel('RPS (Hz)'), ylabel('Motor (%)')
+        % colorbar
+        colormap('jet')
+        set(gca, 'ColorScale', 'log')
+        view(2)
+        ylim([0 100])
+
+
+        % Nest     = round(0.2 / Ts_log);
+        % koverlap = 0.9;
+        % Noverlap = round(koverlap * Nest);
+        % window   = hann(Nest);
+        % Nres     = 100;
+        % 
+        % [pxx, freq, motor] = estimate_spectrogram(data(:,ind.gyroUnfilt(spectrogram_nr)), ...
+        %                                              inp, ...
+        %                                              window, Noverlap, Nest, Nres, Ts_log);
+        % spectrograms = sqrt(pxx); % power -> amplitude (dc needs to be scaled differently)
+        % 
+        % figure(310)
+        % subplot(220 + motor_nr)
+        % qmesh = pcolor(freq, motor, spectrograms);
+        % set(qmesh, 'EdgeColor', 'None', 'FaceColor', 'interp');
+        % title(['Motor ', motor_str])
+        % xlabel('Frequency (Hz)'), ylabel('Motor (%)')
+        % % colorbar()
+        % colormap('jet')
+        % set(gca, 'ColorScale', 'log')
+        % clim([3e-2 3e0]);
+        % ylim([0 100])
+        
+
+        Nest     = round(2.5 / Ts_log);
+        koverlap = 0.9;
+        Noverlap = round(koverlap * Nest);
+        window   = hann(Nest);
+
+        % Pm 
+        inp = apply_rotfiltfilt(Glp, data(:,ind.sinarg), inp);
+        out = apply_rotfiltfilt(Glp, data(:,ind.sinarg), out);
+        % out = apply_rotfiltfilt(Glp, data(:,ind.sinarg), data(:,ind.eRPM(motor_nr) ) / para.motor_poles);
+        [M, C_M] = estimate_frequency_response(inp(ind_eval), out(ind_eval), window, Noverlap, Nest, Ts_log);
+        motors.(['M_'  , motor_str]) = M;
+        motors.(['C_M_', motor_str]) = C_M;
+
+        if (do_show_motor_p_cntrl)
+            Lm  =        M*P_motor;
+            Sm  = 1.0 / (1.0 + Lm);
+            Tm  =            Lm*Sm;
+            SPm =             M*Sm;
+            SCm =       P_motor*Sm;
+            motors.(['S_'  , motor_str]) = Sm;
+            motors.(['T_'  , motor_str]) = Tm;
+            motors.(['SP_' , motor_str]) = SPm;
+            motors.(['SC_' , motor_str]) = SCm;
+        end
+    end
+    
+    figure(301)
+    ax(1) = subplot('Position', pos_bode(1,:));
+    opt.YLim = {[1e-2 1e2], [-180 180]}; opt.MagScale = 'log';
+    bode(ax(1), motors.M_1, motors.M_2, motors.M_3, motors.M_4, omega_bode, opt), grid on
+    title('Motor Pm')
+    ax(2) = subplot('Position', pos_bode(2,:));
+    opt.YLimMode = {'auto'}; opt.MagScale = 'linear';
+    bodemag(ax(2), motors.C_M_1, motors.C_M_2, motors.C_M_3, motors.C_M_4, omega_bode, opt), ylabel('Coherence')
+    title('')
+    if do_insert_legends, legend('Motor 1', 'Motor 2', 'Motor 3', 'Motor 4', 'location', 'best'), end
+    linkaxes(ax, 'x'), clear ax
+    set(findall(gcf, 'type', 'line'), 'linewidth', linewidth)
+    
+    if (do_show_motor_p_cntrl)
+        figure(302)
+        ax(1) = subplot(221);
+        opt.YLim = {[1e-3 1e1], [-180 180]};
+        opt.MagScale = 'log';
+        bode(ax(1), motors.T_1, motors.T_2, motors.T_3, motors.T_4, omega_bode, opt), title('Tracking T' )
+        ax(2) = subplot(222);
+        bode(ax(2), motors.S_1, motors.S_2, motors.S_3, motors.S_4, omega_bode, opt), title('Sensitivity S' )
+        ax(3) = subplot(223);
+        opt.YLim = {[1e-2 1e1], [-180 180]};
+        bode(ax(3), motors.SC_1, motors.SC_2, motors.SC_3, motors.SC_4, omega_bode, opt), title('Controller Effort SC')
+        ax(4) = subplot(224);
+        opt.YLim = {[1e-2 1e+1], [-180 180]};
+        bode(ax(4), motors.SP_1, motors.SP_2, motors.SP_3, motors.SP_4, omega_bode, opt), title('Compliance SP')
+        set(findall(gcf, 'type', 'line'), 'linewidth', linewidth)
+    
+    
+        % step responses
+        f_max = 300; % needs to be set according to the coherence, if inf then it has no effect
+        step_time = (0:Nest-1).'*Ts_log;
+        step_resp = [calculate_step_response_from_frd(motors.M_1, f_max), ...
+                     calculate_step_response_from_frd(motors.M_2, f_max), ...
+                     calculate_step_response_from_frd(motors.M_3, f_max), ...
+                     calculate_step_response_from_frd(motors.M_4, f_max), ...
+                     calculate_step_response_from_frd(motors.T_1, f_max), ...
+                     calculate_step_response_from_frd(motors.T_2, f_max), ...
+                     calculate_step_response_from_frd(motors.T_3, f_max), ...
+                     calculate_step_response_from_frd(motors.T_4, f_max)];
+        
+        figure(303)
+        ax(1) = subplot(211);
+        plot(ax(1), step_time, step_resp(:,1:4)), grid on    
+        title('Motor'), ylabel('RPS (Hz)')
+        if do_insert_legends, legend('Motor 1', 'Motor 2', 'Motor 3', 'Motor 4', 'location', 'best'), end
+        % ylim([0 0.1])
+        ax(2) = subplot(212);
+        plot(ax(2), step_time, step_resp(:,5:8)), grid on
+        title('Tracking T'), ylabel('RPM (Hz)')
+        % ylim([0 1.0])
+        linkaxes(ax, 'x'), clear ax, xlim([0 0.5])
+        set(findall(gcf, 'type', 'line'), 'linewidth', linewidth)
+    end
+end
 
 
 %% downsample analytical controller transferfunction and convert to frd objects
@@ -454,4 +646,78 @@ title('Controller C')
 if do_insert_legends, legend('actual', 'new', 'location', 'best'), end
 set(findall(gcf, 'type', 'line'), 'linewidth', linewidth)
 
+% % group and phase delay tracking
+% freq  = CL_ana.T.Frequency;
+% phase       = unwrap(angle(squeeze(CL_ana.T.ResponseData)));
+% group_delay = -gradient(phase, 2*pi*freq);
+% phase_delay = -phase ./ (2*pi*freq);
+% phase_new       = unwrap(angle(squeeze(CL_ana_new.T.ResponseData)));
+% group_delay_new = -gradient(phase_new, 2*pi*freq);
+% phase_delay_new = -phase_new ./ (2*pi*freq);
+% 
+% figure(expand_multiple_figure_nr(9, multp_fig_nr))
+% subplot(121)
+% semilogx(freq(ind_freq), [group_delay(ind_freq), group_delay_new(ind_freq)] * 1e3), grid on
+% xlim([0 f_max]), ylim([0 30])
+% ylabel('Group Delay (ms)'), xlabel('Frequency (Hz)'), title('Group Delay T')
+% if do_insert_legends, legend('actual', 'new', 'location', 'best'), end
+% subplot(122)
+% semilogx(freq(ind_freq), [phase_delay(ind_freq), phase_delay_new(ind_freq)] * 1e3), grid on
+% xlim([0 f_max]), ylim([0 30])
+% xlabel('Frequency (Hz)'), ylabel('Phase Delay (ms)'), title('Phase Delay Tracking T')
+% if do_insert_legends, legend('actual', 'new', 'location', 'best'), end
+% set(findall(gcf, 'type', 'line'), 'linewidth', linewidth)
+% 
+% % bode open-loop L
+% figure(expand_multiple_figure_nr(10, multp_fig_nr))
+% opt.YLim = {[1e-2 1e2], [-180 180]}; opt.MagScale = 'log';
+% bode(CL_ana.L, CL_ana_new.L, omega_bode, opt), title('Open-Loop L')
+% if do_insert_legends, legend('actual', 'new', 'location', 'best'), end
+% set(findall(gcf, 'type', 'line'), 'linewidth', linewidth)
+
 toc
+% Elapsed time is 15.670831 seconds.
+
+%%
+
+% % amp = [para.chirp_amplitude_roll; ...
+% %        para.chirp_amplitude_pitch; ...
+% %        para.chirp_amplitude_yaw];
+% 
+% freq_ll = [para.chirp_lead_freq_hz, para.chirp_lag_freq_hz];
+% 
+% Gll = get_filter('leadlag1', ...
+%                  freq_ll, ...
+%                  Ts_log);
+% 
+% % amp_new = amp;
+% 
+% scaler = 1 + 1/3;
+% freq_ll_new(2) = scaler*freq_ll(2); % zero
+% freq_ll_new(1) = 2/3*scaler*freq_ll(1); % pole
+% 
+% freq_ll_new = round(freq_ll_new);
+% 
+% Gll_new = get_filter('leadlag1', ...
+%                      freq_ll_new, ...
+%                      Ts_log);
+% 
+% G = tf(Gll_new / Gll);
+% data_new = zeros(size(data(:,ind.motor)));
+% for motor_nr = 1:length(ind.motor)
+%     data_new(:,motor_nr) = filter(G.num{1}, G.den{1}, ...
+%         data(:,ind.motor(motor_nr)));
+% end
+% 
+% figure(10)
+% ax(1) = subplot(221);
+% plot(ax(1), time, data(:,ind.motor)), grid on, ylabel('Motor')
+% ax(2) = subplot(223);
+% plot(ax(2), time, data_new), grid on, ylabel('Motor')
+% linkaxes(ax, 'xy'), clear ax, xlim([0, time(end)]), ylim([0 2000])
+% set(findall(gcf, 'type', 'line'), 'linewidth', linewidth)
+% subplot(122)
+% bode(Gll, Gll_new, G), grid on
+% 
+% freq_ll
+% freq_ll_new
