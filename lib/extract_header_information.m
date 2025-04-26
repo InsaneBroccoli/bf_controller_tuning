@@ -19,7 +19,7 @@
 % If not, see <http:%www.gnu.org/licenses/>.
 %
 %%
-function [para, Nheader, ind] = extract_header_information(filePath) %#ok
+function [para, Nheader, ind, ind_cntr] = extract_header_information(filePath) %#ok
 
     fid = fopen(filePath);
     tline = fgetl(fid);
@@ -63,9 +63,14 @@ function [para, Nheader, ind] = extract_header_information(filePath) %#ok
     eval(['ind.(ind_name) = [', num2str(ind_cntr), '];']);
     
     % handle all elements between
-    for i = 1:length(idx)-1
+    for i = 1:length(idx)
         ind_cntr = ind_cntr + 1;
-        ind_name = tline(idx(i)+2:idx(i+1)-2);
+        if i < length(idx)
+            ind_name = tline(idx(i)+2:idx(i+1)-2);
+        else
+            ind_name = tline(idx(end)+2:end-1);
+        end
+
         if strcmp(ind_name(1:4), 'eRPM')
             eval(['ind.(ind_name(1:4))(str2double((ind_name(end-1))) + 1) = [', num2str(ind_cntr), '];']);
         elseif strcmp(ind_name(end), ']')
@@ -74,11 +79,5 @@ function [para, Nheader, ind] = extract_header_information(filePath) %#ok
             eval(['ind.(ind_name) = [', num2str(ind_cntr), '];']);
         end
     end
-    
-    % handle last element, should be 'axisError[2]'
-    ind_cntr = ind_cntr + 1;
-    ind_name = tline(idx(end)+2:end-1); %#ok
-    eval(['ind.(ind_name(1:end-3))(str2double((ind_name(end-1))) + 1) = [', num2str(ind_cntr), '];']);
-
 end
 
