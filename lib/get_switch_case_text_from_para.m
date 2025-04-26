@@ -25,8 +25,8 @@ function get_switch_case_text_from_para(para)
            para.pitchPID; ...
            para.yawPID];
     
-    % create warnings
-    pid_axis = {'roll', 'pitch', 'yaw'};
+    % % create warnings
+    % pid_axis = {'roll', 'pitch', 'yaw'};
     % for i = 1:3
     %     if PID(i,3) ~= PID(i,4)
     %         warning([' different D gains in ', pid_axis{i}, ' axis ']);
@@ -84,15 +84,15 @@ function get_switch_case_text_from_para(para)
         fprintf('        para_new.pterm_llc_phase     = %d;       %% phase of pterm llc\n', para.pterm_llc_phase);
     end
     fprintf('        switch ind_ax\n');
-    fprintf('            case 1 %% roll: [%d, %d, %d, %d]\n', PID(1,:));
+    fprintf('            case 1 %% roll: [%d, %d, %d, %d]\n', PID(1,1:4));
     fprintf('                P_new       = %d;\n', PID(1,1));
     fprintf('                I_ratio_new = %d/%d;\n', PID(1,2), PID(1,2));
     fprintf('                D_new       = %d;\n', PID(1,3));
-    fprintf('            case 2 %% pitch: [%d, %d, %d, %d]\n', PID(2,:));
+    fprintf('            case 2 %% pitch: [%d, %d, %d, %d]\n', PID(2,1:4));
     fprintf('                P_new       = %d;\n', PID(2,1));
     fprintf('                I_ratio_new = %d/%d;\n', PID(2,2), PID(2,2));
     fprintf('                D_new       = %d;\n', PID(2,3));
-    fprintf('            case 3 %% yaw: [%d, %d, %d, %d]\n', PID(3,:));
+    fprintf('            case 3 %% yaw: [%d, %d, %d, %d]\n', PID(3,1:4));
     fprintf('                P_new       = %d;\n', PID(3,1));
     fprintf('                I_ratio_new = %d/%d;\n', PID(3,2), PID(3,2));
     fprintf('                D_new       = %d;\n', PID(3,3));
