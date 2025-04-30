@@ -16,8 +16,10 @@ ind_ax = 1;
 % define quad and path to *.bbl.csv file
 quad = 'unknown';
 
-flight_folder = '20250420';
-log_name = '20250420_apex5_00.bbl.csv';
+% flight_folder = '20250420';
+% log_name = '20250420_apex5_00.bbl.csv';
+flight_folder = '20250430_supafly';
+log_name = '20250430_unknown_00.bbl.csv';
 file_path = fullfile(flight_folder, log_name);
 
 % parameters
@@ -317,30 +319,30 @@ switch quad
         para_new.gyro_lowpass_hz     = 0;       % frequency of gyro lpf 1
         para_new.gyro_soft_type      = 0;       % type of gyro lpf 1
         para_new.gyro_lowpass_dyn_hz = [0, 0];  % dyn gyro lpf overwrites gyro_lowpass_hz
-        para_new.gyro_lowpass2_hz    = 800;     % frequency of gyro lpf 2
+        para_new.gyro_lowpass2_hz    = 775;     % frequency of gyro lpf 2
         para_new.gyro_soft2_type     = 0;       % type of gyro lpf 2
-        para_new.gyro_notch_hz       = [0, 520]; % frequency of gyro notch 1 and 2
-        para_new.gyro_notch_cutoff   = get_fcut_from_D_and_fcenter([0.00, 0.15], para_new.gyro_notch_hz); % damping of gyro notch 1 and 2
-        para_new.dterm_lpf_hz        = 0;       % frequency of dterm lpf 1
-        para_new.dterm_filter_type   = 0;       % type of dterm lpf 1
+        para_new.gyro_notch_hz       = [0, 0]; % frequency of gyro notch 1 and 2
+        para_new.gyro_notch_cutoff   = get_fcut_from_D_and_fcenter([0.00, 0.00], para_new.gyro_notch_hz); % damping of gyro notch 1 and 2
+        para_new.dterm_lpf_hz        = 130;       % frequency of dterm lpf 1
+        para_new.dterm_filter_type   = 3;       % type of dterm lpf 1
         para_new.dterm_lpf_dyn_hz    = [0, 0];  % dyn dterm lpf overwrites dterm_lpf_hz
-        para_new.dterm_lpf2_hz       = 130;     % frequency of dterm lpf 2
-        para_new.dterm_filter2_type  = 3;       % type of dterm lpf 2
-        para_new.dterm_notch_hz      = 235;     % frequency of dterm notch
-        para_new.dterm_notch_cutoff  = get_fcut_from_D_and_fcenter(0.15, para_new.dterm_notch_hz); % damping of dterm notch
+        para_new.dterm_lpf2_hz       = 0;     % frequency of dterm lpf 2
+        para_new.dterm_filter2_type  = 0;       % type of dterm lpf 2
+        para_new.dterm_notch_hz      = 0;     % frequency of dterm notch
+        para_new.dterm_notch_cutoff  = get_fcut_from_D_and_fcenter(0.00, para_new.dterm_notch_hz); % damping of dterm notch
         para_new.yaw_lpf_hz          = 200;     % frequency of yaw lpf (pt1)
         switch ind_ax
-            case 1 % roll: [45, 76, 29, 0]
-                P_new       = 47;
-                I_ratio_new = 76/76;
-                D_new       = 31;
-            case 2 % pitch: [61, 103, 39, 0]
-                P_new       = 61;
-                I_ratio_new = 103/103;
-                D_new       = 39;
-            case 3 % yaw: [42, 104, 3, 0]
-                P_new       = 42;
-                I_ratio_new = 104/104;
+            case 1 % roll: [59, 89, 35, 35]
+                P_new       = 0.9 * 59;
+                I_ratio_new = 89/89;
+                D_new       = 0.9 * 35;
+            case 2 % pitch: [74, 113, 48, 48]
+                P_new       = 74;
+                I_ratio_new = 113/113;
+                D_new       = 48;
+            case 3 % yaw: [59, 89, 0, 0]
+                P_new       = 0.8 * 59;
+                I_ratio_new = 89/89;
                 D_new       = 3;
         end
     otherwise
