@@ -2,13 +2,23 @@ clc, clear variables
 addpath lib/
 %%
 
+% [files, products] = matlab.codetools.requiredFilesAndProducts('bf_controller_tuning.m')
+% disp(products)
+
+
+%%
+
 % TODO:
-% - the iterm_relax parameter can be used to decide if we need to
-%   compensate it's effects
-% - create something like para.blackbox_high_resolution in blackbox, so
-%   that it can automatically be evaluated if it was a chirp excitation
-% - evaluate "flightModeFlags" for sinarg evaluation
-% - figure out motor_magic_offset <- can't remember atm
+%   BF Controller Tuning:
+%   - the iterm_relax parameter can be used to decide if we need to
+%     compensate it's effects
+%   - evaluate "flightModeFlags" for sinarg evaluation
+%   betaflight:
+%   - create something like para.blackbox_high_resolution in blackbox, so
+%     that it can automatically be evaluated if it was a chirp excitation
+%   - make chirp start (sin or cos) and the amplitude reduction below 1 Hz
+%     as a setting
+%   - make it so that chirp parameters can be changes via the goggles
 
 % choose an axis: 1: roll, 2: pitch, 3: yaw
 ind_ax = 1;
