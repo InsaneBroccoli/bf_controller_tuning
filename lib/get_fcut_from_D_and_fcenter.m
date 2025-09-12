@@ -1,28 +1,28 @@
-%
-% This file is part of pichim's controller tuning framework.
-%
-% This sofware is free. You can redistribute this software
-% and/or modify this software under the terms of the GNU General
-% Public License as published by the Free Software Foundation,
-% either version 3 of the License, or (at your option) any later
-% version.
-%
-% This software is distributed in the hope that it will be useful,
-% but WITHOUT ANY WARRANTY; without even the implied warranty of
-% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-%
-% See the GNU General Public License for more details.
-%
-% You should have received a copy of the GNU General Public
-% License along with this software.
-%
-% If not, see <http:%www.gnu.org/licenses/>.
-%
-%%
 function fcut = get_fcut_from_D_and_fcenter(D, fcent)
+%GET_FCUT_FROM_D_AND_FCENTER  Convert damping ratio and center frequency to cutoff frequency
+%   fcut = get_fcut_from_D_and_fcenter(D, fcent)
+%
+% PURPOSE
+%   - Compute the effective cutoff frequency fcut for a second-order system
+%     given damping ratio D and center frequency fcent
+%
+% INPUTS
+%   - D     scalar or vector damping ratio(s), dimensionless
+%   - fcent scalar or vector center frequency/frequencies in Hz
+%
+% OUTPUTS
+%   - fcut  scalar or vector cutoff frequency/frequencies in Hz
+%
+% METHOD
+%   1) Convert damping ratio D to quality factor Q = 1 / (2D)
+%   2) Compute cutoff using analytical formula:
+%        fcut = fcent / (2Q) * ( -1 + sqrt(1 + 4Q^2) )
+%
+% NOTES
+%   - Supports scalar or element-wise vector computation
+%   - Formula derived from standard second-order low-pass response
 
     Q = 1/2./D;
     fcut = fcent/2./Q.*(-1 + sqrt(1 + 4*Q.^2));
 
 end
-

@@ -1,78 +1,64 @@
+function [G, B, A] = get_filter(filter_type, f_cut, Ts)
+%GET_FILTER  Discrete-time filter section generator (Betaflight-style)
+%   [G, B, A] = get_filter(filter_type, f_cut, Ts)
 %
-% This file is part of pichim's controller tuning framework.
+% PURPOSE
+%   - Construct a discrete-time IIR filter section by type and cutoff
+%   - Return the filter as state-space (G) and as TF coefficients (B, A)
 %
-% This sofware is free. You can redistribute this software
-% and/or modify this software under the terms of the GNU General
-% Public License as published by the Free Software Foundation,
-% either version 3 of the License, or (at your option) any later
-% version.
+% INPUTS
+%   - filter_type  char string:
+%       'pt1'        first-order low-pass
+%       'pt2'        second-order low-pass (Butterworth target, cutoff corrected)
+%       'pt3'        third-order low-pass (Butterworth target, cutoff corrected)
+%       'biquad'     2nd-order Butterworth biquad (Q = 1/sqrt(2))
+%       'notch'      2nd-order notch, Q from get_notch_Q([fnotch fcut])
+%       'phaseComp'  first-order phase compensator at center frequency/phase
+%       'leadlag1'   lead-lag defined by zero fz and pole fp
+%   - f_cut        cutoff/params in Hz
+%       'pt1'/'pt2'/'pt3'/'biquad' : scalar fc
+%       'notch'                    : [fcut fnotch]
+%       'phaseComp'                : [centerFreqHz centerPhaseDeg]
+%       'leadlag1'                 : [fz fp]
+%   - Ts           sample time [s]
 %
-% This software is distributed in the hope that it will be useful,
-% but WITHOUT ANY WARRANTY; without even the implied warranty of
-% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+% OUTPUTS
+%   - G  state-space model of the section (discrete-time, Ts)
+%   - B  numerator coefficients of the corresponding tf
+%   - A  denominator coefficients of the corresponding tf
 %
-% See the GNU General Public License for more details.
+% METHOD
+%   1) For 'pt1' compute k = Ts/(RC+Ts), RC = 1/(2πfc), set G(z) = k z^-1 / (1 + (k-1) z^-1)
+%   2) For 'pt2'/'pt3' apply Butterworth order-dependent cutoff correction so fc is at –3 dB
+%   3) For 'biquad' use standard digital Butterworth with Q = 1/√2 (TI SLA A447 form)
+%   4) For 'notch' compute Q via get_notch_Q and build a normalized biquad notch
+%   5) For 'phaseComp' compute gain/alpha from desired center phase, approximate prewarping
+%   6) For 'leadlag1' derive equivalent 'phaseComp' parameters from zero/pole pair
+%   7) Return both tf coefficients (B,A) and a state-space realization G
 %
-% You should have received a copy of the GNU General Public
-% License along with this software.
-%
-% If not, see <http:%www.gnu.org/licenses/>.
-%
-%%
-function [G, B, A] = get_filter(filter_type, f_cut, Ts, prewarp)
-% G = get_filter(filter_type, f_cut, Ts, prewarp)
-% G = get_filter(filter_type, f_cut, Ts)
-%   betaflight filter implementation as is 10.07.2021
-% filter_type: string 'pt1', 'pt2', 'pt3', 'biquad', 'notch', 'pt2_custom'
-% f_cut      : cutoff frequency in Hz
-% Ts         : sampling time
-% prewarp    : 0: no prewarping (default)
-%              1: prewarping    (only effects pt1,2,3), this is not a
-%                                betaflight feature)
-
-    do_pole_matching = false;
-    
-    % no prewarp in betaflight
-    if nargin == 3
-        prewarp = 0;
-    else
-        if do_pole_matching
-            prewarp_ptn_fcn = @prewarp_ptn_pole_matching;
-        else
-            prewarp_ptn_fcn = @prewarp_ptn_mag_matching;
-        end
-    end
+% NOTES
+%   - All sections are discrete-time and created with sample time Ts
+%   - 'pt2'/'pt3' use orderCutoffCorrection so specified fc matches analog –3 dB target
+%   - 'phaseComp' uses a series-expansion prewarp approximation around the center frequency
+%   - get_notch_Q and get_filter recursion ('leadlag1'→'phaseComp') must be available on path
     
     switch filter_type
         case 'pt1'
             % prewarp
-            if prewarp
-                f_cut = prewarp_ptn_fcn(f_cut, Ts);
-            end
             RC = 1/(2*pi*f_cut);
             k  = Ts/(RC + Ts);
             G = tf([k 0], [1 (k-1)], Ts);
         case 'pt2'
             order = 2.0;
             orderCutoffCorrection =  1 / sqrt( 2^(1/order) - 1); % 1.553773974030037
-            % prewarp
-            if prewarp
-                f_cut = prewarp_ptn_fcn(f_cut*orderCutoffCorrection, Ts);
-            else
-                f_cut = f_cut*orderCutoffCorrection;
-            end
+            f_cut = f_cut*orderCutoffCorrection;
             RC = 1/(2*pi*f_cut);
             k  = Ts/(RC + Ts);
             G = tf([k^2 0 0], [1 2*(k-1) (k-1)^2], Ts);
         case 'pt3'
             order = 3.0;
             orderCutoffCorrection =  1 / sqrt( 2^(1/order) - 1); % 1.961459176700620
-            % prewarp
-            if prewarp
-                f_cut = prewarp_ptn_fcn(f_cut*orderCutoffCorrection, Ts);
-            else
-                f_cut = f_cut*orderCutoffCorrection;
-            end
+            f_cut = f_cut*orderCutoffCorrection;
             RC = 1/(2*pi*f_cut);
             k  = Ts/(RC + Ts);
             G = tf([k^3 0 0 0], [1 3*(k-1) 3*(k-1)^2 (k-1)^3], Ts);
@@ -80,7 +66,6 @@ function [G, B, A] = get_filter(filter_type, f_cut, Ts, prewarp)
             % 2nd order Butterworth (with Q=1/sqrt(2)) / Butterworth biquad section with Q
             % described in http://www.ti.com/lit/an/slaa447/slaa447.pdf
             Q = 1/sqrt(2);
-            % prewarp is done implicitly
             omega = 2*pi*f_cut*Ts;
             sn = sin(omega);
             cs = cos(omega);
@@ -91,25 +76,8 @@ function [G, B, A] = get_filter(filter_type, f_cut, Ts, prewarp)
             a1 = -2 * cs / (1 + alpha);
             a2 = (1 - alpha) / (1 + alpha);
             G = tf([b0 b1 b2], [1 a1 a2], Ts);
-    %         BIQUAD_Q = 1.0 / sqrt(3.0); % 1.0 / sqrt(2.0);
-    %         % setup variables
-    %         omega = 2.0 * pi * f_cut * Ts;
-    %         alpha = omega / BIQUAD_Q + 1;
-    %         b0 = omega^2;
-    %         b1 = 0;
-    %         b2 = 0;
-    %         a1 = -(alpha + 1);
-    %         a2 = 1;        
-    %         a0 = 1 / (b0 + alpha);
-    %         b0 = b0 * a0;
-    %         b1 = b1 * a0;
-    %         b2 = b2 * a0;
-    %         a1 = a1 * a0;
-    %         a2 = a2 * a0;
-    %         G = tf([b0 b1 b2], [1 a1 a2], Ts);
         case 'notch'
             Q = get_notch_Q(f_cut(2), f_cut(1));
-            % prewarp is done implicitly
             omega = 2*pi*f_cut(2)*Ts;
             sn = sin(omega);
             cs = cos(omega);
@@ -120,40 +88,6 @@ function [G, B, A] = get_filter(filter_type, f_cut, Ts, prewarp)
             a1 = b1;
             a2 = (1 - alpha) / (1 + alpha);
             G = tf([b0 b1 b2], [1 a1 a2], Ts);
-            %damp(G)
-        case 'bandpass'
-            % Q = getNotchQ(f_cut(2), f_cut(1));
-            D = f_cut(1);
-            Q = 1/2/D;
-            % prewarp is done implicitly
-            omega = 2*pi*f_cut(2)*Ts;
-            sn = sin(omega);
-            cs = cos(omega);
-            alpha = sn / (2 * Q);
-            b0 = alpha / (1 + alpha);
-            b1 = 0;
-            b2 = -b0;
-            a1 = -2 * cs / (1 + alpha);
-            a2 = (1 - alpha) / (1 + alpha);
-            G = tf([b0 b1 b2], [1 a1 a2], Ts);
-        case 'pt2_custom'
-            if prewarp
-                f_cut = prewarp_ptn_fcn(f_cut, Ts);
-            end
-            G = get_filter('pt1', f_cut, Ts) * get_filter('pt1', 1.55*f_cut, Ts);
-        case 'pt2_custom2'
-            if prewarp
-                f_cut = prewarp_ptn_fcn(f_cut, Ts);
-            end
-            G = get_filter('pt1', f_cut, Ts) * get_filter('pt1', 1.25*f_cut, Ts);
-        case 'pt1tustin'
-            if prewarp
-                f_cut = 1/(pi*Ts)*tan(f_cut*pi*Ts);
-            end
-            c =  pi*Ts*f_cut;
-            b =  c      / (c + 1);
-            a = (c - 1) / (c + 1);
-            G = tf(b*[1 1], [1 a], Ts);
         case 'phaseComp'
             centerFreqHz   = f_cut(1);
             centerPhaseDeg = f_cut(2);
@@ -176,47 +110,13 @@ function [G, B, A] = get_filter(filter_type, f_cut, Ts, prewarp)
             centerFreqHz = fp * sqrt(alpha);
             centerPhaseDeg = 180/pi*asin( (1 - alpha) / (1 + alpha) );
             G = tf(get_filter('phaseComp', [centerFreqHz, centerPhaseDeg], Ts));
-        case 'biquad_gen'
-            D = f_cut(2);
-            f_cut = f_cut(1);
-            if prewarp
-                f_cut(1) = 1/(pi*Ts)*tan(f_cut(1)*pi*Ts);
-            end
-            w0 = 2*pi*f_cut;
-            a2 = (Ts^2*w0^2 + 4*D*Ts*w0 + 4);
-            a1 = (2*Ts^2*w0^2 - 8) / a2;
-            a0 = (Ts^2*w0^2 - 4*D*Ts*w0 + 4) / a2;
-            b2 = (Ts^2*w0^2) / a2;
-            b1 = (2*Ts^2*w0^2) / a2;
-            b0 = (Ts^2*w0^2) / a2;
-            G = tf([b2 b1 b0], [1 a1 a0], Ts);
-        case 'pt2_gen'
-            D = f_cut(2);
-            f_cut = f_cut(1);
-            if prewarp
-                f_cut = prewarp_ptn_fcn(f_cut, Ts);
-            end
-            w0 = 2*pi*f_cut;
-            a2 = (Ts^2*w0^2 + 2*Ts*w0*D + 1);
-            a1 = (- 2*Ts*w0*D - 2) / a2;
-            a0 = 1 / a2;
-            b2 = (Ts^2*w0^2) / a2;
-            G = tf([b2 0 0], [1 a1 a0], Ts);  
+
         otherwise
+            warning(['filter_type not valid']);
     end
     
     B = G.num{1};
     A = G.den{1};
     G = ss(G);
 
-end
-
-function f_cut = prewarp_ptn_pole_matching(f_cut, Ts)
-    f_cut = 1/(2*pi*Ts)*(exp(2*pi*Ts*f_cut) - 1);
-end
-
-function f_cut = prewarp_ptn_mag_matching(f_cut, Ts) 
-    k = -(1 - cos(2*pi*f_cut*Ts)) + sqrt((1 - cos(2*pi*f_cut*Ts))*((1 - cos(2*pi*f_cut*Ts)) + 2));
-    RC = (Ts - k*Ts) / k; % <- k  = Ts/(RC + Ts);
-    f_cut = 1/(2*pi*RC);  % <- RC = 1/(2*pi*f_cut);
 end

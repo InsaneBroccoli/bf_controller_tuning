@@ -1,31 +1,49 @@
-%
-% This file is part of pichim's controller tuning framework.
-%
-% This sofware is free. You can redistribute this software
-% and/or modify this software under the terms of the GNU General
-% Public License as published by the Free Software Foundation,
-% either version 3 of the License, or (at your option) any later
-% version.
-%
-% This software is distributed in the hope that it will be useful,
-% but WITHOUT ANY WARRANTY; without even the implied warranty of
-% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-%
-% See the GNU General Public License for more details.
-%
-% You should have received a copy of the GNU General Public
-% License along with this software.
-%
-% If not, see <http:%www.gnu.org/licenses/>.
-%
-%%
 function [Cpi, Cd, Gf, PID, para_used] = calculate_transfer_functions(para, ind_ax, throttle_avg, Ts)
-    
+%CALCULATE_TRANSFER_FUNCTIONS  Build controller filters and gains from parameter struct
+%   [Cpi, Cd, Gf, PID, para_used] = calculate_transfer_functions(para, ind_ax, throttle_avg, Ts)
+%
+% PURPOSE
+%   - Assemble gyro path filters Gf, D-term filters Gd, and P-term path filter Gf_p
+%   - Construct discrete-time PI and D controllers for the selected axis
+%   - Return effective PID gains vector and a record of parameters actually used
+%
+% INPUTS
+%   - para           struct with filter and PID settings (gyro, dterm, pterm, notches, LLC, etc)
+%   - ind_ax         axis index 1=roll, 2=pitch, 3=yaw
+%   - throttle_avg   scalar in [0,1] for dynamic filter cutoff computation
+%   - Ts             sample time in seconds
+%
+% OUTPUTS
+%   - Cpi        state-space PI(+P) controller including P-path filter Gf_p
+%   - Cd         state-space D controller including D-term filter stack Gd
+%   - Gf         state-space overall gyro-path filter
+%   - PID        [Kp Ki Kd FF] effective gains vector with axis scaling applied, FF forced to 0
+%   - para_used  struct subset of para fields actually instantiated into filters
+%
+% SCALING & CONVENTIONS
+%   - Axis names: {'rollPID','pitchPID','yawPID'}, selected by ind_ax
+%   - If a 5-element PID is provided [Kp Ki Kd Kd_dyn FF], dynamic D is removed and FF checked
+%   - Gains are scaled by get_pid_scale(ind_ax) before forming controllers
+%
+% METHOD
+%   1) Start with identity Gf, Gd, Gf_p
+%   2) Append enabled gyro filters to Gf: lowpass1, dynamic lowpass1, lowpass2, notches, LLC
+%   3) Append enabled D-term filters to Gd: lowpass1, dynamic lowpass1, lowpass2, notch, LLC
+%   4) Append enabled P-path filter(s) to Gf_p: LLC, optional yaw PT1 lowpass
+%   5) Extract axis PID from para, remove dynamic D, zero FF, apply axis scaling to [Kp Ki Kd]
+%   6) Form controllers via calculate_controllers: Cpi = Kp*Gf_p + Ki*Ts*z/(z-1), Cd = (Kd/Ts)*(1 - z^-1)/z^-1
+%   7) Cascade Cd with Gd to include D-term filters in the derivative path
+%
+% NOTES
+%   - get_filter selects among {'pt1','biquad','pt2','pt3','notch','phaseComp'}
+%   - Dynamic LPF cutoffs are computed by get_fcut_from_exp using throttle_avg
+%   - All filters and controllers are returned as discrete-time state-space models with sample time Ts
+
     filter_types = {'pt1', 'biquad', 'pt2', 'pt3'};
 
     % Gf: y -> yf: gyro filters
     Gf = ss(tf(1, 1, Ts));
-    % gyro lowpass filter 1
+    % Gyro lowpass filter 1
     if para.gyro_lowpass_hz > 0
         para_used.gyro_lowpass_hz = para.gyro_lowpass_hz;
         para_used.gyro_soft_type  = para.gyro_soft_type;
@@ -33,9 +51,9 @@ function [Cpi, Cd, Gf, PID, para_used] = calculate_transfer_functions(para, ind_
                              para.gyro_lowpass_hz, ...
                              Ts);
     end
-    % dynamic gyro lowpass filter 1
+    % Dynamic gyro lowpass filter 1
     if para.gyro_lowpass_dyn_hz(1) > 0
-        % make sure Gf is 1 at start, this is not possible in current bf
+        % Make sure Gf is 1 at start, this is not possible in current bf
         Gf = ss(tf(1, 1, Ts));
         para_used.gyro_lowpass_dyn_hz = para.gyro_lowpass_dyn_hz;
         para_used.gyro_soft_type      = para.gyro_soft_type;
@@ -48,7 +66,7 @@ function [Cpi, Cd, Gf, PID, para_used] = calculate_transfer_functions(para, ind_
                              para_used.gyro_lpf_hz_avg, ...
                              Ts);
     end
-    % gyro lowpass filter 2
+    % Gyro lowpass filter 2
     if para.gyro_lowpass2_hz > 0
         para_used.gyro_lowpass2_hz = para.gyro_lowpass2_hz;
         para_used.gyro_soft2_type  = para.gyro_soft2_type;
@@ -56,7 +74,7 @@ function [Cpi, Cd, Gf, PID, para_used] = calculate_transfer_functions(para, ind_
                              para.gyro_lowpass2_hz, ...
                              Ts);
     end
-    % gyro notch filter 1
+    % Gyro notch filter 1
     if para.gyro_notch_hz(1) > 0
         para_used.gyro_notch_hz(1)     = para.gyro_notch_hz(1);
         para_used.gyro_notch_cutoff(1) = para.gyro_notch_cutoff(1);
@@ -64,7 +82,7 @@ function [Cpi, Cd, Gf, PID, para_used] = calculate_transfer_functions(para, ind_
                              [para.gyro_notch_cutoff(1), para.gyro_notch_hz(1)], ...
                              Ts);
     end
-    % gyro notch filter 2
+    % Gyro notch filter 2
     if para.gyro_notch_hz(2) > 0
         para_used.gyro_notch_hz(2)     = para.gyro_notch_hz(2);
         para_used.gyro_notch_cutoff(2) = para.gyro_notch_cutoff(2);
@@ -72,7 +90,7 @@ function [Cpi, Cd, Gf, PID, para_used] = calculate_transfer_functions(para, ind_
                              [para.gyro_notch_cutoff(2), para.gyro_notch_hz(2)], ...
                              Ts);
     end
-    % gyro llc
+    % Gyro llc
     if (isfield(para, 'gyro_llc_freq_hz'))
         if (para.gyro_llc_phase ~= 0)
             para_used.gyro_llc_freq_hz = para.gyro_llc_freq_hz;
@@ -86,7 +104,7 @@ function [Cpi, Cd, Gf, PID, para_used] = calculate_transfer_functions(para, ind_
     % Gd: d/dt(yf) -> d/dt(yf)f: dterm filters
     Gd = ss(tf(1, 1, Ts));
     % filter_enumeration = {'pt1', 'biquad', 'pt2', 'pt3'};
-    % dterm lowpass filter 1
+    % Dterm lowpass filter 1
     if para.dterm_lpf_hz > 0
         para_used.dterm_lpf_hz      = para.dterm_lpf_hz;
         para_used.dterm_filter_type = para.dterm_filter_type;
@@ -94,9 +112,9 @@ function [Cpi, Cd, Gf, PID, para_used] = calculate_transfer_functions(para, ind_
                              para.dterm_lpf_hz, ...
                              Ts);
     end
-    % dynamic dterm lowpass filter 1
+    % Dynamic dterm lowpass filter 1
     if para.dterm_lpf_dyn_hz(1) > 0
-        % make sure Gd is 1 at start, this is not possible in current bf
+        % Make sure Gd is 1 at start, this is not possible in current bf
         Gd = ss(tf(1, 1, Ts));
         para_used.dterm_lpf_dyn_hz  = para.dterm_lpf_dyn_hz;
         para_used.dterm_filter_type = para.dterm_filter_type;
@@ -109,7 +127,7 @@ function [Cpi, Cd, Gf, PID, para_used] = calculate_transfer_functions(para, ind_
                              para_used.dterm_lpf_hz_avg, ...
                              Ts);
     end
-    % dterm lowpass filter 2
+    % Dterm lowpass filter 2
     if para.dterm_lpf2_hz > 0
         para_used.dterm_lpf2_hz      = para.dterm_lpf2_hz;
         para_used.dterm_filter2_type = para.dterm_filter2_type;
@@ -117,7 +135,7 @@ function [Cpi, Cd, Gf, PID, para_used] = calculate_transfer_functions(para, ind_
                              para.dterm_lpf2_hz, ...
                              Ts);
     end
-    % dterm notch filter
+    % Dterm notch filter
     if para.dterm_notch_hz > 0
         para_used.dterm_notch_hz     = para.dterm_notch_hz;
         para_used.dterm_notch_cutoff = para.dterm_notch_cutoff;
@@ -125,7 +143,7 @@ function [Cpi, Cd, Gf, PID, para_used] = calculate_transfer_functions(para, ind_
                              [para.dterm_notch_cutoff, para.dterm_notch_hz], ...
                              Ts);
     end
-    % dterm llc
+    % Dterm llc
     if (isfield(para, 'dterm_llc_phase'))
         if (para.dterm_llc_phase ~= 0)
             para_used.dterm_llc_freq_hz = para.dterm_llc_freq_hz;
@@ -136,10 +154,9 @@ function [Cpi, Cd, Gf, PID, para_used] = calculate_transfer_functions(para, ind_
         end
     end
     
-
     % Gf_p: p-term filters
     Gf_p = ss(tf(1, 1, Ts));
-    % pterm llc
+    % Pterm llc
     if (isfield(para, 'pterm_llc_phase'))
         if (para.pterm_llc_phase ~= 0)
             para_used.pterm_llc_freq_hz = para.pterm_llc_freq_hz;
@@ -149,7 +166,7 @@ function [Cpi, Cd, Gf, PID, para_used] = calculate_transfer_functions(para, ind_
                                      Ts);
         end
     end
-    % p-term lowpass filter yaw
+    % P-term lowpass filter yaw
     if ind_ax == 3 && para.yaw_lpf_hz > 0
         para_used.yaw_lpf_hz = para.yaw_lpf_hz;
         Gf_p = Gf_p * get_filter('pt1', ...
@@ -157,14 +174,14 @@ function [Cpi, Cd, Gf, PID, para_used] = calculate_transfer_functions(para, ind_
                                   Ts);
     end
 
-
     % PID parameters
     pid_axis = {'rollPID', 'pitchPID', 'yawPID'};
     if (length(para.(pid_axis{ind_ax})) == 5)
-        if (para.(pid_axis{ind_ax})(3) ~= para.(pid_axis{ind_ax})(4))
+        if (para.(pid_axis{ind_ax})(3) ~= para.(pid_axis{ind_ax})(4) && ...
+                para.(pid_axis{ind_ax})(4) ~= 0)
             warning([pid_axis{ind_ax}, ' different D gains']);
         end
-        % remove dynamic D-Term
+        % Remove dynamic D-Term
         para.(pid_axis{ind_ax}) = para.(pid_axis{ind_ax})([1 2 3 5]);
     end
     if para.(pid_axis{ind_ax})(4) ~= 0
@@ -174,9 +191,8 @@ function [Cpi, Cd, Gf, PID, para_used] = calculate_transfer_functions(para, ind_
     PID = para.(pid_axis{ind_ax}) .* [get_pid_scale(ind_ax), 0];
     
 
-    % get controllers
+    % Get controllers
     [Cpi, Cd] = calculate_controllers(PID, Gf_p, Ts);
     Cd = Cd * Gd;
 
 end
-
