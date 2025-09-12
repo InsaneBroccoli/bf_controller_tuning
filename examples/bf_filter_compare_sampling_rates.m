@@ -1,26 +1,5 @@
-%
-% This file is part of pichim's controller tuning framework.
-%
-% This sofware is free. You can redistribute this software
-% and/or modify this software under the terms of the GNU General
-% Public License as published by the Free Software Foundation,
-% either version 3 of the License, or (at your option) any later
-% version.
-%
-% This software is distributed in the hope that it will be useful,
-% but WITHOUT ANY WARRANTY; without even the implied warranty of
-% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-%
-% See the GNU General Public License for more details.
-%
-% You should have received a copy of the GNU General Public
-% License along with this software.
-%
-% If not, see <http:%www.gnu.org/licenses/>.
-%
-%%
 clc, clear variables
-addpath ../../bf_function_libary/
+addpath ../lib/
 %%
 
 match_pole = @(Ts, f_cut) exp(-Ts * 2*pi*f_cut);
@@ -108,4 +87,3 @@ xlabel('Frequency (Hz)'), ylabel('Phase Delay (ms)'), title('Phase Delay')
 % 
 % simplify( (n * log(1/(2*Ts*f_cut*pi + 1))) / (log(1/(2*n*Ts*f_cut*pi + 1))) )
 % % (n*log(1/(2*Ts*f_cut*pi + 1)))/log(1/(2*Ts*f_cut*n*pi + 1))
-

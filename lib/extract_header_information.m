@@ -1,25 +1,41 @@
-%
-% This file is part of pichim's controller tuning framework.
-%
-% This sofware is free. You can redistribute this software
-% and/or modify this software under the terms of the GNU General
-% Public License as published by the Free Software Foundation,
-% either version 3 of the License, or (at your option) any later
-% version.
-%
-% This software is distributed in the hope that it will be useful,
-% but WITHOUT ANY WARRANTY; without even the implied warranty of
-% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-%
-% See the GNU General Public License for more details.
-%
-% You should have received a copy of the GNU General Public
-% License along with this software.
-%
-% If not, see <http:%www.gnu.org/licenses/>.
-%
-%%
 function [para, Nheader, ind, ind_cntr] = extract_header_information(filePath) %#ok
+%EXTRACT_HEADER_INFORMATION  Parse log header into parameters and column indices
+%   [para, Nheader, ind, ind_cntr] = extract_header_information(filePath)
+%
+% PURPOSE
+%   - Read a text log header and extract named parameters into a struct
+%   - Build a map from column names in the first data header line to 1-based indices
+%
+% INPUTS
+%   - filePath   char/string path to the log file to parse
+%
+% OUTPUTS
+%   - para       struct of parameters read between 'frameIntervalI' and 'loopIteration'
+%                values are parsed as numeric arrays when possible
+%   - Nheader    scalar count of header lines read including the 'loopIteration' line
+%   - ind        struct mapping column names to indices from the data header line
+%                handles grouped names like eRPM1..eRPM4 and name[0], name[1], ...
+%   - ind_cntr   scalar total number of columns discovered in the data header line
+%
+% METHOD
+%   1) Open file and iterate line by line, incrementing Nheader for each line
+%   2) Start capturing parameters after a line containing 'frameIntervalI'
+%   3) Stop header scan at a line containing 'loopIteration' and keep that line as the data header
+%   4) For captured parameter lines of the form:  "paramName",values
+%        - extract paramName and values
+%        - if values are quoted, strip quotes then evaluate as numeric list
+%        - assign into para.(paramName)
+%   5) Parse the data header line
+%        - split by commas, starting with 'loopIteration'
+%        - for names 'eRPMk' assign into ind.eRPM(k+1)
+%        - for names with bracket suffix 'name[i]' assign into ind.name(i+1)
+%        - otherwise assign ind.(name) = columnIndex
+%
+% NOTES
+%   - Expects a header section followed by a CSV-style data header line beginning with 'loopIteration'
+%   - Uses eval to interpret numeric lists from text; ensure the file is trusted
+%   - If 'frameIntervalI' is absent, para may remain empty
+%   - If 'loopIteration' is absent, parsing of column indices will fail
 
     fid = fopen(filePath);
     tline = fgetl(fid);
@@ -29,11 +45,11 @@ function [para, Nheader, ind, ind_cntr] = extract_header_information(filePath) %
     while ischar(tline)
     
         Nheader = Nheader + 1;
-        % we start reading parameters at frameIntervalI
+        % We start reading parameters at frameIntervalI
         if ~isempty(regexp(tline, 'frameIntervalI', 'once'))
             do_read_para = true;
         end
-        % we stop reading parameters at loopIteration
+        % We stop reading parameters at loopIteration
         if ~isempty(regexp(tline, 'loopIteration', 'once'))
             break;
         end
@@ -53,16 +69,14 @@ function [para, Nheader, ind, ind_cntr] = extract_header_information(filePath) %
     end
     fclose(fid);
 
-%%
-
     idx = regexp(tline, ',');
     ind_cntr = 1;
     
-    % handle first element, should be 'loopIteration'
+    % Handle first element, should be 'loopIteration'
     ind_name = tline(2:idx(1)-2); %#ok
     eval(['ind.(ind_name) = [', num2str(ind_cntr), '];']);
     
-    % handle all elements between
+    % Handle all elements between
     for i = 1:length(idx)
         ind_cntr = ind_cntr + 1;
         if i < length(idx)
@@ -80,4 +94,3 @@ function [para, Nheader, ind, ind_cntr] = extract_header_information(filePath) %
         end
     end
 end
-

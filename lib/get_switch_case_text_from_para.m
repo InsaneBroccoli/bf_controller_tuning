@@ -1,41 +1,9 @@
-%
-% This file is part of pichim's controller tuning framework.
-%
-% This sofware is free. You can redistribute this software
-% and/or modify this software under the terms of the GNU General
-% Public License as published by the Free Software Foundation,
-% either version 3 of the License, or (at your option) any later
-% version.
-%
-% This software is distributed in the hope that it will be useful,
-% but WITHOUT ANY WARRANTY; without even the implied warranty of
-% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-%
-% See the GNU General Public License for more details.
-%
-% You should have received a copy of the GNU General Public
-% License along with this software.
-%
-% If not, see <http:%www.gnu.org/licenses/>.
-%
-%%
 function get_switch_case_text_from_para(para)
 
     PID = [para.rollPID; ...
            para.pitchPID; ...
            para.yawPID];
-    
-    % % create warnings
-    % pid_axis = {'roll', 'pitch', 'yaw'};
-    % for i = 1:3
-    %     if PID(i,3) ~= PID(i,4)
-    %         warning([' different D gains in ', pid_axis{i}, ' axis ']);
-    %     end
-    %     if PID(i,5) ~= 0
-    %         warning([' FF is not zero in ', pid_axis{i}, ' axis ']);
-    %     end
-    % end
-    
+       
     fprintf('        %% type: 0: PT1, 1: BIQUAD, 2: PT2, 3: PT3\n');
     fprintf('        para_new.gyro_lpf            = %d;       %% dono what this is\n',       para.gyro_lpf);
     fprintf('        para_new.gyro_lowpass_hz     = %d;       %% frequency of gyro lpf 1\n', para.gyro_lowpass_hz);
@@ -99,4 +67,3 @@ function get_switch_case_text_from_para(para)
     fprintf('        end\n');
 
 end
-

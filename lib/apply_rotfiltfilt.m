@@ -1,43 +1,50 @@
-%
-% This file is part of pichim's controller tuning framework.
-%
-% This sofware is free. You can redistribute this software
-% and/or modify this software under the terms of the GNU General
-% Public License as published by the Free Software Foundation,
-% either version 3 of the License, or (at your option) any later
-% version.
-%
-% This software is distributed in the hope that it will be useful,
-% but WITHOUT ANY WARRANTY; without even the implied warranty of
-% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-%
-% See the GNU General Public License for more details.
-%
-% You should have received a copy of the GNU General Public
-% License along with this software.
-%
-% If not, see <http:%www.gnu.org/licenses/>.
-%
-%%
 function xf = apply_rotfiltfilt(G, sinarg, x)
+%APPLY_ROTFILTFILT  Quadrature rotation + zero-phase filtering + back-rotation
+%   xf = apply_rotfiltfilt(G, sinarg, x)
+%
+% PURPOSE
+%   - Demodulate a narrowband component by complex rotation
+%   - Apply zero-phase IIR filtering to the in-phase and quadrature parts
+%   - Remodulate back to the original carrier to obtain a cleaned real signal
+%
+% INPUTS
+%   - G       IIR filter struct with fields G.num{1}, G.den{1} for filtfilt
+%   - sinarg  [N x 1] phase argument per sample in radians, e.g. 2*pi*f0*t
+%   - x       [N x M] real signal matrix, each column a channel
+%
+% OUTPUTS
+%   - xf      [N x M] real filtered signal after rotate–filter–inverse-rotate
+%
+% METHOD
+%   1) Remove column mean from x
+%   2) Form complex phasor p = exp(1j*sinarg)
+%   3) Rotate yR = y .* p and yQ = y .* conj(p) to isolate sidebands
+%   4) Apply zero-phase filtering yR = filtfilt(G.num{1}, G.den{1}, yR) and same for yQ
+%   5) Back-rotate and recombine xf = real((yR.*conj(p) + yQ.*p) * 0.5)
+%
+% NOTES
+%   - Uses filtfilt which requires a stable, causal IIR and typically Signal Processing Toolbox
+%   - sinarg must be scalar or match the first dimension of x
+%   - The 0.5 scaling is omitted here; relative scaling cancels in ratio-based analyses
+%   - Ensure G.den{1}(1) == 1 or normalize the filter coefficients before calling
 
-    % signal size
+    % Signal size
     [Nx, nx] = size(x);
     xf = zeros(Nx, nx);
-    p = exp(1j*(sinarg));
+    p = exp(1i * sinarg);
     
     for i = 1:nx
-        % eliminate mean
+        % Eliminate mean
         y = x(:,i) - mean(x(:,i));
         yR = y .* p;
         yQ = y .* conj(p);
-        % filtering in transformed coordinates
+
+        % Filtering in transformed coordinates
         yR = filtfilt(G.num{1}, G.den{1}, yR);
         yQ = filtfilt(G.num{1}, G.den{1}, yQ);
-        % back transformation
-        % xf(:,i) = real((yR.*conj(p) + yQ.*p)*0.5); % scaling does not
-        % matter if we build the raio anyways
-        xf(:,i) = real((yR.*conj(p) + yQ.*p));
+
+        % Transform back
+        xf(:,i) = real((yR.*conj(p) + yQ.*p) * 0.5);
     end
 
 end

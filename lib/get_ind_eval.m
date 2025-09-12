@@ -1,25 +1,29 @@
-%
-% This file is part of pichim's controller tuning framework.
-%
-% This sofware is free. You can redistribute this software
-% and/or modify this software under the terms of the GNU General
-% Public License as published by the Free Software Foundation,
-% either version 3 of the License, or (at your option) any later
-% version.
-%
-% This software is distributed in the hope that it will be useful,
-% but WITHOUT ANY WARRANTY; without even the implied warranty of
-% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-%
-% See the GNU General Public License for more details.
-%
-% You should have received a copy of the GNU General Public
-% License along with this software.
-%
-% If not, see <http:%www.gnu.org/licenses/>.
-%
-%%
 function ind_eval = get_ind_eval(sinarg, data, threshold)
+%GET_IND_EVAL  Select evaluation intervals based on phase window and signal variance
+%   ind_eval = get_ind_eval(sinarg, data, threshold)
+%
+% PURPOSE
+%   - Identify index ranges where sinarg > 0 and data shows sufficient activity
+%   - Return a logical mask for samples to include in evaluation
+%
+% INPUTS
+%   - sinarg    [N x 1] phase-like signal in radians (or any scalar sequence)
+%   - data      [N x 1] measured signal whose variance is tested per window
+%   - threshold scalar variance threshold (default 500)
+%
+% OUTPUTS
+%   - ind_eval  [N x 1] logical indices true where windows pass the variance test
+%
+% METHOD
+%   1) Mark candidate region where sinarg > 0
+%   2) Find rising and falling edges of that region via diff to form contiguous windows
+%   3) For each window, compute var(data(window)) and compare to threshold
+%   4) Accept windows whose variance exceeds threshold and set those indices true
+%
+% NOTES
+%   - Edge detection uses a 0/1 mask and thresholds on diff to be robust to float comparisons
+%   - If threshold not provided, defaults to 500
+%   - Returns false for all samples if no qualifying window is found
 
     if nargin == 2
         threshold = 500;

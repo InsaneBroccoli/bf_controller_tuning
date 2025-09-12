@@ -1,8 +1,12 @@
-# bf_controller_tuning
+# BF Controller Tuning
+
+## About this Repository
 
 WIP
 
-A huge ass script to analyse **bbl** flight logs and tune linear filters and pids offline. This libary is intendet to be used with `Chirp signal generator as flight mode #13105 (Merged)`.
+A huge ass script to analyse **bbl** flight logs and tune linear filters and pids offline.
+
+This libary is intendet to be used with: https://github.com/betaflight/betaflight/pull/13105
 
 ### Required Matlab Toolboxes
 
@@ -67,3 +71,55 @@ Name | Default Value | Short Explanation
 ## Links to Chirp Signal Theory
 - https://en.wikipedia.org/wiki/Chirp
 - https://ch.mathworks.com/help/signal/ref/chirp.html
+
+## Repository Structure (21.09.2025)
+
+```tree
+.
+├── 20250907 - Measurement Examples 3 Drones
+│   ├── 20250907_aosmini_00.bbl
+│   ├── 20250907_aosmini_00.bbl.csv
+│   ├── 20250907_aosmini_00.mat
+│   ├── 20250907_apex5_00.bbl
+│   ├── 20250907_apex5_00.bbl.csv
+│   ├── 20250907_apex5_00.mat
+│   ├── 20250907_flipmini_00.bbl
+│   ├── 20250907_flipmini_00.bbl.csv
+│   └── 20250907_flipmini_00.mat
+├── 20250908 - Measurement Examples Tuned FlipMini
+│   ├── 20250908_flipmini_00.bbl
+│   ├── 20250908_flipmini_00.bbl.csv
+│   └── 20250908_flipmini_00.mat
+├── bf_controller_tuning.m - Actual Evaluation Script
+├── dev
+│   └── bf_controller_tuning.m - Old evaluation script (as reference, might be broken)
+├── examples - Examples (might be broken)
+│   ├── bf_biquad_delay.m
+│   ├── bf_biquad_step.m
+│   ├── bf_chirp_signals.m
+│   ├── bf_filter_compare_sampling_rates.m
+│   └── bf_notch_Q.m
+├── lib
+│   ├── apply_rotfiltfilt.m                (ok)
+│   ├── calculate_closed_loop.m            (ok) - header might be wrong
+│   ├── calculate_controllers.m            (ok) - header might be wrong
+│   ├── calculate_step_response_from_frd.m (ok)
+│   ├── calculate_transfer_functions.m     (ok) - header might be wrong
+│   ├── downsample_frd.m                   (ok)
+│   ├── estimate_frequency_response.m      (ok)
+│   ├── estimate_spectra.m                 (ok)
+│   ├── estimate_spectrogram.m             (ok)
+│   ├── expand_multiple_figure_nr.m        (ok)
+│   ├── extract_header_information.m       (ok) - header might be wrong
+│   ├── get_chirp_signals.m                (ok)
+│   ├── get_fcut_from_D_and_fcenter.m      (ok)
+│   ├── get_fcut_from_exp.m                (ok) - must be set via BF, not recommended
+│   ├── get_filter.m                       (ok)
+│   ├── get_ind_eval.m                     (ok)
+│   ├── get_my_colors.m                    (ok)
+│   ├── get_notch_Q.m                      (ok)
+│   ├── get_pid_scale.m                    (ok)
+│   └── get_switch_case_text_from_para.m   (ok)
+├── LICENSE
+└── README.md
+```

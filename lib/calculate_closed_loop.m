@@ -1,25 +1,43 @@
-%
-% This file is part of pichim's controller tuning framework.
-%
-% This sofware is free. You can redistribute this software
-% and/or modify this software under the terms of the GNU General
-% Public License as published by the Free Software Foundation,
-% either version 3 of the License, or (at your option) any later
-% version.
-%
-% This software is distributed in the hope that it will be useful,
-% but WITHOUT ANY WARRANTY; without even the implied warranty of
-% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-%
-% See the GNU General Public License for more details.
-%
-% You should have received a copy of the GNU General Public
-% License along with this software.
-%
-% If not, see <http:%www.gnu.org/licenses/>.
-%
-%%
 function CL = calculate_closed_loop(Co, Ci, P, Gf, Gd)
+%CALCULATE_CLOSED_LOOP  Compute closed-loop transfer functions for a 2-DOF controller
+%   CL = calculate_closed_loop(Co, Ci, P, Gf, Gd)
+%
+% PURPOSE
+%   - Form closed-loop sensitivity and complementary sensitivity functions for nested loops
+%   - Capture outer/inner loop interactions, disturbance rejection, and noise transfer
+%
+% INPUTS
+%   - Co   outer-loop controller (e.g. proportional gain Kv or PI part)
+%   - Ci   inner-loop controller (e.g. current PI or unity)
+%   - P    plant transfer function
+%   - Gf   additional filter (e.g. derivative or shaping filter)
+%   - Gd   derivative/dynamic element (e.g. Cd·d/dt·Gf_d_part)
+%
+% OUTPUTS (returned in struct CL)
+%   - C    overall controller C = Ci*(Gd+Co)*Gf
+%   - L    open-loop transfer L = P*C
+%   - S    sensitivity S = 1/(1+L)
+%   - T    complementary sensitivity from reference w to y_bar
+%   - SP   transfer from disturbance d to output y_bar
+%   - SC   transfer from noise n to control u
+%   - SCw  transfer from reference w to control u
+%   - Li   inner-loop open loop
+%   - Si   inner-loop sensitivity
+%   - Pi   inner-loop closed-loop plant as seen from outer controller
+%   - Ti   inner-loop complementary sensitivity to dy/dt
+%   - Lo   outer-loop effective open loop
+%
+% METHOD
+%   1) Form overall controller C = Ci*(Gd+Co)*Gf
+%   2) Compute open-loop L = P*C and sensitivity S = 1/(1+L)
+%   3) Derive closed-loop transfers T, SP, SC, SCw
+%   4) Form inner-loop dynamics Li, Si, Pi, Ti
+%   5) Compute effective outer loop Lo
+%
+% NOTES
+%   - Implements a general 2-DOF controller structure used in e.g. Betaflight
+%   - T+S~=1 because of the two-degree-of-freedom architecture
+%
 % T + S ~= 1 (does not hold here)
 % Co = Cpi, Ci = 1  , Gd = Cd * d/dt * Gf_d_part -> 2dof PID cntrl betaflight
 % Co = Kv , Ci = Cpi, Gd =      d/dt * Gf_d_part -> P-PI cntrl
@@ -35,12 +53,12 @@ function CL = calculate_closed_loop(Co, Ci, P, Gf, Gd)
     SC  =          C*S; % SC : n  -> u (from noise)
     SCw =      Co*Ci*S;
     
-    Li = Ci*P*Gf*Gd; % inner loop
+    Li = Ci*P*Gf*Gd; % Inner loop
     Si = 1/(1 + Li);
-    Pi = Ci*P*Gf*Si; % inner closed loop, seen from the outer cntrl
-    Ti =      Li*Si; % inner closed loop to outbut dy/dt
+    Pi = Ci*P*Gf*Si; % Inner closed loop, seen from the outer cntrl
+    Ti =      Li*Si; % Inner closed loop to outbut dy/dt
     
-    Lo = Co*Ci*P*Gf/(1 + Ci*P*Gf*Gd); % outer loop
+    Lo = Co*Ci*P*Gf / (1 + Ci*P*Gf*Gd); % Outer loop
     
     CL.C   = C;
     CL.L   = L;
@@ -59,4 +77,3 @@ function CL = calculate_closed_loop(Co, Ci, P, Gf, Gd)
     CL.Lo = Lo;
 
 end
-
