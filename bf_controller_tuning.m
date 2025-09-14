@@ -10,29 +10,29 @@ addpath lib/
 
 % TODO:
 %   BF Controller Tuning:
-%   - the iterm_relax parameter can be used to decide if we need to
+%   - The iterm_relax parameter can be used to decide if we need to
 %     compensate it's effects
-%   - evaluate "flightModeFlags" for sinarg evaluation
-%   betaflight:
-%   - create something like para.blackbox_high_resolution in blackbox, so
+%   - Evaluate "flightModeFlags" for sinarg evaluation
+%   Betaflight:
+%   - Create something like para.blackbox_high_resolution in blackbox, so
 %     that it can automatically be evaluated if it was a chirp excitation
-%   - make chirp start (sin or cos) and the amplitude reduction below 1 Hz
+%   - Make chirp start (sin or cos) and the amplitude reduction below 1 Hz
 %     as a setting
-%   - make it so that chirp parameters can be changes via the goggles
+%   - Make it so that chirp parameters can be changes via the goggles
 
-% choose an axis: 1: roll, 2: pitch, 3: yaw
+% Choose an axis: 1: roll, 2: pitch, 3: yaw
 ind_ax = 1;
 
 % -------------------------------------------------------------------------
 
-% define quad and path to *.bbl.csv file
+% Eefine quad and path to *.bbl.csv file
 flight_folder = '20250907';
 
-% quad = 'aosmini';
-% log_name = '20250907_aosmini_00.bbl.csv';
+quad = 'aosmini';
+log_name = '20250907_aosmini_00.bbl.csv';
 
-quad = 'apex5';
-log_name = '20250907_apex5_00.bbl.csv';
+% quad = 'apex5';
+% log_name = '20250907_apex5_00.bbl.csv';
 
 % quad = 'flipmini';
 % log_name = '20250907_flipmini_00.bbl.csv';
@@ -45,18 +45,16 @@ log_name = '20250907_apex5_00.bbl.csv';
 % quad = 'flipmini';
 % log_name = '20250908_flipmini_00.bbl.csv';
 
-% -------------------------------------------------------------------------
-
 file_path = fullfile(flight_folder, log_name);
 
-% parameters
-do_compensate_iterm   = false;
-do_show_spec_figures  = true;
-do_insert_legends     = false;
+% Evaluation parameters
+do_compensate_iterm  = false;
+do_show_spec_figures = true;
+do_insert_legends    = false;
 
 multp_fig_nr = ind_ax;
 
-% some defines
+% Defines
 set(cstprefs.tbxprefs, 'MagnitudeUnits', 'abs');
 set(cstprefs.tbxprefs, 'FrequencyUnits', 'Hz');
 set(cstprefs.tbxprefs, 'UnwrapPhase', 'Off');
@@ -67,13 +65,15 @@ set(0, 'defaultAxesColorOrder', get_my_colors);
 pos_bode = [0.1514, 0.5838-0.2, 0.7536, 0.3472+0.2; ... % this is a bit hacky
             0.1514, 0.1100    , 0.7536, 0.1917    ];
 
-% bodeoptions
+% Bodeoptions
 opt = bodeoptions('cstprefs');
 
-% extract header information
+% Extract header information
 [para, Nheader, ind, ind_cntr] = extract_header_information(file_path);
 
-% read the data
+% Read the data
+%  - If its the first time from the .csv and save a mat, otherwise the
+%    .mat. This increases load speed significantly.
 tic
 try
    load([file_path(1:end-8), '.mat'])
@@ -84,56 +84,56 @@ end
 [Ndata, Nsig] = size(data)
 toc
 
-% expand index
+% Expand index
 ind.axisSumPI = ind_cntr + (1:3);
 ind.sinarg = ind.debug(1);
 
-% convert and evaluate time
+% Convert and evaluate time
 time = (data(:,ind.time) - data(1,ind.time)) * 1.0e-6;
-dtime_meas_mus = diff(time) * 1.0e6;
+delta_time_mus = diff(time) * 1.0e6;
 
 figure(99)
-plot(time(1:end-1), dtime_meas_mus), grid on
+plot(time(1:end-1), delta_time_mus), grid on
 title(sprintf('Mean: %0.2f mus, Median: %0.2f mus, Std: %0.2f mus\n', ...
-      mean(dtime_meas_mus), ...
-      median(dtime_meas_mus), ...
-      std(dtime_meas_mus)))
+      mean(delta_time_mus), ...
+      median(delta_time_mus), ...
+      std(delta_time_mus)))
 xlabel('Time (sec)'), ylabel('Ts log (mus)')
 xlim([0, time(end)])
 set(findall(gcf, 'type', 'line'), 'linewidth', linewidth)
 
-% unscale highResolutionGain
+% Unscale highResolutionGain
 if para.blackbox_high_resolution
     blackbox_high_resolution_scale = 10.0;
     ind_bb_high_res = [ind.gyroADC, ind.gyroUnfilt, ind.rcCommand, ind.setpoint(1:3)];
     data(:, ind_bb_high_res) = 1.0 / blackbox_high_resolution_scale * data(:, ind_bb_high_res);
 end
 
-% unscale and remap sinarg
+% Unscale and remap sinarg
 sinargScale = 5.0e3;
 data(:,ind.sinarg) = 1.0 / sinargScale * data(:,ind.sinarg);
 
-% assign negative sign for pid error
+% Assign negative sign for pid error
 data(:,ind.axisError) = -data(:,ind.axisError);
 
-% create an additional entry for the pi sum
+% Create an additional entry for the pi sum
 data = [data, data(:,ind.axisP) + data(:,ind.axisI)];
 
-% create different sampling times
-Ts      = para.looptime * 1.0e-6;             % gyro
-Ts_cntr = para.pid_process_denom * Ts;        % cntrl
-Ts_log  = para.frameIntervalPDenom * Ts_cntr; % logging
+% Create different sampling times
+Ts      = para.looptime * 1.0e-6;             % Gyro loop
+Ts_cntr = para.pid_process_denom * Ts;        % Control loop
+Ts_log  = para.frameIntervalPDenom * Ts_cntr; % Logging loop
 
-% get evaluation index
+% Get evaluation index where Chirp was active
 ind_eval = get_ind_eval(data(:,ind.sinarg), data(:,ind.gyroADC(ind_ax)));
 data(~ind_eval,ind.sinarg) = 0.0;
 T_eval_tot = size(data(ind_eval,ind.sinarg), 1) * Ts_log
 
-% calculate average throttle
+% Calculate average throttle
 throttle_avg = median(data(ind_eval,ind.setpoint(4))) / 1.0e3;
 
 
-%% show gyro to select Teval and spectra (gyro and pid sum)
+%% show Gyro to select Teval and spectra (gyro and pid sum)
 
 figure(1)
 ax(1) = subplot(311);
@@ -147,12 +147,13 @@ plot(ax(3), time, data(:,[ind.setpoint(3), ind.gyroUnfilt(3), ind.gyroADC(3)])),
 linkaxes(ax, 'x'), clear ax, xlim([0, time(end)])
 set(findall(gcf, 'type', 'line'), 'linewidth', linewidth)
 
-% select data for spectra
+% Select data for spectra
 data_for_spectra = data(:,[ind.gyroUnfilt, ...
                            ind.gyroADC, ...
                            ind.axisSum, ...
                            ind.setpoint(1:3)]);
 
+% Parameters
 Nest     = round(2.0 / Ts_log);
 koverlap = 0.9;
 Noverlap = floor(koverlap * Nest);
@@ -160,11 +161,10 @@ window   = hann(Nest, 'periodic');
 [pxx, freq] = estimate_spectra(data_for_spectra, window, Noverlap, Nest, Ts_log);
 spectra = sqrt(pxx); % power -> amplitude (dc needs to be scaled differently)
 
-
 figure(2)
 ax(1) = subplot(211);
 plot(ax(1), freq, spectra(:, 1:6)), grid on, ylabel('Gyro (deg/sec)'), set(gca, 'YScale', 'log')
-title('Power Spectras')
+title('Magnitude Spectra')
 if do_insert_legends, legend('gyro Roll', 'gyro Pitch', 'gyro Yaw', 'gyroADC Roll', 'gyroADC Pitch', 'gyroADC Yaw', 'location', 'best'), end
 ax(2) = subplot(212);
 plot(ax(2), freq, spectra(:, 7:9)), grid on, ylabel('AxisSum'), xlabel('Frequency (Hz)'), set(gca, 'YScale', 'log')
@@ -175,10 +175,10 @@ set(findall(gcf, 'type', 'line'), 'linewidth', linewidth)
 
 %%
 
-% spectrogram
+% Spectrogram
 if (do_show_spec_figures)
 
-    % parameters
+    % Parameters
     Nest     = round(0.2 / Ts_log);
     koverlap = 0.9;
     Noverlap = floor(koverlap * Nest);
@@ -197,7 +197,10 @@ if (do_show_spec_figures)
         subplot(230 + spectrogram_nr)
         qmesh = pcolor(freq, throttle, spectrograms);
         set(qmesh, 'EdgeColor', 'None');
-        xlabel('Frequency (Hz)'), ylabel('Throttle (%)')
+        % xlabel('Frequency (Hz)')
+        if spectrogram_nr == 1
+            ylabel('Throttle (%)')
+        end
         % colorbar()
         colormap('jet')
         set(gca, 'ColorScale', 'log')
@@ -215,7 +218,10 @@ if (do_show_spec_figures)
         subplot(230 + spectrogram_nr + 3)
         qmesh = pcolor(freq, throttle, spectrograms);
         set(qmesh, 'EdgeColor', 'None');
-        xlabel('Frequency (Hz)'), ylabel('Throttle (%)')
+        xlabel('Frequency (Hz)')
+        if spectrogram_nr == 1
+            ylabel('Throttle (%)')
+        end
         % colorbar()
         colormap('jet')
         set(gca, 'ColorScale', 'log')
@@ -225,7 +231,7 @@ if (do_show_spec_figures)
 end
 
 
-%%
+%% Some relevant fligth data
 
 figure(3)
 ax(1) = subplot(411);
@@ -240,14 +246,15 @@ linkaxes(ax, 'x'), clear ax, xlim([0, time(end)])
 set(findall(gcf, 'type', 'line'), 'linewidth', linewidth)
 
 
-%% frequency response estimation and calculation
+%% Frequency response estimation and calculation
 
+% Parameters
 Nest     = round(2.5 / Ts_log);
 koverlap = 0.9;
 Noverlap = floor(koverlap * Nest);
 window   = hann(Nest, 'periodic');
 
-% rotating filter
+% Linear filter for zero phase excitation filter (apply_rotfiltfilt)
 Dlp = sqrt(3) / 2;
 wlp = 2 * pi * 10;
 Glp = c2d(tf(wlp^2, [1 2*Dlp*wlp wlp^2]), Ts_log, 'tustin');
@@ -273,22 +280,19 @@ P = T / Guw;
 % out = apply_rotfiltfilt(Glp, data(:,ind.sinarg), data(:,ind.gyroADC(ind_ax)));
 % [Pd, C_Pd] = estimate_frequency_response(inp(ind_eval), out(ind_eval), window, Noverlap, Nest, Ts_log);
 
-% controller frf estimates
+% Calculated controller frequency response estimates
 Cpi = Gvw / (1 - T);
 Cd  = Guw * Gvw / T * (1 / Guw - 1 / Gvw);
 
-% index and frequency for bode plots
-% ind_freq = P.Frequency <= 1/2/Ts_log;
-% omega_bode = 2*pi*P.Frequency(ind_freq);
+% Index and frequency for bode plots
 omega_bode = 2*pi*P.Frequency;
 
 
-%% downsample analytical controller transferfunction and convert to frd objects
+%% Downsample analytical controller transferfunction and convert to frd objects
 
 [Cpi_ana, Cd_ana, Gf_ana, PID, para_used] = ...
     calculate_transfer_functions(para, ind_ax, throttle_avg, Ts_cntr);
 
-% downsample analytical controller transferfunction and convert to frd objects
 if Gf_ana.Ts < Ts_log % by using Gf_ana.Ts we secure that we do this only once
     Gf_ana  = downsample_frd(Gf_ana , Ts_log, P.Frequency);
     Cpi_ana = downsample_frd(Cpi_ana, Ts_log, P.Frequency);
@@ -296,7 +300,7 @@ if Gf_ana.Ts < Ts_log % by using Gf_ana.Ts we secure that we do this only once
 end
 
 
-%% plant and used controllers
+%% Plant and used controllers
 
 figure(expand_multiple_figure_nr(4, multp_fig_nr))
 ax(1) = subplot('Position', pos_bode(1,:));
@@ -309,14 +313,14 @@ bodemag(ax(2), C_T * C_Guw, 'k', omega_bode, opt), title(''), ylabel('Coherence'
 linkaxes(ax, 'x'), clear ax
 set(findall(gcf, 'type', 'line'), 'linewidth', linewidth)
 
-% compare analytical to estimated controllers
+% Compare analytical to estimated controllers
 figure(expand_multiple_figure_nr(5, multp_fig_nr))
 opt.YLim = {[1e-2 1e2], [-180 180]}; opt.MagScale = 'log';
 bode(Cpi, Cd, Cpi_ana, Cd_ana, omega_bode, opt), title('Cpi, Cd')
 set(findall(gcf, 'type', 'line'), 'linewidth', linewidth)
 
 
-%% new controller and filter parameters
+%% New controller and filter parameters
 
 tic
 
@@ -327,7 +331,7 @@ fprintf('   used PID parameters are:\n');
 fprintf(['      ', pid_axis{ind_ax}, ':  %d, %d, %d\n'], ...
     para.(pid_axis{ind_ax})(1:3));
 
-% inform user about parameters
+% Inform user about parameters
 para_used_fieldnames = fieldnames(para_used);
 Npara_used = size(para_used_fieldnames, 1);
 fprintf('   used parameters are:\n');
@@ -335,10 +339,11 @@ for i = 1:Npara_used
     fprintf(['      ', para_used_fieldnames{i},': %d\n'], eval(['round(', 'para_used.', para_used_fieldnames{i}, ');']));
 end
 
-% copy parameters (in case you dont change anything)
+% First create new parameters the same as the actual ones
 para_new = para;
 
-% you can use the following command to generate the text
+% You can use the following command to generate the text below for the 
+% actual parameters
 % get_switch_case_text_from_para(para)
 
 switch quad
@@ -442,7 +447,7 @@ switch quad
         warning(' no valid quad selected');
 end
 
-% scale to new PID parameters
+% Scale to new PID parameters
 pid_scale = [get_pid_scale(ind_ax), 1];
 PID_new(1) = P_new * pid_scale(1);
 fI         = PID(2) / (2 * pi * PID(1)); % extract fn from initial parametrization
@@ -453,7 +458,7 @@ PID_new(4) = 0;
 
 fprintf('   used fI is: %0.2f Hz\n\n', fI);
 
-% new PID parameters
+% New PID parameters
 fprintf('   new PID parameters are:\n');
 para_new.(pid_axis{ind_ax}) = round( PID_new ./ pid_scale);
 para_new.(pid_axis{ind_ax}) = [para_new.(pid_axis{ind_ax})(1:3), ...
@@ -465,7 +470,7 @@ fprintf(['      ', pid_axis{ind_ax}, ':  %d, %d, %d\n'], ...
 [Cpi_ana_new, Cd_ana_new, Gf_ana_new, PID_new, para_used_new] = ...
     calculate_transfer_functions(para_new, ind_ax, throttle_avg, Ts_cntr);
 
-% inform user about new parameters
+% Inform user about new parameters
 para_used_fieldnames_new = fieldnames(para_used_new);
 Npara_used_new = size(para_used_fieldnames_new, 1);
 fprintf('   new parameters are:\n');
@@ -476,7 +481,7 @@ end
 
 fprintf('   new used fI is: %0.2f Hz\n\n', fI_new);
 
-% downsample analytical controller transferfunction and convert to frd objects
+% Downsample analytical controller transferfunction and convert to frd objects
 if Gf_ana_new.Ts < Ts_log % by using Gf_ana.Ts we secure that we do this only once
     Gf_ana_new  = downsample_frd(Gf_ana_new , Ts_log, P.Frequency);
     Cpi_ana_new = downsample_frd(Cpi_ana_new, Ts_log, P.Frequency);
@@ -486,7 +491,7 @@ end
 CL_ana     = calculate_closed_loop(Cpi_ana    , tf(1,1,Ts_log), P / Gf_ana, Gf_ana    , Cd_ana    );
 CL_ana_new = calculate_closed_loop(Cpi_ana_new, tf(1,1,Ts_log), P / Gf_ana, Gf_ana_new, Cd_ana_new);
 if do_compensate_iterm
-    % compensate only PI part
+    % Compensate only PI part
     Cpi_com = Cpi / Cpi_ana;
     CL_ana_      = calculate_closed_loop(Cpi_ana     * Cpi_com, tf(1,1,Ts_log), P / Gf_ana, Gf_ana    , Cd_ana    );
     CL_ana_new_  = calculate_closed_loop(Cpi_ana_new * Cpi_com, tf(1,1,Ts_log), P / Gf_ana, Gf_ana_new, Cd_ana_new);
@@ -494,7 +499,7 @@ if do_compensate_iterm
     CL_ana_new.T = CL_ana_new_.T;
 end
 
-% closed-loop
+% Closed-loop bode plots (gang of four)
 figure(expand_multiple_figure_nr(6, multp_fig_nr))
 ax(1) = subplot(221);
 opt.YLim = {[1e-3 1e1], [-180 180]}; opt.MagScale = 'log';
@@ -511,12 +516,12 @@ bodemag(ax(4), CL_ana.SP, CL_ana_new.SP, omega_bode, opt), title('Compliance SP'
 linkaxes(ax, 'x'), clear ax
 set(findall(gcf, 'type', 'line'), 'linewidth', linewidth)
 
-% step responses
-% f_max = para.dyn_notch_min_hz;
-f_max = para.gyro_rpm_notch_min; % needs to be set according to the coherence, if inf then it has no effect
+% Step responses
+f_max = min([para.dyn_notch_min_hz, para.gyro_rpm_notch_min]);
 T_mean = 0.1 * [-1, 1] + (Nest * Ts_log) / 2;
 step_time = (0:Nest-1).'*Ts_log;
 
+% Actual controller parameters
 step_resp = [calculate_step_response_from_frd(CL_ana.T    , f_max), ...
              calculate_step_response_from_frd(CL_ana_new.T, f_max), ...
              calculate_step_response_from_frd(T           , f_max)];
@@ -530,6 +535,7 @@ title('Tracking T')
 if do_insert_legends, legend('actual', 'new', 'location', 'best'), end
 ylim([0 1.3])
 
+% New controller parameters
 step_resp = [calculate_step_response_from_frd(CL_ana.SP    , f_max), ...
              calculate_step_response_from_frd(CL_ana_new.SP, f_max)];
 step_resp_mean = mean(step_resp(step_time > T_mean(1) & step_time < T_mean(2),:));
@@ -542,7 +548,7 @@ ylim([-0.2 1.1])
 linkaxes(ax, 'x'), clear ax, xlim([0 0.5])
 set(findall(gcf, 'type', 'line'), 'linewidth', linewidth)
 
-% controllers
+% Controllers
 figure(expand_multiple_figure_nr(8, multp_fig_nr))
 opt.YLim = {[1e-1 1e2], [-180 180]};
 bode(CL_ana.C, CL_ana_new.C, omega_bode, opt)
