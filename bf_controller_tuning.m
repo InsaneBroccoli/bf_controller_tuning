@@ -50,7 +50,7 @@ file_path = fullfile(flight_folder, log_name);
 % Evaluation parameters
 do_compensate_iterm  = false;
 do_show_spec_figures = true;
-do_insert_legends    = false;
+do_insert_legends    = true;
 
 multp_fig_nr = ind_ax;
 
@@ -146,6 +146,7 @@ ax(3) = subplot(313);
 plot(ax(3), time, data(:,[ind.setpoint(3), ind.gyroUnfilt(3), ind.gyroADC(3)])), grid on, ylabel('Yaw (deg/sec)'), xlabel('Time (sec)')
 linkaxes(ax, 'x'), clear ax, xlim([0, time(end)])
 set(findall(gcf, 'type', 'line'), 'linewidth', linewidth)
+
 
 % Select data for spectra
 data_for_spectra = data(:,[ind.gyroUnfilt, ...
