@@ -195,6 +195,8 @@ if (do_show_spec_figures)
         spectrograms = sqrt(pxx); % power -> amplitude (dc needs to be scaled differently)
         
         figure(22)
+        sgtitle('Gyro Spectrograms')
+        axes_labels = {'Roll', 'Pitch', 'Yaw'};
         subplot(230 + spectrogram_nr)
         qmesh = pcolor(freq, throttle, spectrograms);
         set(qmesh, 'EdgeColor', 'None');
@@ -202,12 +204,15 @@ if (do_show_spec_figures)
         if spectrogram_nr == 1
             ylabel('Throttle (%)')
         end
+        title([axes_labels{spectrogram_nr}, ' – ohne Filter'])
         % colorbar()
         colormap('jet')
         set(gca, 'ColorScale', 'log')
         clim(c_lim);
         ylim([0 100])
     end
+
+   
 
     for spectrogram_nr = 1:3
         [pxx, freq, throttle] = estimate_spectrogram(data(:,ind.gyroADC(spectrogram_nr)), ...
@@ -223,6 +228,7 @@ if (do_show_spec_figures)
         if spectrogram_nr == 1
             ylabel('Throttle (%)')
         end
+        title([axes_labels{spectrogram_nr}, ' – mit Filter'])
         % colorbar()
         colormap('jet')
         set(gca, 'ColorScale', 'log')
