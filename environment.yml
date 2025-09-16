@@ -1,0 +1,6 @@
+prefix: Z:\ZHAW\GitHub\bf_controller_tuning\envs
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.13.7
