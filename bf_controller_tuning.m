@@ -325,6 +325,7 @@ figure(expand_multiple_figure_nr(5, multp_fig_nr))
 opt.YLim = {[1e-2 1e2], [-180 180]}; opt.MagScale = 'log';
 bode(Cpi, Cd, Cpi_ana, Cd_ana, omega_bode, opt), title('Cpi, Cd')
 set(findall(gcf, 'type', 'line'), 'linewidth', linewidth)
+if do_insert_legends, legend('PI gemessen', 'D gemessen', 'PI analytisch', 'D analytisch'), end
 
 
 %% New controller and filter parameters
