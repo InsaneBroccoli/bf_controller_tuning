@@ -25,7 +25,7 @@ ind_ax = 1;
 
 % -------------------------------------------------------------------------
 
-% Eefine quad and path to *.bbl.csv file
+% Define quad and path to *.bbl.csv file
 flight_folder = '20250907';
 
 quad = 'aosmini';
