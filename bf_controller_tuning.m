@@ -256,7 +256,7 @@ set(findall(gcf, 'type', 'line'), 'linewidth', linewidth)
 %% Frequency response estimation and calculation
 
 % Parameters
-Nest     = round(2.5 / Ts_log);
+Nest     = round(5 / Ts_log);
 koverlap = 0.9;
 Noverlap = floor(koverlap * Nest);
 window   = hann(Nest, 'periodic');
