@@ -47,11 +47,14 @@ set(cstprefs.tbxprefs, 'MagnitudeUnits', 'dB');
 set(cstprefs.tbxprefs, 'FrequencyUnits', 'Hz');
 set(cstprefs.tbxprefs, 'UnwrapPhase', 'Off');
 set(cstprefs.tbxprefs, 'Grid', 'On');
-
-linewidth = 1.2;
+set(groot,'defaultLineLineWidth',1.2);   % global für alle neuen Linien
 set(0, 'defaultAxesColorOrder', get_my_colors);
+
 % Bodeoptions
 opt = bodeoptions('cstprefs');
+opt.Xlim = { [0.1 1e3] };      % x-Achse: 0.1 Hz bis 1000 Hz
+
+             
 
 %% Filterparameter
 
@@ -77,7 +80,7 @@ switch quad
         para_new.dterm_lpf2_hz       = 120;     % frequency of dterm lpf 2
         para_new.dterm_filter2_type  = 3;       % type of dterm lpf 2
         para_new.dterm_notch_hz      = 0;     % frequency of dterm notch
-        para_new.dterm_notch_damp     = 0.00;
+        para_new.dterm_notch_damp     = 0.00;   %Problem, ist nicht in Daten so hinterlegt
         para_new.dterm_notch_cutoff  = get_fcut_from_D_and_fcenter(para_new.dterm_notch_damp, para_new.dterm_notch_hz); % damping of dterm notch
         para_new.yaw_lpf_hz          = 200;     % frequency of yaw lpf (pt1)
         switch ind_ax
@@ -111,7 +114,7 @@ switch quad
         para_new.dterm_lpf2_hz       = 130;     % frequency of dterm lpf 2
         para_new.dterm_filter2_type  = 3;       % type of dterm lpf 2
         para_new.dterm_notch_hz      = 235;     % frequency of dterm notch
-        para_new.dterm_notch_damp    = 0.15;
+        para_new.dterm_notch_damp    = 0.15;    %Problem, ist nicht in Daten so hinterlegt
         para_new.dterm_notch_cutoff  = get_fcut_from_D_and_fcenter(para_new.dterm_notch_damp, para_new.dterm_notch_hz); % damping of dterm notch
         para_new.yaw_lpf_hz          = 200;     % frequency of yaw lpf (pt1)
         switch ind_ax
@@ -145,7 +148,7 @@ switch quad
         para_new.dterm_lpf2_hz       = 140;     % frequency of dterm lpf 2
         para_new.dterm_filter2_type  = 3;       % type of dterm lpf 2
         para_new.dterm_notch_hz      = 0;     % frequency of dterm notch
-        para_new.dterm_notch_damp    = 0.00;
+        para_new.dterm_notch_damp    = 0.00;  %Problem, ist nicht in Daten so hinterlegt
         para_new.dterm_notch_cutoff  = get_fcut_from_D_and_fcenter(para_new.dterm_notch_damp, para_new.dterm_notch_hz); % damping of dterm notch
         para_new.yaw_lpf_hz          = 200;     % frequency of yaw lpf (pt1)
         switch ind_ax
@@ -183,7 +186,6 @@ end
     end
     % Insert 0 for FF
     PID = para.(pid_axis{ind_ax}) .* [get_pid_scale(ind_ax), 0];
-
 
 %% PID Vektor
 
@@ -245,12 +247,10 @@ G_LPFD2 = Tiefpassfilter(para_new.gyro_soft_type, omegad2, s);
 function G_notch = Notch(omega, D, s)
     if omega ~= 0         
         Q  = 1/(2*D);           % aus Dämpfung
-        G_notch = (s^2 + omega^2) / (s^2 + (omega/Q)*s + omega^2);
-     
+        G_notch = (s^2 + omega^2) / (s^2 + (omega/Q)*s + omega^2);     
     else
         G_notch = tf(1);
     end
-
 end
 
 %% Notch Filter berechnung
@@ -278,9 +278,10 @@ C_D_LFP_Notch = C_D* G_LPFD1*G_LPFD2*G_NotchD;      %D Regler mit Filter
 
 bereich = {2*pi*0.2, 2*pi*1000};
 
-figure(15)
-bode(C_PI_LFP_Notch,C_D_LFP_Notch, bereich);
-legend('C_PI Sim','C_D Sim')
+figure(1)
+bode(C_PI_LFP_Notch,C_D_LFP_Notch, opt);
+title('PI und D Regler');
+legend('C_PI Sim','C_D Sim');
 
 
 %% Simulation Strecke P
@@ -399,3 +400,8 @@ switch quad
                  P_ges = G1*G2*Gt;          %Gesamtübertragungsfunktion
         end
 end
+
+%% Plot P
+figure(3)
+bode(P_ges);
+title('Übertragungsfunktion P');
