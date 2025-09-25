@@ -25,7 +25,7 @@ ind_ax = 1;
 
 % -------------------------------------------------------------------------
 
-% Eefine quad and path to *.bbl.csv file
+% Define quad and path to *.bbl.csv file
 flight_folder = '20250907';
 
 quad = 'aosmini';
@@ -256,7 +256,7 @@ set(findall(gcf, 'type', 'line'), 'linewidth', linewidth)
 %% Frequency response estimation and calculation
 
 % Parameters
-Nest     = round(2.5 / Ts_log);
+Nest     = round(5 / Ts_log);
 koverlap = 0.9;
 Noverlap = floor(koverlap * Nest);
 window   = hann(Nest, 'periodic');
