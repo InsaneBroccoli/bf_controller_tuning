@@ -1,0 +1,6 @@
+{
+  
+  "commands": [
+    ".\\tools\\blackbox_decode --save-headers .\\20250908\\20250908_flipmini_00.bbl"
+  ]
+}
