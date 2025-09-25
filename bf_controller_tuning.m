@@ -49,7 +49,7 @@ file_path = fullfile(flight_folder, log_name);
 
 % Evaluation parameters
 do_compensate_iterm  = false;
-do_show_spec_figures = true;
+do_show_spec_figures = false;
 do_insert_legends    = true;
 
 multp_fig_nr = ind_ax;
