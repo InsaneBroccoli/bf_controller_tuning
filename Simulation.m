@@ -270,6 +270,7 @@ G_NotchD = Notch(omega_noD, para_new.dterm_notch_damp, s);
 %% Ausgabe PI und D Regler
 
 C_PI = PID_new(1) + PID_new(2)/s;   %PI Regler ohne Filter
+Kp = tf(PID_new(1));                %Für Simulink
 C_PI_LFP_Notch = C_PI * G_LPF1 * G_LPF2 * G_Notch1 * G_Notch2;     %PI Regler mit Filter
 
 C_D = PID_new(3)*s;     %D Regler ohne Filter
