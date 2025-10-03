@@ -28,14 +28,14 @@ ind_ax = 1;
 % Define quad and path to *.bbl.csv file
 flight_folder = '20250907';
 
-% quad = 'aosmini';
-% log_name = '20250907_aosmini_00.bbl.csv';
+quad = 'aosmini';
+log_name = '20250907_aosmini_00.bbl.csv';
 
-quad = 'apex5';
-log_name = '20250907_apex5_00.bbl.csv';
+% quad = 'apex5';
+% log_name = '20250907_apex5_00.bbl.csv';
 
 % quad = 'flipmini';
-% log_name = '20250907_flipmini_00.bbl.csv';
+% log_name = '20250908_flipmini_00.bbl.csv';
 
 % -------------------------------------------------------------------------
 
@@ -375,17 +375,17 @@ switch quad
         para_new.yaw_lpf_hz          = 200;     % frequency of yaw lpf (pt1)
         switch ind_ax
             case 1 % roll: [33, 52, 26, 0]
-                P_new       = 33;
-                I_ratio_new = 52/52;
-                D_new       = 26;
+                P_new       = 0.4 * 33;
+                I_ratio_new = 1.0 * 52/52;
+                D_new       = 0.025 * 26;
             case 2 % pitch: [58, 98, 44, 0]
-                P_new       = 58;
-                I_ratio_new = 98/98;
-                D_new       = 44;
+                P_new       = 1.0 * 58;
+                I_ratio_new = 1.0 * 98/98;
+                D_new       = 1.0 * 44;
             case 3 % yaw: [42, 65, 3, 0]
-                P_new       = 42;
-                I_ratio_new = 65/65;
-                D_new       = 3;
+                P_new       = 1.0 * 42;
+                I_ratio_new = 1.0 * 65/65;
+                D_new       = 1.0 * 3;
         end
     case 'apex5'
         % type: 0: PT1, 1: BIQUAD, 2: PT2, 3: PT3
@@ -407,17 +407,17 @@ switch quad
         para_new.yaw_lpf_hz          = 200;     % frequency of yaw lpf (pt1)
         switch ind_ax
             case 1 % roll: [49, 83, 33, 0]
-                P_new       = 49;
-                I_ratio_new = 83/83;
-                D_new       = 33;
+                P_new       = 1.0 * 49;
+                I_ratio_new = 1.0 * 83/83;
+                D_new       = 1.0 * 33;
             case 2 % pitch: [61, 103, 39, 0]
-                P_new       = 61;
-                I_ratio_new = 103/103;
-                D_new       = 39;
+                P_new       = 1.0 * 61;
+                I_ratio_new = 1.0 * 103/103;
+                D_new       = 1.0 * 39;
             case 3 % yaw: [42, 104, 3, 0]
-                P_new       = 42;
-                I_ratio_new = 104/104;
-                D_new       = 3;
+                P_new       = 1.0 * 42;
+                I_ratio_new = 1.0 * 104/104;
+                D_new       = 1.0 * 3;
         end
     case 'flipmini'
         % type: 0: PT1, 1: BIQUAD, 2: PT2, 3: PT3
@@ -439,17 +439,17 @@ switch quad
         para_new.yaw_lpf_hz          = 200;     % frequency of yaw lpf (pt1)
         switch ind_ax
             case 1 % roll: [46, 74, 30, 0]
-                P_new       = 46;
-                I_ratio_new = 74/74;
-                D_new       = 30;
+                P_new       = 1.0 * 46;
+                I_ratio_new = 1.0 * 74/74;
+                D_new       = 1.0 * 30;
             case 2 % pitch: [71, 118, 47, 0]
-                P_new       = 71;
-                I_ratio_new = 118/118;
-                D_new       = 47;
+                P_new       = 1.0 * 71;
+                I_ratio_new = 1.0 * 118/118;
+                D_new       = 1.0 * 47;
             case 3 % yaw: [35, 70, 3, 0]
-                P_new       = 35;
-                I_ratio_new = 70/70;
-                D_new       = 3;
+                P_new       = 1.0 * 35;
+                I_ratio_new = 1.0 * 70/70;
+                D_new       = 1.0 * 3;
         end
     otherwise
         warning(' no valid quad selected');
