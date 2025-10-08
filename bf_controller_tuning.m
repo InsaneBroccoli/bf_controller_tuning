@@ -31,11 +31,11 @@ flight_folder = '20250907';
 % quad = 'aosmini';
 % log_name = '20250907_aosmini_00.bbl.csv';
 
-% quad = 'apex5';
-% log_name = '20250907_apex5_00.bbl.csv';
+quad = 'apex5';
+log_name = '20250907_apex5_00.bbl.csv';
 
-quad = 'flipmini';
-log_name = '20250907_flipmini_00.bbl.csv';
+% quad = 'flipmini';
+% log_name = '20250907_flipmini_00.bbl.csv';
 
 % -------------------------------------------------------------------------
 
@@ -256,7 +256,7 @@ set(findall(gcf, 'type', 'line'), 'linewidth', linewidth)
 %% Frequency response estimation and calculation
 
 % Parameters
-Nest     = round(5 / Ts_log);
+Nest     = round(39 / Ts_log);
 koverlap = 0.9;
 Noverlap = floor(koverlap * Nest);
 window   = hann(Nest, 'periodic');
