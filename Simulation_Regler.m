@@ -7,11 +7,11 @@ s = tf('s');
 %% Laden von Drohnenflüge als Referenz
 flight_folder = '20250907';
 
-quad = 'aosmini';
-log_name = '20250907_aosmini_00.bbl.csv';
+% quad = 'aosmini';
+% log_name = '20250907_aosmini_00.bbl.csv';
 
-% quad = 'apex5';
-% log_name = '20250907_apex5_00.bbl.csv';
+quad = 'apex5';
+log_name = '20250907_apex5_00.bbl.csv';
 
 % quad = 'flipmini';
 % log_name = '20250907_flipmini_00.bbl.csv';
@@ -60,6 +60,7 @@ opt.Xlim = { [0.1 1e3] };      % x-Achse: 0.1 Hz bis 1000 Hz
 
 %Sampletime
 Ts = para.looptime * 1.0e-6;             % Gyro loop
+z = tf('z', Ts);
 
 %Drohnenparameter
 switch quad
@@ -72,16 +73,14 @@ switch quad
         para_new.gyro_lowpass2_hz    = 800;     % frequency of gyro lpf 2
         para_new.gyro_soft2_type     = 0;       % type of gyro lpf 2
         para_new.gyro_notch_hz       = [0, 0]; % frequency of gyro notch 1 and 2
-        para_new.gyro_notch_damp     = [0.00, 0.00];
-        para_new.gyro_notch_cutoff   = get_fcut_from_D_and_fcenter(para_new.gyro_notch_damp, para_new.gyro_notch_hz); % damping of gyro notch 1 and 2
+        para_new.gyro_notch_cutoff   = [0, 0]; % 3 dB frequency where filter attenuates
         para_new.dterm_lpf_hz        = 0;       % frequency of dterm lpf 1
         para_new.dterm_filter_type   = 0;       % type of dterm lpf 1
         para_new.dterm_lpf_dyn_hz    = [0, 0];  % dyn dterm lpf overwrites dterm_lpf_hz
         para_new.dterm_lpf2_hz       = 120;     % frequency of dterm lpf 2
         para_new.dterm_filter2_type  = 3;       % type of dterm lpf 2
         para_new.dterm_notch_hz      = 0;     % frequency of dterm notch
-        para_new.dterm_notch_damp     = 0.00;   %Problem, ist nicht in Daten so hinterlegt
-        para_new.dterm_notch_cutoff  = get_fcut_from_D_and_fcenter(para_new.dterm_notch_damp, para_new.dterm_notch_hz); % damping of dterm notch
+        para_new.dterm_notch_cutoff  = 0;     % 3 dB frequency where filter attenuates
         para_new.yaw_lpf_hz          = 200;     % frequency of yaw lpf (pt1)
         switch ind_ax
             case 1 % roll: [33, 52, 26, 0]
@@ -106,16 +105,14 @@ switch quad
         para_new.gyro_lowpass2_hz    = 800;     % frequency of gyro lpf 2
         para_new.gyro_soft2_type     = 0;       % type of gyro lpf 2
         para_new.gyro_notch_hz       = [0, 520]; % frequency of gyro notch 1 and 2
-        para_new.gyro_notch_damp     = [0.00, 0.15];
-        para_new.gyro_notch_cutoff   = get_fcut_from_D_and_fcenter(para_new.gyro_notch_damp, para_new.gyro_notch_hz); % damping of gyro notch 1 and 2
+        para_new.gyro_notch_cutoff   = [0, 448]; % 3 dB frequency where filter attenuates
         para_new.dterm_lpf_hz        = 0;       % frequency of dterm lpf 1
         para_new.dterm_filter_type   = 0;       % type of dterm lpf 1
         para_new.dterm_lpf_dyn_hz    = [0, 0];  % dyn dterm lpf overwrites dterm_lpf_hz
         para_new.dterm_lpf2_hz       = 130;     % frequency of dterm lpf 2
         para_new.dterm_filter2_type  = 3;       % type of dterm lpf 2
         para_new.dterm_notch_hz      = 235;     % frequency of dterm notch
-        para_new.dterm_notch_damp    = 0.15;    %Problem, ist nicht in Daten so hinterlegt
-        para_new.dterm_notch_cutoff  = get_fcut_from_D_and_fcenter(para_new.dterm_notch_damp, para_new.dterm_notch_hz); % damping of dterm notch
+        para_new.dterm_notch_cutoff  = 202;     % 3 dB frequency where filter attenuates
         para_new.yaw_lpf_hz          = 200;     % frequency of yaw lpf (pt1)
         switch ind_ax
             case 1 % roll: [49, 83, 33, 0]
@@ -140,16 +137,14 @@ switch quad
         para_new.gyro_lowpass2_hz    = 800;     % frequency of gyro lpf 2
         para_new.gyro_soft2_type     = 0;       % type of gyro lpf 
         para_new.gyro_notch_hz       = [0, 0]; % frequency of gyro notch 1 and 2
-        para_new.gyro_notch_damp     = [0.00, 0.00];
-        para_new.gyro_notch_cutoff   = get_fcut_from_D_and_fcenter(para_new.gyro_notch_damp , para_new.gyro_notch_hz); % damping of gyro notch 1 and 2
+        para_new.gyro_notch_cutoff   = [0, 0]; % 3 dB frequency where filter attenuates
         para_new.dterm_lpf_hz        = 0;       % frequency of dterm lpf 1
         para_new.dterm_filter_type   = 0;       % type of dterm lpf 1
         para_new.dterm_lpf_dyn_hz    = [0, 0];  % dyn dterm lpf overwrites dterm_lpf_hz
         para_new.dterm_lpf2_hz       = 140;     % frequency of dterm lpf 2
         para_new.dterm_filter2_type  = 3;       % type of dterm lpf 2
-        para_new.dterm_notch_hz      = 0;     % frequency of dterm notch
-        para_new.dterm_notch_damp    = 0.00;  %Problem, ist nicht in Daten so hinterlegt
-        para_new.dterm_notch_cutoff  = get_fcut_from_D_and_fcenter(para_new.dterm_notch_damp, para_new.dterm_notch_hz); % damping of dterm notch
+        para_new.dterm_notch_hz      = 0;       % frequency of dterm notch
+        para_new.dterm_notch_cutoff  = 0;       % 3 dB frequency where filter attenuates
         para_new.yaw_lpf_hz          = 200;     % frequency of yaw lpf (pt1)
         switch ind_ax
             case 1 % roll: [46, 74, 30, 0]
@@ -202,9 +197,6 @@ PID_new(2) = 2 * pi * PID_new(1) * fI_new;          % Integralanteil
 PID_new(3) = D_new * pid_scale(3);                  % Differentialanteil
 PID_new(4) = 0;
 
-
-
-
 %% Funktion für Tiefpassfilter
 function G = Tiefpassfilter(type, omega, s)
     if omega == 0
@@ -233,39 +225,103 @@ G_LPF1 = Tiefpassfilter(para_new.gyro_soft_type, omega1, s);
 
 %Berechnung LPF2
 omega2 = 2*pi*para_new.gyro_lowpass2_hz;
-G_LPF2 = Tiefpassfilter(para_new.gyro_soft_type, omega2, s);
+G_LPF2 = Tiefpassfilter(para_new.gyro_soft2_type, omega2, s);
 
 %Berechnung D-spezifischer Tiefpassfilter 1
 omegad1 = 2*pi*para_new.dterm_lpf_hz;
-G_LPFD1 = Tiefpassfilter(para_new.gyro_soft_type, omegad1, s);
+G_LPFD1 = Tiefpassfilter(para_new.dterm_filter_type, omegad1, s);
 
 %Berechnung D-spezifischer Tiefpassfilter 2
 omegad2 = 2*pi*para_new.dterm_lpf2_hz;
-G_LPFD2 = Tiefpassfilter(para_new.gyro_soft_type, omegad2, s);
+G_LPFD2 = Tiefpassfilter(para_new.dterm_filter2_type, omegad2, s);
+
+%% Funktionen diskretisierter Tiefpass
+function G = lpf_pt1_discrete(fc, Ts)
+    Om = 2*pi*fc*Ts;            % cut off frequency
+    k  = Om/(1+Om);             % Steplenght
+    G  = tf(k, [1 -(1-k)], Ts); %Transferfunction
+end
+
+function G = lpf_discrete(type, fc, Ts)
+    if fc == 0      %in case LPF is not activatet
+        G = tf(1,1,Ts);
+        return;
+    end
+    switch type
+        case 0  % PT1
+            G = lpf_pt1_discrete(fc, Ts);
+
+        case 2  % PT2 = PT1 ⨯ PT1, mit Cutoff-Correction
+            c = 1.553773974;
+            H1 = lpf_pt1_discrete(fc*c, Ts);
+            G  = H1*H1;
+
+        case 3  % PT3 = PT1 ⨯ PT1 ⨯ PT1, mit Cutoff-Correction
+            c = 1.961459177;
+            H1 = lpf_pt1_discrete(fc*c, Ts);
+            G  = H1*H1*H1;
+
+        case 1  % BIQUAD: ohne Q keine eindeutige Spec; Placeholder = PT1
+            warning('BIQUAD ohne Q: ersetze provisorisch durch PT1.');
+            G = lpf_pt1_discrete(fc, Ts);
+
+        otherwise
+            error('Unbekannter Filtertyp');
+    end
+end
+
+
+%% Gyro-Lowpassfilter diskretisiert
+%Calculation LPF1
+G_LPF1_dis  = lpf_discrete(para_new.gyro_soft_type,  para_new.gyro_lowpass_hz,  Ts);
+%Calculation LPF2
+G_LPF2_dis  = lpf_discrete(para_new.gyro_soft2_type, para_new.gyro_lowpass2_hz, Ts);
+%Calculation LPF1 D-share
+G_LPFD1_dis = lpf_discrete(para_new.dterm_filter_type,  para_new.dterm_lpf_hz,  Ts);
+%Calculation LPF2 D-share
+G_LPFD2_dis = lpf_discrete(para_new.dterm_filter2_type, para_new.dterm_lpf2_hz, Ts);
 
 %% Funktion für Notch-Filter
-function G_notch = Notch(omega, D, s)
-    if omega ~= 0         
-        Q  = 1/(2*D);           % aus Dämpfung
+function G_notch = Notch(f0, fcut, s)
+    if f0 ~= 0         
+        f2 = f0^2 / fcut;
+        Q  = f0 / (f2-fcut);           % Calculation with cutoff frequency
+        omega = 2*pi*f0;
         G_notch = (s^2 + omega^2) / (s^2 + (omega/Q)*s + omega^2);     
     else
         G_notch = tf(1);
     end
 end
 
+%% Discretization of Notch filter
+function G_notch_dis = Notch_dis(f0, fcut, Ts, z)
+if f0 ~= 0         
+        f2 = f0^2 / fcut;
+        Q  = f0 / (f2-fcut);           % Calculation with cutoff frequency
+        omega = 2*pi*f0*Ts;
+        alpha = 1 - sin(omega)/2*Q;
+       G_notch_dis = (1 - 2*cos(omega)*z^-1 + z^-2) ...
+              / ((1 + alpha) - 2*cos(omega)*z^-1 + (1 - alpha)*z^-2);    
+    else
+        G_notch_dis = tf(1);
+    end
+end
+
+
 %% Notch Filter berechnung
 
 %Berechnung Notchfilter 1
-omega_no1 = 2*pi*para_new.gyro_notch_hz(1);
-G_Notch1 = Notch(omega_no1, para_new.gyro_notch_damp(1), s);
+G_Notch1 = Notch(para_new.gyro_notch_hz(1), para_new.gyro_notch_cutoff(1), s);
+G_Notch1_dis = Notch_dis(para_new.gyro_notch_hz(1), para_new.gyro_notch_cutoff(1), Ts, z);
 
 %Berechnung Notchfilter 2
-omega_no2 = 2*pi*para_new.gyro_notch_hz(2);
-G_Notch2 = Notch(omega_no2, para_new.gyro_notch_damp(2), s);
+G_Notch2 = Notch(para_new.gyro_notch_hz(2), para_new.gyro_notch_cutoff(2), s);
+G_Notch2_dis = Notch_dis(para_new.gyro_notch_hz(2), para_new.gyro_notch_cutoff(2), Ts, z);
 
 %Berechnung Notchfilter D-Anteil
-omega_noD = 2*pi*para_new.dterm_notch_hz;
-G_NotchD = Notch(omega_noD, para_new.dterm_notch_damp, s);
+G_NotchD = Notch(para_new.dterm_notch_hz, para_new.dterm_notch_cutoff, s);
+G_NotchD_dis = Notch_dis(para_new.dterm_notch_hz, para_new.dterm_notch_cutoff, Ts, z);
+
 
 %% Ausgabe PI und D Regler
 
@@ -285,6 +341,22 @@ title('PI und D Regler');
 legend('C_PI Sim','C_D Sim');
 
 
+%% PID Vektor Diskretisiert
+
+% Calculation of discretization of PI Part of the Controller
+
+C_I_dis = (PID_new(2)*Ts) / (1 - z^-1);   % Calculation I Part 
+C_PI_dis = PID_new(1) + C_I_dis;          % Combination P and I Part of Controller
+C_PI_LFP_Notch_dis = C_PI_dis * G_LPF1_dis * G_LPF2_dis;     %PI Controller with LPF
+
+%Calculation of D Part of the Controller
+C_D_dis = (PID_new(3)*(1 - z^-1))/Ts;     %Calculation D Part
+C_D_LFP_dis = C_D_dis*G_LPFD1_dis*G_LPFD2_dis;  %D Part with LPF
+figure(7)
+bode(C_PI_LFP_Notch_dis, C_D_LFP_dis, C_PI_LFP_Notch, C_D_LFP_Notch, opt);
+title('PI und D Regler');
+
+
 %% Simulation Strecke P
 
 switch quad
@@ -298,6 +370,7 @@ switch quad
                         
                  %Übertragungsfunktionen abgeschätzt
                  G1 = 1 / (s/w1);
+                 
                  G2 = 1 / (1 + (s/w2));
                  Gt = exp(-s * (1/wt));     %Totzeit
                  P_ges = G1*G2*Gt;          %Gesamtübertragungsfunktion
@@ -406,3 +479,6 @@ end
 figure(3)
 bode(P_ges);
 title('Übertragungsfunktion P');
+
+%% Step response Drone
+
