@@ -40,8 +40,8 @@ function xf = apply_rotfiltfilt(G, sinarg, x)
         yQ = y .* conj(p);
 
         % Filtering in transformed coordinates
-        yR = filtfilt(G.num{1}, G.den{1}, yR);
-        yQ = filtfilt(G.num{1}, G.den{1}, yQ);
+        % yR = filtfilt(G.num{1}, G.den{1}, yR);
+        % yQ = filtfilt(G.num{1}, G.den{1}, yQ);
 
         % Transform back
         xf(:,i) = real((yR.*conj(p) + yQ.*p) * 0.5);
