@@ -26,37 +26,13 @@ ind_ax = 1;
 % -------------------------------------------------------------------------
 
 % Define quad and path to *.bbl.csv file
-flight_folder = '20250908';
+flight_folder = '20250907';
 
 quad = 'aosmini';
 log_name = '20250907_aosmini_00.bbl.csv';
 
-<<<<<<< HEAD
-quad = 'apex5';
-log_name = '20250907_apex5_00.bbl.csv';
-
-% quad = 'flipmini';
-% log_name = '20250907_flipmini_00.bbl.csv';
-=======
-<<<<<<< HEAD
 % quad = 'apex5';
 % log_name = '20250907_apex5_00.bbl.csv';
-
-% quad = 'flipmini';
-% log_name = '20250908_flipmini_00.bbl.csv';
-=======
-%quad = 'apex5';
-%log_name = '20250907_apex5_00.bbl.csv';
-
-quad = 'flipmini';
-log_name = '20250908_flipmini_00.bbl.csv';
->>>>>>> 5c8a0003e9e273cf520aa819c1fa022f1aba7977
->>>>>>> efbc4e3b8be1b3f581d270aa6ac7f1a1890712ef
-
-% -------------------------------------------------------------------------
-
-% % define quad and path to *.bbl.csv file
-% flight_folder = '20250908';
 
 % quad = 'flipmini';
 % log_name = '20250908_flipmini_00.bbl.csv';
