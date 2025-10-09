@@ -33,18 +33,21 @@ u = chirp(t, f0, 10, f1, 'logarithmic', 0);   % numerical vector
 U_In = timeseries(u, t);       % optional: for Simulink/Scopes
 
 %% Interference Signals
+% Keep variable names; switch to non-periodic noise for more realistic tests.
 
-% Input interference
-A_l = 0.5;
-omega_l = 2*pi*10;
-l = A_l * sawtooth(omega_l*t);  % interference signal (numeric)
-Int_In = timeseries(l, t);      % optional: for Simulink/Scopes
+% Input interference (white noise, non-periodic)
+A_l = 0.2;
+omega_l = 2*pi*10;                       % kept for compatibility, not used
+l = A_l * randn(size(t));                % non-periodic input noise
+Int_In = timeseries(l, t);               % optional: for Simulink/Scopes
 
-% Output interference
-A_n = 0.5;
-omega_n = 2*pi*20;
-n = A_n * square(omega_n*t);    % interference signal (numeric)
-Int_Out = timeseries(n, t);     % optional: for Simulink/Scopes
+% Output interference (band-limited noise, non-periodic)
+A_n = 0.2;
+omega_n = 2*pi*20;                       % kept for compatibility, not used
+raw_noise = randn(size(t));
+[b_n,a_n] = butter(4,[5 200]/(fs/2),'bandpass');  % limit to 5–200 Hz band
+n = A_n * filtfilt(b_n,a_n,raw_noise);
+Int_Out = timeseries(n, t);              % optional: for Simulink/Scopes
 
 %% Combined Input Signals
 % (For MATLAB calculations use numeric vectors; timeseries above only for Simulink)
@@ -73,22 +76,20 @@ plot(t,u_tilde);grid on;
 title('Input u-tilde(t)');
 sgtitle('Combination Input Signals')
 
-%% Plot of Input
+%% Plot of Output
 figure(2)
 subplot(311)
 plot(t,y_tilde);grid on;
 title('Output y-tilde(t)');
 subplot(312)
 plot(t,n);grid on;
-title('Input Interference Signal n(t)');
+title('Output Interference Signal n(t)');
 subplot(313)
 plot(t,y);grid on;
-title('Output y-tilde(t)');
+title('Output y(t)');
 sgtitle('Combination Output Signals')
 
-
 %% Plot of Signals
-
 figure(3)
 subplot(411)
 plot(t,u);grid on;
@@ -104,17 +105,16 @@ plot(t,y);grid on;
 title('Output y(t)');
 sgtitle('Input and Output Signals')
 
-%% Transferfunction without adjustments
-
-U = fft(u);
-Y = fft(y);
+%% Transferfunction without adjustments (plain FFT)
+U    = fft(u);
+Y    = fft(y);
 UTIL = fft(u_tilde);
 YTIL = fft(y_tilde);
-H1 = Y ./U;
+H1   = Y ./ U;
 
 % use only positive frequencies up to Nyquist
 H1 = H1(1:floor(N/2));
-f = f(1:floor(N/2));
+f  = f(1:floor(N/2));
 
 % create FRD object for bode plot
 Hfrd = frd(H1, 2*pi*f);   % bode expects rad/s
@@ -127,104 +127,176 @@ op.Title.String = '';
 setoptions(h, op);
 sgtitle('Transfer Function Y(s)/U(s)');
 
-%% Transferfunctions with Signalenergy
+%% Transferfunctions with Signalenergy (single-shot on full record)
 Syy = Y .* conj(Y);
 Suu = U .* conj(U);
 Syu = Y .* conj(U);
 
-th   = 1e-15 * max(Suu);     % get rid off extrem small numbers for numerical errors
+th   = 1e-15 * max(Suu);     % get rid of extremely small numbers for numerical errors
 H2   = Syu ./ Suu;
-H2(Suu < th) = NaN;         % in case numbers go under th
+H2(Suu < th) = NaN;          % guard
 H2 = H2(1:floor(N/2));
-
 
 % create FRD object for bode plot
 figure(5)
-h = bodeplot(P, Hfrd, opt);
+h5 = bodeplot(P, Hfrd, opt);
 grid on
 legend('P(s) (true)','Estimated (FFT)')
-op = getoptions(h);
-op.Title.String = '';
-setoptions(h, op);
-sgtitle('Transfer Function S_{yu}/S_{uu} (Welch H_2)');
+op5 = getoptions(h5);
+op5.Title.String = '';
+setoptions(h5, op5);
+sgtitle('Transfer Function S_{yu}/S_{uu} (Welch H_2 baseline)');
 
-%% Transfer function according to Welch
+%% APPLY_ROTFILTFILT (inline, from existing data)
 
-Nest    = round(1 / Ts);                 % number of samples per segment
-overlap = 0.5;                           % 50% overlap
-step    = round(Nest * (1 - overlap));   % segment hop size in samples
-starts  = 1:step:(N - Nest + 1);         % start indices of segments
-K       = numel(starts);                 % number of segments
+% Basisband low-pass (zero-phase)
+fc = 1;                                   % adjust if sweep speed changes
+[b_lp, a_lp] = butter(4, fc/(fs/2));
 
-w = ones(Nest,1);   % Rectwindow
-w1 = hann(Nest,'periodic');               % window of length Nest (or ones(Nest,1))
+% Phase (sinarg) of the logarithmic chirp from f0,f1 and total duration
+Ttot = t(end) - t(1);
+r    = f1 / f0;
+phi  = 2*pi*f0 * ( Ttot/log(r) ) * ( r.^((t - t(1))/Ttot) - 1 );
 
-% Preallocate FFT results
-U_all = zeros(Nest, K);                  % Preparation of Vector of Input
-Y_all = zeros(Nest, K);                  % Preparation of Vector of Outpur
+% Phasors
+p  = exp(1i*phi);
+pc = conj(p);
 
-for k = 1:K
-    idx   = starts(k):(starts(k)+Nest-1);
-    u_seg = u(idx) .* w;                 % windowed input segment
-    y_seg = y(idx) .* w;                 % windowed output segment
+% Input/Output signals (use actual plant input & measured output)
+X_in  = u - mean(u);
+X_out = y - mean(y);
 
-    u_seg_win = u(idx) .* w1;                 % windowed input segment
-    y_seg_win = y(idx) .* w1;                 % windowed output segment
+% Rotate forward
+in_R  = X_in  .* p;   in_Q  = X_in  .* pc;
+out_R = X_out .* p;   out_Q = X_out .* pc;
 
-    % FFT with length = Nest (no nfft parameter)
-    U_all(:,k) = fft(u_seg);            % Load of fft from segment
-    Y_all(:,k) = fft(y_seg);            % Load of fft form segment
-    U_win(:,k) = fft(u_seg_win);            % Load of fft from segment
-    Y_win(:,k) = fft(y_seg_win);            % Load of fft form segment
-end
+% Zero-phase low-pass in baseband
+in_R  = filtfilt(b_lp, a_lp, in_R);   in_Q  = filtfilt(b_lp, a_lp, in_Q);
+out_R = filtfilt(b_lp, a_lp, out_R);  out_Q = filtfilt(b_lp, a_lp, out_Q);
 
-% Keep only positive frequencies up to Nyquist
-% For real signals the FFT spectrum is symmetric, the second half is just the mirror.
-pos_idx = 1:floor(Nest/2)+1;           % indices of unique frequency bins  
-U_pos   = U_all(pos_idx,:);            % Load just relevant Data from fft
-Y_pos   = Y_all(pos_idx,:);            % Load just relevant Data from fft
-U_pos_win   = U_win(pos_idx,:);            % Load just relevant Data from fft
-Y_pos_win   = Y_win(pos_idx,:);            % Load just relevant Data from fft
+% Back-rotate & recombine (real)
+inp = real(0.5*(in_R .* pc + in_Q .* p));     % demodulated, filtered input
+out = real(0.5*(out_R.* pc + out_Q.* p));     % demodulated, filtered output
 
+% Quick check
+figure(8)
+plot(t, inp, t, out), grid on
+xlabel('Time (s)'), ylabel('Amplitude')
+legend('inp (baseband)','out (baseband)')
+title(sprintf('Lock-in Baseband (fc = %.1f Hz)', fc))
 
-% Frequency axis (0 ... Nyquist, Δf = fs/Nest)
-freq   = (0:floor(Nest/2))' * (fs / Nest);   % Hz
-w_rad  = 2*pi*freq;                          % rad/s for FRD/Bode
+%% Simple FRF from rotated signals via FFT (optional quick look)
+U_rotFFT = fft(inp);
+Y_rotFFT = fft(out);
+H_rotFFT = Y_rotFFT ./ U_rotFFT;
+H_rotFFT = H_rotFFT(1:floor(N/2));
+f_axis   = (0:floor(N/2)-1)*(fs/N);
+Hfrd_rotFFT = frd(H_rotFFT, 2*pi*f_axis);
 
-% --- Welch (coherent) estimator: mean of complex quotients Hk = Y/U ---
-Hk_coh    = mean(Y_pos,2) ./ (mean(U_pos,2));          % complex FRF per segment
-Hk_coh_win = mean(Y_pos_win,2) ./ (mean(U_pos_win,2));          % complex FRF per segment
-Hfrd_coh  = frd(Hk_coh, w_rad);
-Hfrd_coh_win  = frd(Hk_coh_win, w_rad);
-
-% --- Welch (incoherent) estimator: H2 = Syu / Suu ---
-Suu       = mean(abs(U_pos).^2, 2);
-Suu_win = mean(abs(U_pos_win).^2, 2);
-Syu       = mean(Y_pos .* conj(U_pos), 2);
-Syu_win = mean(Y_pos_win.* conj(U_pos_win), 2);
-th        = 1e-12 * max(Suu);                % guard to avoid division by ~0
-H_welch   = Syu ./ max(Suu, th);
-H_welch_win = Syu_win ./ max(Suu_win, th);
-Hfrd_welch = frd(H_welch, w_rad);
-Hfrd_welch_win = frd(H_welch_win, w_rad);
-
-figure(6)
-p6 = bodeplot(P, Hfrd_welch, Hfrd_coh, opt);   % Handle holen
+figure(9)
+p9 = bodeplot(P, Hfrd_rotFFT, opt);
 grid on
-legend('P(s) (true)', 'Welch H_2 (S_{yu}/S_{uu})', 'Coherent mean(Y/U)', ...
-       'Location','SouthWest');
+legend('P(s) (true)','Estimated (FFT, rotated)')
+op9 = getoptions(p9); op9.Title.String = ''; setoptions(p9, op9);
+sgtitle('Transfer Function (FFT on rotated signals)');
 
-op = getoptions(p6);            
-op.Title.String = '';           
-setoptions(p6, op);             
-sgtitle('Transfer Function after Welch Coherent'); 
+%% Transfer function according to Welch (original & rotated via function)
+
+% Use same parameters you already used above
+Nest    = round(5 / Ts);        % number of samples per segment
+overlap = 0.5;                  % 50% overlap
+
+% Welch FRF for original signals u -> y
+[Hfrd_welch, Hfrd_coh, ~] = welch_frf(u, y, Nest, overlap, fs, false);
+
+% Welch FRF for rotated (Lock-in) signals inp -> out
+[Hfrd_welch_rot, Hfrd_coh_rot, ~] = welch_frf(inp, out, Nest, overlap, fs, false);
+
+% Plots (kept consistent with your style)
+figure(6)
+p6 = bodeplot(P, Hfrd_welch, Hfrd_coh, opt);
+grid on
+legend('P(s) (true)', 'Welch H_2 (orig)', 'Coherent mean(Y/U) (orig)', ...
+       'Location','SouthWest');
+op6 = getoptions(p6); op6.Title.String = ''; setoptions(p6, op6);
+sgtitle('Transfer Function (Original, Welch)');
 
 figure(7)
-p7 = bodeplot(P, Hfrd_welch_win, Hfrd_welch, opt);
+p7 = bodeplot(P, Hfrd_welch_rot, Hfrd_coh_rot, opt);
 grid on
-legend('P(s) (true)', 'Welch with Window', 'Welch', ...
+legend('P(s) (true)', 'Welch H_2 (rotated)', 'Coherent mean(Y/U) (rotated)', ...
        'Location','SouthWest');
-op = getoptions(h);
-op.Title.String = '';
-setoptions(p7, op);
-sgtitle('Transfer Function after Welch Incoherent');
+op7 = getoptions(p7); op7.Title.String = ''; setoptions(p7, op7);
+sgtitle('Transfer Function (Rotated/Lock-in, Welch)');
+
+figure(10)
+p10 = bodeplot(P, Hfrd_welch, Hfrd_welch_rot, opt);
+grid on
+legend('P(s) (true)', 'Welch H_2 (orig)', 'Welch H_2 (rotated)', ...
+       'Location','SouthWest');
+op10 = getoptions(p10); op10.Title.String = ''; setoptions(p10, op10);
+sgtitle('Welch: Original vs Rotated');
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Local function: Welch FRF estimator (original style, with coherent variant)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function [Hfrd_welch, Hfrd_coh, freq] = welch_frf(u_sig, y_sig, Nest, overlap, fs, use_hann)
+% WELCH_FRF  Estimate FRF via Welch method (H2 = S_yu / S_uu) and coherent mean(Y/U).
+% Inputs:
+%   u_sig   : input signal (column vector)
+%   y_sig   : output signal (column vector)
+%   Nest    : samples per segment
+%   overlap : fraction [0..1) of overlap (e.g., 0.5)
+%   fs      : sampling frequency [Hz]
+%   use_hann: if true, use Hann window; else rectangular
+%
+% Outputs:
+%   Hfrd_welch : FRD object of H2 estimator
+%   Hfrd_coh   : FRD object of coherent estimator mean(Y)/mean(U)
+%   freq       : frequency vector [Hz] (0..Nyquist)
+
+    u_sig = u_sig(:); y_sig = y_sig(:);
+    N = length(u_sig);
+    step  = round(Nest * (1 - overlap));
+    starts = 1:step:(N - Nest + 1);
+    K = numel(starts);
+
+    if use_hann
+        w = hann(Nest,'periodic');
+    else
+        w = ones(Nest,1);
+    end
+
+    U_all = zeros(Nest, K);
+    Y_all = zeros(Nest, K);
+
+    for k = 1:K
+        idx = starts(k):(starts(k)+Nest-1);
+        u_seg = u_sig(idx) .* w;
+        y_seg = y_sig(idx) .* w;
+
+        U_all(:,k) = fft(u_seg);
+        Y_all(:,k) = fft(y_seg);
+    end
+
+    % Keep only positive frequencies (including Nyquist)
+    pos_idx = 1:floor(Nest/2)+1;
+    U_pos = U_all(pos_idx,:); 
+    Y_pos = Y_all(pos_idx,:);
+
+    % Frequency axis
+    freq  = (0:floor(Nest/2))' * (fs / Nest);
+    w_rad = 2*pi*freq;
+
+    % Welch (incoherent) estimator: H2 = Syu / Suu
+    Suu = mean(abs(U_pos).^2, 2);
+    Syu = mean(Y_pos .* conj(U_pos), 2);
+    th  = 1e-12 * max(Suu);
+    H_welch = Syu ./ max(Suu, th);
+
+    % Coherent estimator: mean(Y)/mean(U) per bin
+    H_coh = mean(Y_pos,2) ./ max(mean(U_pos,2), eps);
+
+    Hfrd_welch = frd(H_welch, w_rad);
+    Hfrd_coh   = frd(H_coh  , w_rad);
+end
