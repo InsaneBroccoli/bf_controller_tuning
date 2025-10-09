@@ -4,7 +4,7 @@ close all
 
 s = tf('s');
 
-% Optionen für Bode-Plots
+% Options for Bode-Plots
 bodeopts = bodeoptions;
 bodeopts.FreqUnits = 'Hz';
 bodeopts.MagUnits = 'dB';
@@ -13,7 +13,7 @@ bodeopts.PhaseWrapping = 'on';
 bodeopts.YLimMode = 'auto';
 bodeopts.XLimMode = 'auto';
 
-% Optionen für Step-Plots
+% Options for Step-Plots
 stepopts = timeoptions;
 stepopts.Grid = 'on';
 stepopts.YLimMode = 'auto';
@@ -29,14 +29,17 @@ stepopts.XLimMode = 'auto';
 % 4: PID
 % 5: PID-T1
 % 6: PID-T2
-controller_type = 5;
+controller_type = 4;
 
-%-PID-values-----------------------------------------
+%-Kp,-Ki,-Kd-values----------------------------------
 Kp = 600;
 Ki = 10;
 Kd = 100;
 
-N = 1000; % Filterfaktor
+% Filterfactor (-> lowpass filter 1. ord.)
+% higher N -> closer to ideal
+% lower N -> stronger filtering
+N = 1000;
 
 %-Plant-Type-----------------------------------------
 % 0: no Plant
@@ -44,12 +47,10 @@ N = 1000; % Filterfaktor
 % 2: PT1
 % 3: PT2
 % 4: Totzeitglied
-% 5: Kombination: Integrator + PT1
-plant_type = 2;
+% 5: Combination: Integrator + PT1
+plant_type = 0;
 
-%-Desired-headroom-(0 -> ignore)---------------------
-desired_GM = 0;    % Amplitudenreserve [dB] (optional)
-desired_PM = 0;   % Phasenreserve [deg]
+
 
 %% -Controller----------------------------------------
 
@@ -77,70 +78,42 @@ switch controller_type
         C = Kp + Ki/s + (Kd*s)/(1 + (Kd/N)*s + (Kd/N)^2 * s^2);
         controller_name = 'PID-T2';
     otherwise
-        error('Ungültiger Reglertyp')
+        error('invalid controller type')
 end
 
 %% -Plant---------------------------------------------
 
 switch plant_type
-    case 0
+    case 0 % Plant off
         P = 1;
-
     case 1 % Integrator
         P = 1/s;
-
+        plant_name = 'Integrator';
     case 2 % PT1
         T1 = 0.5;
         Kp_strecke = 1;
-        P = Kp_strecke/(1+T1*s);
-
+        P = Kp_strecke / (1 + T1*s);
+        plant_name = 'PT1';
     case 3 % PT2
         wn = 10;
         zeta = 0.5;
-        P = wn^2/(s^2 + 2*zeta*wn*s + wn^2);
-
-    case 4 % Totzeitglied (Pade-Approximation)
+        P = wn^2 / (s^2 + 2*zeta*wn*s + wn^2);
+        plant_name = 'PT2';
+    case 4 % dead-time element (Pade-Approximation)
         Tt = 1;
         P = pade(exp(-Tt*s), 4);
-
+        plant_name = 'dead-time element';
     case 5 % Integrator + PT1
         T1 = 0.5;
-        P = 1/(s*(1+T1*s));
-
+        P = 1 / (s*(1 + T1*s));
     otherwise
-        error('Ungültiger Plant-Typ')
+        error('invalid plant-type')
 end
 
-%% ------------------ Phasen-/Amplitudenreserve ------------------
-if desired_GM ~= 0 || desired_PM ~= 0
-    L0 = C*P;  % Open Loop mit Startwerten
-
-    [GM, PM, Wcg, Wcp] = margin(L0);
-
-    fprintf('--- Aktuelle Reserven ---\n');
-    fprintf('Amplitudenreserve: %.2f dB\n', 20*log10(GM));
-    fprintf('Phasenreserve: %.2f deg\n', PM);
-
-% Falls gewünschte Reserve gesetzt -> autotune (nur für P, PI, PID)
-    if desired_PM > 0 || desired_GM > 0
-        if controller_type == 0 || controller_type == 2 || controller_type == 4
-            opt = pidtuneOptions('PhaseMargin',desired_PM);
-            C = pidtune(P, 'pid', opt);
-            [Kp_new, Ki_new, Kd_new] = piddata(C);
-            fprintf('\n--- Neue Reglerparameter (auto-tuned) ---\n');
-            fprintf('Kp = %.3f\n', Kp_new);
-            fprintf('Ki = %.3f\n', Ki_new);
-            fprintf('Kd = %.3f\n', Kd_new);
-        else
-            warning('Automatisches Tuning nur für P, PI und PID unterstützt.');
-        end
-    end
-end
-
-%% -Loops-------------------------------------------
+%% -Loop-calculations-------------------------------
 
 L = C * P;           % Open Loop
-T = L / (1 + L);     % Closed Loop ohne Vorfilter
+T = L / (1 + L);     % Closed Loop without prefilter
 
 %% -Plots-------------------------------------------
 
@@ -154,6 +127,7 @@ if controller_type ~=4 & controller_type ~=3
     figure(4)
     step(C, stepopts, 'b')
     title(sprintf('Step Response \n%s-Controller', controller_name))
+    % draw Line on Y-axis from 0 to start of curve
     [y, t] = step(C);
     hold on
     plot([0 0], [0 y(1)])
@@ -161,17 +135,17 @@ if controller_type ~=4 & controller_type ~=3
 end
 
 if plant_type ~=0
-    % Frequency Responses Plant & Open Loop
+    % Frequency Response Plant & Open Loop
     figure(2)
     bode(P, bodeopts), hold on
     bode(L, bodeopts)
-    legend('Plant P','Open Loop L')
+    legend(sprintf('Plant: %s', plant_name), 'Open Loop L')
     title('Frequency Responses')
 
     % Nyquist-Diagramm
     figure(3)
     nyquist(L), grid on
-    title(sprintf('Nyquist-Diagramm Open Loop \n%s-Controller', controller_name))
+    title(sprintf('Nyquist-Diagram Open Loop \n%s-Controller', controller_name))
 
     % Step Response
     figure(5)
