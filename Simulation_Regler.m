@@ -5,10 +5,15 @@ addpath lib/
 s = tf('s');
 
 %% Laden von Drohnenflüge als Referenz
-flight_folder = '20250907';
+flight_folder = '20250908';
 
+<<<<<<< HEAD:Simulation_Regler.m
 % quad = 'aosmini';
 % log_name = '20250907_aosmini_00.bbl.csv';
+=======
+quad = 'aosmini';
+log_name = '20250908_aosmini_00.01.csv';
+>>>>>>> efbc4e3b8be1b3f581d270aa6ac7f1a1890712ef:Simulation.m
 
 quad = 'apex5';
 log_name = '20250907_apex5_00.bbl.csv';
