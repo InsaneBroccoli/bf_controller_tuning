@@ -26,10 +26,10 @@ ind_ax = 1;
 % -------------------------------------------------------------------------
 
 % Define quad and path to *.bbl.csv file
-flight_folder = '20250907';
+flight_folder = '20251013';
 
 quad = 'aosmini';
-log_name = '20250907_aosmini_00.bbl.csv';
+log_name = '20251013_aosmini_00.csv';
 
 % quad = 'apex5';
 % log_name = '20250907_apex5_00.bbl.csv';
@@ -104,9 +104,11 @@ end
 % Unscale and remap sinarg
 sinargScale = 5.0e3;
 data(:,ind.sinarg) = 1.0 / sinargScale * data(:,ind.sinarg);
+% Offenes Chirp-Segment am Log-Ende „schließen“, falls Akku mitten im Chirp leer war
+data(end, ind.sinarg) = 0;
 
 % Assign negative sign for pid error
-data(:,ind.axisError) = -data(:,ind.axisError);
+%data(:,ind.axisError) = -data(:,ind.axisError);
 
 % Create an additional entry for the pi sum
 data = [data, data(:,ind.axisP) + data(:,ind.axisI)];
@@ -178,7 +180,7 @@ if (do_show_spec_figures)
     window   = hann(Nest, 'periodic');
     Nres     = floor(max(data(:,ind.setpoint(4))) / 1e1 / 2) % should give 40 at 80% throttle constrain
 
-    c_lim = [5e-2 3e0];
+    c_lim = [5e-2 3e0];     %Colormap
 
     for spectrogram_nr = 1:3
         [pxx, freq, throttle] = estimate_spectrogram(data(:,ind.gyroUnfilt(spectrogram_nr)), ...
@@ -354,7 +356,7 @@ switch quad
         para_new.gyro_soft_type      = 0;       % type of gyro lpf 1
         para_new.gyro_lowpass_dyn_hz = [0, 0];  % dyn gyro lpf overwrites gyro_lowpass_hz
         para_new.gyro_lowpass2_hz    = 800;     % frequency of gyro lpf 2
-        para_new.gyro_soft2_type     = 0;       % type of gyro lpf 2
+        para_new.gyro_soft2_type     = 3;       % type of gyro lpf 2
         para_new.gyro_notch_hz       = [0, 0]; % frequency of gyro notch 1 and 2
         para_new.gyro_notch_cutoff   = get_fcut_from_D_and_fcenter([0.00, 0.00], para_new.gyro_notch_hz); % damping of gyro notch 1 and 2
         para_new.dterm_lpf_hz        = 0;       % frequency of dterm lpf 1
@@ -367,9 +369,9 @@ switch quad
         para_new.yaw_lpf_hz          = 200;     % frequency of yaw lpf (pt1)
         switch ind_ax
             case 1 % roll: [33, 52, 26, 0]
-                P_new       = 0.4 * 33;
+                P_new       = 1.0 * 33;
                 I_ratio_new = 1.0 * 52/52;
-                D_new       = 0.025 * 26;
+                D_new       = 1.0 * 26;
             case 2 % pitch: [58, 98, 44, 0]
                 P_new       = 1.0 * 58;
                 I_ratio_new = 1.0 * 98/98;
