@@ -35,13 +35,13 @@ U_In = timeseries(u, t);       % optional: for Simulink/Scopes
 %% Interference Signals
 
 % Input interference (white noise, non-periodic)
-A_l = 0.4;
+A_l = 0.8;
 omega_l = 2*pi*10;                       % kept for compatibility, not used
 l = A_l * randn(size(t));                % non-periodic input noise
 Int_In = timeseries(l, t);               % optional: for Simulink/Scopes
 
 % Output interference (band-limited noise, non-periodic)
-A_n = 0.4;
+A_n = 0.8;
 omega_n = 2*pi*20;                       % kept for compatibility, not used
 raw_noise = randn(size(t));
 [b_n,a_n] = butter(4,[5 200]/(fs/2),'bandpass');  % limit to 5–200 Hz band
@@ -142,13 +142,13 @@ legend('P(s) (true)','Estimated (FFT)')
 op5 = getoptions(h5);
 op5.Title.String = '';
 setoptions(h5, op5);
-sgtitle('Transfer Function Syu/Suu');
+sgtitle('Transfer Function S_{yu}/S_{uu}');
 
 %% APPLY_ROTFILTFILT (inline, from existing data)
 
 % Basisband low-pass (zero-phase)
-%fc = 5;                                   % adjust if sweep speed changes
-%[b_lp, a_lp] = butter(4, fc/(fs/2));
+fc = 5;                                   % adjust if sweep speed changes
+[b_lp, a_lp] = butter(4, fc/(fs/2));
 
 % Phase (sinarg) of the logarithmic chirp from f0,f1 and total duration
 Ttot = t(end) - t(1);
@@ -193,20 +193,20 @@ sgtitle('Transfer Function (FFT on rotated signals)');
 %% Transfer function according to Welch (original & rotated via function)
 
 % Use same parameters you already used above
-Nest    = round(2 / Ts);        % number of samples per segment
+Nest    = round(4 / Ts);        % number of samples per segment
 overlap = 0.9;                  % 50% overlap
 
 % Welch FRF for original signals u -> y
-[Hfrd_welch, ~] = welch_frf(u, y, Nest, overlap, fs, true);
+[Hfrd_welch, ~] = welch_frf(u, y, Nest, overlap, fs, false);
 
 % Welch FRF for rotated (Lock-in) signals inp -> out
-[Hfrd_welch_rot, ~] = welch_frf(inp, out, Nest, overlap, fs, true);
+[Hfrd_welch_rot, ~] = welch_frf(inp, out, Nest, overlap, fs, false);
 
 % Plots (kept consistent with your style)
-figure(6); clf
+figure(6)
 p6 = bodeplot(P, Hfrd_welch, Hfrd, opt);
 grid on
-legend('P(s) (true)', 'Welch Signal Energie', 'Signal Energie', ...
+legend('P(s) (true)', 'Welch Signal Energie (orig)', 'Signal Energie', ...
        'Location','SouthWest');
 title('Transfer Function (Original, Welch)');
 
@@ -228,6 +228,7 @@ op10 = getoptions(p10); op10.Title.String = ''; setoptions(p10, op10);
 sgtitle('Welch: Original vs Rotated');
 
 %% Welch fuction
+
 function [Hfrd_welch, freq] = welch_frf(u_sig, y_sig, Nest, overlap, fs, use_hann)
 % WELCH_FRF  Estimate FRF via Welch method (H2 = S_yu / S_uu) and coherent mean(Y/U).
 % Inputs:
@@ -281,45 +282,7 @@ function [Hfrd_welch, freq] = welch_frf(u_sig, y_sig, Nest, overlap, fs, use_han
    while ind_end <= Ndata
         ind = ind_start:ind_end;
 
-        u_inp = u_sig(ind);
-        y_out = y_sig(ind);
-
-        % per-segment mean removal
-        u_seg = u_inp - mean(u_inp);
-        y_seg = y_out - mean(y_out);
-
-        % window
-        u_seg = u_seg .* w;
-        y_seg = y_seg .* w;
-
-        % FFT with single-sided normalization
-        U = fft(u_seg) / (Nest * denom);
-        Y = fft(y_seg) / (denom* Nest);
-
-        % two-sided -> single-sided (0..Nyquist), then fix DC/Nyquist
-        Pact = [U.*conj(U), Y.*conj(U), Y.*conj(Y)];
-        P1s  = Pact(1:Nfreq, :);
-        P1s(1,  :) = P1s(1,  :) / 4;
-        P1s(end,:) = P1s(end,:) / 4;
-
-        Pavg = Pavg + P1s;
-        Navg = Navg + 1;
-
-        % Next segment
-        ind_start = ind_start + Ndelta;
-        ind_end   = ind_end   + Ndelta;
-    end
-
-    if Navg > 0
-    Pavg = Pavg / Navg;
-    end
-    
-    Suu = Pavg(:,1);
-    Syu = Pavg(:,2);
-    
-    H_welch = Syu ./ (Suu + delta);  % H2 estimator with regularization
-    
-    Hfrd_welch = frd(H_welch, freq, 1/fs, 'Units','Hz');
+    Hfrd_welch = frd(H_welch, w_rad);
 end
 
 
