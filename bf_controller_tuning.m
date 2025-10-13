@@ -29,7 +29,7 @@ ind_ax = 1;
 flight_folder = '20251013';
 
 quad = 'aosmini';
-log_name = '20251013_aosmini_00.csv';
+log_name = ['20251013_aosmini_PT3.csv'];
 
 % quad = 'apex5';
 % log_name = '20250907_apex5_00.bbl.csv';
