@@ -29,7 +29,7 @@ ind_ax = 1;
 flight_folder = '20251013';
 
 quad = 'aosmini';
-log_name = ['20251013_aosmini_PT3.csv'];
+log_name = ['20251013_aosmini_PT1.csv'];
 
 % quad = 'apex5';
 % log_name = '20250907_apex5_00.bbl.csv';
@@ -356,7 +356,7 @@ switch quad
         para_new.gyro_soft_type      = 0;       % type of gyro lpf 1
         para_new.gyro_lowpass_dyn_hz = [0, 0];  % dyn gyro lpf overwrites gyro_lowpass_hz
         para_new.gyro_lowpass2_hz    = 800;     % frequency of gyro lpf 2
-        para_new.gyro_soft2_type     = 3;       % type of gyro lpf 2
+        para_new.gyro_soft2_type     = 1;       % type of gyro lpf 2
         para_new.gyro_notch_hz       = [0, 0]; % frequency of gyro notch 1 and 2
         para_new.gyro_notch_cutoff   = get_fcut_from_D_and_fcenter([0.00, 0.00], para_new.gyro_notch_hz); % damping of gyro notch 1 and 2
         para_new.dterm_lpf_hz        = 0;       % frequency of dterm lpf 1
@@ -520,6 +520,7 @@ set(findall(gcf, 'type', 'line'), 'linewidth', linewidth)
 
 % Step responses
 f_max = min([para.dyn_notch_min_hz, para.gyro_rpm_notch_min]);
+f_max = 60;
 T_mean = 0.1 * [-1, 1] + (Nest * Ts_log) / 2;
 step_time = (0:Nest-1).'*Ts_log;
 
