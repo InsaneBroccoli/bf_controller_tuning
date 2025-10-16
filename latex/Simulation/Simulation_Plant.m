@@ -35,13 +35,13 @@ U_In = timeseries(u, t);       % optional: for Simulink/Scopes
 %% Interference Signals
 
 % Input interference (white noise, non-periodic)
-A_l = 0.8;
+A_l = 0;
 omega_l = 2*pi*10;                       % kept for compatibility, not used
 l = A_l * randn(size(t));                % non-periodic input noise
 Int_In = timeseries(l, t);               % optional: for Simulink/Scopes
 
 % Output interference (band-limited noise, non-periodic)
-A_n = 0.8;
+A_n = 0;
 omega_n = 2*pi*20;                       % kept for compatibility, not used
 raw_noise = randn(size(t));
 [b_n,a_n] = butter(4,[5 200]/(fs/2),'bandpass');  % limit to 5–200 Hz band

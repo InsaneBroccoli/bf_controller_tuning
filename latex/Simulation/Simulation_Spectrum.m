@@ -12,7 +12,6 @@ N = length(t);                 % number of samples
 %% Input Signal
 omega = 10.1 * 2*pi();
 u = 0.6*sin(2*pi*(10 + 0.5*t).*t) + 0.25*randn(size(t));            %Input signal
-N = length(u);                    % = length(t)
 w = hann(N, 'periodic');          % window over the entry singal
 u_win = u .* w;                   % signal with window
 
