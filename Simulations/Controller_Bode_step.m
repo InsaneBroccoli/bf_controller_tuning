@@ -52,7 +52,7 @@ plant_type = 0;
 
 
 
-%% -Controller----------------------------------------
+%% =Controller=======================================
 
 switch controller_type
     case 0 % P
@@ -81,7 +81,7 @@ switch controller_type
         error('invalid controller type')
 end
 
-%% -Plant---------------------------------------------
+%% =Plant============================================
 
 switch plant_type
     case 0 % Plant off
@@ -115,7 +115,7 @@ end
 L = C * P;           % Open Loop
 T = L / (1 + L);     % Closed Loop without prefilter
 
-%% -Plots-------------------------------------------
+%% =Plots===========================================
 
 % Frequency Response Controller
 figure(1)
