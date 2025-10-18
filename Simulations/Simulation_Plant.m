@@ -197,7 +197,7 @@ Nest    = round(4 / Ts);        % number of samples per segment
 overlap = 0.9;                  % 50% overlap
 
 % Welch FRF for original signals u -> y
-[Hfrd_welch, ~] = welch_frf(u, y, Nest, overlap, fs, false);
+[Hfrd_welch, ~] = welch_frf(u, y, Nest, overlap, fs, true);
 
 % Welch FRF for rotated (Lock-in) signals inp -> out
 [Hfrd_welch_rot, ~] = welch_frf(inp, out, Nest, overlap, fs, false);
