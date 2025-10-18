@@ -58,7 +58,7 @@ xlim([0 100])
 
 %% Split up in Segments
 
-seg = 5;            %Number of segments
+seg = 7;            %Number of segments
 overlap = 0.5;      %Overlap in next segement x*100%
 Nest = floor(N / (1+(seg-1)*(1-overlap)));  %Number of points in segment
 window = hann(Nest, 'periodic');        % Window over signal
@@ -111,3 +111,17 @@ subplot(2,1,2)
 plot(freq, A_win); grid on
 xlabel('Frequenz [Hz]'); ylabel('Amplitude');
 title('Segmentiertes Spektrum mit Hann-Fenster'); xlim([0 100])
+
+%% Get Spectrum with funciton
+
+addpath ../lib/
+
+[pxx, freq1] = estimate_spectra(u, window, overlap, Nest, Ts);
+spectra = sqrt(pxx); % power -> amplitude (dc needs to be scaled differently)
+
+figure(5)
+plot(freq1, spectra); grid on;
+set(gca, 'YScale')
+title('Magnitude Spectra')
+xlabel('Frequenz [Hz]'); ylabel('Amplitude')
+xlim([0 100])
