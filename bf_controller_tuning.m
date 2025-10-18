@@ -26,13 +26,13 @@ ind_ax = 1;
 % -------------------------------------------------------------------------
 
 % Define quad and path to *.bbl.csv file
-flight_folder = '20251013';
+flight_folder = '20250907';
 
-quad = 'aosmini';
-log_name = ['20251013_aosmini_PT1.csv'];
+% quad = 'aosmini';
+% log_name = ['20251013_aosmini_PT1.csv'];
 
-% quad = 'apex5';
-% log_name = '20250907_apex5_00.bbl.csv';
+quad = 'apex5';
+log_name = '20250907_apex5_00.bbl.csv';
 
 % quad = 'flipmini';
 % log_name = '20250908_flipmini_00.bbl.csv';
@@ -520,7 +520,7 @@ set(findall(gcf, 'type', 'line'), 'linewidth', linewidth)
 
 % Step responses
 f_max = min([para.dyn_notch_min_hz, para.gyro_rpm_notch_min]);
-f_max = 60;
+%f_max = 60;
 T_mean = 0.1 * [-1, 1] + (Nest * Ts_log) / 2;
 step_time = (0:Nest-1).'*Ts_log;
 
@@ -530,6 +530,7 @@ step_resp = [calculate_step_response_from_frd(CL_ana.T    , f_max), ...
              calculate_step_response_from_frd(T           , f_max)];
 step_resp_mean = mean(step_resp(step_time > T_mean(1) & step_time < T_mean(2),:));
 step_resp = step_resp ./ step_resp_mean;
+step_resp_pl = step_resp;
 
 figure(expand_multiple_figure_nr(7, multp_fig_nr))
 ax(1) = subplot(211);
