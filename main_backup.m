@@ -5,14 +5,55 @@ addpath logs/
 addpath utils/
 %%
 
-config; % load axis_r, quad, colors, lineWidth etc.
+% [files, products] = matlab.codetools.requiredFilesAndProducts('bf_controller_tuning.m')
+% disp(products)
+
+
+%%
+
+% Choose an axis: 1: roll, 2: pitch, 3: yaw
+ind_ax = 1;
 
 % -------------------------------------------------------------------------
 
+% Define quad and path to *.bbl.csv file
+log_folder = 'logs';
+flight_folder = '20250907';
+
+quad = 'aosmini';
+log_name = '20250907_aosmini_00.bbl.csv';
+
+% quad = 'apex5';
+% log_name = '20250907_apex5_00.bbl.csv';
+
+% quad = 'flipmini';
+% log_name = '20250908_flipmini_00.bbl.csv';
+
+file_path = fullfile(log_folder, flight_folder, log_name);
+
+% Evaluation parameters
+do_compensate_iterm  = false;
+do_show_spec_figures = true;
+do_insert_legends    = true;
+
+multp_fig_nr = ind_ax;
+
+% Defines
+set(cstprefs.tbxprefs, 'MagnitudeUnits', 'abs');
+set(cstprefs.tbxprefs, 'FrequencyUnits', 'Hz');
+set(cstprefs.tbxprefs, 'UnwrapPhase', 'Off');
+set(cstprefs.tbxprefs, 'Grid', 'On');
+
+linewidth = 1.2;
+set(0, 'defaultAxesColorOrder', get_my_colors);
+pos_bode = [0.1514, 0.5838-0.2, 0.7536, 0.3472+0.2; ... % this is a bit hacky
+            0.1514, 0.1100    , 0.7536, 0.1917    ];
+
+% Bodeoptions
+opt = bodeoptions('cstprefs');
+
 % Extract header information
 [para, Nheader, ind, ind_cntr] = extract_header_information(file_path);
-
-%=data_io==================================================================
 
 % Read the data
 %  - If its the first time from the .csv and save a mat, otherwise the
@@ -102,9 +143,6 @@ Nest     = round(2.0 / Ts_log);
 koverlap = 0.9;
 Noverlap = floor(koverlap * Nest);
 window   = hann(Nest, 'periodic');
-
-%=Spectra==================================================================
-
 [pxx, freq] = estimate_spectra(data_for_spectra, window, Noverlap, Nest, Ts_log);
 spectra = sqrt(pxx); % power -> amplitude (dc needs to be scaled differently)
 
@@ -121,8 +159,8 @@ set(findall(gcf, 'type', 'line'), 'linewidth', linewidth)
 
 
 %%
-%=Spectrogram==============================================================
 
+% Spectrogram
 if (do_show_spec_figures)
 
     % Parameters
@@ -199,10 +237,7 @@ linkaxes(ax, 'x'), clear ax, xlim([0, time(end)])
 set(findall(gcf, 'type', 'line'), 'linewidth', linewidth)
 
 
-%% 
-%=frequency_response=======================================================
-
-% Frequency response estimation and calculation
+%% Frequency response estimation and calculation
 
 % Parameters
 Nest     = round(2 / Ts_log);
@@ -244,10 +279,7 @@ Cd  = Guw * Gvw / T * (1 / Guw - 1 / Gvw);
 omega_bode = 2*pi*P.Frequency;
 
 
-%% 
-%=controller_analysis======================================================
-
-% Downsample analytical controller transferfunction and convert to frd objects
+%% Downsample analytical controller transferfunction and convert to frd objects
 
 [Cpi_ana, Cd_ana, Gf_ana, PID, para_used] = ...
     calculate_transfer_functions(para, ind_ax, throttle_avg, Ts_cntr);
@@ -280,10 +312,7 @@ set(findall(gcf, 'type', 'line'), 'linewidth', linewidth)
 if do_insert_legends, legend('PI gemessen', 'D gemessen', 'PI analytisch', 'D analytisch'), end
 
 
-%% 
-%=flight_parameters======================================================
-
-% New controller and filter parameters
+%% New controller and filter parameters
 
 tic
 
@@ -330,9 +359,9 @@ switch quad
         para_new.yaw_lpf_hz          = 200;     % frequency of yaw lpf (pt1)
         switch ind_ax
             case 1 % roll: [33, 52, 26, 0]
-                P_new       = 1.0 * 33;
+                P_new       = 0.4 * 33;
                 I_ratio_new = 1.0 * 52/52;
-                D_new       = 1.0 * 26;
+                D_new       = 0.025 * 26;
             case 2 % pitch: [58, 98, 44, 0]
                 P_new       = 1.0 * 58;
                 I_ratio_new = 1.0 * 98/98;
@@ -451,10 +480,8 @@ if Gf_ana_new.Ts < Ts_log % by using Gf_ana.Ts we secure that we do this only on
     Cd_ana_new  = downsample_frd(Cd_ana_new , Ts_log, P.Frequency);
 end
 
-%% =Controller Analysis====================================================
-
-CL_ana     = controller_analysis.calculate_closed_loop(Cpi_ana    , tf(1,1,Ts_log), P / Gf_ana, Gf_ana    , Cd_ana    );
-CL_ana_new = controller_analysis.calculate_closed_loop(Cpi_ana_new, tf(1,1,Ts_log), P / Gf_ana, Gf_ana_new, Cd_ana_new);
+CL_ana     = calculate_closed_loop(Cpi_ana    , tf(1,1,Ts_log), P / Gf_ana, Gf_ana    , Cd_ana    );
+CL_ana_new = calculate_closed_loop(Cpi_ana_new, tf(1,1,Ts_log), P / Gf_ana, Gf_ana_new, Cd_ana_new);
 if do_compensate_iterm
     % Compensate only PI part
     Cpi_com = Cpi / Cpi_ana;
@@ -463,10 +490,6 @@ if do_compensate_iterm
     CL_ana.T     = CL_ana_.T;
     CL_ana_new.T = CL_ana_new_.T;
 end
-
-% 
-% uncomment für packages und den ganzen teil fürs plotten unten löschen
-% controller_analysis.show_controller_analysis(CL_ana, CL_ana_new, T, omega_bode, do_insert_legends);
 
 % Closed-loop bode plots (gang of four)
 figure(expand_multiple_figure_nr(6, multp_fig_nr))
