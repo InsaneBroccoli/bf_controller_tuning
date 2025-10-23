@@ -95,7 +95,7 @@ end
 % Get the step length of the t vector
 t_mid = ((0:seg-1)*Nest + (Nest-1)/2) * Ts;   % 
 
-% (c) nur positive Frequenzen (inkl. DC und ggf. Nyquist)
+% only positiv frequencies
 U_POS    = U_SEG(1:Nfreq, :);                     % Ged rid of Alising
 
 figure(2)
@@ -111,4 +111,7 @@ xlabel('Frequency (Hz)'); ylabel('Thrust');
 title('Amplitude over Frequency and Thrust');
 xlim([0 100]); ylim([0 3])
 
-%%
+
+%% Get Spectrum with funciton
+
+addpath ../lib/
