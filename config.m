@@ -6,7 +6,6 @@ ind_ax = 1;
 log_folder = 'logs';
 flight_folder = '20250907';
 
-quad = 'aosmini';
 log_name = '20250907_aosmini_00.bbl.csv';
 
 % quad = 'apex5';
