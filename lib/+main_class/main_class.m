@@ -5,14 +5,55 @@ addpath logs/
 addpath utils/
 %%
 
-config; % load axis_r, colors, lineWidth etc.
+% [files, products] = matlab.codetools.requiredFilesAndProducts('bf_controller_tuning.m')
+% disp(products)
+
+
+%%
+
+% Choose an axis: 1: roll, 2: pitch, 3: yaw
+ind_ax = 1;
 
 % -------------------------------------------------------------------------
 
+% Define quad and path to *.bbl.csv file
+log_folder = 'logs';
+flight_folder = '20250907';
+
+quad = 'aosmini';
+log_name = '20250907_aosmini_00.bbl.csv';
+
+% quad = 'apex5';
+% log_name = '20250907_apex5_00.bbl.csv';
+
+% quad = 'flipmini';
+% log_name = '20250908_flipmini_00.bbl.csv';
+
+file_path = fullfile(log_folder, flight_folder, log_name);
+
+% Evaluation parameters
+do_compensate_iterm  = false;
+do_show_spec_figures = true;
+do_insert_legends    = true;
+
+multp_fig_nr = ind_ax;
+
+% Defines
+set(cstprefs.tbxprefs, 'MagnitudeUnits', 'abs');
+set(cstprefs.tbxprefs, 'FrequencyUnits', 'Hz');
+set(cstprefs.tbxprefs, 'UnwrapPhase', 'Off');
+set(cstprefs.tbxprefs, 'Grid', 'On');
+
+linewidth = 1.2;
+set(0, 'defaultAxesColorOrder', get_my_colors);
+pos_bode = [0.1514, 0.5838-0.2, 0.7536, 0.3472+0.2; ... % this is a bit hacky
+            0.1514, 0.1100    , 0.7536, 0.1917    ];
+
+% Bodeoptions
+opt = bodeoptions('cstprefs');
+
 % Extract header information
 [para, Nheader, ind, ind_cntr] = extract_header_information(file_path);
-
-%=data_io==================================================================
 
 % Read the data
 %  - If its the first time from the .csv and save a mat, otherwise the
@@ -102,9 +143,6 @@ Nest     = round(2.0 / Ts_log);
 koverlap = 0.9;
 Noverlap = floor(koverlap * Nest);
 window   = hann(Nest, 'periodic');
-
-%=Spectra==================================================================
-
 [pxx, freq] = estimate_spectra(data_for_spectra, window, Noverlap, Nest, Ts_log);
 spectra = sqrt(pxx); % power -> amplitude (dc needs to be scaled differently)
 
@@ -121,8 +159,8 @@ set(findall(gcf, 'type', 'line'), 'linewidth', linewidth)
 
 
 %%
-%=Spectrogram==============================================================
 
+% Spectrogram
 if (do_show_spec_figures)
 
     % Parameters
@@ -199,25 +237,58 @@ linkaxes(ax, 'x'), clear ax, xlim([0, time(end)])
 set(findall(gcf, 'type', 'line'), 'linewidth', linewidth)
 
 
-%% 
-%=frequency_response=======================================================
+%% Frequency response estimation and calculation
 
-est = frequency_response.frequency_response_estimator(data, ind, ind_ax, ind_eval, Ts_log, para, throttle_avg, Ts_cntr);
+% Parameters
+Nest     = round(2 / Ts_log);
+koverlap = 0.9;
+Noverlap = floor(koverlap * Nest);
+window   = hann(Nest, 'periodic');
 
-result1 = est.estimate();
-result1 = 1;
+% Linear filter for zero phase excitation filter (apply_rotfiltfilt)
+Dlp = sqrt(3) / 2;
+wlp = 2 * pi * 10;
+Glp = c2d(tf(wlp^2, [1 2*Dlp*wlp wlp^2]), Ts_log, 'tustin');
 
-Nest = est.Nest;
+% T  , Gyw: w -> y
+inp = apply_rotfiltfilt(Glp, data(:,ind.sinarg), data(:,ind.setpoint(ind_ax)));
+out = apply_rotfiltfilt(Glp, data(:,ind.sinarg), data(:,ind.gyroADC(ind_ax)) );
+[T, C_T] = estimate_frequency_response(inp(ind_eval), out(ind_eval), window, Noverlap, Nest, Ts_log);
+
+% SCw, Guw: w -> u
+out = apply_rotfiltfilt(Glp, data(:,ind.sinarg), data(:,ind.axisSum(ind_ax)));
+[Guw, C_Guw] = estimate_frequency_response(inp(ind_eval), out(ind_eval), window, Noverlap, Nest, Ts_log);
+
+%      Gvw: w -> v (v := u only from PI cntrl)
+out = apply_rotfiltfilt(Glp, data(:,ind.sinarg), data(:,ind.axisSumPI(ind_ax)));
+[Gvw, C_Gvw] = estimate_frequency_response(inp(ind_eval), out(ind_eval), window, Noverlap, Nest, Ts_log);
+
+% P  , Gyu: u -> y
+P = T / Guw;
+
+% % P  , Gyu: u -> y (direct measurement, results are slightly worse)
+% inp = apply_rotfiltfilt(Glp, data(:,ind.sinarg), data(:,ind.axisSum(ind_ax)));
+% out = apply_rotfiltfilt(Glp, data(:,ind.sinarg), data(:,ind.gyroADC(ind_ax)));
+% [Pd, C_Pd] = estimate_frequency_response(inp(ind_eval), out(ind_eval), window, Noverlap, Nest, Ts_log);
+
+% Calculated controller frequency response estimates
+Cpi = Gvw / (1 - T);
+Cd  = Guw * Gvw / T * (1 / Guw - 1 / Gvw);
 
 % Index and frequency for bode plots
-omega_bode = 2*pi*result1.P.Frequency;
+omega_bode = 2*pi*P.Frequency;
 
-% figure(5) Compare analytical to estimated controllers
-frequency_response.show_frequency_response(result1.Cpi, result1.Cd, ...
-                                           result1.Cpi_ana, result1.Cd_ana, ...
-                                           omega_bode, opt, do_insert_legends, linewidth, ...
-                                           @expand_multiple_figure_nr, multp_fig_nr);
 
+%% Downsample analytical controller transferfunction and convert to frd objects
+
+[Cpi_ana, Cd_ana, Gf_ana, PID, para_used] = ...
+    calculate_transfer_functions(para, ind_ax, throttle_avg, Ts_cntr);
+
+if Gf_ana.Ts < Ts_log % by using Gf_ana.Ts we secure that we do this only once
+    Gf_ana  = downsample_frd(Gf_ana , Ts_log, P.Frequency);
+    Cpi_ana = downsample_frd(Cpi_ana, Ts_log, P.Frequency);
+    Cd_ana  = downsample_frd(Cd_ana , Ts_log, P.Frequency);
+end
 
 
 %% Plant and used controllers
@@ -225,19 +296,23 @@ frequency_response.show_frequency_response(result1.Cpi, result1.Cd, ...
 figure(expand_multiple_figure_nr(4, multp_fig_nr))
 ax(1) = subplot('Position', pos_bode(1,:));
 opt.YLim = {[1e-4 1e2], [-180 180]}; opt.MagScale = 'log';
-bode(ax(1), result1.P / result1.Gf_ana, 'k', omega_bode, opt), title('Plant P')
+bode(ax(1), P / Gf_ana, 'k', omega_bode, opt), title('Plant P')
 hold off, grid on
 ax(2) = subplot('Position', pos_bode(2,:));
 opt.YLimMode = {'auto'}; opt.MagScale = 'linear';
-bodemag(ax(2), result1.C_T * result1.C_Guw, 'k', omega_bode, opt), title(''), ylabel('Coherence')
+bodemag(ax(2), C_T * C_Guw, 'k', omega_bode, opt), title(''), ylabel('Coherence')
 linkaxes(ax, 'x'), clear ax
 set(findall(gcf, 'type', 'line'), 'linewidth', linewidth)
 
+% Compare analytical to estimated controllers
+figure(expand_multiple_figure_nr(5, multp_fig_nr))
+opt.YLim = {[1e-2 1e2], [-180 180]}; opt.MagScale = 'log';
+bode(Cpi, Cd, Cpi_ana, Cd_ana, omega_bode, opt), title('Cpi, Cd')
+set(findall(gcf, 'type', 'line'), 'linewidth', linewidth)
+if do_insert_legends, legend('PI gemessen', 'D gemessen', 'PI analytisch', 'D analytisch'), end
 
-%% 
-%=flight_parameters========================================================
 
-% New controller and filter parameters
+%% New controller and filter parameters
 
 tic
 
@@ -249,11 +324,11 @@ fprintf(['      ', pid_axis{ind_ax}, ':  %d, %d, %d\n'], ...
     para.(pid_axis{ind_ax})(1:3));
 
 % Inform user about parameters
-para_used_fieldnames = fieldnames(result1.para_used);
+para_used_fieldnames = fieldnames(para_used);
 Npara_used = size(para_used_fieldnames, 1);
 fprintf('   used parameters are:\n');
 for i = 1:Npara_used
-    fprintf(['      ', para_used_fieldnames{i},': %d\n'], eval(['round(', 'result1.para_used.', para_used_fieldnames{i}, ');']));
+    fprintf(['      ', para_used_fieldnames{i},': %d\n'], eval(['round(', 'para_used.', para_used_fieldnames{i}, ');']));
 end
 
 % First create new parameters the same as the actual ones
@@ -263,49 +338,111 @@ para_new = para;
 % actual parameters
 % get_switch_case_text_from_para(para)
 
-
-% type: 0: PT1, 1: BIQUAD, 2: PT2, 3: PT3
-para_new.gyro_lpf            = 0;       % dono what this is
-para_new.gyro_lowpass_hz     = 0;       % frequency of gyro lpf 1
-para_new.gyro_soft_type      = 0;       % type of gyro lpf 1
-
-para_new.gyro_lowpass_dyn_hz = [0, 0];  % dyn gyro lpf overwrites gyro_lowpass_hz
-para_new.gyro_lowpass2_hz    = 800;     % frequency of gyro lpf 2
-para_new.gyro_soft2_type     = 0;       % type of gyro lpf 2
-
-para_new.gyro_notch_hz       = [0, 0]; % frequency of gyro notch 1 and 2
-para_new.gyro_notch_cutoff   = get_fcut_from_D_and_fcenter([0.00, 0.00], para_new.gyro_notch_hz); % damping of gyro notch 1 and 2
-
-para_new.dterm_lpf_hz        = 0;       % frequency of dterm lpf 1
-para_new.dterm_filter_type   = 0;       % type of dterm lpf 1
-para_new.dterm_lpf_dyn_hz    = [0, 0];  % dyn dterm lpf overwrites dterm_lpf_hz
-para_new.dterm_lpf2_hz       = 120;     % frequency of dterm lpf 2
-para_new.dterm_filter2_type  = 3;       % type of dterm lpf 2
-
-para_new.dterm_notch_hz      = 0;     % frequency of dterm notch
-para_new.dterm_notch_cutoff  = get_fcut_from_D_and_fcenter(0.00, para_new.dterm_notch_hz); % damping of dterm notch
-
-para_new.yaw_lpf_hz          = 200;     % frequency of yaw lpf (pt1)
-
-switch ind_ax
-    case 1 % roll: [33, 52, 26, 0]
-        P_new       = 1.0 * 33;
-        I_ratio_new = 1.0 * 52/52;
-        D_new       = 1.0 * 26;
-    case 2 % pitch: [58, 98, 44, 0]
-        P_new       = 1.0 * 58;
-        I_ratio_new = 1.0 * 98/98;
-        D_new       = 1.0 * 44;
-    case 3 % yaw: [42, 65, 3, 0]
-        P_new       = 1.0 * 42;
-        I_ratio_new = 1.0 * 65/65;
-        D_new       = 1.0 * 3;
+switch quad
+    case 'aosmini'
+        % type: 0: PT1, 1: BIQUAD, 2: PT2, 3: PT3
+        para_new.gyro_lpf            = 0;       % dono what this is
+        para_new.gyro_lowpass_hz     = 0;       % frequency of gyro lpf 1
+        para_new.gyro_soft_type      = 0;       % type of gyro lpf 1
+        para_new.gyro_lowpass_dyn_hz = [0, 0];  % dyn gyro lpf overwrites gyro_lowpass_hz
+        para_new.gyro_lowpass2_hz    = 800;     % frequency of gyro lpf 2
+        para_new.gyro_soft2_type     = 0;       % type of gyro lpf 2
+        para_new.gyro_notch_hz       = [0, 0]; % frequency of gyro notch 1 and 2
+        para_new.gyro_notch_cutoff   = get_fcut_from_D_and_fcenter([0.00, 0.00], para_new.gyro_notch_hz); % damping of gyro notch 1 and 2
+        para_new.dterm_lpf_hz        = 0;       % frequency of dterm lpf 1
+        para_new.dterm_filter_type   = 0;       % type of dterm lpf 1
+        para_new.dterm_lpf_dyn_hz    = [0, 0];  % dyn dterm lpf overwrites dterm_lpf_hz
+        para_new.dterm_lpf2_hz       = 120;     % frequency of dterm lpf 2
+        para_new.dterm_filter2_type  = 3;       % type of dterm lpf 2
+        para_new.dterm_notch_hz      = 0;     % frequency of dterm notch
+        para_new.dterm_notch_cutoff  = get_fcut_from_D_and_fcenter(0.00, para_new.dterm_notch_hz); % damping of dterm notch
+        para_new.yaw_lpf_hz          = 200;     % frequency of yaw lpf (pt1)
+        switch ind_ax
+            case 1 % roll: [33, 52, 26, 0]
+                P_new       = 0.4 * 33;
+                I_ratio_new = 1.0 * 52/52;
+                D_new       = 0.025 * 26;
+            case 2 % pitch: [58, 98, 44, 0]
+                P_new       = 1.0 * 58;
+                I_ratio_new = 1.0 * 98/98;
+                D_new       = 1.0 * 44;
+            case 3 % yaw: [42, 65, 3, 0]
+                P_new       = 1.0 * 42;
+                I_ratio_new = 1.0 * 65/65;
+                D_new       = 1.0 * 3;
+        end
+    case 'apex5'
+        % type: 0: PT1, 1: BIQUAD, 2: PT2, 3: PT3
+        para_new.gyro_lpf            = 0;       % dono what this is
+        para_new.gyro_lowpass_hz     = 0;       % frequency of gyro lpf 1
+        para_new.gyro_soft_type      = 0;       % type of gyro lpf 1
+        para_new.gyro_lowpass_dyn_hz = [0, 0];  % dyn gyro lpf overwrites gyro_lowpass_hz
+        para_new.gyro_lowpass2_hz    = 800;     % frequency of gyro lpf 2
+        para_new.gyro_soft2_type     = 0;       % type of gyro lpf 2
+        para_new.gyro_notch_hz       = [0, 520]; % frequency of gyro notch 1 and 2
+        para_new.gyro_notch_cutoff   = get_fcut_from_D_and_fcenter([0.00, 0.15], para_new.gyro_notch_hz); % damping of gyro notch 1 and 2
+        para_new.dterm_lpf_hz        = 0;       % frequency of dterm lpf 1
+        para_new.dterm_filter_type   = 0;       % type of dterm lpf 1
+        para_new.dterm_lpf_dyn_hz    = [0, 0];  % dyn dterm lpf overwrites dterm_lpf_hz
+        para_new.dterm_lpf2_hz       = 130;     % frequency of dterm lpf 2
+        para_new.dterm_filter2_type  = 3;       % type of dterm lpf 2
+        para_new.dterm_notch_hz      = 235;     % frequency of dterm notch
+        para_new.dterm_notch_cutoff  = get_fcut_from_D_and_fcenter(0.15, para_new.dterm_notch_hz); % damping of dterm notch
+        para_new.yaw_lpf_hz          = 200;     % frequency of yaw lpf (pt1)
+        switch ind_ax
+            case 1 % roll: [49, 83, 33, 0]
+                P_new       = 1.0 * 49;
+                I_ratio_new = 1.0 * 83/83;
+                D_new       = 1.0 * 33;
+            case 2 % pitch: [61, 103, 39, 0]
+                P_new       = 1.0 * 61;
+                I_ratio_new = 1.0 * 103/103;
+                D_new       = 1.0 * 39;
+            case 3 % yaw: [42, 104, 3, 0]
+                P_new       = 1.0 * 42;
+                I_ratio_new = 1.0 * 104/104;
+                D_new       = 1.0 * 3;
+        end
+    case 'flipmini'
+        % type: 0: PT1, 1: BIQUAD, 2: PT2, 3: PT3
+        para_new.gyro_lpf            = 0;       % dono what this is
+        para_new.gyro_lowpass_hz     = 0;       % frequency of gyro lpf 1
+        para_new.gyro_soft_type      = 0;       % type of gyro lpf 1
+        para_new.gyro_lowpass_dyn_hz = [0, 0];  % dyn gyro lpf overwrites gyro_lowpass_hz
+        para_new.gyro_lowpass2_hz    = 800;     % frequency of gyro lpf 2
+        para_new.gyro_soft2_type     = 0;       % type of gyro lpf 2
+        para_new.gyro_notch_hz       = [0, 0]; % frequency of gyro notch 1 and 2
+        para_new.gyro_notch_cutoff   = get_fcut_from_D_and_fcenter([0.00, 0.00], para_new.gyro_notch_hz); % damping of gyro notch 1 and 2
+        para_new.dterm_lpf_hz        = 0;       % frequency of dterm lpf 1
+        para_new.dterm_filter_type   = 0;       % type of dterm lpf 1
+        para_new.dterm_lpf_dyn_hz    = [0, 0];  % dyn dterm lpf overwrites dterm_lpf_hz
+        para_new.dterm_lpf2_hz       = 140;     % frequency of dterm lpf 2
+        para_new.dterm_filter2_type  = 3;       % type of dterm lpf 2
+        para_new.dterm_notch_hz      = 0;     % frequency of dterm notch
+        para_new.dterm_notch_cutoff  = get_fcut_from_D_and_fcenter(0.00, para_new.dterm_notch_hz); % damping of dterm notch
+        para_new.yaw_lpf_hz          = 200;     % frequency of yaw lpf (pt1)
+        switch ind_ax
+            case 1 % roll: [46, 74, 30, 0]
+                P_new       = 1.0 * 46;
+                I_ratio_new = 1.0 * 74/74;
+                D_new       = 1.0 * 30;
+            case 2 % pitch: [71, 118, 47, 0]
+                P_new       = 1.0 * 71;
+                I_ratio_new = 1.0 * 118/118;
+                D_new       = 1.0 * 47;
+            case 3 % yaw: [35, 70, 3, 0]
+                P_new       = 1.0 * 35;
+                I_ratio_new = 1.0 * 70/70;
+                D_new       = 1.0 * 3;
+        end
+    otherwise
+        warning(' no valid quad selected');
 end
 
 % Scale to new PID parameters
 pid_scale = [get_pid_scale(ind_ax), 1];
 PID_new(1) = P_new * pid_scale(1);
-fI         = result1.PID(2) / (2 * pi * result1.PID(1)); % extract fn from initial parametrization
+fI         = PID(2) / (2 * pi * PID(1)); % extract fn from initial parametrization
 fI_new     = fI * I_ratio_new;
 PID_new(2) = 2 * pi * PID_new(1) * fI_new;
 PID_new(3) = D_new * pid_scale(3);
@@ -338,33 +475,27 @@ fprintf('   new used fI is: %0.2f Hz\n\n', fI_new);
 
 % Downsample analytical controller transferfunction and convert to frd objects
 if Gf_ana_new.Ts < Ts_log % by using Gf_ana.Ts we secure that we do this only once
-    Gf_ana_new  = downsample_frd(Gf_ana_new , Ts_log, result1.P.Frequency);
-    Cpi_ana_new = downsample_frd(Cpi_ana_new, Ts_log, result1.P.Frequency);
-    Cd_ana_new  = downsample_frd(Cd_ana_new , Ts_log, result1.P.Frequency);
+    Gf_ana_new  = downsample_frd(Gf_ana_new , Ts_log, P.Frequency);
+    Cpi_ana_new = downsample_frd(Cpi_ana_new, Ts_log, P.Frequency);
+    Cd_ana_new  = downsample_frd(Cd_ana_new , Ts_log, P.Frequency);
 end
 
-%% =Controller Analysis====================================================
-
-CL_ana     = controller_analysis.calculate_closed_loop(result1.Cpi_ana    , tf(1,1,Ts_log), result1.P / result1.Gf_ana, result1.Gf_ana    , result1.Cd_ana    );
-CL_ana_new = controller_analysis.calculate_closed_loop(Cpi_ana_new, tf(1,1,Ts_log), result1.P / result1.Gf_ana, Gf_ana_new, Cd_ana_new);
+CL_ana     = calculate_closed_loop(Cpi_ana    , tf(1,1,Ts_log), P / Gf_ana, Gf_ana    , Cd_ana    );
+CL_ana_new = calculate_closed_loop(Cpi_ana_new, tf(1,1,Ts_log), P / Gf_ana, Gf_ana_new, Cd_ana_new);
 if do_compensate_iterm
     % Compensate only PI part
-    Cpi_com = result1.Cpi / result1.Cpi_ana;
-    CL_ana_      = calculate_closed_loop(result1.Cpi_ana     * Cpi_com, tf(1,1,result1.Ts_log), result1.P / result1.Gf_ana, result1.Gf_ana    , result1.Cd_ana    );
-    CL_ana_new_  = calculate_closed_loop(Cpi_ana_new * Cpi_com, tf(1,1,result1.Ts_log), P / Gf_ana, Gf_ana_new, Cd_ana_new);
+    Cpi_com = Cpi / Cpi_ana;
+    CL_ana_      = calculate_closed_loop(Cpi_ana     * Cpi_com, tf(1,1,Ts_log), P / Gf_ana, Gf_ana    , Cd_ana    );
+    CL_ana_new_  = calculate_closed_loop(Cpi_ana_new * Cpi_com, tf(1,1,Ts_log), P / Gf_ana, Gf_ana_new, Cd_ana_new);
     CL_ana.T     = CL_ana_.T;
     CL_ana_new.T = CL_ana_new_.T;
 end
-
-% 
-% uncomment für packages und den ganzen teil fürs plotten unten löschen
-% controller_analysis.show_controller_analysis(CL_ana, CL_ana_new, T, omega_bode, do_insert_legends);
 
 % Closed-loop bode plots (gang of four)
 figure(expand_multiple_figure_nr(6, multp_fig_nr))
 ax(1) = subplot(221);
 opt.YLim = {[1e-3 1e1], [-180 180]}; opt.MagScale = 'log';
-bodemag(ax(1), CL_ana.T , CL_ana_new.T , result1.T, omega_bode, opt), title('Tracking T')
+bodemag(ax(1), CL_ana.T , CL_ana_new.T , T, omega_bode, opt), title('Tracking T')
 if do_insert_legends, legend('actual', 'new', 'location', 'best'), end
 ax(2) = subplot(222);
 bodemag(ax(2), CL_ana.S , CL_ana_new.S , omega_bode, opt), title('Sensitivity S')
@@ -385,7 +516,7 @@ step_time = (0:Nest-1).'*Ts_log;
 % Actual controller parameters
 step_resp = [calculate_step_response_from_frd(CL_ana.T    , f_max), ...
              calculate_step_response_from_frd(CL_ana_new.T, f_max), ...
-             calculate_step_response_from_frd(result1.T, f_max)];
+             calculate_step_response_from_frd(T           , f_max)];
 step_resp_mean = mean(step_resp(step_time > T_mean(1) & step_time < T_mean(2),:));
 step_resp = step_resp ./ step_resp_mean;
 
