@@ -204,16 +204,14 @@ set(findall(gcf, 'type', 'line'), 'linewidth', linewidth)
 
 est = frequency_response.frequency_response_estimator(data, ind, ind_ax, ind_eval, Ts_log, para, throttle_avg, Ts_cntr);
 
-result1 = est.estimate();
-
-Nest = est.Nest;
+results = est.estimate();
 
 % Index and frequency for bode plots
-omega_bode = 2*pi*result1.P.Frequency;
+omega_bode = 2*pi*results.P.Frequency;
 
 % figure(5) Compare analytical to estimated controllers
-frequency_response.show_frequency_response(result1.Cpi, result1.Cd, ...
-                                           result1.Cpi_ana, result1.Cd_ana, ...
+frequency_response.show_frequency_response(results.Cpi, results.Cd, ...
+                                           results.Cpi_ana, results.Cd_ana, ...
                                            omega_bode, opt, do_insert_legends, linewidth, ...
                                            @expand_multiple_figure_nr, multp_fig_nr);
 
@@ -224,17 +222,17 @@ frequency_response.show_frequency_response(result1.Cpi, result1.Cd, ...
 figure(expand_multiple_figure_nr(4, multp_fig_nr))
 ax(1) = subplot('Position', pos_bode(1,:));
 opt.YLim = {[1e-4 1e2], [-180 180]}; opt.MagScale = 'log';
-bode(ax(1), result1.P / result1.Gf_ana, 'k', omega_bode, opt), title('Plant P')
+bode(ax(1), results.P / results.Gf_ana, 'k', omega_bode, opt), title('Plant P')
 hold off, grid on
 ax(2) = subplot('Position', pos_bode(2,:));
 opt.YLimMode = {'auto'}; opt.MagScale = 'linear';
-bodemag(ax(2), result1.C_T * result1.C_Guw, 'k', omega_bode, opt), title(''), ylabel('Coherence')
+bodemag(ax(2), results.C_T * results.C_Guw, 'k', omega_bode, opt), title(''), ylabel('Coherence')
 linkaxes(ax, 'x'), clear ax
 set(findall(gcf, 'type', 'line'), 'linewidth', linewidth)
 
 
 %% 
-%=flight_parameters========================================================
+%=flight_parameters======================================================
 
 % New controller and filter parameters
 
@@ -248,11 +246,11 @@ fprintf(['      ', pid_axis{ind_ax}, ':  %d, %d, %d\n'], ...
     para.(pid_axis{ind_ax})(1:3));
 
 % Inform user about parameters
-para_used_fieldnames = fieldnames(result1.para_used);
+para_used_fieldnames = fieldnames(results.para_used);
 Npara_used = size(para_used_fieldnames, 1);
 fprintf('   used parameters are:\n');
 for i = 1:Npara_used
-    fprintf(['      ', para_used_fieldnames{i},': %d\n'], eval(['round(', 'result1.para_used.', para_used_fieldnames{i}, ');']));
+    fprintf(['      ', para_used_fieldnames{i},': %d\n'], eval(['round(', 'results.para_used.', para_used_fieldnames{i}, ');']));
 end
 
 % First create new parameters the same as the actual ones
@@ -304,7 +302,7 @@ end
 % Scale to new PID parameters
 pid_scale = [get_pid_scale(ind_ax), 1];
 PID_new(1) = P_new * pid_scale(1);
-fI         = result1.PID(2) / (2 * pi * result1.PID(1)); % extract fn from initial parametrization
+fI         = results.PID(2) / (2 * pi * results.PID(1)); % extract fn from initial parametrization
 fI_new     = fI * I_ratio_new;
 PID_new(2) = 2 * pi * PID_new(1) * fI_new;
 PID_new(3) = D_new * pid_scale(3);
@@ -336,21 +334,21 @@ end
 fprintf('   new used fI is: %0.2f Hz\n\n', fI_new);
 
 % Downsample analytical controller transferfunction and convert to frd objects
-if Gf_ana_new.Ts < Ts_log % by using Gf_ana.Ts we secure that we do this only once
-    Gf_ana_new  = downsample_frd(Gf_ana_new , Ts_log, result1.P.Frequency);
-    Cpi_ana_new = downsample_frd(Cpi_ana_new, Ts_log, result1.P.Frequency);
-    Cd_ana_new  = downsample_frd(Cd_ana_new , Ts_log, result1.P.Frequency);
+if Gf_ana_new.Ts < results.Ts_log % by using Gf_ana.Ts we secure that we do this only once
+    Gf_ana_new  = downsample_frd(Gf_ana_new , results.Ts_log, results.P.Frequency);
+    Cpi_ana_new = downsample_frd(Cpi_ana_new, results.Ts_log, results.P.Frequency);
+    Cd_ana_new  = downsample_frd(Cd_ana_new , results.Ts_log, results.P.Frequency);
 end
 
 %% =Controller Analysis====================================================
 
-CL_ana     = controller_analysis.calculate_closed_loop(result1.Cpi_ana    , tf(1,1,Ts_log), result1.P / result1.Gf_ana, result1.Gf_ana    , result1.Cd_ana    );
-CL_ana_new = controller_analysis.calculate_closed_loop(Cpi_ana_new, tf(1,1,Ts_log), result1.P / result1.Gf_ana, Gf_ana_new, Cd_ana_new);
+CL_ana     = controller_analysis.calculate_closed_loop(results.Cpi_ana    , tf(1,1,Ts_log), results.P / results.Gf_ana, results.Gf_ana    , results.Cd_ana    );
+CL_ana_new = controller_analysis.calculate_closed_loop(Cpi_ana_new, tf(1,1,Ts_log), results.P / results.Gf_ana, Gf_ana_new, Cd_ana_new);
 if do_compensate_iterm
     % Compensate only PI part
-    Cpi_com = result1.Cpi / result1.Cpi_ana;
-    CL_ana_      = calculate_closed_loop(result1.Cpi_ana     * Cpi_com, tf(1,1,result1.Ts_log), result1.P / result1.Gf_ana, result1.Gf_ana    , result1.Cd_ana    );
-    CL_ana_new_  = calculate_closed_loop(Cpi_ana_new * Cpi_com, tf(1,1,result1.Ts_log), P / Gf_ana, Gf_ana_new, Cd_ana_new);
+    Cpi_com = Cpi / Cpi_ana;
+    CL_ana_      = calculate_closed_loop(results.Cpi_ana     * Cpi_com, tf(1,1,results.Ts_log), results.P / Gf_ana, Gf_ana    , Cd_ana    );
+    CL_ana_new_  = calculate_closed_loop(Cpi_ana_new * Cpi_com, tf(1,1,results.Ts_log), P / Gf_ana, Gf_ana_new, Cd_ana_new);
     CL_ana.T     = CL_ana_.T;
     CL_ana_new.T = CL_ana_new_.T;
 end
@@ -363,7 +361,7 @@ end
 figure(expand_multiple_figure_nr(6, multp_fig_nr))
 ax(1) = subplot(221);
 opt.YLim = {[1e-3 1e1], [-180 180]}; opt.MagScale = 'log';
-bodemag(ax(1), CL_ana.T , CL_ana_new.T , result1.T, omega_bode, opt), title('Tracking T')
+bodemag(ax(1), CL_ana.T , CL_ana_new.T , T, omega_bode, opt), title('Tracking T')
 if do_insert_legends, legend('actual', 'new', 'location', 'best'), end
 ax(2) = subplot(222);
 bodemag(ax(2), CL_ana.S , CL_ana_new.S , omega_bode, opt), title('Sensitivity S')
@@ -384,7 +382,7 @@ step_time = (0:Nest-1).'*Ts_log;
 % Actual controller parameters
 step_resp = [calculate_step_response_from_frd(CL_ana.T    , f_max), ...
              calculate_step_response_from_frd(CL_ana_new.T, f_max), ...
-             calculate_step_response_from_frd(result1.T, f_max)];
+             calculate_step_response_from_frd(T           , f_max)];
 step_resp_mean = mean(step_resp(step_time > T_mean(1) & step_time < T_mean(2),:));
 step_resp = step_resp ./ step_resp_mean;
 
