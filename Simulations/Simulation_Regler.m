@@ -359,16 +359,30 @@ legend('Measured','Simulated','Location','southeast');
 title('Plant, Measured and Simulated');
 
 %% Simulatet Transferfunction
-G_o_in = P_ges_d * G_Notch1_dis * G_Notch2_dis * G_LPFD1_dis * G_LPFD2_dis; %Open loop of inner circle
-G_c_in = (G_o_in / (1+(G_o_in*C_D_LFP_dis*G_NotchD_dis)));   %Closed loop of inner circle
+%Continuous Frequency response
+% Inner Open loop
+G_oli = P_ges * G_Notch1 * G_Notch2 * G_LPF1 * G_LPF2;
+G_cli = G_oli / (1+G_oli*G_NotchD*G_LPFD1*G_LPFD2);
 
-G_o_out = G_c_in * C_PI_dis;    %Open loop of outer circle
-G_c_out = G_o_out / (1+G_o_out);
+%Outer Loop
+G_olo = G_cli * C_PI;
+G_olc = G_olo / (1+ G_olo);
+
+% Discret Frequency response
+% Inner Open loop
+G_oli_dis = P_ges_d * G_Notch1_dis * G_Notch2_dis * G_LPF1_dis * G_LPF2_dis;
+G_cli_dis = G_oli_dis / (1+G_oli_dis*G_NotchD_dis*G_LPFD1_dis*G_LPFD2_dis);
+
+%Outer Loop
+G_olo_dis = G_cli_dis * C_PI_dis;
+G_olc_dis = G_olo_dis / (1+ G_olo_dis);
+
 
 %% Step response Drone
-figure(7)
+figure(8)
 plot(step_time, step_resp_pl), grid on
+xlim([0 , 0.5])
 
 %Step does not work rigth at the moment
-%%figure(8)
-%%step(G_c_out);
+figure(9)
+step(G_olc_dis);

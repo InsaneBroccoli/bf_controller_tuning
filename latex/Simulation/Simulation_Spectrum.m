@@ -62,53 +62,66 @@ seg = 7;            %Number of segments
 overlap = 0.5;      %Overlap in next segement x*100%
 Nest = floor(N / (1+(seg-1)*(1-overlap)));  %Number of points in segment
 window = hann(Nest, 'periodic');        % Window over signal
-Nshift = round(Nest * (1 - overlap));   % Number of points to start next segment
-freq = (0:Nest/2) * (fs / Nest);        
+Noverlap = round(overlap * Nest);       % overlap in SAMPLES for function + hop calc
+Nshift   = Nest - Noverlap;             % hop size
+freq = (0:Nest/2) * (fs / Nest);        %Niquistfrequence
+Nfreq = length(freq);                   %Number of steps to Niquist
+W = sum(window) / Nest / 2;
 
-u_seg  = zeros(Nest, seg);      %Preparation array
-U_SEG  = zeros(Nest, seg);
-U_SEG_WIN  = zeros(Nest, seg);
 
+Nsignals = 1;
+Pavg = zeros(Nfreq, Nsignals);
+Pavgw = zeros(Nfreq, Nsignals);
+
+Navg = 0;       % Counter of loop
 for i = 1:seg
+    
     start = (i-1)*Nshift + 1;  
     stop  = start + Nest - 1;  
     if stop > N
         break;   % Stop when segments are full
     end
-    u_seg(:, i) = u(start:stop);    % Add Segment to array
-    u_seg_win(:,i) = u(start:stop) .* window;   % Add segement to array with window
+    u_seg = u(start:stop);           % Fill up segment
+    u_seg = u_seg - mean(u_seg);     % per-segment DC removal
 
-    U_SEG(:,i) = abs(fft(u_seg(:,i)));      % Absolut value of frequent component
-    U_SEG_WIN(:,i) = abs(fft(u_seg_win(:,i)));
+    u_seg_win = u_seg .* window;     % Lay window over Segement   
+    
+    U_SEG     = fft(u_seg)     / (Nest/2);          % We use actually a rect windwow... so we need a upsacler
+    U_SEG_WIN = fft(u_seg_win) / (sum(window)/2);   % Upscaler for window
+    
+    Pact = U_SEG .* conj(U_SEG); % two-sided power
+    Pactw = U_SEG_WIN .* conj(U_SEG_WIN); % two-sided power
+
+    Pseg = Pact(1:Nfreq);       
+    Psegw = Pactw(1:Nfreq);
+
+    Pseg(1)   = Pseg(1)   / 4; % DC
+    Psegw(1)   = Psegw(1)   / 4; % DC
+
+    Pseg(end) = Pseg(end) / 4; % Nyquist (exists since Nest is even)
+    Psegw(end) = Psegw(end) / 4; % Nyquist (exists since Nest is even)
+
+    Pavg  = Pavg  + Pseg;       % Count spectrum up
+    Pavgw = Pavgw + Psegw;
+    Navg = Navg + 1;            % Upcounter to get mean
+
+        
 end
 
-U_Com_seg = mean(U_SEG, seg);           % Meanvalue of frequent component over all segments
-U_Com_win = mean(U_SEG_WIN, seg);
+Pavg  = Pavg  / Navg;       % Mean of Spectrum 
+Pavgw = Pavgw / Navg;       % Mean of Spectrum
 
-K = floor(Nest/2);                  % one sided spectrum without niquist
-freq = (0:K-1).' * (fs/Nest);       % Kx1, frequency axis as column vector
-
-% Scaling like full signal
-A_seg = U_Com_seg(1:K)     / (Nest/2);
-w_fac = sum(window) / 2;    %upscaling factor of hann window
-A_win = U_Com_win(1:K) / w_fac;
+spectra = sqrt(Pavg);      % Go back from energie to amplitude
+spectraw = sqrt(Pavgw);
 
 figure(3)
-subplot(211)
-plot(t(1:Nest), u_seg(:,1));grid on;
-title('Segment 1');
-subplot(212)
-plot(t(Nshift:(Nshift+Nest-1)),u_seg(:,2));grid on;
-title('Segment 2');
-
-figure(4)
 subplot(2,1,1)
-plot(freq, A_seg); grid on
+plot(freq, spectra); grid on
 xlabel('Frequenz [Hz]'); ylabel('Amplitude');
 title('Segmentiertes Spektrum ohne Fenster'); xlim([0 100])
 
 subplot(2,1,2)
-plot(freq, A_win); grid on
+plot(freq, spectraw ); grid on
 xlabel('Frequenz [Hz]'); ylabel('Amplitude');
 title('Segmentiertes Spektrum mit Hann-Fenster'); xlim([0 100])
 
@@ -116,11 +129,11 @@ title('Segmentiertes Spektrum mit Hann-Fenster'); xlim([0 100])
 
 addpath ../lib/
 
-[pxx, freq1] = estimate_spectra(u, window, overlap, Nest, Ts);
-spectra = sqrt(pxx); % power -> amplitude (dc needs to be scaled differently)
+[pxx, freq1] = estimate_spectra(u, window, Noverlap, Nest, Ts);
+spectra_fun = sqrt(pxx); % power -> amplitude (dc needs to be scaled differently)
 
 figure(5)
-plot(freq1, spectra); grid on;
+plot(freq1, spectra_fun); grid on;
 set(gca, 'YScale')
 title('Magnitude Spectra')
 xlabel('Frequenz [Hz]'); ylabel('Amplitude')
