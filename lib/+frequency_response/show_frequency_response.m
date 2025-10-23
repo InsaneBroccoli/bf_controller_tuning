@@ -3,16 +3,16 @@ function show_frequency_response(Cpi, Cd, Cpi_ana, Cd_ana, omega_bode, opt, do_i
 %SHOW_FREQUENCY_RESPONSE Plots the frequency response of PI and D controllers
 %
 % Inputs:
-%   Cpi, Cd            - gemessene Controller (Bode-Daten)
-%   Cpi_ana, Cd_ana    - analytische Controller (Bode-Daten)
-%   omega_bode         - Frequenzvektor
-%   opt                - Struktur mit Optionen (YLim, MagScale)
-%   do_insert_legends  - Boolean für Legende
-%   linewidth          - Linienbreite
-%   expand_multiple_figure_nr - Funktion handle zur Figureskalierung
-%   multp_fig_nr       - Multiplikator für Figures
+%   Cpi, Cd            - measured controllers (Bode data)
+%   Cpi_ana, Cd_ana    - analytical controllers (Bode data)
+%   omega_bode         - frequency vector
+%   opt                - structure with options (YLim, MagScale)
+%   do_insert_legends  - boolean to control legend display
+%   linewidth          - line width for plot
+%   expand_multiple_figure_nr - function handle for figure scaling
+%   multp_fig_nr       - multiplier for figure number
 
-    % Figure erstellen
+    % reate new figure with scaled figure number
     figure(expand_multiple_figure_nr(5, multp_fig_nr))
     
     % Bode-Plot
@@ -20,7 +20,7 @@ function show_frequency_response(Cpi, Cd, Cpi_ana, Cd_ana, omega_bode, opt, do_i
     title('Cpi, Cd')
     set(findall(gcf, 'type', 'line'), 'linewidth', linewidth)
 
-    % Legende
+    % add legends if requested
     if do_insert_legends
         legend('PI gemessen', 'D gemessen', 'PI analytisch', 'D analytisch')
     end
