@@ -17,7 +17,7 @@ ind_ax = 1;
 % -------------------------------------------------------------------------
 
 % Define quad and path to *.bbl.csv file
-log_folder = 'logs';
+log_folder = '';
 flight_folder = '20250907';
 
 quad = 'aosmini';
