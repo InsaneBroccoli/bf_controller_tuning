@@ -9,12 +9,23 @@ ind_ax = 1;
 
 % -------------------------------------------------------------------------
 
-% Define quad and path to *.bbl.csv file
-log_folder = '';
-flight_folder = '20250907';
-log_name = '20250907_aosmini_00.bbl.csv';
+% Define path to *.bbl.csv file for the first flight
+log_folder1 = '';
+flight_folder1 = '20250907';
+log_name1 = '20250907_flipmini_00.bbl.csv';
 
-file_path = fullfile(log_folder, flight_folder, log_name);
+file_path1 = fullfile(log_folder1, flight_folder1, log_name1);
+
+% Define path to *.bbl.csv file for the second flight
+
+second_flight = true;   % Set on true when you want to compare two flights
+
+log_folder2 = '';
+flight_folder2 = '20250908';
+log_name2 = '20250908_flipmini_00.bbl.csv';
+
+file_path2 = fullfile(log_folder2, flight_folder2, log_name2);
+
 
 % Evaluation parameters
 do_compensate_iterm  = false;
@@ -29,13 +40,13 @@ set(cstprefs.tbxprefs, 'Grid', 'On');
 
 linewidth = 1.2;
 set(0, 'defaultAxesColorOrder', get_my_colors);
-pos_bode = [0.1514, 0.5838-0.2, 0.7536, 0.3472+0.2; ... % this is a bit hacky
-            0.1514, 0.1100    , 0.7536, 0.1917    ];
+
 
 % Bodeoptions
 opt = bodeoptions('cstprefs');
 
 
+% Parameter first flight
 % type: 0: PT1, 1: BIQUAD, 2: PT2, 3: PT3
 para_new.gyro_lpf            = 0;       % dono what this is
 para_new.gyro_lowpass_hz     = 0;       % frequency of gyro lpf 1
@@ -68,6 +79,60 @@ switch ind_ax
         D_new       = 1.0 * 3;
 end
 
-drone1 = main_code.main_class(file_path, para_new, ind_ax, do_compensate_iterm, ...
+flight1 = main_code.main_class(file_path1, para_new, ind_ax, do_compensate_iterm, ...
     do_show_spec_figures, do_insert_legends, opt, P_new, I_ratio_new, D_new);
-drone1.run();
+flight1 = flight1.run();
+if second_flight
+    flight2 = main_code.main_class(file_path2, para_new, ind_ax, do_compensate_iterm, ...
+        do_show_spec_figures, do_insert_legends, opt, P_new, I_ratio_new, D_new);
+    flight2 = flight2.run();
+end
+
+%% Do plots
+
+figure(1)
+
+% --- Roll ---
+ax(1) = subplot(311); hold(ax(1),'on')
+plot(ax(1), flight1.gyroData.time, flight1.gyroData.roll)
+if do_insert_legends, legend('setpoint F1', 'gyro F1', 'gyroADC F1', 'location', 'best'), end
+if second_flight
+    plot(ax(1), flight2.gyroData.time, flight2.gyroData.roll)
+    if do_insert_legends, legend('setpoint F1', 'gyro F1', 'gyroADC F1', ...
+            'setpoint F2', 'gyro F2', 'gyroADC F2', 'location', 'best'), end
+end
+grid(ax(1),'on'); ylabel(ax(1),'Roll (deg/sec)')
+title(ax(1),'Gyro Signals')
+
+
+% --- Pitch ---
+ax(2) = subplot(312); hold(ax(2),'on')
+plot(ax(2), flight1.gyroData.time, flight1.gyroData.pitch)
+if second_flight
+    plot(ax(2), flight2.gyroData.time, flight2.gyroData.pitch)
+end
+legend(ax(2),'off')
+grid(ax(2),'on'); ylabel(ax(2),'Pitch (deg/sec)')
+
+
+% --- Yaw ---
+ax(3) = subplot(313); hold(ax(3),'on')
+plot(ax(3), flight1.gyroData.time, flight1.gyroData.yaw)
+if second_flight
+    plot(ax(3), flight2.gyroData.time, flight2.gyroData.yaw)
+end
+legend(ax(3),'off')
+grid(ax(3),'on'); ylabel(ax(3),'Yaw (deg/sec)'); xlabel(ax(3),'Time (sec)')
+
+% Achsen verlinken & Limits setzen
+linkaxes(ax,'x');
+
+if second_flight
+    xmax = max([flight1.gyroData.time; flight2.gyroData.time]);
+else
+    xmax = max(flight1.gyroData.time);
+end
+xlim(ax, [0 xmax]);
+
+% Styling
+set(findall(gcf,'type','line'), 'linewidth', linewidth)
