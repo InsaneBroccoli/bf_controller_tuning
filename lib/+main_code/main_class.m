@@ -10,6 +10,7 @@ classdef main_class
         P_new
         I_ratio_new
         D_new
+        gyroData
     end
 
     methods
@@ -104,19 +105,12 @@ classdef main_class
             
             %% show Gyro to select Teval and spectra (gyro and pid sum)
             
-            figure(1)
-            ax(1) = subplot(311);
-            plot(ax(1), time, data(:,[ind.setpoint(1), ind.gyroUnfilt(1), ind.gyroADC(1)])), grid on, ylabel('Roll (deg/sec)')
-            title('Gyro Signals')
-            if obj.do_insert_legends, legend('setpoint', 'gyro', 'gyroADC', 'location', 'best'), end
-            ax(2) = subplot(312);
-            plot(ax(2), time, data(:,[ind.setpoint(2), ind.gyroUnfilt(2), ind.gyroADC(2)])), grid on, ylabel('Pitch (deg/sec)')
-            ax(3) = subplot(313);
-            plot(ax(3), time, data(:,[ind.setpoint(3), ind.gyroUnfilt(3), ind.gyroADC(3)])), grid on, ylabel('Yaw (deg/sec)'), xlabel('Time (sec)')
-            linkaxes(ax, 'x'), clear ax, xlim([0, time(end)])
-            set(findall(gcf, 'type', 'line'), 'linewidth', linewidth)
-            
-            
+            obj.gyroData.time = time;
+            obj.gyroData.roll  = data(:,[ind.setpoint(1), ind.gyroUnfilt(1), ind.gyroADC(1)]);
+            obj.gyroData.pitch = data(:,[ind.setpoint(2), ind.gyroUnfilt(2), ind.gyroADC(2)]);
+            obj.gyroData.yaw   = data(:,[ind.setpoint(3), ind.gyroUnfilt(3), ind.gyroADC(3)]);
+
+                        
             % Select data for spectra
             data_for_spectra = data(:,[ind.gyroUnfilt, ...
                                        ind.gyroADC, ...
