@@ -13,6 +13,9 @@ classdef plot_utils < handle
         opt = bodeoptions('cstprefs')
         colorOrder = get(0, 'DefaultAxesColorOrder')
         second_flight (1,1) logical = false
+        ind_ax
+        pos_bode double = [0.1514, 0.5838-0.2, 0.7536, 0.3472+0.2; ...
+        0.1514, 0.1100,      0.7536, 0.1917] 
 
     end
 
@@ -169,6 +172,48 @@ classdef plot_utils < handle
             linkaxes(ax,'x');
             xlim(ax,[0, flight1.time(end)]);
             set(findall(gcf,'type','line'),'linewidth',obj.linewidth);
+        end
+
+
+%% Figure 4
+        function plotBode(obj, flight1)
+            switch obj.ind_ax
+                case 1
+                    figure(4)
+                    ax(1) = subplot('Position', obj.pos_bode(1,:));
+                    obj.opt.YLim = {[1e-4 1e2], [-180 180]}; obj.opt.MagScale = 'log';
+                    bode(ax(1), P / Gf_ana, 'k', omega_bode, obj.opt), title('Plant P Roll')
+                    hold off, grid on
+                    ax(2) = subplot('Position', obj.pos_bode(2,:));
+                    obj.opt.YLimMode = {'auto'}; obj.opt.MagScale = 'linear';
+                    bodemag(ax(2), C_T * C_Guw, 'k', omega_bode, obj.opt), title(''), ylabel('Coherence')
+                    linkaxes(ax, 'x'), clear ax
+                    set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
+                    case 2
+                    figure(44)
+                    ax(1) = subplot('Position', obj.pos_bode(1,:));
+                    obj.opt.YLim = {[1e-4 1e2], [-180 180]}; obj.opt.MagScale = 'log';
+                    bode(ax(1), P / Gf_ana, 'k', omega_bode, obj.opt), title('Plant P Pitch')
+                    hold off, grid on
+                    ax(2) = subplot('Position', obj.pos_bode(2,:));
+                    obj.opt.YLimMode = {'auto'}; obj.opt.MagScale = 'linear';
+                    bodemag(ax(2), C_T * C_Guw, 'k', omega_bode, obj.opt), title(''), ylabel('Coherence')
+                    linkaxes(ax, 'x'), clear ax
+                    set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
+                    case 3
+                    figure(4)
+                    ax(1) = subplot('Position', obj.pos_bode(1,:));
+                    obj.opt.YLim = {[1e-4 1e2], [-180 180]}; obj.opt.MagScale = 'log';
+                    bode(ax(1), P / Gf_ana, 'k', omega_bode, obj.opt), title('Plant P Roll')
+                    hold off, grid on
+                    ax(2) = subplot('Position', obj.pos_bode(2,:));
+                    obj.opt.YLimMode = {'auto'}; obj.opt.MagScale = 'linear';
+                    bodemag(ax(2), C_T * C_Guw, 'k', omega_bode, obj.opt), title(''), ylabel('Coherence')
+                    linkaxes(ax, 'x'), clear ax
+                    set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
+            end
+            
+
         end
     end
 end
