@@ -1,3 +1,7 @@
+% WHAT DOES THIS CLASS
+% owownüoimüio
+% wjnpowncpoij
+
 classdef main_class
     properties
         file_path
@@ -24,9 +28,12 @@ classdef main_class
     end
 
     methods
+        % ===============================================================
+        %  ???
+        % ===============================================================
         function obj = main_class(file_path, para_new, ind_ax, do_compensate_iterm, ...
                 do_show_spec_figures, do_insert_legends, opt, P_new, I_ratio_new, D_new)
-            % Sace all inputs
+            % Save all inputs
             obj.file_path = file_path;
             obj.para_new = para_new;
             obj.ind_ax = ind_ax;
@@ -39,6 +46,9 @@ classdef main_class
             obj.D_new = D_new;
         end
 
+        % ===============================================================
+        %  ???
+        % ===============================================================
         function obj = run(obj)
             linewidth = 1.2;
             multp_fig_nr = obj.ind_ax;
