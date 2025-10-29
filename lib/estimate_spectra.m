@@ -25,7 +25,7 @@ function [Pavg, freq] = estimate_spectra(inp, window, Noverlap, Nest, Ts)
 %
 % METHOD
 %   1) Remove global mean per column
-%   2) Segment with length Nest and overlap Noverlap, apply windowm
+%   2) Segment with length Nest and overlap Noverlap, apply window
 %   3) FFT each segment, normalize by sum(window)/2
 %   4) Form one-sided power, fix DC and Nyquist by dividing those bins by 4
 %   5) Average over segments to get Pavg

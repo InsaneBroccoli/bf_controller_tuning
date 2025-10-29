@@ -142,7 +142,7 @@ legend('P(s) (true)','Estimated (FFT)')
 op5 = getoptions(h5);
 op5.Title.String = '';
 setoptions(h5, op5);
-sgtitle('Transfer Function S_{yu}/S_{uu}');
+sgtitle('Transfer Function Syu/Suu');
 
 %% APPLY_ROTFILTFILT (inline, from existing data)
 
@@ -193,7 +193,7 @@ sgtitle('Transfer Function (FFT on rotated signals)');
 %% Transfer function according to Welch (original & rotated via function)
 
 % Use same parameters you already used above
-Nest    = round(4 / Ts);        % number of samples per segment
+Nest    = round(2 / Ts);        % number of samples per segment
 overlap = 0.9;                  % 50% overlap
 
 % Welch FRF for original signals u -> y
@@ -203,10 +203,10 @@ overlap = 0.9;                  % 50% overlap
 [Hfrd_welch_rot, ~] = welch_frf(inp, out, Nest, overlap, fs, true);
 
 % Plots (kept consistent with your style)
-figure(6)
+figure(6); clf
 p6 = bodeplot(P, Hfrd_welch, Hfrd, opt);
 grid on
-legend('P(s) (true)', 'Welch Signal Energie (orig)', 'Signal Energie', ...
+legend('P(s) (true)', 'Welch Signal Energie', 'Signal Energie', ...
        'Location','SouthWest');
 title('Transfer Function (Original, Welch)');
 
@@ -259,7 +259,7 @@ function [Hfrd_welch, freq] = welch_frf(u_sig, y_sig, Nest, overlap, fs, use_han
 
     % When you apply a window (like a Hann window), the signal energy is reduced
     % This the factor to compensate that
-    denom = sum(window) / Nest / 2;          
+    denom = sum(w) / Nest / 2;          
 
     % frequency axis (Hz) and single-sided length
     freq = (0:Nest/2).' * (fs / Nest);
