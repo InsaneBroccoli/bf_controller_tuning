@@ -20,7 +20,7 @@ file_path1 = fullfile(log_folder1, flight_folder1, log_name1);
 
 % Define path to *.bbl.csv file for the second flight
 
-second_flight = false;   % Set on true when you want to compare two flights
+second_flight = true;   % Set on true when you want to compare two flights
 
 log_folder2 = '';
 flight_folder2 = '20250908';
@@ -42,20 +42,23 @@ pu.ind_ax = ind_ax;
 
 
 % Defines
-set(cstprefs.tbxprefs, 'MagnitudeUnits', 'abs');
-set(cstprefs.tbxprefs, 'FrequencyUnits', 'Hz');
-set(cstprefs.tbxprefs, 'UnwrapPhase', 'Off');
-set(cstprefs.tbxprefs, 'Grid', 'On');
+set(cstprefs.tbxprefs,'MagnitudeUnits','abs');
+set(cstprefs.tbxprefs,'FrequencyUnits','Hz');
+set(cstprefs.tbxprefs,'UnwrapPhase','Off');
+set(cstprefs.tbxprefs,'Grid','On');
 
-linewidth = 1.2;
-set(0, 'defaultAxesColorOrder', get_my_colors);
-
-
-% Bodeoptions
-opt = bodeoptions('cstprefs');
+% ---- ein zentrales Options-Objekt ----
+opt = bodeoptions('cstprefs');    % startet mit cstprefs
+opt.MagUnits      = 'abs';
+opt.MagScale      = 'log';        % Magnitude logarithmisch
 opt.PhaseUnits    = 'deg';
-opt.PhaseWrapping = 'on';            % Phase auf [-180,180] wrappen
-opt.YLim = {[-Inf Inf]; [-180 180]};   % [Mag-Limits; Phase-Limits]
+opt.PhaseWrapping = 'on';         % Phase im Bereich [-180,180]
+opt.YLimMode      = {'manual'; 'manual'};  % beide Achsen manuell
+
+opt.YLim          = {[1e-3 1e2];  [-180 180]};   % Mag>0 für log-Skala!
+opt.Grid          = 'on';
+
+
 
 pu.opt = opt;
 
@@ -142,11 +145,13 @@ if second_flight
     pu.plotOverview (flight1, flight2);
     pu.plotBode(flight1, flight2);
     pu.plotCPIDBode(flight1, flight2);
+    pu.plotGangofFour(flight1, flight2);
 else
     pu.plotGyroSignals(flight1);
     pu.plotGyroSpectra(flight1);
     pu.plotOverview (flight1);
     pu.plotBode(flight1);
     pu.plotCPIDBode(flight1);
+    pu.plotGangofFour(flight1);
 end
 

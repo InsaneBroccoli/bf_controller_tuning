@@ -385,24 +385,7 @@ classdef main_class
 
             obj.CloLoAan = CL_ana;
             obj.CloLoAanNew = CL_ana_new;
-            obj.Tra
-            
-            % Closed-loop bode plots (gang of four)
-            figure(expand_multiple_figure_nr(6, multp_fig_nr))
-            ax(1) = subplot(221);
-            obj.opt.YLim = {[1e-3 1e1], [-180 180]}; obj.opt.MagScale = 'log';
-            bodemag(ax(1), CL_ana.T , CL_ana_new.T , T, omega_bode, obj.opt), title('Tracking T')
-            if obj.do_insert_legends, legend('actual', 'new', 'location', 'best'), end
-            ax(2) = subplot(222);
-            bodemag(ax(2), CL_ana.S , CL_ana_new.S , omega_bode, obj.opt), title('Sensitivity S')
-            ax(3) = subplot(223);
-            obj.opt.YLim = {[1e-2 1e2], [-180 180]};
-            bodemag(ax(3), CL_ana.SC, CL_ana_new.SC, omega_bode, obj.opt), title('Controller Effort SC')
-            ax(4) = subplot(224);
-            obj.opt.YLim = {[1e-3 1e1], [-180 180]};
-            bodemag(ax(4), CL_ana.SP, CL_ana_new.SP, omega_bode, obj.opt), title('Compliance SP')
-            linkaxes(ax, 'x'), clear ax
-            set(findall(gcf, 'type', 'line'), 'linewidth', linewidth)
+                        
             
             % Step responses
             f_max = min([para.dyn_notch_min_hz, para.gyro_rpm_notch_min]);
