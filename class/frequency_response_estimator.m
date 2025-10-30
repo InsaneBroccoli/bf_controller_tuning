@@ -1,8 +1,8 @@
 
-%FREQUENCY_RESPONSE_ESTIMATOR
+% FREQUENCY_RESPONSE_ESTIMATOR
 % This class estimates the frequency response of PID controllers
 % It estimates how your drone reacts to control inputs using flight logs.
-% Helps you understand and tune your PID settings (especially PI and D) for better performance.
+% Helps you understand and tune your PID settings (especially PI and D)
 
 classdef frequency_response_estimator
     properties
@@ -23,7 +23,9 @@ classdef frequency_response_estimator
 
     methods
 
-        % Constructor: initializes the estimator with input data and parameters
+        % ===============================================================
+        %  CONSTRUCTOR: INITIALIZES THE ESTIMATOR WITH INPUT DATA AND PARAMETERS
+        % ===============================================================
         function obj = frequency_response_estimator(data, ind, ind_ax, ind_eval, Ts_log, para, throttle_avg, Ts_cntr)
             obj.data = data;
             obj.ind = ind;
@@ -46,7 +48,9 @@ classdef frequency_response_estimator
             obj.Glp = c2d(tf(wlp^2, [1 2*Dlp*wlp wlp^2]), Ts_log, 'tustin'); % Discretize using Tustin method
         end
 
-        % main estimation method
+        % ===============================================================
+        %  MAIN ESTIMATION METHOD
+        % ===============================================================
         function results = estimate(obj)
 
             % T  , Gyw: w -> y
@@ -86,7 +90,9 @@ classdef frequency_response_estimator
                 Cd_ana  = downsample_frd(Cd_ana , obj.Ts_log, P.Frequency);
             end
 
-            % Return all results in a structured format
+            % ===============================================================
+            %  RETURN ALL RESULTS IN A STRUCTURED FORMAT
+            % ===============================================================
             results = struct( ...
                 'T', T, ...
                 'C_T', C_T, ...
