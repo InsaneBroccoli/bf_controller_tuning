@@ -28,6 +28,13 @@ classdef main_class
         transfData
         transfCoher
         transfOmega
+        transfCpi
+        transfCD
+        transfCpiAna
+        transfCDAna
+        CloLoAan
+        CloLoAanNew
+        transfT
     end
 
     methods
@@ -285,15 +292,12 @@ classdef main_class
             obj.transfData = P / Gf_ana;
             obj.transfCoher = C_T * C_Guw;
             obj.transfOmega = omega_bode;
-            
+            obj.transfCpi = Cpi;
+            obj.transfCD = Cd;
+            obj.transfCpiAna = Cpi_ana;
+            obj.transfCDAna = Cd_ana;
+            obj.transfT = T;
 
-            
-            % Compare analytical to estimated controllers
-            figure(expand_multiple_figure_nr(5, multp_fig_nr))
-            obj.opt.YLim = {[1e-2 1e2], [-180 180]}; obj.opt.MagScale = 'log';
-            bode(Cpi, Cd, Cpi_ana, Cd_ana, omega_bode, obj.opt), title('Cpi, Cd')
-            set(findall(gcf, 'type', 'line'), 'linewidth', linewidth)
-            if obj.do_insert_legends, legend('PI gemessen', 'D gemessen', 'PI analytisch', 'D analytisch'), end
             
             
             %% New controller and filter parameters
@@ -366,6 +370,10 @@ classdef main_class
                 CL_ana.T     = CL_ana_.T;
                 CL_ana_new.T = CL_ana_new_.T;
             end
+
+            obj.CloLoAan = CL_ana;
+            obj.CloLoAanNew = CL_ana_new;
+            obj.Tra
             
             % Closed-loop bode plots (gang of four)
             figure(expand_multiple_figure_nr(6, multp_fig_nr))
