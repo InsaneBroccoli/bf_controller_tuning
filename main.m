@@ -41,8 +41,6 @@ pu.linewidth = 1.2;
 pu.ind_ax = ind_ax;
 
 
-
-
 % Defines
 set(cstprefs.tbxprefs, 'MagnitudeUnits', 'abs');
 set(cstprefs.tbxprefs, 'FrequencyUnits', 'Hz');
@@ -100,12 +98,12 @@ if second_flight
         do_show_spec_figures, do_insert_legends, opt, P_new, I_ratio_new, D_new);
     flight2 = flight2.run();
     pu.plotGyroSignals(flight1, flight2);
-    %pu.plotGyroSpectra(flight1, flight2); to be done!
-    %pu.plotOverview (flight1, flight2); to be done!
+    pu.plotGyroSpectra(flight1, flight2);
+    pu.plotOverview (flight1, flight2); 
 else
     pu.plotGyroSignals(flight1);
     pu.plotGyroSpectra(flight1);
     pu.plotOverview (flight1);
-    pu.plotBode(flight1);
+    %pu.plotBode(flight1);
 end
 

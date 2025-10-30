@@ -107,113 +107,150 @@ classdef plot_utils < handle
         % ===============================================================
         %  FIGURE 2: GYRO SPECTRA
         % ===============================================================
-        function plotGyroSpectra(obj, flight1)
+        function plotGyroSpectra(obj, flight1, varargin)
             figure(2); clf
-
-            ax(1) = subplot(2,1,1);
-            plot(ax(1), flight1.Specfreq, flight1.unfgyroSpec);
+        
+            % Detect optional second flight
+            if obj.second_flight
+                flight2 = varargin{1};
+            end
+        
+            % Preallocate 3 axes (3 rows × 1 col)
+            ax = gobjects(1,3);
+        
+            % ---------- Subplot 1: Unfiltered spectra ----------
+            ax(1) = subplot(3,1,1);
+            plot(ax(1), flight1.Specfreq, flight1.unfgyroSpec); % F1
+            hold(ax(1),'on');
+            if obj.second_flight
+                plot(ax(1), flight2.Specfreq, flight2.unfgyroSpec); % F2
+            end
             grid(ax(1),'on');
             ylabel(ax(1),'Gyro (deg/s)');
             set(ax(1),'YScale','log');
-            title(ax(1),'Magnitude Spectra');
-
+            title(ax(1),'Unfiltered gyro magnitude spectra');
+        
             if obj.do_insert_legends
-                legend(ax(1), ...
-                    {'gyro Roll','gyro Pitch','gyro Yaw','gyroADC Roll','gyroADC Pitch','gyroADC Yaw'}, ...
-                    'Location','best');
+                if obj.second_flight
+                    legend(ax(1), ...
+                        {'F1 Roll','F1 Pitch','F1 Yaw', ...
+                         'F2 Roll','F2 Pitch','F2 Yaw'}, ...
+                        'Location','northeast');
+                else
+                    legend(ax(1), {'F1 Roll','F1 Pitch','F1 Yaw'}, 'Location','northeast');
+                end
             end
-
-            ax(2) = subplot(2,1,2);
-            plot(ax(2), flight1.Specfreq, flight1.axisSumSpec);
+        
+            % ---------- Subplot 2: Filtered (ADC) spectra ----------
+            ax(2) = subplot(3,1,2);
+            plot(ax(2), flight1.Specfreq, flight1.adcgyroSpec); % F1
+            hold(ax(2),'on');
+            if obj.second_flight
+                plot(ax(2), flight2.Specfreq, flight2.adcgyroSpec); % F2
+            end
             grid(ax(2),'on');
-            ylabel(ax(2),'AxisSum');
-            xlabel(ax(2),'Frequency (Hz)');
+            ylabel(ax(2),'Gyro (deg/s)');
             set(ax(2),'YScale','log');
-
-            if obj.do_insert_legends
-                legend(ax(2), {'axisSum Roll','axisSum Pitch','axisSum Yaw'}, 'Location','best');
+            title(ax(2),'Filtered (ADC) gyro magnitude spectra');
+            legend off;
+          
+            % ---------- Subplot 3: AxisSum spectra ----------
+            ax(3) = subplot(3,1,3);
+            plot(ax(3), flight1.Specfreq, flight1.axisSumSpec); % F1
+            hold(ax(3),'on');
+            if obj.second_flight
+                plot(ax(3), flight2.Specfreq, flight2.axisSumSpec); % F2
             end
+            grid(ax(3),'on');
+            ylabel(ax(3),'AxisSum');
+            xlabel(ax(3),'Frequency (Hz)');
+            set(ax(3),'YScale','log');
+            title(ax(3),'Axis sum spectra');
+            legend off;
 
-            linkaxes(ax, 'x');
-            xlim(ax, [0, 1/(2*flight1.Ts_log)]);
-            ylim(ax(1), [1e-3 1e1]);
-            ylim(ax(2), [1e-3 1e1]);
-            set(findall(gcf, 'type', 'line'), 'LineWidth', obj.linewidth);
+            % Link x-axes and set limits based on (smallest) Nyquist
+            linkaxes(ax,'x');
+            nyq1 = 1/(2*flight1.Ts_log);
+            if obj.second_flight && isfield(flight2,'Ts_log')
+                nyq2 = 1/(2*flight2.Ts_log);
+            else
+                nyq2 = nyq1;
+            end
+            xlim(ax,[0, min(nyq1, nyq2)]);
+        
+            % Optional y-limits (keep your previous styling)
+            try
+                ylim(ax(1), [1e-3 1e1]);
+                ylim(ax(2), [1e-3 1e1]);
+                ylim(ax(3), [1e-3 1e1]);
+            catch
+                % ignore if ranges are incompatible
+            end
+        
+            % Apply global line width
+            set(findall(gcf,'type','line'), 'LineWidth', obj.linewidth);
         end
-
 
         % ===============================================================
         %  FIGURE 3: OVERVIEW PLOTS
         % ===============================================================
-        function plotOverview(obj, flight1)
+        function plotOverview(obj, flight1, varargin)
             figure(3); clf
-
-            ax(1) = subplot(4,1,1);
-            plot(ax(1), flight1.time, flight1.unfgyroData);
-            grid(ax(1),'on');
-            ylabel(ax(1),'Gyro (deg/s)');
-
-            ax(2) = subplot(4,1,2);
-            plot(ax(2), flight1.time, flight1.axisSumData);
-            grid(ax(2),'on');
-            ylabel(ax(2),'AxisSum');
-
-            ax(3) = subplot(4,1,3);
-            plot(ax(3), flight1.time, flight1.motorData);
-            grid(ax(3),'on');
-            ylabel(ax(3),'Motor');
-
-            ax(4) = subplot(4,1,4);
-            plot(ax(4), flight1.time, flight1.setpoint(:,4));
-            grid(ax(4),'on');
-            ylabel(ax(4),'Throttle');
-            xlabel(ax(4),'Time (sec)');
-
-            linkaxes(ax,'x');
-            xlim(ax,[0, flight1.time(end)]);
-            set(findall(gcf,'type','line'),'linewidth',obj.linewidth);
-        end
-
-
-%% Figure 4
-        function plotBode(obj, flight1)
-            switch obj.ind_ax
-                case 1
-                    figure(4)
-                    ax(1) = subplot('Position', obj.pos_bode(1,:));
-                    obj.opt.YLim = {[1e-4 1e2], [-180 180]}; obj.opt.MagScale = 'log';
-                    bode(ax(1), P / Gf_ana, 'k', omega_bode, obj.opt), title('Plant P Roll')
-                    hold off, grid on
-                    ax(2) = subplot('Position', obj.pos_bode(2,:));
-                    obj.opt.YLimMode = {'auto'}; obj.opt.MagScale = 'linear';
-                    bodemag(ax(2), C_T * C_Guw, 'k', omega_bode, obj.opt), title(''), ylabel('Coherence')
-                    linkaxes(ax, 'x'), clear ax
-                    set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
-                    case 2
-                    figure(44)
-                    ax(1) = subplot('Position', obj.pos_bode(1,:));
-                    obj.opt.YLim = {[1e-4 1e2], [-180 180]}; obj.opt.MagScale = 'log';
-                    bode(ax(1), P / Gf_ana, 'k', omega_bode, obj.opt), title('Plant P Pitch')
-                    hold off, grid on
-                    ax(2) = subplot('Position', obj.pos_bode(2,:));
-                    obj.opt.YLimMode = {'auto'}; obj.opt.MagScale = 'linear';
-                    bodemag(ax(2), C_T * C_Guw, 'k', omega_bode, obj.opt), title(''), ylabel('Coherence')
-                    linkaxes(ax, 'x'), clear ax
-                    set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
-                    case 3
-                    figure(4)
-                    ax(1) = subplot('Position', obj.pos_bode(1,:));
-                    obj.opt.YLim = {[1e-4 1e2], [-180 180]}; obj.opt.MagScale = 'log';
-                    bode(ax(1), P / Gf_ana, 'k', omega_bode, obj.opt), title('Plant P Roll')
-                    hold off, grid on
-                    ax(2) = subplot('Position', obj.pos_bode(2,:));
-                    obj.opt.YLimMode = {'auto'}; obj.opt.MagScale = 'linear';
-                    bodemag(ax(2), C_T * C_Guw, 'k', omega_bode, obj.opt), title(''), ylabel('Coherence')
-                    linkaxes(ax, 'x'), clear ax
-                    set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
+        
+            ncol = 1;
+            if obj.second_flight
+                ncol = 2;
+                flight2 = varargin{1};
             end
-            
-
+        
+            % helper function for subplot position
+            pos = @(row, colIdx) colIdx + (row-1)*ncol;   % row = 1..4, colIdx = 1 or 2
+        
+            % ---------- Flight 1 (left column) ----------
+            ax(1) = subplot(4, ncol, pos(1,1));
+            plot(ax(1), flight1.time, flight1.unfgyroData); grid(ax(1),'on');
+            ylabel(ax(1),'Gyro (deg/s)'); title(ax(1),'Flight 1');
+        
+            ax(2) = subplot(4, ncol, pos(2,1));
+            plot(ax(2), flight1.time, flight1.axisSumData); grid(ax(2),'on');
+            ylabel(ax(2),'AxisSum');
+        
+            ax(3) = subplot(4, ncol, pos(3,1));
+            plot(ax(3), flight1.time, flight1.motorData); grid(ax(3),'on');
+            ylabel(ax(3),'Motor');
+        
+            ax(4) = subplot(4, ncol, pos(4,1));
+            plot(ax(4), flight1.time, flight1.setpoint(:,4)); grid(ax(4),'on');
+            ylabel(ax(4),'Throttle'); xlabel(ax(4),'Time (sec)');
+        
+            % ---------- Flight 2 (right column, optional) ----------
+            if obj.second_flight
+                ax(5) = subplot(4, ncol, pos(1,2));
+                plot(ax(5), flight2.time, flight2.unfgyroData); grid(ax(5),'on');
+                ylabel(ax(5),'Gyro (deg/s)'); title(ax(5),'Flight 2');
+        
+                ax(6) = subplot(4, ncol, pos(2,2));
+                plot(ax(6), flight2.time, flight2.axisSumData); grid(ax(6),'on');
+                ylabel(ax(6),'AxisSum');
+        
+                ax(7) = subplot(4, ncol, pos(3,2));
+                plot(ax(7), flight2.time, flight2.motorData); grid(ax(7),'on');
+                ylabel(ax(7),'Motor');
+        
+                ax(8) = subplot(4, ncol, pos(4,2));
+                plot(ax(8), flight2.time, flight2.setpoint(:,4)); grid(ax(8),'on');
+                ylabel(ax(8),'Throttle'); xlabel(ax(8),'Time (sec)');
+            end
+        
+            % ---------- Axis linking and styling ----------
+            if obj.second_flight
+                linkaxes(ax(1:8), 'x');
+            else
+                linkaxes(ax(1:4), 'x');
+            end
+            set(ax, 'XLim', [0, max(flight1.time)]);
+            set(findall(gcf, 'type', 'line'), 'LineWidth', obj.linewidth);
         end
+
     end
 end
