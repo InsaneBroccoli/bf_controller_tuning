@@ -38,9 +38,9 @@ classdef main_class
     end
 
     methods
-        % ===============================================================
+        % =================================================================
         %  ???
-        % ===============================================================
+        % =================================================================
         function obj = main_class(file_path, para_new, ind_ax, do_compensate_iterm, ...
                 do_show_spec_figures, do_insert_legends, opt, P_new, I_ratio_new, D_new)
             % Save all inputs
@@ -56,9 +56,9 @@ classdef main_class
             obj.D_new = D_new;
         end
 
-        % ===============================================================
+        % =================================================================
         %  ???
-        % ===============================================================
+        % =================================================================
         function obj = run(obj)
             linewidth = 1.2;
             multp_fig_nr = obj.ind_ax;
@@ -133,7 +133,10 @@ classdef main_class
             throttle_avg = median(data(ind_eval,ind.setpoint(4))) / 1.0e3;
             
             
-            %% show Gyro to select Teval and spectra (gyro and pid sum)
+            %% 
+            % =============================================================
+            %  show Gyro to select Teval and spectra (gyro and pid sum)
+            % =============================================================
                  
             obj.time        = time;
             obj.setpoint    = data(:, ind.setpoint(1:4));
@@ -169,8 +172,10 @@ classdef main_class
             obj.axisSumSpec = spectra(:,7:9);                     
             
             %%
+            % =============================================================
+            %  Spectrogram
+            % =============================================================
             
-            % Spectrogram
             if (obj.do_show_spec_figures)
             
                 % Parameters
@@ -234,8 +239,11 @@ classdef main_class
             end
           
             
-            %% Frequency response estimation and calculation
-            
+            %% 
+            % =============================================================
+            %  Frequency response estimation and calculation
+            % =============================================================
+
             % Parameters
             Nest     = round(2 / obj.Ts_log);
             koverlap = 0.9;
@@ -264,9 +272,9 @@ classdef main_class
             P = T / Guw;
             
             % % P  , Gyu: u -> y (direct measurement, results are slightly worse)
-            % inp = apply_rotfiltfilt(Glp, data(:,ind.sinarg), data(:,ind.axisSum(obj.ind_ax)));
-            % out = apply_rotfiltfilt(Glp, data(:,ind.sinarg), data(:,ind.gyroADC(obj.ind_ax)));
-            % [Pd, C_Pd] = estimate_frequency_response(inp(ind_eval), out(ind_eval), window, Noverlap, Nest, obj.Ts_log);
+            % inp = apply_rotfiltfilt(Glp, data(:,ind.sinarg), data(:,ind.axisSum(ind_ax)));
+            % out = apply_rotfiltfilt(Glp, data(:,ind.sinarg), data(:,ind.gyroADC(ind_ax)));
+            % [Pd, C_Pd] = estimate_frequency_response(inp(ind_eval), out(ind_eval), window, Noverlap, Nest, Ts_log);
             
             % Calculated controller frequency response estimates
             Cpi = Gvw / (1 - T);
@@ -276,7 +284,7 @@ classdef main_class
             omega_bode = 2*pi*P.Frequency;
             
             
-            %% Downsample analytical controller transferfunction and convert to frd objects
+            % Downsample analytical controller transferfunction and convert to frd objects
             
             [Cpi_ana, Cd_ana, Gf_ana, PID, para_used] = ...
                 calculate_transfer_functions(para, obj.ind_ax, throttle_avg, Ts_cntr);
@@ -286,6 +294,10 @@ classdef main_class
                 Cpi_ana = downsample_frd(Cpi_ana, obj.Ts_log, P.Frequency);
                 Cd_ana  = downsample_frd(Cd_ana , obj.Ts_log, P.Frequency);
             end
+            
+            % =============================================================
+            %  ???
+            % =============================================================
             
             
             %% Plant and used controllers
