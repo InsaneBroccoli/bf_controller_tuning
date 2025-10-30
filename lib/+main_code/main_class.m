@@ -25,6 +25,9 @@ classdef main_class
         Specfreq
         Ts_log
         axisSumData
+        transfData
+        transfCoher
+        transfOmega
     end
 
     methods
@@ -171,6 +174,8 @@ classdef main_class
                 Nres     = floor(max(data(:,ind.setpoint(4))) / 1e1 / 2) % should give 40 at 80% throttle constrain
             
                 c_lim = [5e-2 3e0];
+
+                
             
                 for spectrogram_nr = 1:3
                     [pxx, freq, throttle] = estimate_spectrogram(data(:,ind.gyroUnfilt(spectrogram_nr)), ...
@@ -220,11 +225,7 @@ classdef main_class
                     ylim([0 100])
                 end
             end
-            
-            
-            %% Some relevant fligth data
-            
-
+          
             
             %% Frequency response estimation and calculation
             
@@ -281,17 +282,11 @@ classdef main_class
             
             
             %% Plant and used controllers
+            obj.transfData = P / Gf_ana;
+            obj.transfCoher = C_T * C_Guw;
+            obj.transfOmega = omega_bode;
             
-            figure(expand_multiple_figure_nr(4, multp_fig_nr))
-            ax(1) = subplot('Position', pos_bode(1,:));
-            obj.opt.YLim = {[1e-4 1e2], [-180 180]}; obj.opt.MagScale = 'log';
-            bode(ax(1), P / Gf_ana, 'k', omega_bode, obj.opt), title('Plant P')
-            hold off, grid on
-            ax(2) = subplot('Position', pos_bode(2,:));
-            obj.opt.YLimMode = {'auto'}; obj.opt.MagScale = 'linear';
-            bodemag(ax(2), C_T * C_Guw, 'k', omega_bode, obj.opt), title(''), ylabel('Coherence')
-            linkaxes(ax, 'x'), clear ax
-            set(findall(gcf, 'type', 'line'), 'linewidth', linewidth)
+
             
             % Compare analytical to estimated controllers
             figure(expand_multiple_figure_nr(5, multp_fig_nr))

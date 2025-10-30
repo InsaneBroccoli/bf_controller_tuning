@@ -6,7 +6,8 @@ addpath utils/
 addpath class/
 %%
 % Choose an axis: 1: roll, 2: pitch, 3: yaw
-ind_ax = 1;
+ind_ax = 1;     % keep it now until plot_utils is finished
+
 
 % -------------------------------------------------------------------------
 
@@ -19,7 +20,7 @@ file_path1 = fullfile(log_folder1, flight_folder1, log_name1);
 
 % Define path to *.bbl.csv file for the second flight
 
-second_flight = true;   % Set on true when you want to compare two flights
+second_flight = false;   % Set on true when you want to compare two flights
 
 log_folder2 = '';
 flight_folder2 = '20250908';
@@ -36,7 +37,10 @@ do_insert_legends    = true;
 pu = plot_utils;
 pu.second_flight = second_flight;
 pu.do_insert_legends = do_insert_legends;
-pu.linewidth = linewidth;
+pu.linewidth = 1.2;
+pu.ind_ax = ind_ax;
+
+
 
 
 % Defines
@@ -101,6 +105,7 @@ if second_flight
 else
     pu.plotGyroSignals(flight1);
     pu.plotGyroSpectra(flight1);
-    pu.plotOverview(flight1);
+    pu.plotOverview (flight1);
+    pu.plotBode(flight1);
 end
 
