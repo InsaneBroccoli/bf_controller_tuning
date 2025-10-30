@@ -53,57 +53,100 @@ set(0, 'defaultAxesColorOrder', get_my_colors);
 
 % Bodeoptions
 opt = bodeoptions('cstprefs');
+opt.PhaseUnits    = 'deg';
+opt.PhaseWrapping = 'on';            % Phase auf [-180,180] wrappen
+opt.YLim = {[-Inf Inf]; [-180 180]};   % [Mag-Limits; Phase-Limits]
 
 pu.opt = opt;
 
 % Parameter first flight
 % type: 0: PT1, 1: BIQUAD, 2: PT2, 3: PT3
-para_new.gyro_lpf            = 0;       % dono what this is
-para_new.gyro_lowpass_hz     = 0;       % frequency of gyro lpf 1
-para_new.gyro_soft_type      = 0;       % type of gyro lpf 1
-para_new.gyro_lowpass_dyn_hz = [0, 0];  % dyn gyro lpf overwrites gyro_lowpass_hz
-para_new.gyro_lowpass2_hz    = 800;     % frequency of gyro lpf 2
-para_new.gyro_soft2_type     = 0;       % type of gyro lpf 2
-para_new.gyro_notch_hz       = [0, 0]; % frequency of gyro notch 1 and 2
-para_new.gyro_notch_cutoff   = get_fcut_from_D_and_fcenter([0.00, 0.00], para_new.gyro_notch_hz); % damping of gyro notch 1 and 2
-para_new.dterm_lpf_hz        = 0;       % frequency of dterm lpf 1
-para_new.dterm_filter_type   = 0;       % type of dterm lpf 1
-para_new.dterm_lpf_dyn_hz    = [0, 0];  % dyn dterm lpf overwrites dterm_lpf_hz
-para_new.dterm_lpf2_hz       = 120;     % frequency of dterm lpf 2
-para_new.dterm_filter2_type  = 3;       % type of dterm lpf 2
-para_new.dterm_notch_hz      = 0;     % frequency of dterm notch
-para_new.dterm_notch_cutoff  = get_fcut_from_D_and_fcenter(0.00, para_new.dterm_notch_hz); % damping of dterm notch
-para_new.yaw_lpf_hz          = 200;     % frequency of yaw lpf (pt1)
+para_new1.gyro_lpf            = 0;       % dono what this is
+para_new1.gyro_lowpass_hz     = 0;       % frequency of gyro lpf 1
+para_new1.gyro_soft_type      = 0;       % type of gyro lpf 1
+para_new1.gyro_lowpass_dyn_hz = [0, 0];  % dyn gyro lpf overwrites gyro_lowpass_hz
+para_new1.gyro_lowpass2_hz    = 800;     % frequency of gyro lpf 2
+para_new1.gyro_soft2_type     = 0;       % type of gyro lpf 2
+para_new1.gyro_notch_hz       = [0, 0]; % frequency of gyro notch 1 and 2
+para_new1.gyro_notch_cutoff   = get_fcut_from_D_and_fcenter([0.00, 0.00], para_new1.gyro_notch_hz); % damping of gyro notch 1 and 2
+para_new1.dterm_lpf_hz        = 0;       % frequency of dterm lpf 1
+para_new1.dterm_filter_type   = 0;       % type of dterm lpf 1
+para_new1.dterm_lpf_dyn_hz    = [0, 0];  % dyn dterm lpf overwrites dterm_lpf_hz
+para_new1.dterm_lpf2_hz       = 120;     % frequency of dterm lpf 2
+para_new1.dterm_filter2_type  = 3;       % type of dterm lpf 2
+para_new1.dterm_notch_hz      = 0;     % frequency of dterm notch
+para_new1.dterm_notch_cutoff  = get_fcut_from_D_and_fcenter(0.00, para_new1.dterm_notch_hz); % damping of dterm notch
+para_new1.yaw_lpf_hz          = 200;     % frequency of yaw lpf (pt1)
 switch ind_ax
     case 1 % roll: [33, 52, 26, 0]
-        P_new       = 0.4 * 33;
-        I_ratio_new = 1.0 * 52/52;
-        D_new       = 0.025 * 26;
+        P_new1       = 0.4 * 33;
+        I_ratio_new1 = 1.0 * 52/52;
+        D_new1       = 0.025 * 26;
     case 2 % pitch: [58, 98, 44, 0]
-        P_new       = 1.0 * 58;
-        I_ratio_new = 1.0 * 98/98;
-        D_new       = 1.0 * 44;
+        P_new1       = 1.0 * 58;
+        I_ratio_new1 = 1.0 * 98/98;
+        D_new1       = 1.0 * 44;
     case 3 % yaw: [42, 65, 3, 0]
-        P_new       = 1.0 * 42;
-        I_ratio_new = 1.0 * 65/65;
-        D_new       = 1.0 * 3;
+        P_new1       = 1.0 * 42;
+        I_ratio_new1 = 1.0 * 65/65;
+        D_new1       = 1.0 * 3;
 end
 
-flight1 = main_code.main_class(file_path1, para_new, ind_ax, do_compensate_iterm, ...
-    do_show_spec_figures, do_insert_legends, opt, P_new, I_ratio_new, D_new);
+% Parameter seconde flight
+% type: 0: PT1, 1: BIQUAD, 2: PT2, 3: PT3
+para_new2.gyro_lpf            = 0;       % dono what this is
+para_new2.gyro_lowpass_hz     = 0;       % frequency of gyro lpf 1
+para_new2.gyro_soft_type      = 0;       % type of gyro lpf 1
+para_new2.gyro_lowpass_dyn_hz = [0, 0];  % dyn gyro lpf overwrites gyro_lowpass_hz
+para_new2.gyro_lowpass2_hz    = 800;     % frequency of gyro lpf 2
+para_new2.gyro_soft2_type     = 0;       % type of gyro lpf 2
+para_new2.gyro_notch_hz       = [0, 0]; % frequency of gyro notch 1 and 2
+para_new2.gyro_notch_cutoff   = get_fcut_from_D_and_fcenter([0.00, 0.00], para_new2.gyro_notch_hz); % damping of gyro notch 1 and 2
+para_new2.dterm_lpf_hz        = 0;       % frequency of dterm lpf 1
+para_new2.dterm_filter_type   = 0;       % type of dterm lpf 1
+para_new2.dterm_lpf_dyn_hz    = [0, 0];  % dyn dterm lpf overwrites dterm_lpf_hz
+para_new2.dterm_lpf2_hz       = 120;     % frequency of dterm lpf 2
+para_new2.dterm_filter2_type  = 3;       % type of dterm lpf 2
+para_new2.dterm_notch_hz      = 0;     % frequency of dterm notch
+para_new2.dterm_notch_cutoff  = get_fcut_from_D_and_fcenter(0.00, para_new2.dterm_notch_hz); % damping of dterm notch
+para_new2.yaw_lpf_hz          = 200;     % frequency of yaw lpf (pt1)
+switch ind_ax
+    case 1 % roll: [33, 52, 26, 0]
+        P_new2       = 0.4 * 33;
+        I_ratio_new2 = 1.0 * 52/52;
+        D_new2       = 0.025 * 26;
+    case 2 % pitch: [58, 98, 44, 0]
+        P_new2       = 1.0 * 58;
+        I_ratio_new2 = 1.0 * 98/98;
+        D_new2       = 1.0 * 44;
+    case 3 % yaw: [42, 65, 3, 0]
+        P_new2       = 1.0 * 42;
+        I_ratio_new2 = 1.0 * 65/65;
+        D_new2       = 1.0 * 3;
+end
+
+flight1 = main_code.main_class(file_path1, para_new1, ind_ax, do_compensate_iterm, ...
+    do_show_spec_figures, do_insert_legends, opt, P_new1, I_ratio_new1, D_new1);
 flight1 = flight1.run();
 
 if second_flight
-    flight2 = main_code.main_class(file_path2, para_new, ind_ax, do_compensate_iterm, ...
-        do_show_spec_figures, do_insert_legends, opt, P_new, I_ratio_new, D_new);
+    flight2 = main_code.main_class(file_path2 ,para_new2, ind_ax, do_compensate_iterm, ...
+        do_show_spec_figures, do_insert_legends, opt, P_new2, I_ratio_new2, D_new2);
     flight2 = flight2.run();
+end
+%% Plots
+
+if second_flight
     pu.plotGyroSignals(flight1, flight2);
     pu.plotGyroSpectra(flight1, flight2);
-    pu.plotOverview (flight1, flight2); 
+    pu.plotOverview (flight1, flight2);
+    pu.plotBode(flight1, flight2);
+    pu.plotCPIDBode(flight1, flight2);
 else
     pu.plotGyroSignals(flight1);
     pu.plotGyroSpectra(flight1);
     pu.plotOverview (flight1);
-    %pu.plotBode(flight1);
+    pu.plotBode(flight1);
+    pu.plotCPIDBode(flight1);
 end
 
