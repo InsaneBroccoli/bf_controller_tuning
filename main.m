@@ -3,7 +3,7 @@ addpath(genpath('lib_michi'))
 addpath(genpath('lib'));
 addpath logs/
 addpath utils/
-addpath class\
+addpath class/
 %%
 % Choose an axis: 1: roll, 2: pitch, 3: yaw
 ind_ax = 1;     % keep it now until plot_utils is finished
