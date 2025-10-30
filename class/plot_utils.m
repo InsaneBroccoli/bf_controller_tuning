@@ -10,7 +10,7 @@ classdef plot_utils < handle
         do_show_spec_figures (1,1) logical = true
         do_insert_legends    (1,1) logical = true
         linewidth            (1,1) double  = 1.2
-        opt = bodeoptions('cstprefs')
+        opt
         colorOrder = get(0, 'DefaultAxesColorOrder')
         second_flight (1,1) logical = false
         ind_ax
@@ -264,16 +264,21 @@ classdef plot_utils < handle
         % ===============================================================
 
         function plotBode(obj, flight1, varargin)
-            
+            % plotBode - Bode plot (Plant and Coherence) for selected axis
+            % Minimal edits: keep all global bode options in MAIN.
+            % Use local options only for the coherence subplot (auto Y-limits).
+            % Always use BODEMAG for coherence on both flights.
+        
             if obj.second_flight
                 flight2 = varargin{1};
             end
-
+        
             switch obj.ind_ax
                 case 1
                     figure(4)
                     ax(1) = subplot('Position', obj.pos_bode(1,:));
-                    obj.opt.MagScale = 'log';
+        
+                    % --- Plant (Bode: magnitude + phase) ---
                     bode(ax(1), flight1.transfData, 'k', flight1.transfOmega, obj.opt), title('Plant P Roll')
                     if obj.second_flight
                         hold on
@@ -281,22 +286,24 @@ classdef plot_utils < handle
                     end
                     hold off, grid on
                     legend('Flight 1', 'Flight 2', 'Location','southwest')
+        
+                    % --- Coherence (magnitude only) ---
                     ax(2) = subplot('Position', obj.pos_bode(2,:));
-                    obj.opt.YLimMode = {'auto'};
-                    obj.opt.MagScale = 'linear';
-                    bodemag(ax(2), flight1.transfCoher, 'k', flight1.transfOmega, obj.opt), title(''), ylabel('Coherence')
+                    optC = obj.opt;                 % local copy: do not alter global options
+                    optC.YLimMode = {'auto'};       % auto Y-limits for coherence
+                    bodemag(ax(2), flight1.transfCoher, 'k', flight1.transfOmega, optC), title(''), ylabel('Coherence')
                     if obj.second_flight
                         hold on
-                        bode(ax(2), flight2.transfCoher, 'r', flight2.transfOmega, obj.opt)
+                        bodemag(ax(2), flight2.transfCoher, 'r', flight2.transfOmega, optC)
                     end
                     linkaxes(ax, 'x'), clear ax
                     set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
-                    
         
                 case 2
                     figure(44)
                     ax(1) = subplot('Position', obj.pos_bode(1,:));
-                    obj.opt.MagScale = 'log';
+        
+                    % --- Plant (Bode: magnitude + phase) ---
                     bode(ax(1), flight1.transfData, 'k', flight1.transfOmega, obj.opt), title('Plant P Pitch')
                     if obj.second_flight
                         hold on
@@ -304,13 +311,15 @@ classdef plot_utils < handle
                     end
                     hold off, grid on
                     legend('Flight 1', 'Flight 2', 'Location','southwest')
+        
+                    % --- Coherence (magnitude only) ---
                     ax(2) = subplot('Position', obj.pos_bode(2,:));
-                    obj.opt.YLimMode = {'auto'};
-                    obj.opt.MagScale = 'linear';
-                    bodemag(ax(2), flight1.transfCoher, 'k', flight1.transfOmega, obj.opt), title(''), ylabel('Coherence')
+                    optC = obj.opt;                 % local copy
+                    optC.YLimMode = {'auto'};       % auto Y-limits for coherence
+                    bodemag(ax(2), flight1.transfCoher, 'k', flight1.transfOmega, optC), title(''), ylabel('Coherence')
                     if obj.second_flight
                         hold on
-                        bode(ax(2), flight2.transfCoher, 'r', flight2.transfOmega, obj.opt)
+                        bodemag(ax(2), flight2.transfCoher, 'r', flight2.transfOmega, optC)
                     end
                     linkaxes(ax, 'x'), clear ax
                     set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
@@ -318,170 +327,160 @@ classdef plot_utils < handle
                 case 3
                     figure(4)
                     ax(1) = subplot('Position', obj.pos_bode(1,:));
-                    obj.opt.YLim = {[1e-4 1e2], [-180 180]};
-                    obj.opt.MagScale = 'log';
-                    bode(ax(1), flight1.transfData, 'k', flight1.transfOmega, obj.opt), title('Plant P Roll')
+        
+                    % --- Plant (Bode: magnitude + phase) ---
+                    bode(ax(1), flight1.transfData, 'k', flight1.transfOmega, obj.opt), title('Plant P Yaw')
                     if obj.second_flight
                         hold on
                         bode(ax(1), flight2.transfData, 'r', flight2.transfOmega, obj.opt)
                     end
                     hold off, grid on
                     legend('Flight 1', 'Flight 2', 'Location','southwest')
+        
+                    % --- Coherence (magnitude only) ---
                     ax(2) = subplot('Position', obj.pos_bode(2,:));
-                    obj.opt.YLimMode = {'auto'};
-                    obj.opt.MagScale = 'linear';
-                    bodemag(ax(2), flight1.transfCoher, 'k', flight1.transfOmega, obj.opt), title(''), ylabel('Coherence')
+                    optC = obj.opt;                 % local copy
+                    optC.YLimMode = {'auto'};       % auto Y-limits for coherence
+                    bodemag(ax(2), flight1.transfCoher, 'k', flight1.transfOmega, optC), title(''), ylabel('Coherence')
                     if obj.second_flight
                         hold on
-                        bode(ax(2), flight2.transfCoher, 'r', flight2.transfOmega, obj.opt)
+                        bodemag(ax(2), flight2.transfCoher, 'r', flight2.transfOmega, optC)
                     end
                     linkaxes(ax, 'x'), clear ax
                     set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
             end
         end
+
     %%
         % ===============================================================
         %  FIGURE 5: CONTROLLER BODE PLOTS
         % ===============================================================
 
         function plotCPIDBode(obj, flight1, varargin)
-        % plotCPIDBode - Bode plot for PI and D controller (measured vs analytical)
-        % Minimal adjustments only to make the function run without errors.
-    
-        if obj.second_flight
-            flight2 = varargin{1};
+            % plotCPIDBode - Bode plot for PI and D controller (measured vs analytical)
+            % Minimal edits: keep global bode options from MAIN, do not override here.
+        
+            if obj.second_flight
+                flight2 = varargin{1};
+            end
+        
+            switch obj.ind_ax
+                case 1
+                    figure(5)
+        
+                    % ---------- PI ----------
+                    subplot(1,2,1)
+                    bode(flight1.transfCpi, flight1.transfCpiAna, flight1.transfOmega, obj.opt), title('Controller PI Roll')
+                    hold on
+                    if obj.second_flight
+                        bode(flight2.transfCpi, flight2.transfCpiAna, flight2.transfOmega, obj.opt)
+                        if obj.do_insert_legends
+                            legend('PI gemessen F1','PI analytisch F1', ...
+                                   'PI gemessen F2','PI analytisch F2')
+                        end
+                    else
+                        if obj.do_insert_legends
+                            legend('PI gemessen F1','PI analytisch F1')
+                        end
+                    end
+                    set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
+        
+                    % ---------- D ----------
+                    subplot(1,2,2)
+                    bode(flight1.transfCD, flight1.transfCDAna, flight1.transfOmega, obj.opt), title('Controller D Roll')
+                    hold on
+                    if obj.second_flight
+                        bode(flight2.transfCD, flight2.transfCDAna, flight2.transfOmega, obj.opt)
+                        if obj.do_insert_legends
+                            legend('D gemessen F1','D analytisch F1', ...
+                                   'D gemessen F2','D analytisch F2', ...
+                                   'Location','northwest')
+                        end
+                    else
+                        if obj.do_insert_legends
+                            legend('D gemessen F1','D analytisch F1')
+                        end
+                    end
+                    set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
+        
+                case 2
+                    figure(55)
+        
+                    % ---------- PI ----------
+                    subplot(1,2,1)
+                    bode(flight1.transfCpi, flight1.transfCpiAna, flight1.transfOmega, obj.opt), title('Controller PI Pitch')
+                    hold on
+                    if obj.second_flight
+                        bode(flight2.transfCpi, flight2.transfCpiAna, flight2.transfOmega, obj.opt)
+                        if obj.do_insert_legends
+                            legend('PI gemessen F1','PI analytisch F1', ...
+                                   'PI gemessen F2','PI analytisch F2')
+                        end
+                    else
+                        if obj.do_insert_legends
+                            legend('PI gemessen F1','PI analytisch F1')
+                        end
+                    end
+                    set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
+        
+                    % ---------- D ----------
+                    subplot(1,2,2)
+                    bode(flight1.transfCD, flight1.transfCDAna, flight1.transfOmega, obj.opt), title('Controller D Pitch')
+                    hold on
+                    if obj.second_flight
+                        bode(flight2.transfCD, flight2.transfCDAna, flight2.transfOmega, obj.opt)
+                        if obj.do_insert_legends
+                            legend('D gemessen F1','D analytisch F1', ...
+                                   'D gemessen F2','D analytisch F2', ...
+                                   'Location','northwest')
+                        end
+                    else
+                        if obj.do_insert_legends
+                            legend('D gemessen F1','D analytisch F1')
+                        end
+                    end
+                    set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
+        
+                case 3
+                    figure(5)
+        
+                    % ---------- PI ----------
+                    subplot(1,2,1)
+                    bode(flight1.transfCpi, flight1.transfCpiAna, flight1.transfOmega, obj.opt), title('Controller PI Yaw')
+                    hold on
+                    if obj.second_flight
+                        bode(flight2.transfCpi, flight2.transfCpiAna, flight2.transfOmega, obj.opt)
+                        if obj.do_insert_legends
+                            legend('PI gemessen F1','PI analytisch F1', ...
+                                   'PI gemessen F2','PI analytisch F2')
+                        end
+                    else
+                        if obj.do_insert_legends
+                            legend('PI gemessen F1','PI analytisch F1')
+                        end
+                    end
+                    set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
+        
+                    % ---------- D ----------
+                    subplot(1,2,2)
+                    bode(flight1.transfCD, flight1.transfCDAna, flight1.transfOmega, obj.opt), title('Controller D Yaw')
+                    hold on
+                    if obj.second_flight
+                        bode(flight2.transfCD, flight2.transfCDAna, flight2.transfOmega, obj.opt)
+                        if obj.do_insert_legends
+                            legend('D gemessen F1','D analytisch F1', ...
+                                   'D gemessen F2','D analytisch F2', ...
+                                   'Location','northwest')
+                        end
+                    else
+                        if obj.do_insert_legends
+                            legend('D gemessen F1','D analytisch F1')
+                        end
+                    end
+                    set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
+            end
         end
-    
-        switch obj.ind_ax
-            case 1
-                figure(5)
-                
-                % ---------- PI ----------
-                subplot(1,2,1)
-                
-                obj.opt.MagScale = 'log';
-                bode(flight1.transfCpi, flight1.transfCpiAna, flight1.transfOmega, obj.opt), title('Controller PI Roll')
-                hold on
-                if obj.second_flight
-                    bode(flight2.transfCpi, flight2.transfCpiAna, flight2.transfOmega, obj.opt)
-                    if obj.do_insert_legends
-                        legend('PI gemessen F1','PI analytisch F1', ...
-                               'PI gemessen F2','PI analytisch F2')
-                    end 
-                else
-                    if obj.do_insert_legends
-                        legend('PI gemessen F1','PI analytisch F1')
-                    end 
-                end
-                set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
-                
-    
-                % ---------- D ----------
-                subplot(1,2,2)
-                 
-                obj.opt.MagScale = 'log';
-                bode(flight1.transfCD, flight1.transfCDAna, flight1.transfOmega, obj.opt), title('Controller D Roll')
-                hold on
-                if obj.second_flight
-                    bode(flight2.transfCD, flight2.transfCDAna, flight2.transfOmega, obj.opt)
-                    if obj.do_insert_legends
-                        legend('D gemessen F1','D analytisch F1', ...
-                               'D gemessen F2','D analytisch F2', ...
-                               'Location','northwest')
-                    end 
-                else
-                    if obj.do_insert_legends
-                        legend('D gemessen F1','D analytisch F1')
-                    end 
-                end
-                set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
 
-            case 2
-                figure(55)
-                
-                % ---------- PI ----------
-                subplot(1,2,1)
-                obj.opt.YLim = {[1e-2 1e2], [-180 180]}; 
-                obj.opt.MagScale = 'log';
-                bode(flight1.transfCpi, flight1.transfCpiAna, flight1.transfOmega, obj.opt), title('Controller PI Pitch')
-                hold on
-                if obj.second_flight
-                    bode(flight2.transfCpi, flight2.transfCpiAna, flight2.transfOmega, obj.opt)
-                    if obj.do_insert_legends
-                        legend('PI gemessen F1','PI analytisch F1', ...
-                               'PI gemessen F2','PI analytisch F2')
-                    end 
-                else
-                    if obj.do_insert_legends
-                        legend('PI gemessen F1','PI analytisch F1')
-                    end 
-                end
-                set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
-                
-    
-                % ---------- D ----------
-                subplot(1,2,2)
-                
-                obj.opt.MagScale = 'log';
-                bode(flight1.transfCD, flight1.transfCDAna, flight1.transfOmega, obj.opt), title('Controller D Pitch')
-                hold on
-                if obj.second_flight
-                    bode(flight2.transfCD, flight2.transfCDAna, flight2.transfOmega, obj.opt)
-                    if obj.do_insert_legends
-                        legend('D gemessen F1','D analytisch F1', ...
-                               'D gemessen F2','D analytisch F2', ...
-                               'Location','northwest')
-                    end 
-                else
-                    if obj.do_insert_legends
-                        legend('D gemessen F1','D analytisch F1')
-                    end 
-                end
-                set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
-
-            case 3 
-                figure(5)
-                
-                % ---------- PI ----------
-                subplot(1,2,1)
-                obj.opt.MagScale = 'log';
-                bode(flight1.transfCpi, flight1.transfCpiAna, flight1.transfOmega, obj.opt), title('Controller PI Yaw')
-                hold on
-                if obj.second_flight
-                    bode(flight2.transfCpi, flight2.transfCpiAna, flight2.transfOmega, obj.opt)
-                    if obj.do_insert_legends
-                        legend('PI gemessen F1','PI analytisch F1', ...
-                               'PI gemessen F2','PI analytisch F2')
-                    end 
-                else
-                    if obj.do_insert_legends
-                        legend('PI gemessen F1','PI analytisch F1')
-                    end 
-                end
-                set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
-                
-    
-                % ---------- D ----------
-                subplot(1,2,2)
-                obj.opt.YLim = {[1e-2 1e2], [-180 180]}; 
-                obj.opt.MagScale = 'log';
-                bode(flight1.transfCD, flight1.transfCDAna, flight1.transfOmega, obj.opt), title('Controller D Yaw')
-                hold on
-                if obj.second_flight
-                    bode(flight2.transfCD, flight2.transfCDAna, flight2.transfOmega, obj.opt)
-                    if obj.do_insert_legends
-                        legend('D gemessen F1','D analytisch F1', ...
-                               'D gemessen F2','D analytisch F2', ...
-                               'Location','northwest')
-                    end 
-                else
-                    if obj.do_insert_legends
-                        legend('D gemessen F1','D analytisch F1')
-                    end 
-                end
-                set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
-        end        
-        end
 
     %%
         % ===============================================================
@@ -498,17 +497,38 @@ classdef plot_utils < handle
 
             figure(6)
             ax(1) = subplot(2,2,1);
-            bodemag(ax(1), flight1.CloLoAan.T , flight1.CloLoAanNew.T , T, flight1.transfOmega, obj.opt), title('Tracking T')
+            bodemag(ax(1), flight1.CloLoAan.T , flight1.CloLoAanNew.T , flight1.transfT, flight1.transfOmega, obj.opt), title('Tracking T')
+            if obj.second_flight
+                hold on
+                bodemag(ax(1), flight2.CloLoAan.T , flight2.CloLoAanNew.T , flight2.transfT, flight2.transfOmega, obj.opt)
+                if obj.do_insert_legends, legend('actual F1', 'new F1', 'actual F2', 'new F2','location', 'best'), end
+            end
             if obj.do_insert_legends, legend('actual', 'new', 'location', 'best'), end
-            ax(2) = subplot(222);
-            bodemag(ax(2), CL_ana.S , CL_ana_new.S , omega_bode, obj.opt), title('Sensitivity S')
+            ax(2) = subplot(2,2,2);
+            bodemag(ax(2), flight1.CloLoAan.S, flight1.CloLoAanNew.S , flight1.transfOmega, obj.opt), title('Sensitivity S')
+            if obj.second_flight
+                hold on
+                bodemag(ax(2), flight2.CloLoAan.S, flight2.CloLoAanNew.S , flight2.transfOmega, obj.opt)
+            end
             ax(3) = subplot(223);
             obj.opt.YLim = {[1e-2 1e2], [-180 180]};
-            bodemag(ax(3), CL_ana.SC, CL_ana_new.SC, omega_bode, obj.opt), title('Controller Effort SC')
+            bodemag(ax(3), flight1.CloLoAan.SC, flight1.CloLoAanNew.SC, flight1.transfOmega, obj.opt), title('Controller Effort SC')
+            if obj.second_flight
+                hold on
+                bodemag(ax(3), flight2.CloLoAan.SC, flight2.CloLoAanNew.SC, flight2.transfOmega, obj.opt)
+            end
             ax(4) = subplot(224);
             obj.opt.YLim = {[1e-3 1e1], [-180 180]};
-            bodemag(ax(4), CL_ana.SP, CL_ana_new.SP, omega_bode, obj.opt), title('Compliance SP')
+            bodemag(ax(4), flight1.CloLoAan.SP, flight1.CloLoAanNew.SP, flight1.transfOmega, obj.opt), title('Compliance SP')
+            if obj.second_flight
+                hold on
+                bodemag(ax(4), flight2.CloLoAan.SP, flight2.CloLoAanNew.SP, flight2.transfOmega, obj.opt)
+            end
+
             linkaxes(ax, 'x'), clear ax
-            set(findall(gcf, 'type', 'line'), 'linewidth', linewidth)
+            set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
+
+
+        end
     end
 end
