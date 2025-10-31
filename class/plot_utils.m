@@ -289,12 +289,12 @@ classdef plot_utils < handle
         
                     % --- Coherence (magnitude only) ---
                     ax(2) = subplot('Position', obj.pos_bode(2,:));
-                    optC = obj.opt;                 % local copy: do not alter global options
-                    optC.YLimMode = {'auto'};       % auto Y-limits for coherence
-                    bodemag(ax(2), flight1.transfCoher, 'k', flight1.transfOmega, optC), title(''), ylabel('Coherence')
+                    
+                    bodemag(ax(2), flight1.transfCoher, 'k', flight1.transfOmega, obj.opt),
+                    title(''), ylabel('Coherence')
                     if obj.second_flight
                         hold on
-                        bodemag(ax(2), flight2.transfCoher, 'r', flight2.transfOmega, optC)
+                        bodemag(ax(2), flight2.transfCoher, 'r', flight2.transfOmega, obj.opt)
                     end
                     linkaxes(ax, 'x'), clear ax
                     set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
@@ -314,12 +314,10 @@ classdef plot_utils < handle
         
                     % --- Coherence (magnitude only) ---
                     ax(2) = subplot('Position', obj.pos_bode(2,:));
-                    optC = obj.opt;                 % local copy
-                    optC.YLimMode = {'auto'};       % auto Y-limits for coherence
-                    bodemag(ax(2), flight1.transfCoher, 'k', flight1.transfOmega, optC), title(''), ylabel('Coherence')
+                    bodemag(ax(2), flight1.transfCoher, 'k', flight1.transfOmega, obj.opt), title(''), ylabel('Coherence')
                     if obj.second_flight
                         hold on
-                        bodemag(ax(2), flight2.transfCoher, 'r', flight2.transfOmega, optC)
+                        bodemag(ax(2), flight2.transfCoher, 'r', flight2.transfOmega, obj.opt)
                     end
                     linkaxes(ax, 'x'), clear ax
                     set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
@@ -339,12 +337,10 @@ classdef plot_utils < handle
         
                     % --- Coherence (magnitude only) ---
                     ax(2) = subplot('Position', obj.pos_bode(2,:));
-                    optC = obj.opt;                 % local copy
-                    optC.YLimMode = {'auto'};       % auto Y-limits for coherence
-                    bodemag(ax(2), flight1.transfCoher, 'k', flight1.transfOmega, optC), title(''), ylabel('Coherence')
+                    bodemag(ax(2), flight1.transfCoher, 'k', flight1.transfOmega, obj.opt), title(''), ylabel('Coherence')
                     if obj.second_flight
                         hold on
-                        bodemag(ax(2), flight2.transfCoher, 'r', flight2.transfOmega, optC)
+                        bodemag(ax(2), flight2.transfCoher, 'r', flight2.transfOmega, obj.opt)
                     end
                     linkaxes(ax, 'x'), clear ax
                     set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
@@ -499,12 +495,12 @@ classdef plot_utils < handle
                     figure(6)
                     ax(1) = subplot(2,2,1);
                     bodemag(ax(1), flight1.CloLoAan.T , flight1.CloLoAanNew.T , flight1.transfT, flight1.transfOmega, obj.opt), title('Tracking T ')
+                    if obj.do_insert_legends, legend('actual', 'new', 'location', 'best'), end
                     if obj.second_flight
                         hold on
                         bodemag(ax(1), flight2.CloLoAan.T , flight2.CloLoAanNew.T , flight2.transfT, flight2.transfOmega, obj.opt)
                         if obj.do_insert_legends, legend('actual F1', 'new F1', 'actual F2', 'new F2','location', 'best'), end
                     end
-                    if obj.do_insert_legends, legend('actual', 'new', 'location', 'best'), end
                     ax(2) = subplot(2,2,2);
                     bodemag(ax(2), flight1.CloLoAan.S, flight1.CloLoAanNew.S , flight1.transfOmega, obj.opt), title('Sensitivity S')
                     if obj.second_flight
@@ -535,12 +531,12 @@ classdef plot_utils < handle
                     figure(66)
                     ax(1) = subplot(2,2,1);
                     bodemag(ax(1), flight1.CloLoAan.T , flight1.CloLoAanNew.T , flight1.transfT, flight1.transfOmega, obj.opt), title('Tracking T')
+                    if obj.do_insert_legends, legend('actual', 'new', 'location', 'best'), end
                     if obj.second_flight
                         hold on
                         bodemag(ax(1), flight2.CloLoAan.T , flight2.CloLoAanNew.T , flight2.transfT, flight2.transfOmega, obj.opt)
                         if obj.do_insert_legends, legend('actual F1', 'new F1', 'actual F2', 'new F2','location', 'best'), end
                     end
-                    if obj.do_insert_legends, legend('actual', 'new', 'location', 'best'), end
                     ax(2) = subplot(2,2,2);
                     bodemag(ax(2), flight1.CloLoAan.S, flight1.CloLoAanNew.S , flight1.transfOmega, obj.opt), title('Sensitivity S')
                     if obj.second_flight
@@ -571,12 +567,12 @@ classdef plot_utils < handle
                     figure(666)
                     ax(1) = subplot(2,2,1);
                     bodemag(ax(1), flight1.CloLoAan.T , flight1.CloLoAanNew.T , flight1.transfT, flight1.transfOmega, obj.opt), title('Tracking T')
+                    if obj.do_insert_legends, legend('actual', 'new', 'location', 'best'), end
                     if obj.second_flight
                         hold on
                         bodemag(ax(1), flight2.CloLoAan.T , flight2.CloLoAanNew.T , flight2.transfT, flight2.transfOmega, obj.opt)
                         if obj.do_insert_legends, legend('actual F1', 'new F1', 'actual F2', 'new F2','location', 'best'), end
                     end
-                    if obj.do_insert_legends, legend('actual', 'new', 'location', 'best'), end
                     ax(2) = subplot(2,2,2);
                     bodemag(ax(2), flight1.CloLoAan.S, flight1.CloLoAanNew.S , flight1.transfOmega, obj.opt), title('Sensitivity S')
                     if obj.second_flight
@@ -709,7 +705,6 @@ classdef plot_utils < handle
                 %======== ROLL ========
                 case 1
                     figure(8)
-                    obj.opt.YLim = {[1e-1 1e2], [-180 180]};
                     bode(flight1.CloLoAan.C, flight1.CloLoAanNew.C, flight1.transfOmega, obj.opt)
                     if obj.do_insert_legends, legend('actual F1', 'new F1', 'location', 'best'), end
                     if obj.second_flight
@@ -795,9 +790,101 @@ classdef plot_utils < handle
 
          %%
         % ===============================================================
-        %  FIGURE 22: Spectogram
+        %  FIGURE 22/23: Spectogram
         % ===============================================================
 
+        function plotspectogram(obj, flight1, varargin)
+
+            figure(22); clf
+            sgtitle('Gyro Spectrograms Flight 1')
+            axes_labels = {'Roll', 'Pitch', 'Yaw'};
+        
+            c_lim = [5e-2 3e0];
+        
+            colormap('jet')
+            
+           for spectrogram_nr = 1:flight1.num_spectrograms
+                subplot(230 + spectrogram_nr)
+                qmesh = pcolor(flight1.SpecfreqUnf{spectrogram_nr}, ...
+                               flight1.SpecthroUnf{spectrogram_nr}, ...
+                               flight1.SpecAmplUnf{spectrogram_nr});
+                set(qmesh, 'EdgeColor', 'none');
+                if spectrogram_nr == 1
+                    ylabel('Throttle (%)')
+                end
+                xlabel('Frequency (Hz)')
+                title([axes_labels{spectrogram_nr}, ' – ohne Filter'])   
+                set(gca, 'ColorScale', 'log')                            
+                clim(c_lim);                                             
+                ylim([0 100])                                             
+            end
+        
+            % --- unten: mit Filter (unverändert) ---
+            for spectrogram_nr = 1:flight1.num_spectrograms
+                subplot(230 + spectrogram_nr + 3)
+                qmesh = pcolor(flight1.SpecfreqFil{spectrogram_nr}, ...
+                               flight1.SpecthroFil{spectrogram_nr}, ...
+                               flight1.SpecAmplFil{spectrogram_nr});
+                set(qmesh, 'EdgeColor', 'none');
+                xlabel('Frequency (Hz)')
+                if spectrogram_nr == 1
+                    ylabel('Throttle (%)')
+                end
+                title([axes_labels{spectrogram_nr}, ' – mit Filter'])
+                colormap('jet')
+                set(gca, 'ColorScale', 'log')
+                clim(c_lim);
+                ylim([0 100])
+            end
+
+            % ======== Spectogram Flight 2 ========
+
+            if obj.second_flight
+                flight2 = varargin{1};
+            end
+            figure(23); clf
+            sgtitle('Gyro Spectrograms Flight 2')
+            axes_labels = {'Roll', 'Pitch', 'Yaw'};
+        
+            c_lim = [5e-2 3e0];
+        
+            colormap('jet')
+            
+           for spectrogram_nr = 1:flight2.num_spectrograms
+                subplot(230 + spectrogram_nr)
+                qmesh = pcolor(flight2.SpecfreqUnf{spectrogram_nr}, ...
+                               flight2.SpecthroUnf{spectrogram_nr}, ...
+                               flight2.SpecAmplUnf{spectrogram_nr});
+                set(qmesh, 'EdgeColor', 'none');
+                if spectrogram_nr == 1
+                    ylabel('Throttle (%)')
+                end
+                xlabel('Frequency (Hz)')
+                title([axes_labels{spectrogram_nr}, ' – ohne Filter'])   
+                set(gca, 'ColorScale', 'log')                            
+                clim(c_lim);                                             
+                ylim([0 100])                                             
+            end
+        
+            % --- unten: mit Filter (unverändert) ---
+            for spectrogram_nr = 1:flight2.num_spectrograms
+                subplot(230 + spectrogram_nr + 3)
+                qmesh = pcolor(flight2.SpecfreqFil{spectrogram_nr}, ...
+                               flight2.SpecthroFil{spectrogram_nr}, ...
+                               flight2.SpecAmplFil{spectrogram_nr});
+                set(qmesh, 'EdgeColor', 'none');
+                xlabel('Frequency (Hz)')
+                if spectrogram_nr == 1
+                    ylabel('Throttle (%)')
+                end
+                title([axes_labels{spectrogram_nr}, ' – mit Filter'])
+                colormap('jet')
+                set(gca, 'ColorScale', 'log')
+                clim(c_lim);
+                ylim([0 100])
+            end
+
+        end
 
     end
 end
