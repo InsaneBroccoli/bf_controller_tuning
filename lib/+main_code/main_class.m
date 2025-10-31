@@ -385,7 +385,7 @@ classdef main_class
 
             obj.CloLoAan = CL_ana;
             obj.CloLoAanNew = CL_ana_new;
-            obj.Tra
+            %obj.Tra
             
             % Closed-loop bode plots (gang of four)
             figure(expand_multiple_figure_nr(6, multp_fig_nr))

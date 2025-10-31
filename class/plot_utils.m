@@ -510,5 +510,6 @@ classdef plot_utils < handle
             bodemag(ax(4), CL_ana.SP, CL_ana_new.SP, omega_bode, obj.opt), title('Compliance SP')
             linkaxes(ax, 'x'), clear ax
             set(findall(gcf, 'type', 'line'), 'linewidth', linewidth)
+        end
     end
 end
