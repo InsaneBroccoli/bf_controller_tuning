@@ -146,6 +146,9 @@ if second_flight
     pu.plotBode(flight1, flight2);
     pu.plotCPIDBode(flight1, flight2);
     pu.plotGangofFour(flight1, flight2);
+    pu.plotevaltime(flight1, flight2);
+    pu.plotController(flight1, flight2);
+    pu.plotStepResp(flight1,flight2);
 else
     pu.plotGyroSignals(flight1);
     pu.plotGyroSpectra(flight1);
@@ -153,5 +156,8 @@ else
     pu.plotBode(flight1);
     pu.plotCPIDBode(flight1);
     pu.plotGangofFour(flight1);
+    pu.plotStepResp(flight1);
+    pu.plotController(flight1);
+    pu.plotevaltime(flight1);
 end
 
