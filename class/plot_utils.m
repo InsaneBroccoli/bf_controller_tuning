@@ -374,6 +374,7 @@ classdef plot_utils < handle
                     hold on
                     if obj.second_flight
                         bode(flight2.transfCpi, flight2.transfCpiAna, flight2.transfOmega, obj.opt)
+                        
                         if obj.do_insert_legends
                             legend('PI gemessen F1','PI analytisch F1', ...
                                    'PI gemessen F2','PI analytisch F2')
@@ -488,47 +489,315 @@ classdef plot_utils < handle
         % ===============================================================
 
         function plotGangofFour(obj, flight1, varargin)
-        % plotCPIDBode - Bode plot for PI and D controller (measured vs analytical)
-        % Minimal adjustments only to make the function run without errors.
-    
+          
         if obj.second_flight
             flight2 = varargin{1};
         end
+            switch obj.ind_ax
+                %============ ROLL ==========
+                case 1
+                    figure(6)
+                    ax(1) = subplot(2,2,1);
+                    bodemag(ax(1), flight1.CloLoAan.T , flight1.CloLoAanNew.T , flight1.transfT, flight1.transfOmega, obj.opt), title('Tracking T ')
+                    if obj.second_flight
+                        hold on
+                        bodemag(ax(1), flight2.CloLoAan.T , flight2.CloLoAanNew.T , flight2.transfT, flight2.transfOmega, obj.opt)
+                        if obj.do_insert_legends, legend('actual F1', 'new F1', 'actual F2', 'new F2','location', 'best'), end
+                    end
+                    if obj.do_insert_legends, legend('actual', 'new', 'location', 'best'), end
+                    ax(2) = subplot(2,2,2);
+                    bodemag(ax(2), flight1.CloLoAan.S, flight1.CloLoAanNew.S , flight1.transfOmega, obj.opt), title('Sensitivity S')
+                    if obj.second_flight
+                        hold on
+                        bodemag(ax(2), flight2.CloLoAan.S, flight2.CloLoAanNew.S , flight2.transfOmega, obj.opt)
+                    end
+                    ax(3) = subplot(223);
+                    obj.opt.YLim = {[1e-2 1e2], [-180 180]};
+                    bodemag(ax(3), flight1.CloLoAan.SC, flight1.CloLoAanNew.SC, flight1.transfOmega, obj.opt), title('Controller Effort SC')
+                    if obj.second_flight
+                        hold on
+                        bodemag(ax(3), flight2.CloLoAan.SC, flight2.CloLoAanNew.SC, flight2.transfOmega, obj.opt)
+                    end
+                    ax(4) = subplot(224);
+                    obj.opt.YLim = {[1e-3 1e1], [-180 180]};
+                    bodemag(ax(4), flight1.CloLoAan.SP, flight1.CloLoAanNew.SP, flight1.transfOmega, obj.opt), title('Compliance SP')
+                    if obj.second_flight
+                        hold on
+                        bodemag(ax(4), flight2.CloLoAan.SP, flight2.CloLoAanNew.SP, flight2.transfOmega, obj.opt)
+                    end
+        
+                    linkaxes(ax, 'x'), clear ax
+                    set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
+                    sgtitle('Roll')
 
-            figure(6)
-            ax(1) = subplot(2,2,1);
-            bodemag(ax(1), flight1.CloLoAan.T , flight1.CloLoAanNew.T , flight1.transfT, flight1.transfOmega, obj.opt), title('Tracking T')
-            if obj.second_flight
-                hold on
-                bodemag(ax(1), flight2.CloLoAan.T , flight2.CloLoAanNew.T , flight2.transfT, flight2.transfOmega, obj.opt)
-                if obj.do_insert_legends, legend('actual F1', 'new F1', 'actual F2', 'new F2','location', 'best'), end
-            end
-            if obj.do_insert_legends, legend('actual', 'new', 'location', 'best'), end
-            ax(2) = subplot(2,2,2);
-            bodemag(ax(2), flight1.CloLoAan.S, flight1.CloLoAanNew.S , flight1.transfOmega, obj.opt), title('Sensitivity S')
-            if obj.second_flight
-                hold on
-                bodemag(ax(2), flight2.CloLoAan.S, flight2.CloLoAanNew.S , flight2.transfOmega, obj.opt)
-            end
-            ax(3) = subplot(223);
-            obj.opt.YLim = {[1e-2 1e2], [-180 180]};
-            bodemag(ax(3), flight1.CloLoAan.SC, flight1.CloLoAanNew.SC, flight1.transfOmega, obj.opt), title('Controller Effort SC')
-            if obj.second_flight
-                hold on
-                bodemag(ax(3), flight2.CloLoAan.SC, flight2.CloLoAanNew.SC, flight2.transfOmega, obj.opt)
-            end
-            ax(4) = subplot(224);
-            obj.opt.YLim = {[1e-3 1e1], [-180 180]};
-            bodemag(ax(4), flight1.CloLoAan.SP, flight1.CloLoAanNew.SP, flight1.transfOmega, obj.opt), title('Compliance SP')
-            if obj.second_flight
-                hold on
-                bodemag(ax(4), flight2.CloLoAan.SP, flight2.CloLoAanNew.SP, flight2.transfOmega, obj.opt)
-            end
+                    %====== PITCH =======
+                case 2
+                    figure(66)
+                    ax(1) = subplot(2,2,1);
+                    bodemag(ax(1), flight1.CloLoAan.T , flight1.CloLoAanNew.T , flight1.transfT, flight1.transfOmega, obj.opt), title('Tracking T')
+                    if obj.second_flight
+                        hold on
+                        bodemag(ax(1), flight2.CloLoAan.T , flight2.CloLoAanNew.T , flight2.transfT, flight2.transfOmega, obj.opt)
+                        if obj.do_insert_legends, legend('actual F1', 'new F1', 'actual F2', 'new F2','location', 'best'), end
+                    end
+                    if obj.do_insert_legends, legend('actual', 'new', 'location', 'best'), end
+                    ax(2) = subplot(2,2,2);
+                    bodemag(ax(2), flight1.CloLoAan.S, flight1.CloLoAanNew.S , flight1.transfOmega, obj.opt), title('Sensitivity S')
+                    if obj.second_flight
+                        hold on
+                        bodemag(ax(2), flight2.CloLoAan.S, flight2.CloLoAanNew.S , flight2.transfOmega, obj.opt)
+                    end
+                    ax(3) = subplot(223);
+                    obj.opt.YLim = {[1e-2 1e2], [-180 180]};
+                    bodemag(ax(3), flight1.CloLoAan.SC, flight1.CloLoAanNew.SC, flight1.transfOmega, obj.opt), title('Controller Effort SC')
+                    if obj.second_flight
+                        hold on
+                        bodemag(ax(3), flight2.CloLoAan.SC, flight2.CloLoAanNew.SC, flight2.transfOmega, obj.opt)
+                    end
+                    ax(4) = subplot(224);
+                    obj.opt.YLim = {[1e-3 1e1], [-180 180]};
+                    bodemag(ax(4), flight1.CloLoAan.SP, flight1.CloLoAanNew.SP, flight1.transfOmega, obj.opt), title('Compliance SP')
+                    if obj.second_flight
+                        hold on
+                        bodemag(ax(4), flight2.CloLoAan.SP, flight2.CloLoAanNew.SP, flight2.transfOmega, obj.opt)
+                    end
+        
+                    linkaxes(ax, 'x'), clear ax
+                    set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
+                    sgtitle('Pitch')
 
-            linkaxes(ax, 'x'), clear ax
-            set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
+                    %========== YAW =========
+                case 3
+                    figure(666)
+                    ax(1) = subplot(2,2,1);
+                    bodemag(ax(1), flight1.CloLoAan.T , flight1.CloLoAanNew.T , flight1.transfT, flight1.transfOmega, obj.opt), title('Tracking T')
+                    if obj.second_flight
+                        hold on
+                        bodemag(ax(1), flight2.CloLoAan.T , flight2.CloLoAanNew.T , flight2.transfT, flight2.transfOmega, obj.opt)
+                        if obj.do_insert_legends, legend('actual F1', 'new F1', 'actual F2', 'new F2','location', 'best'), end
+                    end
+                    if obj.do_insert_legends, legend('actual', 'new', 'location', 'best'), end
+                    ax(2) = subplot(2,2,2);
+                    bodemag(ax(2), flight1.CloLoAan.S, flight1.CloLoAanNew.S , flight1.transfOmega, obj.opt), title('Sensitivity S')
+                    if obj.second_flight
+                        hold on
+                        bodemag(ax(2), flight2.CloLoAan.S, flight2.CloLoAanNew.S , flight2.transfOmega, obj.opt)
+                    end
+                    ax(3) = subplot(223);
+                    obj.opt.YLim = {[1e-2 1e2], [-180 180]};
+                    bodemag(ax(3), flight1.CloLoAan.SC, flight1.CloLoAanNew.SC, flight1.transfOmega, obj.opt), title('Controller Effort SC')
+                    if obj.second_flight
+                        hold on
+                        bodemag(ax(3), flight2.CloLoAan.SC, flight2.CloLoAanNew.SC, flight2.transfOmega, obj.opt)
+                    end
+                    ax(4) = subplot(224);
+                    obj.opt.YLim = {[1e-3 1e1], [-180 180]};
+                    bodemag(ax(4), flight1.CloLoAan.SP, flight1.CloLoAanNew.SP, flight1.transfOmega, obj.opt), title('Compliance SP')
+                    if obj.second_flight
+                        hold on
+                        bodemag(ax(4), flight2.CloLoAan.SP, flight2.CloLoAanNew.SP, flight2.transfOmega, obj.opt)
+                    end
+        
+                    linkaxes(ax, 'x'), clear ax
+                    set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
+                    sgtitle('Yaw')
+            end
+        end
 
+
+            %%
+        % ===============================================================
+        %  FIGURE 7: Step Response
+        % ===============================================================
+
+        function plotStepResp(obj, flight1, varargin)
+            if obj.second_flight
+                flight2 = varargin{1};
+            end
+            switch obj.ind_ax
+                case 1
+            % ====== ROLL ======
+                figure(7)
+                ax(1) = subplot(2,1,1);
+                plot(ax(1), flight1.step_resp_tim, flight1.step_resp_tra), grid on, ylabel('Gyro (deg/sec)')
+                if obj.do_insert_legends, legend('actual', 'new', 'location', 'best'), end
+                if obj.second_flight
+                    hold on
+                    plot(ax(1), flight2.step_resp_tim, flight2.step_resp_tra)
+                    if obj.do_insert_legends, legend('actual F1', 'new F1', ...
+                            'actual F2', 'new F2','location', 'best'), end
+                end
+                title('Tracking T Roll')
+                ylim([0 1.3])
+    
+                ax(2) = subplot(2,1,2);
+                plot(ax(2), flight1.step_resp_tim, flight1.step_resp_com), grid on
+                if obj.second_flight
+                    hold on
+                    plot(ax(2), flight2.step_resp_tim, flight2.step_resp_tra)
+                end
+                title('Compliance SP Roll'), xlabel('Time (sec)'), ylabel('Gyro (deg/sec)')
+                ylim([-0.2 1.1])
+                linkaxes(ax, 'x'), clear ax, xlim([0 0.5])
+                set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
+
+                % ====== PITCH ======
+                case 2
+                    figure(77)
+                    ax(1) = subplot(2,1,1);
+                    plot(ax(1), flight1.step_resp_tim, flight1.step_resp_tra), grid on, ylabel('Gyro (deg/sec)')
+                    if obj.do_insert_legends, legend('actual', 'new', 'location', 'best'), end
+                    if obj.second_flight
+                        hold on
+                        plot(ax(1), flight2.step_resp_tim, flight2.step_resp_tra)
+                        if obj.do_insert_legends, legend('actual F1', 'new F1', ...
+                                'actual F2', 'new F2','location', 'best'), end
+                    end
+                    title('Tracking T Pitch')
+                    ylim([0 1.3])
+        
+                    ax(2) = subplot(2,1,2);
+                    plot(ax(2), flight1.step_resp_tim, flight1.step_resp_com), grid on
+                    if obj.second_flight
+                        hold on
+                        plot(ax(2), flight2.step_resp_tim, flight2.step_resp_tra)
+                    end
+                    title('Compliance SP Pitch'), xlabel('Time (sec)'), ylabel('Gyro (deg/sec)')
+                    ylim([-0.2 1.1])
+                    linkaxes(ax, 'x'), clear ax, xlim([0 0.5])
+                    set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
+
+                % ====== YAW ======
+                case 3
+
+                    figure(777)
+                    ax(1) = subplot(2,1,1);
+                    plot(ax(1), flight1.step_resp_tim, flight1.step_resp_tra), grid on, ylabel('Gyro (deg/sec)')
+                    if obj.do_insert_legends, legend('actual', 'new', 'location', 'best'), end
+                    if obj.second_flight
+                        hold on
+                        plot(ax(1), flight2.step_resp_tim, flight2.step_resp_tra)
+                        if obj.do_insert_legends, legend('actual F1', 'new F1', ...
+                                'actual F2', 'new F2','location', 'best'), end
+                    end
+                    title('Tracking T Pitch')
+                    ylim([0 1.3])
+        
+                    ax(2) = subplot(2,1,2);
+                    plot(ax(2), flight1.step_resp_tim, flight1.step_resp_com), grid on
+                    if obj.second_flight
+                        hold on
+                        plot(ax(2), flight2.step_resp_tim, flight2.step_resp_tra)
+                    end
+                    title('Compliance SP Pitch'), xlabel('Time (sec)'), ylabel('Gyro (deg/sec)')
+                    ylim([-0.2 1.1])
+                    linkaxes(ax, 'x'), clear ax, xlim([0 0.5])
+                    set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
+
+            end
+        end
+    %%
+        % ===============================================================
+        %  FIGURE 8: Bode Controller
+        % ===============================================================
+
+        function plotController(obj, flight1, varargin)
+            if obj.second_flight
+                flight2 = varargin{1};
+            end
+            switch obj.ind_ax
+                %======== ROLL ========
+                case 1
+                    figure(8)
+                    obj.opt.YLim = {[1e-1 1e2], [-180 180]};
+                    bode(flight1.CloLoAan.C, flight1.CloLoAanNew.C, flight1.transfOmega, obj.opt)
+                    if obj.do_insert_legends, legend('actual F1', 'new F1', 'location', 'best'), end
+                    if obj.second_flight
+                        hold on
+                        bode(flight2.CloLoAan.C, flight2.CloLoAanNew.C, flight2.transfOmega, obj.opt)
+                        if obj.do_insert_legends, legend('actual F1', 'new F1', ...
+                                'actual F2', 'new F2', 'location', 'best'), end
+                    end
+                   
+                    title('Controller C Roll')
+                    set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
+                
+                %======== PITCH ========
+                case 2
+                    figure(88)
+                    obj.opt.YLim = {[1e-1 1e2], [-180 180]};
+                    bode(flight1.CloLoAan.C, flight1.CloLoAanNew.C, flight1.transfOmega, obj.opt)
+                    if obj.do_insert_legends, legend('actual F1', 'new F1', 'location', 'best'), end
+                    if obj.second_flight
+                        hold on
+                        bode(flight2.CloLoAan.C, flight2.CloLoAanNew.C, flight2.transfOmega, obj.opt)
+                        if obj.do_insert_legends, legend('actual F1', 'new F1', ...
+                                'actual F2', 'new F2', 'location', 'best'), end
+                    end
+
+                    title('Controller C Pitch')
+                    set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
+                %======== YAW ========
+                case 3
+                    figure(88)
+                    obj.opt.YLim = {[1e-1 1e2], [-180 180]};
+                    bode(flight1.CloLoAan.C, flight1.CloLoAanNew.C, flight1.transfOmega, obj.opt)
+                    if obj.do_insert_legends, legend('actual F1', 'new F1', 'location', 'best'), end
+                    if obj.second_flight
+                        hold on
+                        bode(flight2.CloLoAan.C, flight2.CloLoAanNew.C, flight2.transfOmega, obj.opt)
+                        if obj.do_insert_legends, legend('actual F1', 'new F1', ...
+                                'actual F2', 'new F2', 'location', 'best'), end
+                    end
+                    
+                    title('Controller C Yaw')
+                    set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
+            end
 
         end
+
+
+         %%
+        % ===============================================================
+        %  FIGURE 98/99: Convert and evaluate time
+        % ===============================================================
+
+        function plotevaltime(obj, flight1, varargin)
+            if obj.second_flight
+                flight2 = varargin{1};
+            end
+
+            delta_time_mus = diff(flight1.time)* 1.0e6;
+            figure(98); clf
+            plot(flight1.time(1:end-1), delta_time_mus), grid on
+            title(sprintf('Flight 1: Mean: %0.2f mus, Median: %0.2f mus, Std: %0.2f mus\n', ...
+                  mean(delta_time_mus), ...
+                  median(delta_time_mus), ...
+                  std(delta_time_mus)))
+            xlabel('Time (sec)'), ylabel('Ts log (mus)')
+            xlim([0, flight1.time(end)])
+            set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
+
+            if obj.second_flight
+                delta_time_mus = diff(flight2.time)* 1.0e6;
+            figure(99); clf
+            plot(flight2.time(1:end-1), delta_time_mus), grid on
+            title(sprintf('Flight 2: Mean: %0.2f mus, Median: %0.2f mus, Std: %0.2f mus\n', ...
+                  mean(delta_time_mus), ...
+                  median(delta_time_mus), ...
+                  std(delta_time_mus)))
+            xlabel('Time (sec)'), ylabel('Ts log (mus)')
+            xlim([0, flight2.time(end)])
+            set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
+            end
+            
+        end
+
+         %%
+        % ===============================================================
+        %  FIGURE 22: Spectogram
+        % ===============================================================
+
+
     end
 end

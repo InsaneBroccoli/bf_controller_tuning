@@ -35,6 +35,10 @@ classdef main_class
         CloLoAan
         CloLoAanNew
         transfT
+        step_resp_tra
+        step_resp_com
+        step_resp_tim
+
     end
 
     methods
@@ -89,18 +93,9 @@ classdef main_class
             ind.sinarg = ind.debug(1);
             
             % Convert and evaluate time
-            time = (data(:,ind.time) - data(1,ind.time)) * 1.0e-6;
-            delta_time_mus = diff(time) * 1.0e6;
+            obj.time = (data(:,ind.time) - data(1,ind.time)) * 1.0e-6;
             
-            figure(99)
-            plot(time(1:end-1), delta_time_mus), grid on
-            title(sprintf('Mean: %0.2f mus, Median: %0.2f mus, Std: %0.2f mus\n', ...
-                  mean(delta_time_mus), ...
-                  median(delta_time_mus), ...
-                  std(delta_time_mus)))
-            xlabel('Time (sec)'), ylabel('Ts log (mus)')
-            xlim([0, time(end)])
-            set(findall(gcf, 'type', 'line'), 'linewidth', linewidth)
+            
             
             % Unscale highResolutionGain
             if para.blackbox_high_resolution
@@ -137,8 +132,7 @@ classdef main_class
             % =============================================================
             %  show Gyro to select Teval and spectra (gyro and pid sum)
             % =============================================================
-                 
-            obj.time        = time;
+                
             obj.setpoint    = data(:, ind.setpoint(1:4));
             obj.unfgyroData = data(:, ind.gyroUnfilt(1:3));
             obj.gyroData    = data(:, ind.gyroADC(1:3));
@@ -398,34 +392,22 @@ classdef main_class
                          calculate_step_response_from_frd(T           , f_max)];
             step_resp_mean = mean(step_resp(step_time > T_mean(1) & step_time < T_mean(2),:));
             step_resp = step_resp ./ step_resp_mean;
+
+            obj.step_resp_tra = step_resp;
+            obj.step_resp_tim = step_time;
             
-            figure(expand_multiple_figure_nr(7, multp_fig_nr))
-            ax(1) = subplot(211);
-            plot(ax(1), step_time, step_resp), grid on, ylabel('Gyro (deg/sec)')
-            title('Tracking T')
-            if obj.do_insert_legends, legend('actual', 'new', 'location', 'best'), end
-            ylim([0 1.3])
+            
             
             % New controller parameters
             step_resp = [calculate_step_response_from_frd(CL_ana.SP    , f_max), ...
                          calculate_step_response_from_frd(CL_ana_new.SP, f_max)];
             step_resp_mean = mean(step_resp(step_time > T_mean(1) & step_time < T_mean(2),:));
             step_resp = step_resp - step_resp_mean;
+
             
-            ax(2) = subplot(212);
-            plot(ax(2), step_time, step_resp), grid on
-            title('Compliance SP'), xlabel('Time (sec)'), ylabel('Gyro (deg/sec)')
-            ylim([-0.2 1.1])
-            linkaxes(ax, 'x'), clear ax, xlim([0 0.5])
-            set(findall(gcf, 'type', 'line'), 'linewidth', linewidth)
+            obj.step_resp_com = step_resp;
             
-            % Controllers
-            figure(expand_multiple_figure_nr(8, multp_fig_nr))
-            obj.opt.YLim = {[1e-1 1e2], [-180 180]};
-            bode(CL_ana.C, CL_ana_new.C, omega_bode, obj.opt)
-            title('Controller C')
-            if obj.do_insert_legends, legend('actual', 'new', 'location', 'best'), end
-            set(findall(gcf, 'type', 'line'), 'linewidth', linewidth)
+            
             
             toc
         end
