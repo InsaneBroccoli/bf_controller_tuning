@@ -33,12 +33,19 @@ do_insert_legends    = true;
 % Define if Item Relax should be on
 do_compensate_iterm  = false;
 
-% Show Plots
-do_show_spec_figures = false;
-do_show_flight_track = false;
-do_show_tuning_figures = true;
-do_show_transferfunction = false;
+% Parameters of Spectogramfigures
+do_show_spec_figures = true;
+Nestfaspec = 0.2;
+koverlapspec = 0.9;
 
+% Show Plots 
+do_show_flight_track = true;
+do_show_tuning_figures = true;
+
+% Parameter of Transferfunction
+do_show_transferfunction = true;
+Nestfatra = 2.0;
+koverlaptra = 0.9;
 
 pu = plot_utils;
 pu.second_flight = second_flight;
@@ -62,8 +69,6 @@ opt.PhaseWrapping = 'on';         % Phase im Bereich [-180,180]
 opt.YLimMode      = {'manual'; 'manual'};  % beide Achsen manuell
 opt.YLim          = {[1e-3 1e2];  [-180 180]};   % Mag>0 für log-Skala!
 opt.Grid          = 'on';
-
-
 
 pu.opt = opt;
 
@@ -134,12 +139,12 @@ switch ind_ax
 end
 
 flight1 = main_code.main_class(file_path1, para_new1, ind_ax, do_compensate_iterm, ...
-    P_new1, I_ratio_new1, D_new1);
+    P_new1, I_ratio_new1, D_new1, Nestfaspec,koverlapspec, Nestfatra, koverlaptra);
 flight1 = flight1.run();
 
 if second_flight
     flight2 = main_code.main_class(file_path2 ,para_new2, ind_ax, do_compensate_iterm, ...
-        P_new2, I_ratio_new2, D_new2);
+        P_new2, I_ratio_new2, D_new2, Nestfaspec,koverlapspec,Nestfatra, koverlaptra);
     flight2 = flight2.run();
 end
 %% Plots
@@ -186,4 +191,3 @@ else
         pu.plotspectogram(flight1);
     end
 end
-

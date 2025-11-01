@@ -508,14 +508,12 @@ classdef plot_utils < handle
                         bodemag(ax(2), flight2.CloLoAan.S, flight2.CloLoAanNew.S , flight2.transfOmega, obj.opt)
                     end
                     ax(3) = subplot(223);
-                    obj.opt.YLim = {[1e-2 1e2], [-180 180]};
                     bodemag(ax(3), flight1.CloLoAan.SC, flight1.CloLoAanNew.SC, flight1.transfOmega, obj.opt), title('Controller Effort SC')
                     if obj.second_flight
                         hold on
                         bodemag(ax(3), flight2.CloLoAan.SC, flight2.CloLoAanNew.SC, flight2.transfOmega, obj.opt)
                     end
                     ax(4) = subplot(224);
-                    obj.opt.YLim = {[1e-3 1e1], [-180 180]};
                     bodemag(ax(4), flight1.CloLoAan.SP, flight1.CloLoAanNew.SP, flight1.transfOmega, obj.opt), title('Compliance SP')
                     if obj.second_flight
                         hold on
@@ -544,14 +542,12 @@ classdef plot_utils < handle
                         bodemag(ax(2), flight2.CloLoAan.S, flight2.CloLoAanNew.S , flight2.transfOmega, obj.opt)
                     end
                     ax(3) = subplot(223);
-                    obj.opt.YLim = {[1e-2 1e2], [-180 180]};
                     bodemag(ax(3), flight1.CloLoAan.SC, flight1.CloLoAanNew.SC, flight1.transfOmega, obj.opt), title('Controller Effort SC')
                     if obj.second_flight
                         hold on
                         bodemag(ax(3), flight2.CloLoAan.SC, flight2.CloLoAanNew.SC, flight2.transfOmega, obj.opt)
                     end
                     ax(4) = subplot(224);
-                    obj.opt.YLim = {[1e-3 1e1], [-180 180]};
                     bodemag(ax(4), flight1.CloLoAan.SP, flight1.CloLoAanNew.SP, flight1.transfOmega, obj.opt), title('Compliance SP')
                     if obj.second_flight
                         hold on
@@ -580,14 +576,12 @@ classdef plot_utils < handle
                         bodemag(ax(2), flight2.CloLoAan.S, flight2.CloLoAanNew.S , flight2.transfOmega, obj.opt)
                     end
                     ax(3) = subplot(223);
-                    obj.opt.YLim = {[1e-2 1e2], [-180 180]};
                     bodemag(ax(3), flight1.CloLoAan.SC, flight1.CloLoAanNew.SC, flight1.transfOmega, obj.opt), title('Controller Effort SC')
                     if obj.second_flight
                         hold on
                         bodemag(ax(3), flight2.CloLoAan.SC, flight2.CloLoAanNew.SC, flight2.transfOmega, obj.opt)
                     end
                     ax(4) = subplot(224);
-                    obj.opt.YLim = {[1e-3 1e1], [-180 180]};
                     bodemag(ax(4), flight1.CloLoAan.SP, flight1.CloLoAanNew.SP, flight1.transfOmega, obj.opt), title('Compliance SP')
                     if obj.second_flight
                         hold on
@@ -720,7 +714,6 @@ classdef plot_utils < handle
                 %======== PITCH ========
                 case 2
                     figure(88)
-                    obj.opt.YLim = {[1e-1 1e2], [-180 180]};
                     bode(flight1.CloLoAan.C, flight1.CloLoAanNew.C, flight1.transfOmega, obj.opt)
                     if obj.do_insert_legends, legend('actual F1', 'new F1', 'location', 'best'), end
                     if obj.second_flight
@@ -735,7 +728,6 @@ classdef plot_utils < handle
                 %======== YAW ========
                 case 3
                     figure(88)
-                    obj.opt.YLim = {[1e-1 1e2], [-180 180]};
                     bode(flight1.CloLoAan.C, flight1.CloLoAanNew.C, flight1.transfOmega, obj.opt)
                     if obj.do_insert_legends, legend('actual F1', 'new F1', 'location', 'best'), end
                     if obj.second_flight

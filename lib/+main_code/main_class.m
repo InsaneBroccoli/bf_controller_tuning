@@ -1,7 +1,3 @@
-% WHAT DOES THIS CLASS
-% owownüoimüio
-% wjnpowncpoij
-
 classdef main_class
     properties
         file_path
@@ -42,6 +38,10 @@ classdef main_class
         SpecthroFil
         SpecfreqFil
         num_spectrograms
+        Nestfaspec
+        koverlapspec
+        Nestfatra
+        koverlaptra
     end
 
     methods
@@ -49,7 +49,7 @@ classdef main_class
         %  ???
         % =================================================================
         function obj = main_class(file_path, para_new, ind_ax, do_compensate_iterm, ...
-                P_new, I_ratio_new, D_new)
+                P_new, I_ratio_new, D_new, Nestfaspec,koverlapspec,Nestfatra, koverlaptra)
             % Save all inputs
             obj.file_path = file_path;
             obj.para_new = para_new;
@@ -58,6 +58,10 @@ classdef main_class
             obj.P_new = P_new;
             obj.I_ratio_new = I_ratio_new;
             obj.D_new = D_new;
+            obj.Nestfaspec = Nestfaspec;
+            obj.koverlapspec = koverlapspec;
+            obj.Nestfatra = Nestfatra;
+            obj.koverlaptra = koverlaptra;
         end
 
         % =================================================================
@@ -135,11 +139,10 @@ classdef main_class
                                        ind.setpoint(1:3)]);
             
             % Parameters
-            Nest     = round(2.0 / obj.Ts_log);
-            koverlap = 0.9;
-            Noverlap = floor(koverlap * Nest);
-            window   = hann(Nest, 'periodic');
-            [pxx, freq] = estimate_spectra(data_for_spectra, window, Noverlap, Nest, obj.Ts_log);
+            Nestspec = round(obj.Nestfaspec / obj.Ts_log);
+            windowspec   = hann(Nestspec, 'periodic');
+            Noverlap = floor(obj.koverlapspec * Nestspec);
+            [pxx, freq] = estimate_spectra(data_for_spectra, windowspec, Noverlap, Nestspec, obj.Ts_log);
             spectra = sqrt(pxx); % power -> amplitude (dc needs to be scaled differently)
 
             % Output Frequencystep
@@ -159,10 +162,7 @@ classdef main_class
         %  Spectrogram
         % =============================================================
             % Parameters
-            Nest     = round(0.2 / obj.Ts_log);
-            koverlap = 0.9;
-            Noverlap = floor(koverlap * Nest);
-            window   = hann(Nest, 'periodic');
+
             Nres     = floor(max(data(:,ind.setpoint(4))) / 1e1 / 2) % should give 40 at 80% throttle constrain
 
         
@@ -177,7 +177,7 @@ classdef main_class
                 [pxx, freq, throttle] = estimate_spectrogram( ...
                     data(:, ind.gyroUnfilt(spectrogram_nr)), ...
                     data(:, ind.setpoint(4)) / 10.0, ...
-                    window, Noverlap, Nest, Nres, obj.Ts_log);
+                    windowspec, Noverlap, Nestspec, Nres, obj.Ts_log);
             
                 spectrograms{spectrogram_nr} = sqrt(pxx); % power -> amplitude
                 freq_all{spectrogram_nr} = freq;
@@ -192,7 +192,7 @@ classdef main_class
                 [pxx, freq, throttle] = estimate_spectrogram( ...
                     data(:, ind.gyroADC(spectrogram_nr)), ...
                     data(:, ind.setpoint(4)) / 10.0, ...
-                    window, Noverlap, Nest, Nres, obj.Ts_log);
+                    windowspec, Noverlap, Nestspec, Nres, obj.Ts_log);
             
                 spectrograms{spectrogram_nr} = sqrt(pxx); % power -> amplitude
                 freq_all{spectrogram_nr} = freq;
@@ -208,9 +208,8 @@ classdef main_class
             % =============================================================
 
             % Parameters
-            Nest     = round(2.0 / obj.Ts_log);
-            koverlap = 0.9;
-            Noverlap = floor(koverlap * Nest);
+            Nest     = round(obj.Nestfatra / obj.Ts_log);
+            Noverlap = floor(obj.koverlaptra * Nest);
             window   = hann(Nest, 'periodic');
             
             % Linear filter for zero phase excitation filter (apply_rotfiltfilt)
