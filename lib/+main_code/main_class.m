@@ -1,16 +1,9 @@
-% WHAT DOES THIS CLASS
-% owownüoimüio
-% wjnpowncpoij
-
 classdef main_class
     properties
         file_path
         para_new
         ind_ax
-        do_compensate_iterm
-        do_show_spec_figures
-        do_insert_legends
-        opt
+        do_compensate_iterm 
         P_new
         I_ratio_new
         D_new
@@ -35,6 +28,20 @@ classdef main_class
         CloLoAan
         CloLoAanNew
         transfT
+        step_resp_tra
+        step_resp_com
+        step_resp_tim
+        SpecAmplUnf
+        SpecfreqUnf
+        SpecthroUnf
+        SpecAmplFil
+        SpecthroFil
+        SpecfreqFil
+        num_spectrograms
+        Nestfaspec
+        koverlapspec
+        Nestfatra
+        koverlaptra
     end
 
     methods
@@ -42,33 +49,26 @@ classdef main_class
         %  ???
         % =================================================================
         function obj = main_class(file_path, para_new, ind_ax, do_compensate_iterm, ...
-                do_show_spec_figures, do_insert_legends, opt, P_new, I_ratio_new, D_new)
+                P_new, I_ratio_new, D_new, Nestfaspec,koverlapspec,Nestfatra, koverlaptra)
             % Save all inputs
             obj.file_path = file_path;
             obj.para_new = para_new;
             obj.ind_ax = ind_ax;
             obj.do_compensate_iterm = do_compensate_iterm;
-            obj.do_show_spec_figures = do_show_spec_figures;
-            obj.do_insert_legends = do_insert_legends;
-            obj.opt = opt;
             obj.P_new = P_new;
             obj.I_ratio_new = I_ratio_new;
             obj.D_new = D_new;
+            obj.Nestfaspec = Nestfaspec;
+            obj.koverlapspec = koverlapspec;
+            obj.Nestfatra = Nestfatra;
+            obj.koverlaptra = koverlaptra;
         end
 
         % =================================================================
         %  ???
         % =================================================================
         function obj = run(obj)
-            linewidth = 1.2;
-            multp_fig_nr = obj.ind_ax;
-
-            pos_bode = [0.1514, 0.5838-0.2, 0.7536, 0.3472+0.2;
-            0.1514, 0.1100    , 0.7536, 0.1917];
-
-
-
-            % Extract header information
+           % Extract header information
             [para, Nheader, ind, ind_cntr] = extract_header_information(obj.file_path);
             
             % Read the data
@@ -81,7 +81,6 @@ classdef main_class
                data = readmatrix(obj.file_path, 'NumHeaderLines', Nheader);
                save([obj.file_path(1:end-8), '.mat'], 'data');
             end
-            [Ndata, Nsig] = size(data)
             toc
             
             % Expand index
@@ -89,18 +88,7 @@ classdef main_class
             ind.sinarg = ind.debug(1);
             
             % Convert and evaluate time
-            time = (data(:,ind.time) - data(1,ind.time)) * 1.0e-6;
-            delta_time_mus = diff(time) * 1.0e6;
-            
-            figure(99)
-            plot(time(1:end-1), delta_time_mus), grid on
-            title(sprintf('Mean: %0.2f mus, Median: %0.2f mus, Std: %0.2f mus\n', ...
-                  mean(delta_time_mus), ...
-                  median(delta_time_mus), ...
-                  std(delta_time_mus)))
-            xlabel('Time (sec)'), ylabel('Ts log (mus)')
-            xlim([0, time(end)])
-            set(findall(gcf, 'type', 'line'), 'linewidth', linewidth)
+            obj.time = (data(:,ind.time) - data(1,ind.time)) * 1.0e-6;
             
             % Unscale highResolutionGain
             if para.blackbox_high_resolution
@@ -137,8 +125,7 @@ classdef main_class
             % =============================================================
             %  show Gyro to select Teval and spectra (gyro and pid sum)
             % =============================================================
-                 
-            obj.time        = time;
+                
             obj.setpoint    = data(:, ind.setpoint(1:4));
             obj.unfgyroData = data(:, ind.gyroUnfilt(1:3));
             obj.gyroData    = data(:, ind.gyroADC(1:3));
@@ -152,11 +139,10 @@ classdef main_class
                                        ind.setpoint(1:3)]);
             
             % Parameters
-            Nest     = round(2.0 / obj.Ts_log);
-            koverlap = 0.9;
-            Noverlap = floor(koverlap * Nest);
-            window   = hann(Nest, 'periodic');
-            [pxx, freq] = estimate_spectra(data_for_spectra, window, Noverlap, Nest, obj.Ts_log);
+            Nestspec = round(obj.Nestfaspec / obj.Ts_log);
+            windowspec   = hann(Nestspec, 'periodic');
+            Noverlap = floor(obj.koverlapspec * Nestspec);
+            [pxx, freq] = estimate_spectra(data_for_spectra, windowspec, Noverlap, Nestspec, obj.Ts_log);
             spectra = sqrt(pxx); % power -> amplitude (dc needs to be scaled differently)
 
             % Output Frequencystep
@@ -171,83 +157,59 @@ classdef main_class
             % Output AxisSum Spectra
             obj.axisSumSpec = spectra(:,7:9);                     
             
-            %%
-            % =============================================================
-            %  Spectrogram
-            % =============================================================
-            
-            if (obj.do_show_spec_figures)
-            
-                % Parameters
-                Nest     = round(2.0 / obj.Ts_log);
-                koverlap = 0.9;
-                Noverlap = floor(koverlap * Nest);
-                window   = hann(Nest, 'periodic');
-                Nres     = floor(max(data(:,ind.setpoint(4))) / 1e1 / 2) % should give 40 at 80% throttle constrain
-            
-                c_lim = [5e-2 3e0];
+        %%
+        % =============================================================
+        %  Spectrogram
+        % =============================================================
+            % Parameters
 
-                
+            Nres     = floor(max(data(:,ind.setpoint(4))) / 1e1 / 2) % should give 40 at 80% throttle constrain
+
+        
+            % Initialisierung
+            obj.num_spectrograms = 3;
+            spectrograms = cell(1, obj.num_spectrograms);
+            freq_all = cell(1, obj.num_spectrograms);
+            throttle_all = cell(1, obj.num_spectrograms);
             
-                for spectrogram_nr = 1:3
-                    [pxx, freq, throttle] = estimate_spectrogram(data(:,ind.gyroUnfilt(spectrogram_nr)), ...
-                                                                 data(:,ind.setpoint(4)) / 10.0, ...
-                                                                 window, Noverlap, Nest, Nres, obj.Ts_log);
-                    spectrograms = sqrt(pxx); % power -> amplitude (dc needs to be scaled differently)
-                    
-                    figure(22)
-                    sgtitle('Gyro Spectrograms')
-                    axes_labels = {'Roll', 'Pitch', 'Yaw'};
-                    subplot(230 + spectrogram_nr)
-                    qmesh = pcolor(freq, throttle, spectrograms);
-                    set(qmesh, 'EdgeColor', 'None');
-                    % xlabel('Frequency (Hz)')
-                    if spectrogram_nr == 1
-                        ylabel('Throttle (%)')
-                    end
-                    title([axes_labels{spectrogram_nr}, ' – ohne Filter'])
-                    % colorbar()
-                    colormap('jet')
-                    set(gca, 'ColorScale', 'log')
-                    clim(c_lim);
-                    ylim([0 100])
-                end
+            % --- Berechnung der Spektrogramme im Loop ---
+            for spectrogram_nr = 1:obj.num_spectrograms
+                [pxx, freq, throttle] = estimate_spectrogram( ...
+                    data(:, ind.gyroUnfilt(spectrogram_nr)), ...
+                    data(:, ind.setpoint(4)) / 10.0, ...
+                    windowspec, Noverlap, Nestspec, Nres, obj.Ts_log);
             
-               
-            
-                for spectrogram_nr = 1:3
-                    [pxx, freq, throttle] = estimate_spectrogram(data(:,ind.gyroADC(spectrogram_nr)), ...
-                                                                 data(:,ind.setpoint(4)) / 10.0, ...
-                                                                 window, Noverlap, Nest, Nres, obj.Ts_log);
-                    spectrograms = sqrt(pxx); % power -> amplitude (dc needs to be scaled differently)
-                    
-                    figure(22)
-                    subplot(230 + spectrogram_nr + 3)
-                    qmesh = pcolor(freq, throttle, spectrograms);
-                    set(qmesh, 'EdgeColor', 'None');
-                    xlabel('Frequency (Hz)')
-                    if spectrogram_nr == 1
-                        ylabel('Throttle (%)')
-                    end
-                    title([axes_labels{spectrogram_nr}, ' – mit Filter'])
-                    % colorbar()
-                    colormap('jet')
-                    set(gca, 'ColorScale', 'log')
-                    clim(c_lim);
-                    ylim([0 100])
-                end
+                spectrograms{spectrogram_nr} = sqrt(pxx); % power -> amplitude
+                freq_all{spectrogram_nr} = freq;
+                throttle_all{spectrogram_nr} = throttle;
             end
-          
             
+            obj.SpecAmplUnf = spectrograms;
+            obj.SpecfreqUnf = freq_all;
+            obj.SpecthroUnf = throttle_all;
+           
+            for spectrogram_nr = 1:obj.num_spectrograms
+                [pxx, freq, throttle] = estimate_spectrogram( ...
+                    data(:, ind.gyroADC(spectrogram_nr)), ...
+                    data(:, ind.setpoint(4)) / 10.0, ...
+                    windowspec, Noverlap, Nestspec, Nres, obj.Ts_log);
+            
+                spectrograms{spectrogram_nr} = sqrt(pxx); % power -> amplitude
+                freq_all{spectrogram_nr} = freq;
+                throttle_all{spectrogram_nr} = throttle;
+            end
+            obj.SpecAmplFil = spectrograms;
+            obj.SpecfreqFil = freq_all;
+            obj.SpecthroFil = throttle_all; 
+         
             %% 
             % =============================================================
             %  Frequency response estimation and calculation
             % =============================================================
 
             % Parameters
-            Nest     = round(2 / obj.Ts_log);
-            koverlap = 0.9;
-            Noverlap = floor(koverlap * Nest);
+            Nest     = round(obj.Nestfatra / obj.Ts_log);
+            Noverlap = floor(obj.koverlaptra * Nest);
             window   = hann(Nest, 'periodic');
             
             % Linear filter for zero phase excitation filter (apply_rotfiltfilt)
@@ -309,8 +271,6 @@ classdef main_class
             obj.transfCpiAna = Cpi_ana;
             obj.transfCDAna = Cd_ana;
             obj.transfT = T;
-
-            
             
             %% New controller and filter parameters
             
@@ -385,7 +345,7 @@ classdef main_class
 
             obj.CloLoAan = CL_ana;
             obj.CloLoAanNew = CL_ana_new;
-            %obj.Tra
+            obj.Tra
             
             % Closed-loop bode plots (gang of four)
             figure(expand_multiple_figure_nr(6, multp_fig_nr))
@@ -415,35 +375,18 @@ classdef main_class
                          calculate_step_response_from_frd(T           , f_max)];
             step_resp_mean = mean(step_resp(step_time > T_mean(1) & step_time < T_mean(2),:));
             step_resp = step_resp ./ step_resp_mean;
-            
-            figure(expand_multiple_figure_nr(7, multp_fig_nr))
-            ax(1) = subplot(211);
-            plot(ax(1), step_time, step_resp), grid on, ylabel('Gyro (deg/sec)')
-            title('Tracking T')
-            if obj.do_insert_legends, legend('actual', 'new', 'location', 'best'), end
-            ylim([0 1.3])
+
+            obj.step_resp_tra = step_resp;
+            obj.step_resp_tim = step_time;
             
             % New controller parameters
             step_resp = [calculate_step_response_from_frd(CL_ana.SP    , f_max), ...
                          calculate_step_response_from_frd(CL_ana_new.SP, f_max)];
             step_resp_mean = mean(step_resp(step_time > T_mean(1) & step_time < T_mean(2),:));
             step_resp = step_resp - step_resp_mean;
-            
-            ax(2) = subplot(212);
-            plot(ax(2), step_time, step_resp), grid on
-            title('Compliance SP'), xlabel('Time (sec)'), ylabel('Gyro (deg/sec)')
-            ylim([-0.2 1.1])
-            linkaxes(ax, 'x'), clear ax, xlim([0 0.5])
-            set(findall(gcf, 'type', 'line'), 'linewidth', linewidth)
-            
-            % Controllers
-            figure(expand_multiple_figure_nr(8, multp_fig_nr))
-            obj.opt.YLim = {[1e-1 1e2], [-180 180]};
-            bode(CL_ana.C, CL_ana_new.C, omega_bode, obj.opt)
-            title('Controller C')
-            if obj.do_insert_legends, legend('actual', 'new', 'location', 'best'), end
-            set(findall(gcf, 'type', 'line'), 'linewidth', linewidth)
-            
+
+            obj.step_resp_com = step_resp;
+                       
             toc
         end
     end

@@ -8,7 +8,6 @@ addpath class/
 % Choose an axis: 1: roll, 2: pitch, 3: yaw
 ind_ax = 1;     % keep it now until plot_utils is finished
 
-
 % -------------------------------------------------------------------------
 
 % Define path to *.bbl.csv file for the first flight
@@ -20,7 +19,7 @@ file_path1 = fullfile(log_folder1, flight_folder1, log_name1);
 
 % Define path to *.bbl.csv file for the second flight
 
-second_flight = false;   % Set on true when you want to compare two flights
+second_flight = true;   % Set on true when you want to compare two flights
 
 log_folder2 = '';
 flight_folder2 = '20250908';
@@ -28,11 +27,25 @@ log_name2 = '20250908_flipmini_00.bbl.csv';
 
 file_path2 = fullfile(log_folder2, flight_folder2, log_name2);
 
-% Evaluation parameters
-do_compensate_iterm  = false;
-do_show_spec_figures = true;
+% Show Legend
 do_insert_legends    = true;
 
+% Define if Item Relax should be on
+do_compensate_iterm  = false;
+
+% Parameters of Spectogramfigures
+do_show_spec_figures = true;
+Nestfaspec = 0.2;
+koverlapspec = 0.9;
+
+% Show Plots 
+do_show_flight_track = true;
+do_show_tuning_figures = true;
+
+% Parameter of Transferfunction
+do_show_transferfunction = true;
+Nestfatra = 2.0;
+koverlaptra = 0.9;
 
 pu = plot_utils;
 pu.second_flight = second_flight;
@@ -42,20 +55,20 @@ pu.ind_ax = ind_ax;
 
 
 % Defines
-set(cstprefs.tbxprefs, 'MagnitudeUnits', 'abs');
-set(cstprefs.tbxprefs, 'FrequencyUnits', 'Hz');
-set(cstprefs.tbxprefs, 'UnwrapPhase', 'Off');
-set(cstprefs.tbxprefs, 'Grid', 'On');
+set(cstprefs.tbxprefs,'MagnitudeUnits','abs');
+set(cstprefs.tbxprefs,'FrequencyUnits','Hz');
+set(cstprefs.tbxprefs,'UnwrapPhase','Off');
+set(cstprefs.tbxprefs,'Grid','On');
 
-linewidth = 1.2;
-set(0, 'defaultAxesColorOrder', get_my_colors);
-
-
-% Bodeoptions
-opt = bodeoptions('cstprefs');
+% ---- ein zentrales Options-Objekt ----
+opt = bodeoptions('cstprefs');    % startet mit cstprefs
+opt.MagUnits      = 'abs';
+opt.MagScale      = 'log';        % Magnitude logarithmisch
 opt.PhaseUnits    = 'deg';
-opt.PhaseWrapping = 'on';            % Phase auf [-180,180] wrappen
-opt.YLim = {[-Inf Inf]; [-180 180]};   % [Mag-Limits; Phase-Limits]
+opt.PhaseWrapping = 'on';         % Phase im Bereich [-180,180]
+opt.YLimMode      = {'manual'; 'manual'};  % beide Achsen manuell
+opt.YLim          = {[1e-3 1e2];  [-180 180]};   % Mag>0 für log-Skala!
+opt.Grid          = 'on';
 
 pu.opt = opt;
 
@@ -126,27 +139,55 @@ switch ind_ax
 end
 
 flight1 = main_code.main_class(file_path1, para_new1, ind_ax, do_compensate_iterm, ...
-    do_show_spec_figures, do_insert_legends, opt, P_new1, I_ratio_new1, D_new1);
+    P_new1, I_ratio_new1, D_new1, Nestfaspec,koverlapspec, Nestfatra, koverlaptra);
 flight1 = flight1.run();
 
 if second_flight
     flight2 = main_code.main_class(file_path2 ,para_new2, ind_ax, do_compensate_iterm, ...
-        do_show_spec_figures, do_insert_legends, opt, P_new2, I_ratio_new2, D_new2);
+        P_new2, I_ratio_new2, D_new2, Nestfaspec,koverlapspec,Nestfatra, koverlaptra);
     flight2 = flight2.run();
 end
 %% Plots
 
 if second_flight
-    pu.plotGyroSignals(flight1, flight2);
-    pu.plotGyroSpectra(flight1, flight2);
-    pu.plotOverview (flight1, flight2);
-    pu.plotBode(flight1, flight2);
-    pu.plotCPIDBode(flight1, flight2);
-else
-    pu.plotGyroSignals(flight1);
-    pu.plotGyroSpectra(flight1);
-    pu.plotOverview (flight1);
-    pu.plotBode(flight1);
-    pu.plotCPIDBode(flight1);
-end
+    pu.plotevaltime(flight1, flight2);
+    if do_show_flight_track
+        pu.plotGyroSignals(flight1, flight2);
+        pu.plotOverview (flight1, flight2);
+    end
+    if do_show_tuning_figures
+        pu.plotStepResp(flight1,flight2);
+        pu.plotGangofFour(flight1, flight2);
+    end
 
+    if do_show_transferfunction
+        pu.plotBode(flight1, flight2);
+        pu.plotCPIDBode(flight1, flight2);
+        pu.plotController(flight1, flight2);
+    end
+    if do_show_spec_figures
+        pu.plotGyroSpectra(flight1, flight2);
+        pu.plotspectogram(flight1, flight2);
+    end
+
+else
+     pu.plotevaltime(flight1);
+    if do_show_flight_track
+        pu.plotGyroSignals(flight1);
+        pu.plotOverview (flight1);
+    end
+    if do_show_tuning_figures
+        pu.plotStepResp(flight1);
+        pu.plotGangofFour(flight1);
+    end
+    if do_show_transferfunction
+        pu.plotBode(flight1);
+        pu.plotCPIDBode(flight1);
+        pu.plotController(flight1);
+    end
+   
+    if do_show_spec_figures
+        pu.plotGyroSpectra(flight1);
+        pu.plotspectogram(flight1);
+    end
+end
