@@ -1,13 +1,23 @@
-# Function `ApplyRotRotfilt`
-
 <p align="right">
-  <img src="../Images/zhaw_logo.jpg"
-       alt="ZHAW Logo"
-       width="250"
-       style="float:right; margin-left:20px; border-radius:10px;">
+  <img src="./zhaw_logo.jpg"
+     alt="ZHAW Logo"
+     width="100"
+     style="float:right; margin-left:20px; margin-right:20px;
+     margin-top:20px;">
+
 </p>
 
+# Function `apply_rotfilfil`
+
 The apply_rotfiltfilt function mathematically shifts the constantly changing frequency signal (the logarithmic chirp) so that it appears as a signal with a constant frequency. In this baseband, interfering unwanted signal components can be effectively removed with a low-pass filter without any time distortion. The filtered signal is then ‘shifted back’ to its original frequency curve. This results in a smoothed, phase-correct signal that contains the essential information of the original chirp but is free of noise and high-frequency interference components.
+As an example, we consider a sine wave corrupted by noise which we will filter with the `ApplyRotRotfilt`.
+<p align="center">
+  <img src="./Org_noi_Signals.jpg"
+     alt="ZHAW Logo"
+     width="600"
+     style="float:center; margin-left:10px; margin-right:10px;
+  ">
+</p>
 
 ## 1) Time-Dependent Phase Rotation (`sinarg`)
 
@@ -32,3 +42,53 @@ e^{i2\pi\xi_0 t}\,f(t) \;\xleftrightarrow{\mathcal{F}}\; \hat{f}(\xi - \xi_0).
 \]
 The difference here is that \(\xi_0\) is **not constant** — it changes **over time**.  
 This means that the instantaneous frequency of the chirp is dynamically shifted to the baseband at every moment.
+<p align="center">
+  <img src="./spec_rot.jpg"
+     alt="ZHAW Logo"
+     width="600"
+     style="float:center; margin-left:10px; margin-right:10px;
+  ">
+</p>
+
+## 2) Forward Rotation and Baseband Filtering
+
+After defining the phasor \( p(t) = e^{i\,\text{sinarg}(t)} \), the next step is to **rotate the real signal** into the complex baseband.  
+This is done by multiplying the signal \( x(t) \) by both the phasor and its complex conjugate:
+
+\[
+y_R(t) = x(t)\,p(t), \qquad y_Q(t) = x(t)\,p^*(t).
+\]
+
+These two rotated versions correspond to the **upper and lower sidebands** of the original signal.  
+In this new representation, the rapidly oscillating carrier has been removed — what remains are slowly varying amplitude and phase components centered around **0 Hz**.
+
+Once the signal resides in the baseband, a **zero-phase low-pass filter** can be applied without distorting its timing or phase relationships.  
+In MATLAB, this is typically achieved using the `filtfilt` function, which applies the filter forward and backward in time.
+<p align="center">
+  <img src="./spec_w_fil.jpg"
+     alt="ZHAW Logo"
+     width="600"
+     style="float:center; margin-left:10px; margin-right:10px;
+  ">
+</p>
+
+## 3) Back-Rotation and Signal Reconstruction
+
+After the filtering in the baseband, the signal is **rotated back** to its original frequency range.  
+This is done by multiplying the filtered signals \( y_R(t) \) and \( y_Q(t) \) with their respective inverse phasors and then combining them back into a **real signal**:
+
+\[
+x_f(t) = \operatorname{Re}\left\{ \frac{1}{2}\big( y_R(t)\,p^*(t) + y_Q(t)\,p(t) \big) \right\}.
+\]
+
+This step reverses the previously applied frequency shift.  
+The signal that was centered around 0 Hz during filtering is now “rotated back up” to follow its original carrier frequency trajectory.  
+Since the filtering was performed with `filtfilt` (zero-phase), the result remains **time-aligned** and **phase-accurate**.
+
+<p align="center">
+  <img src="./filtert_signal.jpg"
+     alt="ZHAW Logo"
+     width="600"
+     style="float:center; margin-left:10px; margin-right:10px;
+  ">
+</p>
