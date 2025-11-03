@@ -28,10 +28,10 @@ log_name2 = '20250908_flipmini_00.bbl.csv';
 file_path2 = fullfile(log_folder2, flight_folder2, log_name2);
 
 % Show Legend
-do_insert_legends    = true;
+do_insert_legends    = true;    % Set on true when you want to see the legende
 
 % Define if Item Relax should be on
-do_compensate_iterm  = false;
+do_compensate_iterm  = false;   % Set on true if you want to compensate with item relax
 
 % Parameters of Spectogramfigures
 do_show_spec_figures = true;
@@ -60,15 +60,14 @@ set(cstprefs.tbxprefs,'FrequencyUnits','Hz');
 set(cstprefs.tbxprefs,'UnwrapPhase','Off');
 set(cstprefs.tbxprefs,'Grid','On');
 
-% ---- ein zentrales Options-Objekt ----
-opt = bodeoptions('cstprefs');    % startet mit cstprefs
-opt.MagUnits      = 'abs';
-opt.MagScale      = 'log';        % Magnitude logarithmisch
-opt.PhaseUnits    = 'deg';
-opt.PhaseWrapping = 'on';         % Phase im Bereich [-180,180]
-opt.YLimMode      = {'manual'; 'manual'};  % beide Achsen manuell
-opt.YLim          = {[1e-3 1e2];  [-180 180]};   % Mag>0 für log-Skala!
-opt.Grid          = 'on';
+% ---- Central Option for Bodeplots ----
+opt = bodeoptions('cstprefs');    % start with cstprefs
+opt.MagScale      = 'log';        % Magnitude logarithmic
+opt.PhaseUnits    = 'deg';        % Phase in degrees
+opt.PhaseWrapping = 'on';         % Phase in the area [-180,180]    
+opt.YLimMode      = {'auto'; 'manual'};  % Autoscale for Mag and Manuel for Phase
+opt.YLim          = {[-180 180]};   % Area of Phase
+opt.Grid          = 'on';           % Grid ob
 
 pu.opt = opt;
 
