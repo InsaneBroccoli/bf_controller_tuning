@@ -65,6 +65,9 @@ function [Cpi, Cd, Gf, PID, para_used] = calculate_transfer_functions(para, ind_
         Gf = Gf * get_filter(filter_types{para.dterm_filter_type + 1}, ...
                              para_used.gyro_lpf_hz_avg, ...
                              Ts);
+        
+
+
     end
     % Gyro lowpass filter 2
     if para.gyro_lowpass2_hz > 0

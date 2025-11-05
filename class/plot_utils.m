@@ -121,7 +121,7 @@ function plotGyroSpectra(obj, flight1, varargin)
     % helper function for subplot position
     pos = @(row, colIdx) colIdx + (row-1)*ncol;   % row = 1..3, colIdx = 1..ncol
 
-    % ---------- Flight 1 (linke Spalte) ----------
+    % ---------- Flight 1 (left column) ----------
     % Subplot 1: Unfiltered spectra
     ax(1) = subplot(3, ncol, pos(1,1));
     plot(ax(1), flight1.Specfreq, flight1.unfgyroSpec); % F1
