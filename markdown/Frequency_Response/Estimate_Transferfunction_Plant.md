@@ -1,5 +1,5 @@
 <p align="right">
-  <img src="./zhaw_logo.jpg"
+  <img src="./Images/zhaw_logo.jpg"
      alt="ZHAW Logo"
      width="100"
      style="float:right; margin-left:20px; margin-right:20px;
@@ -36,6 +36,7 @@ G_{uw}(s) = \frac{C_{PI}(s)}{1 + G_{yu}(s)\,C_{PI}(s)}
 \]
 
 These relationships make it possible to **reconstruct the plant transfer function \( P(s) \) from closed-loop measurement data** without opening the control loop during the experiment.
+
 
 
 ---

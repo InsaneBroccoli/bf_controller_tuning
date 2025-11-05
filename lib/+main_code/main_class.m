@@ -106,10 +106,7 @@ classdef main_class
             % Unscale and remap sinarg
             sinargScale = 5.0e3;
             data(:,ind.sinarg) = 1.0 / sinargScale * data(:,ind.sinarg);
-            
-            % Assign negative sign for pid error
-            data(:,ind.axisError) = -data(:,ind.axisError);
-            
+                        
             % Create an additional entry for the pi sum
             data = [data, data(:,ind.axisP) + data(:,ind.axisI)];
             
