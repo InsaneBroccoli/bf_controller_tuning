@@ -29,7 +29,7 @@ file_path2 = fullfile(log_folder2, flight_folder2, log_name2);
 do_insert_legends    = true;    % Set on true when you want to see the legende
 
 % Define if Item Relax should be on
-do_compensate_iterm  = false;   % Set on true if you want to compensate with item relax
+do_compensate_iterm  = true;   % Set on true if you want to compensate with item relax
 
 % Parameters of Spectogramfigures
 do_show_spec_figures = true;

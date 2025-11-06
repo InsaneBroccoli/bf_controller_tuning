@@ -6,19 +6,19 @@
      margin-top:20px;">
 </p>
 
-## Filter and Controller Structure
+# Filter and Controller Structure
 
 The functions `get_filter` and `calculate_transfer_functions` together form the basis for constructing the controller and filter structure in the closed control loop.  
 Both follow the filter and controller architecture used in **Betaflight**.
 
 ---
 
-### Function `get_filter`
+## Function `get_filter`
 
 This function generates a **discrete filter** section of a specified type and returns it as both a state-space model and a transfer function. The filters are implemented according to the Betaflight filter architecture and frequency characteristics.
 
 According to **Betaflight**, the user can choose which of these different filter types to apply depending on the axis and signal path.
-- **PT1, PT2, PT3:** Low-pass filters with Butterworth correction.  
+- **PT1, PT2, PT3:** Low-pass filters with Butterworth (3dB point is the same for all PT's ) correction.  
   They attenuate high-frequency noise while maintaining a smooth phase response.  
   Higher-order variants (pt2, pt3) provide steeper roll-off at the cutoff frequency.
 
@@ -35,7 +35,7 @@ All filters are discretized with the sample time \( T_s \).  The function `get_f
 
 ---
 
-### Function `calculate_transfer_functions`
+## Function `calculate_transfer_functions`
 
 This function constructs the **filter chains and controllers** for a selected axis.  
 It creates three filter paths:
