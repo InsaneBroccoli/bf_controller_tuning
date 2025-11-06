@@ -42,6 +42,7 @@ classdef main_class
         koverlapspec
         Nestfatra
         koverlaptra
+        default_parameters (1,1) logical = false
     end
 
     methods
@@ -49,7 +50,8 @@ classdef main_class
         %  ???
         % =================================================================
         function obj = main_class(file_path, para_new, ind_ax, do_compensate_iterm, ...
-                P_new, I_ratio_new, D_new, Nestfaspec,koverlapspec,Nestfatra, koverlaptra)
+                P_new, I_ratio_new, D_new, Nestfaspec,koverlapspec,Nestfatra, koverlaptra, ...
+                default_parameters)
             % Save all inputs
             obj.file_path = file_path;
             obj.para_new = para_new;
@@ -62,6 +64,7 @@ classdef main_class
             obj.koverlapspec = koverlapspec;
             obj.Nestfatra = Nestfatra;
             obj.koverlaptra = koverlaptra;
+            obj.default_parameters = default_parameters;
         end
 
         % =================================================================
@@ -70,6 +73,9 @@ classdef main_class
         function obj = run(obj)
            % Extract header information
             [para, Nheader, ind, ind_cntr] = extract_header_information(obj.file_path);
+
+            
+
             
             % Read the data
             %  - If its the first time from the .csv and save a mat, otherwise the
@@ -100,10 +106,7 @@ classdef main_class
             % Unscale and remap sinarg
             sinargScale = 5.0e3;
             data(:,ind.sinarg) = 1.0 / sinargScale * data(:,ind.sinarg);
-            
-            % Assign negative sign for pid error
-            data(:,ind.axisError) = -data(:,ind.axisError);
-            
+                        
             % Create an additional entry for the pi sum
             data = [data, data(:,ind.axisP) + data(:,ind.axisI)];
             
@@ -277,6 +280,17 @@ classdef main_class
             tic
             
             pid_axis = {'rollPID', 'pitchPID', 'yawPID'};
+
+            if obj.default_parameters
+                obj.para_new = para;
+                 pid_vec = para.(pid_axis{obj.ind_ax});
+
+                 obj.P_new = pid_vec(1);
+                 obj.I_ratio_new = 1;
+                 obj.D_new = pid_vec(3);
+
+            end
+
             
             % PID parameters
             fprintf('   used PID parameters are:\n');
@@ -346,7 +360,6 @@ classdef main_class
             obj.CloLoAan = CL_ana;
             obj.CloLoAanNew = CL_ana_new;
             
-  
             
             % Step responses
             f_max = min([para.dyn_notch_min_hz, para.gyro_rpm_notch_min]);

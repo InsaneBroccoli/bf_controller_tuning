@@ -106,92 +106,124 @@ classdef plot_utils < handle
         end
 
 %%
-        % ===============================================================
-        %  FIGURE 2: GYRO SPECTRA
-        % ===============================================================
-        function plotGyroSpectra(obj, flight1, varargin)
-            figure(2); clf
-        
-            % Detect optional second flight
-            if obj.second_flight
-                flight2 = varargin{1};
-            end
-        
-            % Preallocate 3 axes (3 rows × 1 col)
-            ax = gobjects(1,3);
-        
-            % ---------- Subplot 1: Unfiltered spectra ----------
-            ax(1) = subplot(3,1,1);
-            plot(ax(1), flight1.Specfreq, flight1.unfgyroSpec); % F1
-            hold(ax(1),'on');
-            if obj.second_flight
-                plot(ax(1), flight2.Specfreq, flight2.unfgyroSpec); % F2
-            end
-            grid(ax(1),'on');
-            ylabel(ax(1),'Gyro (deg/s)');
-            set(ax(1),'YScale','log');
-            title(ax(1),'Unfiltered gyro magnitude spectra');
-        
-            if obj.do_insert_legends
-                if obj.second_flight
-                    legend(ax(1), ...
-                        {'F1 Roll','F1 Pitch','F1 Yaw', ...
-                         'F2 Roll','F2 Pitch','F2 Yaw'}, ...
-                        'Location','northeastoutside');
-                else
-                    legend(ax(1), {'F1 Roll','F1 Pitch','F1 Yaw'}, 'Location','northeastoutside');
-                end
-            end
-        
-            % ---------- Subplot 2: Filtered (ADC) spectra ----------
-            ax(2) = subplot(3,1,2);
-            plot(ax(2), flight1.Specfreq, flight1.adcgyroSpec); % F1
-            hold(ax(2),'on');
-            if obj.second_flight
-                plot(ax(2), flight2.Specfreq, flight2.adcgyroSpec); % F2
-            end
-            grid(ax(2),'on');
-            ylabel(ax(2),'Gyro (deg/s)');
-            set(ax(2),'YScale','log');
-            title(ax(2),'Filtered (ADC) gyro magnitude spectra');
-            legend off;
-          
-            % ---------- Subplot 3: AxisSum spectra ----------
-            ax(3) = subplot(3,1,3);
-            plot(ax(3), flight1.Specfreq, flight1.axisSumSpec); % F1
-            hold(ax(3),'on');
-            if obj.second_flight
-                plot(ax(3), flight2.Specfreq, flight2.axisSumSpec); % F2
-            end
-            grid(ax(3),'on');
-            ylabel(ax(3),'AxisSum');
-            xlabel(ax(3),'Frequency (Hz)');
-            set(ax(3),'YScale','log');
-            title(ax(3),'Axis sum spectra');
-            legend off;
+% ===============================================================
+%  FIGURE 2: GYRO SPECTRA
+% ===============================================================
+function plotGyroSpectra(obj, flight1, varargin)
+    figure(2); clf
 
-            % Link x-axes and set limits based on (smallest) Nyquist
-            linkaxes(ax,'x');
-            nyq1 = 1/(2*flight1.Ts_log);
-            if obj.second_flight && isfield(flight2,'Ts_log')
-                nyq2 = 1/(2*flight2.Ts_log);
-            else
-                nyq2 = nyq1;
-            end
-            xlim(ax,[0, min(nyq1, nyq2)]);
-        
-            % Optional y-limits (keep your previous styling)
-            try
-                ylim(ax(1), [1e-3 1e1]);
-                ylim(ax(2), [1e-3 1e1]);
-                ylim(ax(3), [1e-3 1e1]);
-            catch
-                % ignore if ranges are incompatible
-            end
-        
-            % Apply global line width
-            set(findall(gcf,'type','line'), 'LineWidth', obj.linewidth);
+    ncol = 1;
+    if obj.second_flight
+        ncol = 2;
+        flight2 = varargin{1};
+    end
+
+    % helper function for subplot position
+    pos = @(row, colIdx) colIdx + (row-1)*ncol;   % row = 1..3, colIdx = 1..ncol
+
+    % ---------- Flight 1 (left column) ----------
+    % Subplot 1: Unfiltered spectra
+    ax(1) = subplot(3, ncol, pos(1,1));
+    plot(ax(1), flight1.Specfreq, flight1.unfgyroSpec); % F1
+    grid(ax(1),'on');
+    ylabel(ax(1),'Gyro (deg/s)');
+    set(ax(1),'YScale','log');
+    title(ax(1),'Flight 1: Unfiltered gyro magnitude spectra');
+    legend(ax(1), 'off');
+
+    % Subplot 2: Filtered (ADC) spectra
+    ax(2) = subplot(3, ncol, pos(2,1));
+    plot(ax(2), flight1.Specfreq, flight1.adcgyroSpec); % F1
+    grid(ax(2),'on');
+    ylabel(ax(2),'Gyro (deg/s)');
+    set(ax(2),'YScale','log');
+    title(ax(2),'Filtered (ADC) gyro magnitude spectra');
+    if obj.do_insert_legends
+        % Legend for all Flight 1 Data
+        legend(ax(2), {'F1 Roll','F1 Pitch','F1 Yaw'}, 'Location','northeast');
+    else
+        legend(ax(2), {'F1 Roll','F1 Pitch','F1 Yaw'}, 'Location','northeast');
+    end
+
+
+    % Subplot 3: AxisSum spectra
+    ax(3) = subplot(3, ncol, pos(3,1));
+    plot(ax(3), flight1.Specfreq, flight1.axisSumSpec); % F1
+    grid(ax(3),'on');
+    ylabel(ax(3),'AxisSum');
+    xlabel(ax(3),'Frequency (Hz)');
+    set(ax(3),'YScale','log');
+    title(ax(3),'Axis sum spectra');
+    legend(ax(3),'off');
+
+    % ---------- Flight 2 (rechte Spalte, optional) ----------
+    if obj.second_flight
+        % Unfiltered spectra (F2)
+        ax(4) = subplot(3, ncol, pos(1,2));
+        plot(ax(4), flight2.Specfreq, flight2.unfgyroSpec); % F2
+        grid(ax(4),'on');
+        ylabel(ax(4),'Gyro (deg/s)');
+        set(ax(4),'YScale','log');
+        title(ax(4),'Flight 2: Unfiltered gyro magnitude spectra');
+        legend(ax(4),'off');  % wie im Original: Legenden optional/aus
+
+        % Filtered (ADC) spectra (F2)
+        ax(5) = subplot(3, ncol, pos(2,2));
+        plot(ax(5), flight2.Specfreq, flight2.adcgyroSpec); % F2
+        grid(ax(5),'on');
+        ylabel(ax(5),'Gyro (deg/s)');
+        set(ax(5),'YScale','log');
+        title(ax(5),'Filtered (ADC) gyro magnitude spectra');
+        if obj.do_insert_legends
+            % Legend for all Flight 1 Data
+            legend(ax(5), {'F2 Roll','F2 Pitch','F2 Yaw'}, 'Location','northeast');
+        else
+            legend(ax(5), {'F2 Roll','F2 Pitch','F2 Yaw'}, 'Location','northeast');
         end
+
+        % AxisSum spectra (F2)
+        ax(6) = subplot(3, ncol, pos(3,2));
+        plot(ax(6), flight2.Specfreq, flight2.axisSumSpec); % F2
+        grid(ax(6),'on');
+        ylabel(ax(6),'AxisSum');
+        xlabel(ax(6),'Frequency (Hz)');
+        set(ax(6),'YScale','log');
+        title(ax(6),'Axis sum spectra');
+        legend(ax(6),'off');
+    end
+
+    % ---------- Achsen verlinken & X-Limits (Nyquist) ----------
+    if obj.second_flight
+        linkaxes(ax(1:6), 'x');
+    else
+        linkaxes(ax(1:3), 'x');
+    end
+    nyq1 = 1/(2*flight1.Ts_log);
+    if obj.second_flight && isfield(flight2,'Ts_log')
+        nyq2 = 1/(2*flight2.Ts_log);
+    else
+        nyq2 = nyq1;
+    end
+    xlim([0, min(nyq1, nyq2)]);
+
+    % Optionale y-limits (dein Stil)
+    try
+        ylim(ax(1), [1e-3 1e1]);
+        ylim(ax(2), [1e-3 1e1]);
+        ylim(ax(3), [1e-3 1e1]);
+        if obj.second_flight
+            ylim(ax(4), [1e-3 1e1]);
+            ylim(ax(5), [1e-3 1e1]);
+            ylim(ax(6), [1e-3 1e1]);
+        end
+    catch
+        % ignorieren falls inkompatibel
+    end
+
+    % Globale Linienbreite
+    set(findall(gcf,'type','line'), 'LineWidth', obj.linewidth);
+end
+
 %%
         % ===============================================================
         %  FIGURE 3: OVERVIEW PLOTS
@@ -617,8 +649,8 @@ classdef plot_utils < handle
                     if obj.do_insert_legends, legend('actual F1', 'new F1', ...
                             'actual F2', 'new F2','location', 'best'), end
                 end
+                ylim(ax(1), 'auto')
                 title('Tracking T Roll')
-                ylim([0 1.3])
     
                 ax(2) = subplot(2,1,2);
                 plot(ax(2), flight1.step_resp_tim, flight1.step_resp_com), grid on
@@ -626,8 +658,8 @@ classdef plot_utils < handle
                     hold on
                     plot(ax(2), flight2.step_resp_tim, flight2.step_resp_tra)
                 end
+                ylim(ax(2), 'auto')
                 title('Compliance SP Roll'), xlabel('Time (sec)'), ylabel('Gyro (deg/sec)')
-                ylim([-0.2 1.1])
                 linkaxes(ax, 'x'), clear ax, xlim([0 0.5])
                 set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
 
@@ -644,7 +676,7 @@ classdef plot_utils < handle
                                 'actual F2', 'new F2','location', 'best'), end
                     end
                     title('Tracking T Pitch')
-                    ylim([0 1.3])
+                    ylim(ax(1), 'auto')
         
                     ax(2) = subplot(2,1,2);
                     plot(ax(2), flight1.step_resp_tim, flight1.step_resp_com), grid on
@@ -653,7 +685,7 @@ classdef plot_utils < handle
                         plot(ax(2), flight2.step_resp_tim, flight2.step_resp_tra)
                     end
                     title('Compliance SP Pitch'), xlabel('Time (sec)'), ylabel('Gyro (deg/sec)')
-                    ylim([-0.2 1.1])
+                    ylim(ax(2), 'auto')
                     linkaxes(ax, 'x'), clear ax, xlim([0 0.5])
                     set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
 
@@ -671,7 +703,7 @@ classdef plot_utils < handle
                                 'actual F2', 'new F2','location', 'best'), end
                     end
                     title('Tracking T Pitch')
-                    ylim([0 1.3])
+                    ylim(ax(1), 'auto')
         
                     ax(2) = subplot(2,1,2);
                     plot(ax(2), flight1.step_resp_tim, flight1.step_resp_com), grid on
@@ -680,7 +712,7 @@ classdef plot_utils < handle
                         plot(ax(2), flight2.step_resp_tim, flight2.step_resp_tra)
                     end
                     title('Compliance SP Pitch'), xlabel('Time (sec)'), ylabel('Gyro (deg/sec)')
-                    ylim([-0.2 1.1])
+                    ylim(ax(2), 'auto')
                     linkaxes(ax, 'x'), clear ax, xlim([0 0.5])
                     set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
 
@@ -830,50 +862,51 @@ classdef plot_utils < handle
             end
 
             % ======== Spectogram Flight 2 ========
-
+        
             if obj.second_flight
                 flight2 = varargin{1};
-            end
-            figure(23); clf
-            sgtitle('Gyro Spectrograms Flight 2')
-            axes_labels = {'Roll', 'Pitch', 'Yaw'};
-        
-            c_lim = [5e-2 3e0];
-        
-            colormap('jet')
             
-           for spectrogram_nr = 1:flight2.num_spectrograms
-                subplot(230 + spectrogram_nr)
-                qmesh = pcolor(flight2.SpecfreqUnf{spectrogram_nr}, ...
-                               flight2.SpecthroUnf{spectrogram_nr}, ...
-                               flight2.SpecAmplUnf{spectrogram_nr});
-                set(qmesh, 'EdgeColor', 'none');
-                if spectrogram_nr == 1
-                    ylabel('Throttle (%)')
-                end
-                xlabel('Frequency (Hz)')
-                title([axes_labels{spectrogram_nr}, ' – ohne Filter'])   
-                set(gca, 'ColorScale', 'log')                            
-                clim(c_lim);                                             
-                ylim([0 100])                                             
-            end
-        
-            % --- unten: mit Filter (unverändert) ---
-            for spectrogram_nr = 1:flight2.num_spectrograms
-                subplot(230 + spectrogram_nr + 3)
-                qmesh = pcolor(flight2.SpecfreqFil{spectrogram_nr}, ...
-                               flight2.SpecthroFil{spectrogram_nr}, ...
-                               flight2.SpecAmplFil{spectrogram_nr});
-                set(qmesh, 'EdgeColor', 'none');
-                xlabel('Frequency (Hz)')
-                if spectrogram_nr == 1
-                    ylabel('Throttle (%)')
-                end
-                title([axes_labels{spectrogram_nr}, ' – mit Filter'])
+                figure(23); clf
+                sgtitle('Gyro Spectrograms Flight 2')
+                axes_labels = {'Roll', 'Pitch', 'Yaw'};
+            
+                c_lim = [5e-2 3e0];
+            
                 colormap('jet')
-                set(gca, 'ColorScale', 'log')
-                clim(c_lim);
-                ylim([0 100])
+                
+               for spectrogram_nr = 1:flight2.num_spectrograms
+                    subplot(230 + spectrogram_nr)
+                    qmesh = pcolor(flight2.SpecfreqUnf{spectrogram_nr}, ...
+                                   flight2.SpecthroUnf{spectrogram_nr}, ...
+                                   flight2.SpecAmplUnf{spectrogram_nr});
+                    set(qmesh, 'EdgeColor', 'none');
+                    if spectrogram_nr == 1
+                        ylabel('Throttle (%)')
+                    end
+                    xlabel('Frequency (Hz)')
+                    title([axes_labels{spectrogram_nr}, ' – ohne Filter'])   
+                    set(gca, 'ColorScale', 'log')                            
+                    clim(c_lim);                                             
+                    ylim([0 100])                                             
+                end
+            
+                % --- unten: mit Filter (unverändert) ---
+                for spectrogram_nr = 1:flight2.num_spectrograms
+                    subplot(230 + spectrogram_nr + 3)
+                    qmesh = pcolor(flight2.SpecfreqFil{spectrogram_nr}, ...
+                                   flight2.SpecthroFil{spectrogram_nr}, ...
+                                   flight2.SpecAmplFil{spectrogram_nr});
+                    set(qmesh, 'EdgeColor', 'none');
+                    xlabel('Frequency (Hz)')
+                    if spectrogram_nr == 1
+                        ylabel('Throttle (%)')
+                    end
+                    title([axes_labels{spectrogram_nr}, ' – mit Filter'])
+                    colormap('jet')
+                    set(gca, 'ColorScale', 'log')
+                    clim(c_lim);
+                    ylim([0 100])
+                end
             end
 
         end
