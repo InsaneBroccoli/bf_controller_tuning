@@ -71,6 +71,9 @@ opt.Grid          = 'on';           % Grid ob
 
 pu.opt = opt;
 
+% New and old parameters are the same
+default_parameters = false; 
+
 % Parameter first flight
 % type: 0: PT1, 1: BIQUAD, 2: PT2, 3: PT3
 para_new1.gyro_lpf            = 0;       % dono what this is
@@ -138,12 +141,14 @@ switch ind_ax
 end
 
 flight1 = main_code.main_class(file_path1, para_new1, ind_ax, do_compensate_iterm, ...
-    P_new1, I_ratio_new1, D_new1, Nestfaspec,koverlapspec, Nestfatra, koverlaptra);
+    P_new1, I_ratio_new1, D_new1, Nestfaspec,koverlapspec, Nestfatra, koverlaptra ...
+    ,default_parameters);
 flight1 = flight1.run();
 
 if second_flight
     flight2 = main_code.main_class(file_path2 ,para_new2, ind_ax, do_compensate_iterm, ...
-        P_new2, I_ratio_new2, D_new2, Nestfaspec,koverlapspec,Nestfatra, koverlaptra);
+        P_new2, I_ratio_new2, D_new2, Nestfaspec,koverlapspec,Nestfatra, koverlaptra, ...
+        default_parameters);
     flight2 = flight2.run();
 end
 %% Plots
