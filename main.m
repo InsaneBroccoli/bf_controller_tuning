@@ -1,8 +1,6 @@
 clc, clear variables
-addpath(genpath('lib_michi'))
 addpath(genpath('lib'));
 addpath logs/
-addpath utils/
 addpath class/
 %%
 % Choose an axis: 1: roll, 2: pitch, 3: yaw
@@ -11,7 +9,7 @@ ind_ax = 1;     % keep it now until plot_utils is finished
 % -------------------------------------------------------------------------
 
 % Define path to *.bbl.csv file for the first flight
-log_folder1 = '';
+log_folder1 = 'logs';
 flight_folder1 = '20250907';
 log_name1 = '20250907_flipmini_00.bbl.csv';
 
@@ -140,13 +138,13 @@ switch ind_ax
         D_new2       = 1.0 * 3;
 end
 
-flight1 = main_code.main_class(file_path1, para_new1, ind_ax, do_compensate_iterm, ...
+flight1 = main_class(file_path1, para_new1, ind_ax, do_compensate_iterm, ...
     P_new1, I_ratio_new1, D_new1, Nestfaspec,koverlapspec, Nestfatra, koverlaptra ...
     ,default_parameters);
 flight1 = flight1.run();
 
 if second_flight
-    flight2 = main_code.main_class(file_path2 ,para_new2, ind_ax, do_compensate_iterm, ...
+    flight2 = main_class(file_path2 ,para_new2, ind_ax, do_compensate_iterm, ...
         P_new2, I_ratio_new2, D_new2, Nestfaspec,koverlapspec,Nestfatra, koverlaptra, ...
         default_parameters);
     flight2 = flight2.run();
