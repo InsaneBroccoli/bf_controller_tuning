@@ -28,23 +28,23 @@ As an example, consider a system excited by a random or chirp signal, where both
 In the frequency domain, the relation between input and output of a linear time-invariant (LTI) system can be expressed as
 
 \[
-G(s) = \frac{Y(s)}{U(s)},
+G(j\omega) = \frac{Y(j\omega)}{U(j\omega)},
 \]
 
-where \( U(s) \) and \( Y(s) \) are the Fourier transforms of the input \( u(t) \) and output \( y(t) \).  
+where \( U(j\omega) \) and \( Y(j\omega) \) are the Fourier transforms of the input \( u(t) \) and output \( y(t) \).  
 This ratio describes how each frequency component of the input is scaled and phase-shifted by the system.
 
-In practice, however, direct division of \( Y(s) \) and \( U(s) \) is sensitive to noise. 
+In practice, however, direct division of \( Y(j\omega) \) and \( U(j\omega) \) is sensitive to noise. 
 To obtain a more reliable estimate, we use averaged spectral quantities:
 
 \[
-S_{yu}(s) = E\{Y(s)U^*(s)\}, \qquad S_{uu}(s) = E\{|U(s)|^2\},
+S_{yu}(j\omega) = E\{Y(j\omega)U^*(j\omega)\}, \qquad S_{uu}(j\omega) = E\{|U(j\omega)|^2\},
 \]
 
 which leads to the practical and statistically robust estimator
 
 \[
-G(f) = \frac{S_{yu}(s)}{S_{uu}(s)}.
+G(f) = \frac{S_{yu}(j\omega)}{S_{uu}(j\omega)}.
 \]
 
 This formulation provides a consistent estimate of the system’s amplitude and phase response across all frequencies [1][2].
@@ -75,9 +75,9 @@ The function implements the **Welch averaging method** [1, pp. 356–364], which
 4. **Power spectra formation:**  
    For each segment:
    \[
-   S_{uu,k}(s) = U_k(s)U_k^*(s), \quad
-   S_{yu,k}(s) = Y_k(s)U_k^*(s), \quad
-   S_{yy,k}(s) = Y_k(s)Y_k^*(s).
+   S_{uu,k}(j\omega) = U_k(j\omega)U_k^*(j\omega), \quad
+   S_{yu,k}(j\omega) = Y_k(j\omega)U_k^*(j\omega), \quad
+   S_{yy,k}(j\omega) = Y_k(j\omega)Y_k^*(j\omega).
    \]
    The spectra are then converted to **one-sided** form by doubling all interior bins and dividing the DC and Nyquist bins by 4 [1, p. 360].
 
@@ -97,7 +97,7 @@ The function implements the **Welch averaging method** [1, pp. 356–364], which
 
 To avoid division by near-zero values of \( S_{uu}(f) \), a small positive constant `delta` is added:
 \[
-G(s) = \frac{S_{yu}(s)}{S_{uu}(s) + \delta}.
+G(j\omega) = \frac{S_{yu}(j\omega)}{S_{uu}(j\omega) + \delta}.
 \]
 This **regularized spectral inversion** improves numerical stability [2, pp. 208–210].
 
