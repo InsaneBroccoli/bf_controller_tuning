@@ -712,12 +712,12 @@ classdef plot_utils < handle
                     figure(77)
                     ax(1) = subplot(2,1,1);
                     plot(ax(1), flight1.step_resp_tim, flight1.step_resp_tra), grid on, ylabel('Gyro (deg/sec)')
-                    if obj.do_insert_legends, legend('actual', 'new', 'location', 'best'), end
+                    if obj.do_insert_legends, legend('actual', 'new', 'new with I-term relax', 'location', 'best'), end
                     if obj.second_flight
                         hold on
                         plot(ax(1), flight2.step_resp_tim, flight2.step_resp_tra)
-                        if obj.do_insert_legends, legend('actual F1', 'new F1', ...
-                                'actual F2', 'new F2','location', 'best'), end
+                        if obj.do_insert_legends, legend('actual F1', 'new F1', 'new F1 with I-term relax', ...
+                                'actual F2', 'new F2', 'new F2 with I-term relax', 'location', 'best'), end
                     end
                     title('Tracking T Pitch')
                     ylim(ax(1), 'auto')
@@ -739,12 +739,12 @@ classdef plot_utils < handle
                     figure(777)
                     ax(1) = subplot(2,1,1);
                     plot(ax(1), flight1.step_resp_tim, flight1.step_resp_tra), grid on, ylabel('Gyro (deg/sec)')
-                    if obj.do_insert_legends, legend('actual', 'new', 'location', 'best'), end
+                    if obj.do_insert_legends, legend('actual', 'new', 'new with I-term relax', 'location', 'best'), end
                     if obj.second_flight
                         hold on
                         plot(ax(1), flight2.step_resp_tim, flight2.step_resp_tra)
-                        if obj.do_insert_legends, legend('actual F1', 'new F1', ...
-                                'actual F2', 'new F2','location', 'best'), end
+                        if obj.do_insert_legends, legend('actual F1', 'new F1', 'new F1 with I-term relax', ...
+                                'actual F2', 'new F2', 'new F2 with I-term relax', 'location', 'best'), end
                     end
                     title('Tracking T Yaw')
                     ylim(ax(1), 'auto')
