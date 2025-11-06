@@ -19,7 +19,7 @@ file_path1 = fullfile(log_folder1, flight_folder1, log_name1);
 
 % Define path to *.bbl.csv file for the second flight
 
-second_flight = true;   % Set on true when you want to compare two flights
+second_flight = false;   % Set on true when you want to compare two flights
 
 log_folder2 = '';
 flight_folder2 = '20250908';
@@ -124,9 +124,9 @@ para_new2.dterm_notch_cutoff  = get_fcut_from_D_and_fcenter(0.00, para_new2.dter
 para_new2.yaw_lpf_hz          = 200;     % frequency of yaw lpf (pt1)
 switch ind_ax
     case 1 % roll: [33, 52, 26, 0]
-        P_new2       = 0.4 * 33;
+        P_new2       = 1.0 * 33;
         I_ratio_new2 = 1.0 * 52/52;
-        D_new2       = 0.025 * 26;
+        D_new2       = 1.0 * 26;
     case 2 % pitch: [58, 98, 44, 0]
         P_new2       = 1.0 * 58;
         I_ratio_new2 = 1.0 * 98/98;
