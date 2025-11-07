@@ -1,39 +1,37 @@
-%==========================================================================
-% PLOT_UTILS - Betaflight Controller Analysis Visualization Class
-%==========================================================================
-% Purpose: 
-%     This class provides visualization methods for analyzing quadcopter 
-%     flight controller performance and tuning data.
-%
-% Main Features:
-%   - Time domain analysis (gyro signals, motor outputs)
-%   - Frequency domain analysis (spectra, Bode plots)
-%   - Controller response visualization (PID components)
-%   - Step response and closed-loop system analysis
-%   - Support for comparing two flight datasets
-%
-% Methods are organized into categories:
-% Time Domain Analysis:
-%   - plotGyroSignals    - Raw gyro data visualization
-%   - plotOverview       - Overview of flight parameters
-%   - plotevaltime       - Timing analysis
-%
-% Frequency Domain Analysis:  
-%   - plotGyroSpectra    - Frequency spectra
-%   - plotspectogram     - Time-frequency analysis
-%   - plotBode           - System frequency response
-%
-% Controller Analysis:
-%   - plotController     - PID controller response
-%   - plotCPIDBode       - PI and D components
-%   - plotGangofFour     - Closed loop characteristics
-%   - plotStepResp       - Step response analysis
-%
-% Author: [Your Name]
-% Date: [Current Date]
-%==========================================================================
-
 classdef plot_utils < handle
+    % PLOT_UTILS - Helper class for visualizing flight controller data
+    % 
+    % This class provides visualization methods for analyzing quadcopter 
+    % flight controller performance and tuning data.
+    %
+    % Methods are organized into categories:
+    % Time Domain Analysis:
+    %   - plotGyroSignals    - Raw gyro data visualization
+    %   - plotOverview       - Overview of flight parameters
+    %   - plotevaltime       - Timing analysis
+    %
+    % Frequency Domain Analysis:  
+    %   - plotGyroSpectra    - Frequency spectra
+    %   - plotspectogram     - Time-frequency analysis
+    %   - plotBode           - System frequency response
+    %
+    % Controller Analysis:
+    %   - plotController     - PID controller response
+    %   - plotCPIDBode       - PI and D components
+    %   - plotGangofFour     - Closed loop characteristics
+    %   - plotStepResp       - Step response analysis
+    %
+    % Properties:
+    %   do_compensate_iterm  - Enable I-term relaxation compensation (logical)
+    %   do_show_spec_figures - Show spectral analysis figures (logical) 
+    %   do_insert_legends    - Add legends to plots (logical)
+    %   linewidth            - Line width for all plots (double)
+    %   opt                  - Bode plot options structure
+    %   colorOrder           - Default color scheme for plots (matrix)
+    %   second_flight        - Compare two flights flag (logical)
+    %   ind_ax               - Selected axis (1:roll, 2:pitch, 3:yaw)
+    %   pos_bode             - Position matrix for Bode plots [left bottom width height]
+
 
     properties
         do_compensate_iterm  (1,1) logical = true
@@ -43,7 +41,7 @@ classdef plot_utils < handle
         opt                  % Bode plot options structure
         colorOrder = get(0, 'DefaultAxesColorOrder')
         second_flight (1,1) logical = false
-        ind_ax       % Selected axis (1:roll, 2:pitch, 3:yaw)
+        ind_ax       % Selected axis index
         pos_bode double = [0.1514, 0.5838-0.2, 0.7536, 0.3472+0.2; ...
                           0.1514, 0.1100,      0.7536, 0.1917] 
 
@@ -55,17 +53,16 @@ classdef plot_utils < handle
         % =================================================================
         %  FIGURE 1: GYRO SIGNALS
         % =================================================================
-        % Plots gyro signals for roll, pitch and yaw axes
-        % 
-        % Parameters:
-        %   flight1 - Data from first flight
-        %   varargin{1} - Optional second flight data for comparison
-        % 
-        % Generates three subplots showing:
-        % - Setpoint, unfiltered gyro, and filtered gyro data
-        % - Optional comparison with second flight
         function plotGyroSignals(obj, flight1, varargin)
-            
+            % Plots gyro signals for roll, pitch and yaw axes
+            % 
+            % Parameters:
+            %   flight1 - Data from first flight
+            %   varargin{1} - Optional second flight data for comparison
+            % 
+            % Generates three subplots showing:
+            % - Setpoint, unfiltered gyro, and filtered gyro data
+            % - Optional comparison with second flight
             if obj.second_flight
                 flight2 = varargin{1};
             end
@@ -146,18 +143,18 @@ classdef plot_utils < handle
         % =================================================================
         %  FIGURE 2: GYRO SPECTRA
         % =================================================================
-        % Generates spectral analysis plots for gyro data
-        %
-        % Parameters:
-        %   flight1 - First flight data
-        %   varargin{1} - Optional second flight data
-        %
-        % Shows:
-        % - Unfiltered spectra
-        % - Filtered (ADC) spectra  
-        % - Axis sum spectra
         function plotGyroSpectra(obj, flight1, varargin)
-                        
+            % Generates spectral analysis plots for gyro data
+            %
+            % Parameters:
+            %   flight1 - First flight data
+            %   varargin{1} - Optional second flight data
+            %
+            % Shows:
+            % - Unfiltered spectra
+            % - Filtered (ADC) spectra  
+            % - Axis sum spectra
+            
             figure(2); clf
         
             ncol = 1;
@@ -338,13 +335,13 @@ classdef plot_utils < handle
         % =================================================================
         %  FIGURE 4: BODE PLOTS
         % =================================================================
-        % plotBode - Bode plot (Plant and Coherence) for selected axis
-        % Minimal edits: keep all global bode options in MAIN.
-        % Use local options only for the coherence subplot (auto Y-limits).
-        % Always use BODEMAG for coherence on both flights.
 
         function plotBode(obj, flight1, varargin)
-                    
+            % plotBode - Bode plot (Plant and Coherence) for selected axis
+            % Minimal edits: keep all global bode options in MAIN.
+            % Use local options only for the coherence subplot (auto Y-limits).
+            % Always use BODEMAG for coherence on both flights.
+        
             if obj.second_flight
                 flight2 = varargin{1};
             end
@@ -427,11 +424,11 @@ classdef plot_utils < handle
         % =================================================================
         %  FIGURE 5: BODE PLOTS PI & D CONTROLLER
         % =================================================================
-        % plotCPIDBode - Bode plot for PI and D controller (measured vs analytical)
-        % Minimal edits: keep global bode options from MAIN, do not override here.
 
         function plotCPIDBode(obj, flight1, varargin)
-                    
+            % plotCPIDBode - Bode plot for PI and D controller (measured vs analytical)
+            % Minimal edits: keep global bode options from MAIN, do not override here.
+        
             if obj.second_flight
                 flight2 = varargin{1};
             end
@@ -712,12 +709,12 @@ classdef plot_utils < handle
                     figure(77)
                     ax(1) = subplot(2,1,1);
                     plot(ax(1), flight1.step_resp_tim, flight1.step_resp_tra), grid on, ylabel('Gyro (deg/sec)')
-                    if obj.do_insert_legends, legend('actual', 'new', 'new with I-term relax', 'location', 'best'), end
+                    if obj.do_insert_legends, legend('actual', 'new', 'location', 'best'), end
                     if obj.second_flight
                         hold on
                         plot(ax(1), flight2.step_resp_tim, flight2.step_resp_tra)
-                        if obj.do_insert_legends, legend('actual F1', 'new F1', 'new F1 with I-term relax', ...
-                                'actual F2', 'new F2', 'new F2 with I-term relax', 'location', 'best'), end
+                        if obj.do_insert_legends, legend('actual F1', 'new F1', ...
+                                'actual F2', 'new F2','location', 'best'), end
                     end
                     title('Tracking T Pitch')
                     ylim(ax(1), 'auto')
@@ -739,12 +736,12 @@ classdef plot_utils < handle
                     figure(777)
                     ax(1) = subplot(2,1,1);
                     plot(ax(1), flight1.step_resp_tim, flight1.step_resp_tra), grid on, ylabel('Gyro (deg/sec)')
-                    if obj.do_insert_legends, legend('actual', 'new', 'new with I-term relax', 'location', 'best'), end
+                    if obj.do_insert_legends, legend('actual', 'new', 'location', 'best'), end
                     if obj.second_flight
                         hold on
                         plot(ax(1), flight2.step_resp_tim, flight2.step_resp_tra)
-                        if obj.do_insert_legends, legend('actual F1', 'new F1', 'new F1 with I-term relax', ...
-                                'actual F2', 'new F2', 'new F2 with I-term relax', 'location', 'best'), end
+                        if obj.do_insert_legends, legend('actual F1', 'new F1', ...
+                                'actual F2', 'new F2','location', 'best'), end
                     end
                     title('Tracking T Yaw')
                     ylim(ax(1), 'auto')
@@ -862,14 +859,16 @@ classdef plot_utils < handle
         % PLOTSPECTOGRAM Time-frequency analysis visualization
 
         function plotspectogram(obj, flight1, varargin)
+            
             figure(22); clf
             sgtitle('Gyro Spectrograms Flight 1')
             axes_labels = {'Roll', 'Pitch', 'Yaw'};
+        
             c_lim = [5e-2 3e0];
+        
             colormap('jet')
-
-           % --- Unfiltered Spectrograms ---
-            for spectrogram_nr = 1:flight1.num_spectrograms
+            
+           for spectrogram_nr = 1:flight1.num_spectrograms
                 subplot(230 + spectrogram_nr)
                 qmesh = pcolor(flight1.SpecfreqUnf{spectrogram_nr}, ...
                                flight1.SpecthroUnf{spectrogram_nr}, ...
@@ -885,7 +884,7 @@ classdef plot_utils < handle
                 ylim([0 100])                                             
             end
         
-            % --- Filtered Spectrograms ---
+            % --- unten: mit Filter (unverändert) ---
             for spectrogram_nr = 1:flight1.num_spectrograms
                 subplot(230 + spectrogram_nr + 3)
                 qmesh = pcolor(flight1.SpecfreqFil{spectrogram_nr}, ...
@@ -911,11 +910,12 @@ classdef plot_utils < handle
                 figure(23); clf
                 sgtitle('Gyro Spectrograms Flight 2')
                 axes_labels = {'Roll', 'Pitch', 'Yaw'};
+            
                 c_lim = [5e-2 3e0];
+            
                 colormap('jet')
-
-                % --- Unfiltered Spectrograms ---
-                for spectrogram_nr = 1:flight2.num_spectrograms
+                
+               for spectrogram_nr = 1:flight2.num_spectrograms
                     subplot(230 + spectrogram_nr)
                     qmesh = pcolor(flight2.SpecfreqUnf{spectrogram_nr}, ...
                                    flight2.SpecthroUnf{spectrogram_nr}, ...
