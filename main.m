@@ -4,7 +4,7 @@ addpath logs/
 addpath class/
 %%
 % Choose an axis: 1: roll, 2: pitch, 3: yaw
-ind_ax = 1;     % keep it now until plot_utils is finished
+ind_ax = 2;     % keep it now until plot_utils is finished
 
 % -------------------------------------------------------------------------
 
@@ -29,7 +29,7 @@ file_path2 = fullfile(log_folder2, flight_folder2, log_name2);
 do_insert_legends    = true;    % Set on true when you want to see the legende
 
 % Define if Item Relax should be on
-do_compensate_iterm  = true;   % Set on true if you want to compensate with item relax
+do_compensate_iterm  = false;   % Set on true if you want to compensate with item relax
 
 % Parameters of Spectogramfigures
 do_show_spec_figures = true;
@@ -70,7 +70,7 @@ opt.Grid          = 'on';           % Grid ob
 pu.opt = opt;
 
 % New and old parameters are the same
-default_parameters = false; 
+default_parameters = true; 
 
 % Parameter first flight
 % type: 0: PT1, 1: BIQUAD, 2: PT2, 3: PT3
