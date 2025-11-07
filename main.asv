@@ -94,7 +94,7 @@ opt.Grid          = 'on';          % Grid ob
 pu.opt = opt;
 
 % New and old parameters are the same
-default_parameters = true; 
+default_parameters = false; 
 
 % =========================================================================
 %  First flight: Parameters
