@@ -26,16 +26,16 @@ ind_ax = 1;
 % -------------------------------------------------------------------------
 
 % Define quad and path to *.bbl.csv file
-flight_folder = '20250907';
+flight_folder = '20250908';
 
 % quad = 'aosmini';
 % log_name = ['20251013_aosmini_PT1.csv'];
 
-quad = 'apex5';
-log_name = '20250907_apex5_00.bbl.csv';
+% quad = 'apex5';
+% log_name = '20250907_apex5_00.bbl.csv';
 
-% quad = 'flipmini';
-% log_name = '20250908_flipmini_00.bbl.csv';
+quad = 'flipmini';
+log_name = '20250908_flipmini_00.bbl.csv';
 
 file_path = fullfile(flight_folder, log_name);
 

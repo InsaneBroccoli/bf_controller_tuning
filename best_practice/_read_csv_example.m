@@ -5,7 +5,7 @@
 % This is the most straightforward approach for CSV files with both strings and numbers
 
 % Read the CSV file
-T = readtable('data.csv');
+T = readtable('../testing/testing.csv');
 
 % View the table
 disp(T);
@@ -28,7 +28,7 @@ opts = setvartype(opts, 'StringColumn', 'string');
 opts = setvartype(opts, 'NumericColumn', 'double');
 
 % Read the file with options
-T = readtable('data.csv', opts);
+T = readtable('../testing/testing.csv', opts);
 
 %% Method 3: Using csvread() - For numeric data only (legacy)
 % NOTE: csvread is not recommended for mixed data; use readmatrix instead
