@@ -1,7 +1,6 @@
 name: tuning
 channels:
   - conda-forge
-  - defaults
 dependencies:
   - python=3.12
   - pandas=2.1.4
