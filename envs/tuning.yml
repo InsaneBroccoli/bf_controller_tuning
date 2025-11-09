@@ -1,4 +1,4 @@
-name: csv_reader_env
+name: tuning
 channels:
   - conda-forge
   - defaults
