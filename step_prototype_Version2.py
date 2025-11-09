@@ -1,6 +1,6 @@
 """
 Simple CSV Reader - Extract Setpoint and GyroUnfilt Data
-No external functions required (only pandas, numpy, matplotlib)
+Improved with SciPy for signal processing
 """
 
 import pandas as pd
@@ -8,6 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time as time_module
 import pickle
+from scipy import signal
 
 # =========================================================================
 # 1. DEFINE FILE PATH
@@ -141,52 +142,52 @@ fs = 1 / dt
 print(f"\nSampling rate: {fs:.2f} Hz (dt = {dt:.6f} s)")
 
 
-def tfestimate(x, y, window, noverlap, nfft, fs):
+def estimate_frequency_response(x, y, fs, nperseg):
     """
-    Estimate transfer function using Welch's method
-    Similar to MATLAB's tfestimate
+    Estimates the frequency response using SciPy's Welch method.
+    Returns the frequency, transfer function (H), and coherence (C).
+    
+    Parameters:
+    -----------
+    x : array_like
+        Input signal
+    y : array_like
+        Output signal
+    fs : float
+        Sampling frequency
+    nperseg : int
+        Length of each segment for Welch's method
+        
+    Returns:
+    --------
+    freq : ndarray
+        Frequency vector
+    H : ndarray (complex)
+        Transfer function estimate
+    C : ndarray (real)
+        Coherence function
     """
-    # Number of segments
-    step = len(window) - noverlap
-    n_segments = (len(x) - noverlap) // step
+    # Use hanning window, 50% overlap is standard
+    noverlap = nperseg // 2
+    window = signal.windows.hann(nperseg)
 
-    # Initialize accumulators (use complex dtype)
-    Pxy = np.zeros(nfft // 2 + 1, dtype=complex)
-    Pxx = np.zeros(nfft // 2 + 1, dtype=complex)
+    # Cross-spectral density (input to output)
+    freq, Pxy = signal.csd(x, y, fs=fs, window=window, nperseg=nperseg, noverlap=noverlap)
+    
+    # Power-spectral density of the input
+    _, Pxx = signal.welch(x, fs=fs, window=window, nperseg=nperseg, noverlap=noverlap)
+    
+    # Power-spectral density of the output (for coherence)
+    _, Pyy = signal.welch(y, fs=fs, window=window, nperseg=nperseg, noverlap=noverlap)
 
-    # Process each segment
-    for i in range(n_segments):
-        start = i * step
-        end = start + len(window)
+    # Transfer function H(f) = Pxy(f) / Pxx(f)
+    H = Pxy / (Pxx + 1e-10)
+    
+    # Coherence C(f) = |Pxy(f)|^2 / (Pxx(f) * Pyy(f))
+    # Values close to 1 indicate high correlation at that frequency
+    C = np.abs(Pxy)**2 / (Pxx * Pyy + 1e-10)
 
-        if end > len(x):
-            break
-
-        # Extract and window the segments
-        x_seg = x[start:end] * window
-        y_seg = y[start:end] * window
-
-        # Compute FFT
-        X = np.fft.fft(x_seg, nfft)
-        Y = np.fft.fft(y_seg, nfft)
-
-        # Accumulate cross and auto power spectral densities
-        # Only keep positive frequencies
-        Pxy += X[: nfft // 2 + 1] * np.conj(Y[: nfft // 2 + 1])
-        Pxx += X[: nfft // 2 + 1] * np.conj(X[: nfft // 2 + 1])
-
-    # Average
-    Pxy /= n_segments
-    Pxx /= n_segments
-
-    # Transfer function estimate
-    # Pxx should be real (it's an auto-correlation), so we take the real part
-    H = Pxy / (np.real(Pxx) + 1e-10)  # Add small value to avoid division by zero
-
-    # Frequency vector
-    f = np.fft.fftfreq(nfft, 1 / fs)[: nfft // 2 + 1]
-
-    return H, f
+    return freq, H, C
 
 
 # Process each chirp event
@@ -256,19 +257,16 @@ for chirp_num in range(len(chirp_start_idx)):
     plt.tight_layout()
 
     # =====================================================================
-    # 7. ESTIMATE TRANSFER FUNCTION
+    # 7. ESTIMATE TRANSFER FUNCTION USING SCIPY
     # =====================================================================
 
     # Window settings for spectral estimation
     window_length = min(512, len(u_roll) // 4)
-    window = np.hanning(window_length)
-    noverlap = window_length // 2
-    nfft = max(1024, 2 ** int(np.ceil(np.log2(len(u_roll)))))
 
-    # Estimate transfer functions
-    H_roll, f = tfestimate(u_roll, y_roll, window, noverlap, nfft, fs)
-    H_pitch, _ = tfestimate(u_pitch, y_pitch, window, noverlap, nfft, fs)
-    H_yaw, _ = tfestimate(u_yaw, y_yaw, window, noverlap, nfft, fs)
+    # Estimate transfer functions and coherence using SciPy
+    f, H_roll, C_roll = estimate_frequency_response(u_roll, y_roll, fs, nperseg=window_length)
+    _, H_pitch, C_pitch = estimate_frequency_response(u_pitch, y_pitch, fs, nperseg=window_length)
+    _, H_yaw, C_yaw = estimate_frequency_response(u_yaw, y_yaw, fs, nperseg=window_length)
 
     # =====================================================================
     # 8. PLOT FREQUENCY RESPONSE (BODE-STYLE)
@@ -310,6 +308,28 @@ for chirp_num in range(len(chirp_start_idx)):
     axes[1].set_title("Transfer Function Phase")
     axes[1].legend()
     axes[1].grid(True, which="both", alpha=0.3)
+
+    plt.tight_layout()
+
+    # =====================================================================
+    # 8b. PLOT COHERENCE
+    # =====================================================================
+
+    fig, ax = plt.subplots(1, 1, figsize=(12, 4))
+    fig.suptitle(
+        f"Chirp {chirp_num + 1} - Coherence", fontsize=14, fontweight="bold"
+    )
+
+    ax.semilogx(f, C_roll, "b", linewidth=1.5, label="Roll")
+    ax.semilogx(f, C_pitch, "r", linewidth=1.5, label="Pitch")
+    ax.semilogx(f, C_yaw, "g", linewidth=1.5, label="Yaw")
+    ax.set_xlabel("Frequency (Hz)")
+    ax.set_ylabel("Coherence")
+    ax.set_title(f"Coherence (1 = perfect correlation) - Chirp Event {chirp_num + 1}")
+    ax.set_ylim([0, 1.05])
+    ax.axhline(y=0.5, color='k', linestyle='--', linewidth=0.8, alpha=0.5, label='Threshold (0.5)')
+    ax.legend()
+    ax.grid(True, which="both", alpha=0.3)
 
     plt.tight_layout()
 

@@ -7,7 +7,7 @@ clc, clear variables
 addpath ../20250908/
 
 %% 1. DEFINE FILE PATH
-file_path = '../20250908/20250908_flipmini_00.bbl.csv'
+file_path = './20250908/20250908_flipmini_00.bbl.csv'
 
 %% 2. READ THE ENTIRE FILE
 fprintf('Reading CSV file...\n');
