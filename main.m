@@ -24,7 +24,9 @@ ind_ax = 1;     % keep it now until plot_utils is finished
 
 log_folder1 = '';
 flight_folder1 = '20251104';
-log_name1 = 'LOG001.TXT.csv';
+log_name1 = 'LOG000.TXT.csv';
+% flight_folder1 = '20250908';
+% log_name1 = '20250908_flipmini_00.bbl.csv';
 
 file_path1 = fullfile(log_folder1, flight_folder1, log_name1);
 
@@ -49,22 +51,22 @@ file_path2 = fullfile(log_folder2, flight_folder2, log_name2);
 do_insert_legends = true;
 
 % I-term Relax on/off
-do_compensate_iterm = false;
+do_compensate_iterm = true;
 
 % show evaluation timing
-do_show_eval_time = false;
+do_show_eval_time = true;
 
 % Spectral Analysis
-do_show_spec_figures = true; % Spectra, Spectrograms
+do_show_spec_figures = false; % Spectra, Spectrograms
 Nestfaspec = 0.2;            % Window length for spectral analysis (seconds)
 koverlapspec = 0.9;          % Overlap factor for spectral analysis (0-1)
 
 % Show Flight track & tuning figures 
-do_show_flight_track = true;    % Gyro Signals from RC, Gyro signals from Controller
+do_show_flight_track = false;    % Gyro Signals from RC, Gyro signals from Controller
 do_show_tuning_figures = true;  % closed loop bode plots, Step response
 
 % Transfer Function
-do_show_transferfunction = true; % Plant, PI & D Controller, PID Controller 
+do_show_transferfunction = false; % Plant, PI & D Controller, PID Controller 
 Nestfatra = 2.0;                 % Window length for spectral analysis (seconds)
 koverlaptra = 0.9;               % Overlap factor for spectral analysis (0-1) 
 
@@ -93,7 +95,7 @@ opt.Grid          = 'on';          % Grid ob
 pu.opt = opt;
 
 % New and old parameters are the same
-default_parameters = true; 
+default_parameters = false; 
 
 % =========================================================================
 %  First flight: Parameters
@@ -133,9 +135,9 @@ para_new1.yaw_lpf_hz          = 200;     % frequency of yaw lpf (pt1)
 
 switch ind_ax
     case 1 % roll: [45, 80, 30, 0] - Betaflight standard PIDs
-        P_new1       = 1.0 * 33;
+        P_new1       = 1.5 * 33;
         I_ratio_new1 = 1.0 * 52/52;
-        D_new1       = 1.0 * 26;
+        D_new1       = 1.6 * 26;
     case 2 % pitch: [47, 84, 34, 0] - Betaflight standard PIDs
         P_new1       = 1.0 * 58;
         I_ratio_new1 = 1.0 * 98/98;
