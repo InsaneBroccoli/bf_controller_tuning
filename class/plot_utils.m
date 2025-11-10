@@ -356,21 +356,29 @@ classdef plot_utils < handle
         
                     % --- Plant (Bode: magnitude + phase) ---
                     bode(ax(1), flight1.transfData, 'k', flight1.transfOmega, obj.opt), title('Plant P Roll')
+                    legend('Flight 1', 'Location','southwest')
                     if obj.second_flight
                         hold on
                         bode(ax(1), flight2.transfData, 'r', flight2.transfOmega, obj.opt)
+                        legend('Flight 1', 'Flight 2', 'Location','southwest')
                     end
                     hold off, grid on
-                    legend('Flight 1', 'Flight 2', 'Location','southwest')
+                    
         
                     % --- Coherence (magnitude only) ---
                     ax(2) = subplot('Position', obj.pos_bode(2,:));
+                    opt_coh = bodeoptions('cstprefs');    % NEU (kein Handle auf obj.opt!)
+                    opt_coh.FreqUnits = obj.opt.FreqUnits; % z.B. 'Hz' übernehmen
+                    opt_coh.Grid      = obj.opt.Grid;
                     
-                    bodemag(ax(2), flight1.transfCoher, 'k', flight1.transfOmega, obj.opt),
-                    title(''), ylabel('Coherence')
+                    opt_coh.MagUnits  = 'abs';            % Betrag statt dB
+                    opt_coh.MagScale  = 'linear';         % lineare Y-Achse
+                    
+                    bodemag(ax(2), flight1.transfCoher, flight1.transfOmega,'-k', opt_coh);
+                    title(''); ylabel('Coherence'); ylim([0 1]);
                     if obj.second_flight
                         hold on
-                        bodemag(ax(2), flight2.transfCoher, 'r', flight2.transfOmega, obj.opt)
+                        bodemag(ax(2), flight2.transfCoher, 'r', flight2.transfOmega, opt_coh)
                     end
                     linkaxes(ax, 'x'), clear ax
                     set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
@@ -387,13 +395,21 @@ classdef plot_utils < handle
                     end
                     hold off, grid on
                     legend('Flight 1', 'Flight 2', 'Location','southwest')
-        
+            
                     % --- Coherence (magnitude only) ---
                     ax(2) = subplot('Position', obj.pos_bode(2,:));
-                    bodemag(ax(2), flight1.transfCoher, 'k', flight1.transfOmega, obj.opt), title(''), ylabel('Coherence')
+                    opt_coh = bodeoptions('cstprefs');    % NEU (kein Handle auf obj.opt!)
+                    opt_coh.FreqUnits = obj.opt.FreqUnits; % z.B. 'Hz' übernehmen
+                    opt_coh.Grid      = obj.opt.Grid;
+                    
+                    opt_coh.MagUnits  = 'abs';            % Betrag statt dB
+                    opt_coh.MagScale  = 'linear';         % lineare Y-Achse
+                    
+                    bodemag(ax(2), flight1.transfCoher, flight1.transfOmega,'-k', opt_coh);
+                    title(''); ylabel('Coherence'); ylim([0 1]);
                     if obj.second_flight
                         hold on
-                        bodemag(ax(2), flight2.transfCoher, 'r', flight2.transfOmega, obj.opt)
+                        bodemag(ax(2), flight2.transfCoher, 'r', flight2.transfOmega, opt_coh)
                     end
                     linkaxes(ax, 'x'), clear ax
                     set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
@@ -413,10 +429,18 @@ classdef plot_utils < handle
         
                     % --- Coherence (magnitude only) ---
                     ax(2) = subplot('Position', obj.pos_bode(2,:));
-                    bodemag(ax(2), flight1.transfCoher, 'k', flight1.transfOmega, obj.opt), title(''), ylabel('Coherence')
+                    opt_coh = bodeoptions('cstprefs');    % NEU (kein Handle auf obj.opt!)
+                    opt_coh.FreqUnits = obj.opt.FreqUnits; % z.B. 'Hz' übernehmen
+                    opt_coh.Grid      = obj.opt.Grid;
+                    
+                    opt_coh.MagUnits  = 'abs';            % Betrag statt dB
+                    opt_coh.MagScale  = 'linear';         % lineare Y-Achse
+                    
+                    bodemag(ax(2), flight1.transfCoher, flight1.transfOmega,'-k', opt_coh);
+                    title(''); ylabel('Coherence'); ylim([0 1]);
                     if obj.second_flight
                         hold on
-                        bodemag(ax(2), flight2.transfCoher, 'r', flight2.transfOmega, obj.opt)
+                        bodemag(ax(2), flight2.transfCoher, 'r', flight2.transfOmega, opt_coh)
                     end
                     linkaxes(ax, 'x'), clear ax
                     set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
@@ -439,7 +463,7 @@ classdef plot_utils < handle
             switch obj.ind_ax
                 case 1
                     figure(5)
-        
+                            
                     % ---------- PI ----------
                     subplot(1,2,1)
                     bode(flight1.transfCpi, flight1.transfCpiAna, flight1.transfOmega, obj.opt), title('Controller PI Roll')

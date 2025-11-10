@@ -22,9 +22,9 @@ ind_ax = 1;     % keep it now until plot_utils is finished
 %  First flight: Define path to *.bbl.csv file for the 
 % =========================================================================
 
-log_folder1 = 'logs';
-flight_folder1 = '20250907';
-log_name1 = '20250907_flipmini_00.bbl.csv';
+log_folder1 = '';
+flight_folder1 = '20251104';
+log_name1 = 'LOG001.TXT.csv';
 
 file_path1 = fullfile(log_folder1, flight_folder1, log_name1);
 
@@ -77,18 +77,17 @@ pu.linewidth = 1.2;
 pu.ind_ax = ind_ax;
 
 % Defines
-set(cstprefs.tbxprefs,'MagnitudeUnits','abs');
+set(cstprefs.tbxprefs,'MagnitudeUnits','dB');
 set(cstprefs.tbxprefs,'FrequencyUnits','Hz');
 set(cstprefs.tbxprefs,'UnwrapPhase','Off');
 set(cstprefs.tbxprefs,'Grid','On');
 
 % ---- Central Option for Bodeplots ----
 opt = bodeoptions('cstprefs');     % start with cstprefs
-opt.MagScale      = 'log';         % Magnitude logarithmic
+opt.MagScale      = 'linear';         % Magnitude logarithmic
 opt.PhaseUnits    = 'deg';         % Phase in degrees
 opt.PhaseWrapping = 'on';          % Phase in the area [-180,180]    
-opt.YLimMode      = {'auto'; 'manual'};  % Autoscale for Mag and Manuel for Phase
-opt.YLim          = {[-180 180]};  % Area of Phase
+opt.YLimMode      = {'auto'; 'auto'};  % Autoscale for Mag and Manuel for Phase
 opt.Grid          = 'on';          % Grid ob
 
 pu.opt = opt;
