@@ -16,7 +16,7 @@ addpath class/
 %  Axis Selection: 1: roll, 2: pitch, 3: yaw
 % =========================================================================
 
-ind_ax = 1;     % keep it now until plot_utils is finished
+ind_ax = 3;     % keep it now until plot_utils is finished
 
 % =========================================================================
 %  First flight: Define path to *.bbl.csv file for the 
@@ -119,7 +119,7 @@ para_new1.gyro_notch_cutoff   = get_fcut_from_D_and_fcenter([0.00, 0.00], para_n
 para_new1.dterm_lpf_hz        = 0;       % frequency of dterm lpf 1
 para_new1.dterm_filter_type   = 0;       % type of dterm lpf 1
 para_new1.dterm_lpf_dyn_hz    = [0, 0];  % dyn dterm lpf overwrites dterm_lpf_hz
-para_new1.dterm_lpf2_hz       = 120;     % frequency of dterm lpf 2
+para_new1.dterm_lpf2_hz       = 100;     % frequency of dterm lpf 2
 para_new1.dterm_filter2_type  = 3;       % type of dterm lpf 2
 para_new1.dterm_notch_hz      = 0;       % frequency of dterm notch
 para_new1.dterm_notch_cutoff  = get_fcut_from_D_and_fcenter(0.00, para_new1.dterm_notch_hz); % damping of dterm notch
@@ -139,13 +139,13 @@ switch ind_ax
         I_ratio_new1 = 1.0 * 52/52;
         D_new1       = 1.6 * 26;
     case 2 % pitch: [47, 84, 34, 0] - Betaflight standard PIDs
-        P_new1       = 1.0 * 58;
+        P_new1       = 1.5 * 33;
         I_ratio_new1 = 1.0 * 98/98;
-        D_new1       = 1.0 * 44;
+        D_new1       = 1.65 * 26;
     case 3 % yaw: [45, 80, 0, 0] - Betaflight standard PIDs
-        P_new1       = 1.0 * 42;
-        I_ratio_new1 = 1.0 * 65/65;
-        D_new1       = 1.0 * 3;
+        P_new1       = 1.15 * 45;
+        I_ratio_new1 = 0.9 * 75/75;
+        D_new1       = 1.0 * 0;
 end
 
 % =========================================================================

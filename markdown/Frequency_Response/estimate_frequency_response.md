@@ -1,11 +1,3 @@
-<p align="right">
-  <img src="./Images/zhaw_logo.jpg"
-     alt="ZHAW Logo"
-     width="100"
-     style="float:right; margin-left:20px; margin-right:20px;
-     margin-top:20px;">
-</p>
-
 # Function `estimate_frequency_response`
 
 The `estimate_frequency_response` function estimates the **frequency response** and **coherence** between a measured input and output signal using the **Welch method** for spectral averaging [1][2].  

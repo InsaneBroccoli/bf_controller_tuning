@@ -1,11 +1,3 @@
-<p align="right">
-  <img src="./Images/zhaw_logo.jpg"
-     alt="ZHAW Logo"
-     width="100"
-     style="float:right; margin-left:20px; margin-right:20px;
-     margin-top:20px;">
-</p>
-
 # Chirp-Signal and `sinarg`
 
 A **chirp signal** is a sinusoidal signal whose **frequency varies continuously over time**.  
@@ -23,12 +15,18 @@ where the phase argument
 \[
 \text{arg}(t) = 2\pi \int_0^t f(\tau)\,d\tau
 \]
-represents the **instantaneous phase** of the signal.  
-The derivative of this phase yields the **instantaneous frequency**
+represents the **instantaneous phase** of the signal. The derivative of this phase yields the **instantaneous frequency**
 \[
 f(t) = \frac{1}{2\pi}\frac{d(\text{arg}(t))}{dt}.
 \]
 So `sinarg` expresses a sinusoidal signal with a continuously varying frequency [2, pp. 51–52].
+
+In practical implementations such as **Betaflight**, the phase \(\text{arg}(t)\) is wrapped using the modulo operation  
+\[
+\text{arg}(t) \bmod 2\pi,
+\]
+so that it resets to 0 whenever a full \(2\pi\) rotation is reached.  
+This keeps the numerical values bounded and results in the **sawtooth-shaped** `sinarg` signal often
 
 ---
 
@@ -37,6 +35,7 @@ So `sinarg` expresses a sinusoidal signal with a continuously varying frequency 
 - **Linear chirp:**  
   The frequency increases linearly over time:  
   \[
+  k = \frac{f_{1}-f_{0}}{T} \qquad 
   f(t) = f_0 + k t, \qquad
   \text{arg}(t) = 2\pi(f_0 t + \tfrac{1}{2}k t^2)
   \]
@@ -48,8 +47,7 @@ So `sinarg` expresses a sinusoidal signal with a continuously varying frequency 
   \text{arg}(t) = \frac{2\pi T f_0}{\ln(f_1/f_0)}\left[\left(\frac{f_1}{f_0}\right)^{t/T}-1\right]
   \]
 
-These functions define the **phase trajectory** `arg(t)` used in simulations and in the `apply_rotfiltfilt` method for  
-time-dependent frequency shifting of chirp signals [1, pp. 85–86].
+These functions define the **phase trajectory** `arg(t)` used in simulations and in the `apply_rotfiltfilt` method for time-dependent frequency shifting of chirp signals [1, pp. 85–86].
 
 ---
 
