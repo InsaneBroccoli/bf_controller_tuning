@@ -4,17 +4,17 @@
 % Purpose: Processes flight logs and tunes PID controllers for quadcopters
 %
 % Main functionalities:
-% 1. Flight log data processing
-% 2. Spectral analysis of gyro signals
-% 3. Transfer function estimation
-% 4. PID controller tuning
-% 5. Step response analysis
+% - Flight log data processing
+% - Spectral analysis of gyro signals
+% - Transfer function estimation
+% - PID controller tuning
+% - Step response analysis
 %
 % Author: [Your Name]
 % Date: [Current Date]
 %==========================================================================
 
-classdef main_class
+classdef gyro_ctrl_tuning
 
     properties
         % File handling
@@ -25,7 +25,7 @@ classdef main_class
         ind_ax           % Selected axis (1:roll, 2:pitch, 3:yaw)
         do_compensate_iterm % Enable I-term compensation flag
         P_new            % New proportional gain
-        I_ratio_new      % New integral gain ratio
+        I_new      % New integral gain ratio
         D_new            % New derivative gain
         
         % Raw flight data
@@ -82,7 +82,7 @@ classdef main_class
         %  Constructor
         % =================================================================
         % MAIN_CLASS Constructor for flight data analysis class
-        function obj = main_class(file_path, para_new, ind_ax, do_compensate_iterm, ...
+        function obj = gyro_ctrl_tuning(file_path, para_new, ind_ax, do_compensate_iterm, ...
                 P_new, I_ratio_new, D_new, Nestfaspec,koverlapspec,Nestfatra, koverlaptra, ...
                 default_parameters)
             
@@ -92,7 +92,7 @@ classdef main_class
             obj.ind_ax = ind_ax;
             obj.do_compensate_iterm = do_compensate_iterm;
             obj.P_new = P_new;
-            obj.I_ratio_new = I_ratio_new;
+            obj.I_new = I_ratio_new;
             obj.D_new = D_new;
             obj.Nestfaspec = Nestfaspec;
             obj.koverlapspec = koverlapspec;
@@ -384,7 +384,7 @@ classdef main_class
 
                  % Use existing parameters
                  obj.P_new = pid_vec(1);    % Current P gain
-                 obj.I_ratio_new = 1;       % Keep same I ratio
+                 obj.I_new = pid_vec(2);       % Keep same I gain
                  obj.D_new = pid_vec(3);    % Current D gain
             end
             
@@ -409,8 +409,8 @@ classdef main_class
             % Calculate new gains with scaling
             PID_new(1) = obj.P_new * pid_scale(1);         % Scale P gain
             fI         = PID(2) / (2 * pi * PID(1));       % Extract current I frequency
-            fI_new     = fI * obj.I_ratio_new;             % Scale I frequency
-            PID_new(2) = 2 * pi * PID_new(1) * fI_new;     % Calculate new I gain
+            PID_new(2) = obj.I_new *pid_scale(2);
+            fI_new     = PID_new(2) / (2 * pi * PID_new(1));    % Scale I frequency
             PID_new(3) = obj.D_new * pid_scale(3);         % Scale D gain
             PID_new(4) = 0;                                % No feedforward
             
@@ -498,11 +498,11 @@ classdef main_class
             
             % --- Tracking Performance Analysis ---
             % Calculate step responses for setpoint tracking
-            step_resp = [calculate_step_response_from_frd(CL_ana.T    , f_max), ...    % Current parameters
-                         calculate_step_response_from_frd(CL_ana_new.T, f_max), ... 
-                         calculate_step_response_from_frd(T           , f_max)];
+            step_resp = [calculate_step_response_from_frd(CL_ana.T    , f_max), ...    % Used parameters
+                         calculate_step_response_from_frd(CL_ana_new.T, f_max), ...    % New parameters
+                         calculate_step_response_from_frd(T           , f_max)];       % Measured response
 
-            % Normalize responses around mean value
+            % Normalize responses around their mean values
             step_resp_mean = mean(step_resp(step_time > T_mean(1) & step_time < T_mean(2),:));
             step_resp = step_resp ./ step_resp_mean;
 
@@ -510,11 +510,12 @@ classdef main_class
             obj.step_resp_tra = step_resp;
             obj.step_resp_tim = step_time;
             
-            % Calculate step responses for disturbance rejection
-            step_resp = [calculate_step_response_from_frd(CL_ana.SP    , f_max), ...
-                         calculate_step_response_from_frd(CL_ana_new.SP, f_max)];
+            % --- Disturbance Rejection Analysis ---
+            % Calculate responses to disturbance inputs
+            step_resp = [calculate_step_response_from_frd(CL_ana.SP    , f_max), ...    % Used parameters
+                         calculate_step_response_from_frd(CL_ana_new.SP, f_max)];       % New parameters
             
-            % Center responses around mean
+            % Center responses around their mean
             step_resp_mean = mean(step_resp(step_time > T_mean(1) & step_time < T_mean(2),:));
             step_resp = step_resp - step_resp_mean;
 
