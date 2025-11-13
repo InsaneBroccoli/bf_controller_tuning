@@ -16,7 +16,7 @@ addpath class/
 %  Axis Selection: 1: roll, 2: pitch, 3: yaw
 % =========================================================================
 
-ind_ax = 3;     % keep it now until plot_utils is finished
+ind_ax = 1;     % keep it now until plot_utils is finished
 
 % =========================================================================
 %  First flight: Define path to *.bbl.csv file for the 
@@ -135,16 +135,16 @@ para_new1.yaw_lpf_hz          = 200;     % frequency of yaw lpf (pt1)
 
 switch ind_ax
     case 1 % roll: [45, 80, 30, 0] - Betaflight standard PIDs
-        P_new1       = 1.5 * 33;
-        I_ratio_new1 = 1.0 * 52/52;
-        D_new1       = 1.6 * 26;
+        P_new1       = 1.0 * 50;
+        I_new1       = 1.0 * 88;
+        D_new1       = 1.0 * 42;
     case 2 % pitch: [47, 84, 34, 0] - Betaflight standard PIDs
-        P_new1       = 1.5 * 33;
-        I_ratio_new1 = 1.0 * 98/98;
-        D_new1       = 1.65 * 26;
+        P_new1       = 1.0 * 50;
+        I_new1       = 1.0 * 88;
+        D_new1       = 1.0 * 43;
     case 3 % yaw: [45, 80, 0, 0] - Betaflight standard PIDs
-        P_new1       = 1.15 * 45;
-        I_ratio_new1 = 0.9 * 75/75;
+        P_new1       = 1.0 * 52;
+        I_new1       = 1.0 * 83;
         D_new1       = 1.0 * 0;
 end
 
@@ -186,25 +186,25 @@ para_new2.yaw_lpf_hz          = 200;     % frequency of yaw lpf (pt1)
 
 switch ind_ax
     case 1 % roll: [45, 80, 30, 0] - Betaflight standard PIDs
-        P_new2       = 1.0 * 33;
-        I_ratio_new2 = 1.0 * 52/52;
-        D_new2       = 1.0 * 26;
+        P_new2       = 1.0 * 50;
+        I_new2       = 1.0 * 88;
+        D_new2       = 1.0 * 42;
     case 2 % pitch: [47, 84, 34, 0] - Betaflight standard PIDs
-        P_new2       = 1.0 * 58;
-        I_ratio_new2 = 1.0 * 98/98;
-        D_new2       = 1.0 * 44;
+        P_new2       = 1.0 * 50;
+        I_new2       = 1.0 * 88;
+        D_new2       = 1.0 * 43;
     case 3 % yaw: [45, 80, 0, 0] - Betaflight standard PIDs
-        P_new2       = 1.0 * 42;
-        I_ratio_new2 = 1.0 * 65/65;
-        D_new2       = 1.0 * 3;
+        P_new2       = 1.0 * 52;
+        I_new2       = 1.0 * 83;
+        D_new2       = 1.0 * 0;
 end
 
 %==========================================================================
 % make calculations and output plots
 
 % make calculations for flight 1
-flight1 = main_class(file_path1, para_new1, ind_ax, do_compensate_iterm, ...
-    P_new1, I_ratio_new1, D_new1, Nestfaspec,koverlapspec, Nestfatra, koverlaptra ...
+flight1 = gyro_ctrl_tuning(file_path1, para_new1, ind_ax, do_compensate_iterm, ...
+    P_new1, I_new1, D_new1, Nestfaspec,koverlapspec, Nestfatra, koverlaptra ...
     ,default_parameters);
 flight1 = flight1.run();
 
@@ -212,8 +212,8 @@ flight1 = flight1.run();
 
 % make calculations for flight 2
 if second_flight
-    flight2 = main_class(file_path2 ,para_new2, ind_ax, do_compensate_iterm, ...
-        P_new2, I_ratio_new2, D_new2, Nestfaspec,koverlapspec,Nestfatra, koverlaptra, ...
+    flight2 = gyro_ctrl_tuning(file_path2 ,para_new2, ind_ax, do_compensate_iterm, ...
+        P_new2, I_new2, D_new2, Nestfaspec,koverlapspec,Nestfatra, koverlaptra, ...
         default_parameters);
     flight2 = flight2.run();
 
