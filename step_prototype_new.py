@@ -56,7 +56,7 @@ elapsed_time = time_module.time() - start_time
 print(f"Data loaded: {data.shape[0]} rows in {elapsed_time:.2f} seconds")
 
 
-def find_column(col_name):
+def find_column(col_name: str): -> int
     """Find column index by name"""
     try:
         return column_names.index(col_name)

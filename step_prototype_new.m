@@ -4,7 +4,7 @@
 % =========================================================================
 
 clc, clear variables
-
+addpath('./lib');
 %% 1. DEFINE FILE PATH
 file_path = './20250908/20250908_flipmini_00.bbl.csv'
 
