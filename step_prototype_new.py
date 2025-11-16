@@ -56,7 +56,7 @@ elapsed_time = time_module.time() - start_time
 print(f"Data loaded: {data.shape[0]} rows in {elapsed_time:.2f} seconds")
 
 
-def find_column(col_name: str): -> int
+def find_column(col_name: str) -> int:
     """Find column index by name"""
     try:
         return column_names.index(col_name)
@@ -85,26 +85,60 @@ chirp_diff = np.diff(np.concatenate([[0], chirp_binary]))  # prepend 0 to align 
 chirp_start_idx = np.where(chirp_diff == 1)[0]  # rising edge
 chirp_end_idx = np.where(chirp_diff == -1)[0]  # falling edge
 
-# Handle edge case where chirp is still active at end of recording
-if len(chirp_start_idx) > 0 and (
-    len(chirp_end_idx) == 0 or chirp_end_idx[-1] < chirp_start_idx[-1]
-):
-    chirp_end_idx = np.append(chirp_end_idx, len(time) - 1)
+chirp_start = chirp_start_idx[0]
+chirp_end = chirp_end_idx[0]
 
-# Setpoint data (deg/sec)
+
+print(chirp_start, chirp_end)
+
+# extract raw data
 setpoint_roll = data[:, col_setpoint_roll]
-
-# Gyro unfiltered data (deg/sec)
 gyro_unfilt_roll = data[:, col_gyro_unfilt_roll]
+
+# Extract data over first chirp
+time_over_chirp = time[chirp_start:chirp_end]
+setpoint_over_chirp = setpoint_roll[chirp_start:chirp_end]
+gyro_over_chirp = gyro_unfilt_roll[chirp_start:chirp_end]
 
 print(f"\nExtracted {len(time)} samples ({time[-1]:.2f} seconds of data)")
 
 # =========================================================================
 # 4. PROCESS DATA
 # =========================================================================
-
-# =========================================================================
-# 5. PROCESS EACH CHIRP EVENT
-# =========================================================================
-
 # Calculate sampling time
+Ts = 125 * 1.e-6
+Ts_cntr = 2 * TS
+Ts_log = 2 * Ts_cntr
+
+# Parameters
+Nest = round(2.0 / Ts)
+koverlap = 0.9;
+Noverlap = floor(koverlap * Nest)
+window = signal.signal.window.hann(Nest)
+# =========================================================================
+# 5. PLOT DATA
+# =========================================================================
+# PLOT 1
+fig1, (ax1, ax2) = plt.subplots(2, 1)
+
+ax1.plot(time, setpoint_roll)
+ax1.set_title("setpoint")
+
+ax2.plot(time, gyro_unfilt_roll)
+ax2.set_title("gyro unfiltered")
+
+fig1.suptitle("raw data")
+
+# PLOT 2
+fig2, (ax1, ax2) = plt.subplots(2, 1)
+
+ax1.plot(time_over_chirp, setpoint_over_chirp)
+ax1.set_title("setpoint")
+
+ax2.plot(time_over_chirp, gyro_over_chirp)
+ax2.set_title("gyro unfiltered")
+
+fig2.suptitle("data over chirp")
+
+plt.tight_layout()
+plt.show()
