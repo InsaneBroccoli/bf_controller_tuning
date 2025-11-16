@@ -3,7 +3,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time as time_module
 import pickle
+import mylib
 from scipy import signal
+from control import frd, frequency_response
 
 # =========================================================================
 # 1. DEFINE FILE PATH
@@ -106,15 +108,28 @@ print(f"\nExtracted {len(time)} samples ({time[-1]:.2f} seconds of data)")
 # 4. PROCESS DATA
 # =========================================================================
 # Calculate sampling time
-Ts = 125 * 1.e-6
-Ts_cntr = 2 * TS
+Ts = 125 * 1.0e-6
+Ts_cntr = 2 * Ts
 Ts_log = 2 * Ts_cntr
 
 # Parameters
+fs = 1 / Ts
+f_max_hz = 650
 Nest = round(2.0 / Ts)
-koverlap = 0.9;
-Noverlap = floor(koverlap * Nest)
-window = signal.signal.window.hann(Nest)
+koverlap = 0.9
+Noverlap = round(koverlap * Nest)
+window = signal.windows.hann(Nest)
+
+freq, g, c = mylib.estimate_frequency_response(
+    setpoint_over_chirp, gyro_over_chirp, fs, window, Nest, Noverlap
+)
+
+omega = 2 * np.pi * freq
+G = frd(g, omega)
+C = frd(c, omega)
+mag_G, phase_G, _ = frequency_response(G, omega)
+step_resp = mylib.calculate_step_response_from_frd(G, f_max_hz)
+
 # =========================================================================
 # 5. PLOT DATA
 # =========================================================================
@@ -139,6 +154,19 @@ ax2.plot(time_over_chirp, gyro_over_chirp)
 ax2.set_title("gyro unfiltered")
 
 fig2.suptitle("data over chirp")
+
+# PLOT 3
+plt.figure()
+plt.plot(freq, 20 * np.log10(mag_G))
+plt.xlim(0, f_max_hz)
+plt.ylim(-10.6, 1.2)
+plt.suptitle("Frequency Response")
+
+# PLOT 4
+plt.figure()
+plt.plot(step_resp)
+plt.xlim(0, f_max_hz)
+plt.suptitle("Frequency Response")
 
 plt.tight_layout()
 plt.show()
