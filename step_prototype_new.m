@@ -64,8 +64,8 @@ chirp_start_idx = find(chirp_diff == 1);  % rising edge
 chirp_end_idx = find(chirp_diff == -1);   % falling edge
 
 % Get first chirp signal
-chirp_start = chirp_start_idx(1);
-chirp_end = chirp_end_idx(1);
+chirp_start = chirp_start_idx(1)
+chirp_end = chirp_end_idx(1)
 
 setpoint_roll = data(:, col_setpoint_roll);
 gyro_unfilt_roll = data(:, col_gyro_unfilt_roll);
