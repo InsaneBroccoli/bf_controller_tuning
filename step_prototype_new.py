@@ -4,8 +4,9 @@ import matplotlib.pyplot as plt
 import time as time_module
 import pickle
 import mylib
-from scipy import signal
-from control import frd, frequency_response
+from scipy.signal.windows import hann
+from control import frequency_response
+from typing import Optional
 
 # =========================================================================
 # 1. DEFINE FILE PATH
@@ -16,7 +17,7 @@ file_path = "./20250908/20250908_flipmini_00.bbl.csv"
 # =========================================================================
 # 2. READ THE ENTIRE FILE
 # =========================================================================
-
+header_line: int = 0  # Line number where data starts
 print("Reading CSV file...")
 start_time = time_module.time()
 
@@ -58,7 +59,7 @@ elapsed_time = time_module.time() - start_time
 print(f"Data loaded: {data.shape[0]} rows in {elapsed_time:.2f} seconds")
 
 
-def find_column(col_name: str) -> int:
+def find_column(col_name: str) -> Optional[int]:
     """Find column index by name"""
     try:
         return column_names.index(col_name)
@@ -115,19 +116,14 @@ Ts_log = 2 * Ts_cntr
 # Parameters
 fs = 1 / Ts
 f_max_hz = 650
-Nest = round(2.0 / Ts)
+Nest = round(2.0 / Ts_log)
 koverlap = 0.9
 Noverlap = round(koverlap * Nest)
-window = signal.windows.hann(Nest)
+window = hann(Nest)
 
-freq, g, c = mylib.estimate_frequency_response(
-    setpoint_over_chirp, gyro_over_chirp, fs, window, Nest, Noverlap
+G, C, freq, _ = mylib.estimate_frequency_response(
+    setpoint_over_chirp, gyro_over_chirp, window, Noverlap, Nest, Ts_log
 )
-
-omega = 2 * np.pi * freq
-G = frd(g, omega)
-C = frd(c, omega)
-mag_G, phase_G, _ = frequency_response(G, omega)
 step_resp = mylib.calculate_step_response_from_frd(G, f_max_hz)
 
 # =========================================================================
@@ -156,10 +152,11 @@ ax2.set_title("gyro unfiltered")
 fig2.suptitle("data over chirp")
 
 # PLOT 3
+G_squeezed = np.squeeze(G.fresp)
 plt.figure()
-plt.plot(freq, 20 * np.log10(mag_G))
+plt.plot(freq, 20 * np.log10(G_squeezed))
 plt.xlim(0, f_max_hz)
-plt.ylim(-10.6, 1.2)
+# plt.ylim(-10.6, 1.2)
 plt.suptitle("Frequency Response")
 
 # PLOT 4
