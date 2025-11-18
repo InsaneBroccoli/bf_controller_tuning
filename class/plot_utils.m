@@ -70,7 +70,7 @@ classdef plot_utils < handle
                 flight2 = varargin{1};
             end
 
-            figure(1); clf
+            figure('Name','Plot Gyro Signals', 'Icon',''); clf
 
             % --- Roll ---
             ax(1) = subplot(3,1,1); hold(ax(1),'on');
@@ -855,7 +855,7 @@ classdef plot_utils < handle
             end
 
             delta_time_mus = diff(flight1.time)* 1.0e6;
-            figure(98); clf
+            figure('Name','Evaluation Time Flight 1', 'MenuBar','none'); clf
             plot(flight1.time(1:end-1), delta_time_mus), grid on
             title(sprintf('Flight 1: Mean: %0.2f mus, Median: %0.2f mus, Std: %0.2f mus\n', ...
                   mean(delta_time_mus), ...
