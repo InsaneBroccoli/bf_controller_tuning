@@ -62,8 +62,8 @@ Nestfaspec = 0.2;            % Window length for spectral analysis (seconds)
 koverlapspec = 0.9;          % Overlap factor for spectral analysis (0-1)
 
 % Show Flight track & tuning figures 
-do_show_flight_track = false;    % Gyro Signals from RC, Gyro signals from Controller
-do_show_tuning_figures = true;  % closed loop bode plots, Step response
+do_show_flight_track = true;    % Gyro Signals from RC, Gyro signals from Controller
+do_show_tuning_figures = false;  % closed loop bode plots, Step response
 
 % Transfer Function
 do_show_transferfunction = false; % Plant, PI & D Controller, PID Controller 
