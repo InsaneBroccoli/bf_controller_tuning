@@ -1,11 +1,3 @@
-<p align="right">
-  <img src="./Images/zhaw_logo.jpg"
-     alt="ZHAW Logo"
-     width="100"
-     style="float:right; margin-left:20px; margin-right:20px;
-     margin-top:20px;">
-</p>
-
 # Closed-Loop Analysis
 
 The function `calculate_closed_loop` determines the main transfer relationships of the closed-loop control system, including how the controller, plant, and filters — as described in [Filter and Controller](./Filter_and_Controller.md) and [Frequency Response Estimation](./estimate_frequency_response.md) interact to shape the overall system behavior.  
