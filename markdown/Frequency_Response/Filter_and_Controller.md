@@ -1,11 +1,3 @@
-<p align="right">
-  <img src="./Images/zhaw_logo.jpg"
-     alt="ZHAW Logo"
-     width="100"
-     style="float:right; margin-left:20px; margin-right:20px;
-     margin-top:20px;">
-</p>
-
 # Filter and Controller Structure
 
 The functions `get_filter` and `calculate_transfer_functions` together form the basis for constructing the controller and filter structure in the closed control loop.  
@@ -43,7 +35,7 @@ It creates three filter paths:
 2. **D-term path \( G_d \):** Filter chain for the derivative path, cascaded with \( C_D \)  
 3. **P-term path \( G_{f_p} \):** Optional path with phase compensation or yaw low-pass
 
-From the axis parameters, the discrete **PI(+P)** and **D** controllers are built as:
+From the axis parameters, the discrete **PI** and **D** controllers are built as:
 \[
 C_{PI}(z) = K_p\,G_{f_p} + K_i\,T_s\frac{z}{z-1}, \qquad
 C_D(z) = \frac{K_d}{T_s}\frac{1 - z^{-1}}{z^{-1}} \cdot G_d

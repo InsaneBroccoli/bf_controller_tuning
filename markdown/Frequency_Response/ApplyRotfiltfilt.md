@@ -1,11 +1,3 @@
-<p align="right">
-  <img src="./Images/zhaw_logo.jpg"
-     alt="ZHAW Logo"
-     width="100"
-     style="float:right; margin-left:20px; margin-right:20px;
-     margin-top:20px;">
-</p>
-
 # Function `apply_rotfilfil`
 
 The `apply_rotfiltfilt` function mathematically shifts the constantly changing frequency signal (the logarithmic chirp) so that it appears as a signal with a constant frequency.  
