@@ -1,4 +1,4 @@
 *.csv
 *.pkl
 *.mat
-./_pycache_/
+**/_pycache__/
