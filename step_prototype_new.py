@@ -3,11 +3,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time as time_module
 import pickle
-import mylib
+import mylib2
 from scipy.signal.windows import hann
-from control import frequency_response
 from typing import Optional
-
 # =========================================================================
 # 1. DEFINE FILE PATH
 # =========================================================================
@@ -115,16 +113,19 @@ Ts_log = 2 * Ts_cntr
 
 # Parameters
 fs = 1 / Ts
-f_max_hz = 650
+f_max_hz = 200
 Nest = round(2.0 / Ts_log)
 koverlap = 0.9
 Noverlap = round(koverlap * Nest)
-window = hann(Nest)
+window = hann(Nest, sym=False)
 
-G, C, freq, _ = mylib.estimate_frequency_response(
+print(f"Nest: {Nest}, Noverlap: {Noverlap}, window length: {len(window)}")
+
+G, C, freq, _ = mylib2.estimate_frequency_response(
     setpoint_over_chirp, gyro_over_chirp, window, Noverlap, Nest, Ts_log
 )
-step_resp = mylib.calculate_step_response_from_frd(G, f_max_hz)
+print(G)
+step_resp = mylib2.calculate_step_response_from_frd(G, f_max_hz)
 
 # =========================================================================
 # 5. PLOT DATA
