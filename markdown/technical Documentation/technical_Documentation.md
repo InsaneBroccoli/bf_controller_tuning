@@ -42,7 +42,17 @@ The project aims to further develop the existing proof of concept, to make the t
 - has a clean, modularly expandable structure
 - is provided with detailed Markdown how-to documentation and examples for users
 
-# 2. vorarbeit
+# 2. Preparation
+## 2.1 Chirp
+### 2.1.1 Chirp concept
+A chirp is an input signal that sweeps continuously over a defined range (e.g. from a low frequency to a high frequency). This signal excites the system on multiple frequencies in one run and thus lets you observe the frequency response and step response, the foundation of controller tuning.
+
+Mathematically, a chirp signal can be represented as a sinusoidal wave with instantaneous frequency that varies linearly with time, such as 
+\( x(t) = \sin(2\pi (f_0 t + \frac{k}{2} t^2)) \), where \( f_0 \)
+is the starting frequency and $(k)$ is the chirp rate. In controller tuning, chirps are particularly useful for identifying system dynamics in real-time, such as in flight controllers. However, they can introduce nonlinear effects if the sweep is too rapid, potentially distorting the response."
+### 2.1.2 Chirp on drone
+### 2.1.3 Chirp programming
+
 
 
 # 3. Theory
