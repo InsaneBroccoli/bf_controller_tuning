@@ -47,11 +47,10 @@ The project aims to further develop the existing proof of concept, to make the t
 ### 2.1.1 Chirp concept
 A chirp is an input signal that sweeps continuously over a defined range (e.g. from a low frequency to a high frequency). This signal excites the system on multiple frequencies in one run and thus lets you observe the frequency response and step response, the foundation of controller tuning.
 
-Mathematically, a chirp signal can be represented as a sinusoidal wave with instantaneous frequency that varies linearly with time, such as 
-$( x(t) = \sin(2\pi (f_0 t + \frac{k}{2} t^2)) )$, where $( f_0 )$
-is the starting frequency and $( k )$ is the chirp rate.
+Mathematically, a chirp signal can be represented as a sinusoidal wave with instantaneous frequency that varies linearly with time, such as $x(t) = \sin(2\pi (f_0 t + \frac{k}{2} t^2))$, where $(f_0)$
+is the starting frequency and $(k)$ is the chirp rate.
 ### 2.1.2 Chirp on drone
-In the context of tuning a drone's flight controller, a chirp signal is an effective tool for system identification. By injecting a frequency sweep into the setpoint of the rate controller for a specific axis (roll, pitch, or yaw), we can excite the drone's dynamics across a wide range of frequencies.
+In the context of tuning a drone's flight controller, an exponential sweep is used. This is due to the dominant low-frequency dynamics, where low frequencies exhibit more predictable responses, allowing the sweep to allocate more time to higher frequencies for better resolution of system behavior. Additionally, multirotor vibration resonances are typically spaced logarithmically, making exponential sweeps more suited for efficient excitation across the frequency range.
 
 The process involves these steps:
   1. Signal Injection: The chirp signal is added to the pilot's stick input. This composite signal becomes the setpoint for the PID controller.
@@ -59,10 +58,31 @@ The process involves these steps:
   3. Data Logging: While the chirp is active, high-resolution data from the gyroscope and the motor outputs are recorded using Betaflight's Blackbox feature. This data captures how the drone responds to the control inputs at different frequencies.
 
 The recorded log file, containing the input chirp and the corresponding gyroscope output, is then used for offline analysis to determine the frequency response of the system.
+
 ### 2.1.3 Chirp programming
+The implementation of the chirp signal in Betaflight is straightforward. You call the function chirpInit() and pass:
+ -a struct of type chirp_t defined in chirp.h
+ -starting frequency
+ -end frequency
+ -signal length
+ -loop-time in microseconds
 
+This initialises the values in the data struct and:
+ -converts loop period from microseconds to seconds
+ -calculates the number of samples in the signal duration
+ -calculates the exponential growth factor
+ -precomputes the constants used to get the phase from the frequency evolution
+ -calls chirpReset() function
 
+The chirpReset() function sets:
+ -internal counter to 0
+ -bool isFinished to false
+then calls the function chirpResetSignals() to set signal-related fields to 0.
 
+Once the chirp is initialised use the chirpUpdate() function once per loop iteration. This function checks:
+ -if bool isFinished is true -> return false
+ -else if internal counter is equal to the number of samples inside the chirps period -> set bool isFinished true, call chirpResetSignals(), return false
+if none of the above is true the 
 # 3. Theory
 
 
