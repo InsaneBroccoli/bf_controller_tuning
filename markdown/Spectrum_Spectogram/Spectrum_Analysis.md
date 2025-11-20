@@ -1,11 +1,11 @@
 # Spectrogram Estimation
 
-The function `estimate_spectrogram` extends the spectral estimation as described in [Spectra Analysis](./Spectra_Analysis.md) by computing a **single-sided, amplitude-correct spectrogram** over an additional coordinate \( y \).  
+The function `estimate_spectrogram` extends the spectral estimation as described in [Spectra Analysis](./Spectra_Analysis.md) by computing a **single-sided, amplitude-correct spectrogram** over an additional coordinate $y$.  
 This allows the frequency content of a signal to be analyzed not only over time, but also along another dimension such as height, position, angle, or system state.
 
 
 
-Instead of forming a single averaged spectrum, the algorithm groups all FFT segments into \( N_{\text{res}} \) bins along the \( thrust \)-axis and computes one spectrum per bin.  
+Instead of forming a single averaged spectrum, the algorithm groups all FFT segments into $N_{\text{res}}$ bins along the $thrust$-axis and computes one spectrum per bin.  
 The amplitude calibration, FFT scaling, and DC/Nyquist correction follow the same method as in `estimate_spectra`.
 
 ---
@@ -14,14 +14,10 @@ The amplitude calibration, FFT scaling, and DC/Nyquist correction follow the sam
 
 ### 1. Binning Along the Secondary Coordinate
 
-The input vector \( y \) is divided into \( N_{\text{res}} \) equally spaced bins:
+The input vector $y$ is divided into $N_{\text{res}}$ equally spaced bins:
 
-\[
-y_{\text{axis}} =
-\left[\, y_{\min},\, y_{\min} + \Delta y, \ldots, y_{\max} - \Delta y \,\right],
-\qquad
-\Delta y = \frac{y_{\max} - y_{\min}}{N_{\text{res}}}
-\]
+$$y_{\text{axis}} = \left[\, y_{\min},\, y_{\min} + \Delta y, \ldots, y_{\max} - \Delta y \,\right]$$
+$$\Delta y = \frac{y_{\max} - y_{\min}}{N_{\text{res}}}$$
 
 Each FFT segment is assigned to one or more of these bins depending on its corresponding \( y \)-values.
 
@@ -33,39 +29,28 @@ Segmentation, windowing with a tapered analysis window (e.g., Hann), and amplitu
 
 Each segment produces a one-sided power vector:
 
-\[
-P_{\text{seg}}(f) = |U(f)|^2
-\]
+$$P_{\text{seg}}(f) = |U(f)|^2$$
 
 with DC and Nyquist bins corrected as:
 
-\[
-P_{\mathrm{DC}} = \frac{P_{\mathrm{DC}}}{4},
-\qquad
-P_{\mathrm{Nyq}} = \frac{P_{\mathrm{Nyq}}}{4}
-\]
+$$P_{\mathrm{DC}} = \frac{P_{\mathrm{DC}}}{4}$$
+
+$$P_{\mathrm{Nyq}} = \frac{P_{\mathrm{Nyq}}}{4}$$
 
 ---
 
-### 3. Accumulation Into \( y \)-Bins
+### 3. Accumulation Into $y$-Bins
 
-For each segment, all samples of \( y \) belonging to that segment are mapped to their corresponding \( y \)-bins.  
+For each segment, all samples of $y$ belonging to that segment are mapped to their corresponding $y$-bins.  
 The resulting segment spectrum is added to those bins, weighted by the number of matching samples:
 
-\[
-P_{\text{avg}}(y_i, f) =
-\frac{1}{N_i}
-\sum_{k \in \mathcal{S}_i}
-P_{\text{seg},k}(f)
-\]
+$$P_{\text{avg}}(y_i, f) = \frac{1}{N_i} \sum_{k \in \mathcal{S}_i} P_{\text{seg},k}(f)$$
 
-where \( N_i \) is the number of contributing segment-samples for bin \( i \).
+where $N_i$ is the number of contributing segment-samples for bin $i$.
 
 This creates a 2-D matrix:
 
-\[
-P_{\text{avg}} \in \mathbb{R}^{N_{\text{res}} \times N_{\text{freq}}}
-\]
+$$P_{\text{avg}} \in \mathbb{R}^{N_{\text{res}} \times N_{\text{freq}}}$$
 
 representing the power spectrum as a function of both frequency and \( y \) [1, pp. 45–48][2, pp. 455–457].
 
@@ -75,38 +60,31 @@ representing the power spectrum as a function of both frequency and \( y \) [1, 
 
 A small weighted 3×3 convolution kernel is applied to reduce noise and produce a visually smooth spectrogram.  
 The kernel preserves energy by normalizing the sum of all weights.
-\[
-K =
+
+$$K =
 \begin{bmatrix}
 1 & 3 & 1 \\
 3 & 5 & 3 \\
 1 & 3 & 1
-\end{bmatrix},
-\qquad
-K_\text{norm} = \frac{K}{\sum K}
-\]
+\end{bmatrix}$$
+
+$$K_\text{norm} = \frac{K}{\sum K}$$
 
 The smoothed spectrogram is obtained as:
 
-\[
-P_{\mathrm{smooth}} =
-\frac{P_{\mathrm{avg}} * K_\text{norm}}
-     {\mathbf{1} * K_\text{norm}}
-\]
+$$P_{\mathrm{smooth}} = \frac{P_{\mathrm{avg}} * K_\text{norm}}{\mathbf{1} * K_\text{norm}}$$
 
 ---
 
 ## Outputs
 
 - **Pavg** — the averaged single-sided power spectrogram  
-- **freq** — corresponding frequency axis (0 … \( f_s/2 \))  
-- **y_axis** — center coordinates of the \( y \)-bins  
+- **freq** — corresponding frequency axis (0 … $\frac{f_s}{2}$)  
+- **y_axis** — center coordinates of the $y$-bins  
 
 Amplitude spectrograms can be obtained via:
 
-\[
-A(y,f) = \sqrt{P_{\text{avg}}(y,f)}
-\]
+$$A(y,f) = \sqrt{P_{\text{avg}}(y,f)}$$
 
 ---
 
