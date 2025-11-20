@@ -9,11 +9,11 @@ The **sensitivity function** describes how the closed-loop system reacts to dist
 Low sensitivity at low frequencies ensures good disturbance rejection and accurate reference tracking,  
 while higher sensitivity at high frequencies helps to avoid noise amplification and maintain robustness [1, pp. 35–39][2, pp. 192–196].
 
-In the Bode plot, \( |S(j\omega)| \) should ideally be **small at low frequencies** (below the controller bandwidth)  
+In the Bode plot, $|S(j\omega)|$ should ideally be **small at low frequencies** (below the controller bandwidth)  
 to minimize steady-state errors and suppress disturbances.  
 Around the **crossover frequency**, a moderate peak may appear — typically limited to about **6 dB** —  
 indicating the trade-off between tracking performance and stability margin.  
-At **high frequencies**, \( |S(j\omega)| \) should approach 0 dB, ensuring that the controller does not react to sensor noise or unmodelled dynamics.  
+At **high frequencies**, $|S(j\omega)|$ should approach 0 dB, ensuring that the controller does not react to sensor noise or unmodelled dynamics.  
 
 A well-shaped sensitivity curve therefore combines **good disturbance rejection**, **sufficient stability margin**,  
 and **robust behavior** against uncertainties in the plant model.
@@ -24,11 +24,12 @@ and **robust behavior** against uncertainties in the plant model.
 As already mentioned, the control loop is split into an **inner** and an **outer** loop.  
 First, we form the inner loop (open-loop gain, sensitivity, and the closed inner path from `u` to `y`).
 
-\[L_{in}(j\omega) = P(j\omega) \cdot G_{f}(j\omega) \qquad S_{in}(j\omega) = \frac{1}{1+L_{in}(j\omega)} \qquad G_{yu}(j\omega) = \frac{L_{in}(j\omega)}{1+L_{in}(j\omega) \cdot G_{fD}(j\omega) \cdot C_{D}(j\omega)}\] 
+$$L_{in}(j\omega) = P(j\omega) \cdot G_{f}(j\omega)$$ $$S_{in}(j\omega) = \frac{1}{1+L_{in}(j\omega)}$$ 
+$$G_{yu}(j\omega) = \frac{L_{in}(j\omega)}{1+L_{in}(j\omega) \cdot G_{fD}(j\omega) \cdot C_{D}(j\omega)}$$
 
 With this Information we are able to calculate the hole closed loop system.
 
-\[L_{out}(j\omega) = G_{yu}(j\omega) \cdot C_{PI}(j\omega) \qquad S_{out}(j\omega) = \frac{1}{1+L_{out}(j\omega)} \qquad G_{yw}(j\omega) = \frac{L_{out}(j\omega)}{1+L_{out}(j\omega)}\]
+$$L_{out}(j\omega) = G_{yu}(j\omega) \cdot C_{PI}(j\omega)$$ $$S_{out}(j\omega) = \frac{1}{1+L_{out}(j\omega)}$$ $$G_{yw}(j\omega) = \frac{L_{out}(j\omega)}{1+L_{out}(j\omega)}$$
 
 <p align="center">
   <img src="./Images/Regelstrecke.png"
