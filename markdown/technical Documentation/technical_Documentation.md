@@ -42,30 +42,32 @@ The project aims to further develop the existing proof of concept, to make the t
 - has a clean, modularly expandable structure
 - is provided with detailed Markdown how-to documentation and examples for users
 
+# 2. vorarbeit
 
-# 2. Theory
+
+# 3. Theory
 
 
-# 3. Working steps and Problems
-## 3.1 Simulations
+# 4. Working steps and Problems
+## 4.1 Simulations
 
-## 3.2 Code Structure
+## 4.2 Code Structure
 
-## 3.3 Building FPV drone
+## 4.3 Building FPV drone
 
-## 3.4 Trying to implement the conversion from log to csv
+## 4.4 Trying to implement the conversion from log to csv
 Get same Headerfile as with the bf blackbox viewer
 
-# 4. Results
+# 5. Results
 
-# 5. Discussion and next steps
-## 5.1 Discussion
+# 6. Discussion and next steps
+## 6.1 Discussion
 
-## 5.2 Next steps
+## 6.2 Next steps
 Further develop the tool as part of a bachelor’s thesis
 Convert the code to python
 
-## 5.3 Conclusion
+## 6.3 Conclusion
 
 
-# 6. Directories
+# 7. Directories
