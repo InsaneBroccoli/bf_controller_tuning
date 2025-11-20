@@ -25,9 +25,7 @@ This scaling comes **directly from Betaflight’s internal controller implementa
 
 Given the original PID vector:
 
-\[
-PID = [K_p,\; K_i,\; K_d]
-\]
+$$PID = [K_p,\; K_i,\; K_d]$$
 
 the scaled PID values are obtained as:
 
@@ -44,17 +42,13 @@ This step converts user-facing Betaflight PID values into controller gains suita
 
 ## 3. Construction of PI and D Controllers
 
-The discrete-time controllers (with sample time \(T_s\)) are constructed as:
+The discrete-time controllers (with sample time $T_s$) are constructed as:
 
 ### PI Controller
-\[
-C_{PI} = K_p\,G_f + K_i\,T_s \cdot \frac{1}{1 - z^{-1}}
-\]
+$C_{PI} = K_p\,G_f + K_i\,T_s \cdot \frac{1}{1 - z^{-1}}$
 
 ### D Controller
-\[
-C_D = \frac{K_d}{T_s}(1 - z^{-1})
-\]
+$C_D = \frac{K_d}{T_s}(1 - z^{-1})$
 
 The output of the implementation is:
 

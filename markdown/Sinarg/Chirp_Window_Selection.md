@@ -2,7 +2,7 @@
 
 For a precise and reliable determination of the transfer function, the use of a **chirp signal** is essential. (For more information, see [Chirp Signal](./Chirp.md)). However, to ensure that only the **actively excited portions** of the signal are used in the evaluation, it is necessary to determine when the chirp excitation was active.  
 
-In Betaflight, the output `debug[0]` was configured to output the **phase of the chirp** \( \text{arg}(t) \) during the active chirp phase.  
+In Betaflight, the output `debug[0]` was configured to output the **phase of the chirp** $\text{arg}(t)$ during the active chirp phase.  
 This signal serves as a reference to identify and mark the **time intervals of active excitation** for subsequent analysis [1, pp. 84–86].
 
 ---
@@ -14,7 +14,7 @@ After detecting the `sinarg` signal in the dataset, the next step is to determin
 This function creates a **logical mask (`ind_eval`)** that specifies the time points at which the chirp signal was active and the system was sufficiently excited. It evaluates two main criteria:
 
 1. **Phase window:**  
-   The signal `sinarg` (representing the phase of the chirp \( \text{arg}(t) \))  
+   The signal `sinarg` (representing the phase of the chirp $\text{arg}(t)$)  
    is used to identify the time intervals in which the chirp excitation was active.  
    Time points with `sinarg > 0` are marked as **active sections** and included in the analysis.
 
