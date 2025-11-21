@@ -31,6 +31,7 @@ These relationships make it possible to **reconstruct the plant transfer functio
      style="float:center; margin-left:20px; margin-right:20px;
      margin-top:20px;">
 </p>
+
 ---
 
 ## 2) Compensation of Gyro Path Filters
