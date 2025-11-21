@@ -76,27 +76,27 @@ The recorded log file, containing the input chirp and the corresponding gyroscop
 
 ### 2.1.3 Chirp programming
 The implementation of the chirp signal in Betaflight is straightforward. You call the function chirpInit() and pass:
- -a struct of type chirp_t defined in chirp.h
- -starting frequency
- -end frequency
- -signal length
- -loop-time in microseconds
+ - a struct of type chirp_t defined in chirp.h
+ - starting frequency
+ - end frequency
+ - signal length
+ - loop-time in microseconds
 
 This initialises the values in the data struct and:
- -converts loop period from microseconds to seconds
- -calculates the number of samples in the signal duration
- -calculates the exponential growth factor
- -precomputes the constants used to get the phase from the frequency evolution
- -calls chirpReset() function
+ - converts loop period from microseconds to seconds
+ - calculates the number of samples in the signal duration
+ - calculates the exponential growth factor
+ - precomputes the constants used to get the phase from the frequency evolution
+ - calls chirpReset() function
 
 The chirpReset() function sets:
- -internal counter to 0
- -bool isFinished to false
+ - internal counter to 0
+ - bool isFinished to false
 then calls the function chirpResetSignals() to set signal-related fields to 0.
 
 Once the chirp is initialised use the chirpUpdate() function once per loop iteration. This function checks:
- -if bool isFinished is true -> return false
- -else if internal counter is equal to the number of samples inside the chirps period -> set bool isFinished true, call chirpResetSignals(), return false
+ - if bool isFinished is true -> return false
+ - else if internal counter is equal to the number of samples inside the chirps period -> set bool isFinished true, call chirpResetSignals(), return false
 if none of the above is true the 
 # 3. Theory
 
