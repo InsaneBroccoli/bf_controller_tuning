@@ -6,11 +6,65 @@
 % Date: [Current Date]
 %==========================================================================
 
+%% General
+
 % Initialize workspace
 clc, clear variables, close all
 addpath(genpath('lib'));
 addpath logs/
 addpath class/
+
+% Show Legends
+do_insert_legends = true;
+
+%% Load Data
+
+% =========================================================================
+%  First flight: Define path to *.bbl.csv file for the 
+% =========================================================================
+
+log_folder = '';
+flight_folder = '20250908';
+log_name = '20250908_flipmini_00.bbl.csv';
+file_path = fullfile(log_folder, flight_folder, log_name);
+
+data_flight = flight_data(file_path);
+% Load Data
+data_flight = data_flight.get_data();
+
+% Plots of Flightdata
+figure('Name','Plot Gyro Signals'); clf
+data_flight.plot_Gyro_Signal(do_insert_legends);
+
+
+gyro_tuning = flight_ctrl_tuning(data_flight.data, data_flight.ind, data_flight.Ts_log, ...
+    data_flight.para, data_flight.Ts_cntr);
+
+resolution_factor_tf = 2;    % Window length for spectral analysis (seconds)
+overlap_tf = 0.9;              % Overlap factor for spectral analysis (0-1)
+gyro_tuning = gyro_tuning.calculate_transfer_func(resolution_factor_tf, overlap_tf);
+
+%% Flight Analyser
+analysis_flight = flight_analyser(data_flight.data, data_flight.ind, data_flight.Ts_log);
+
+% Get Spectra
+resolution_factor_spectra = 2;    % Window length for spectral analysis (seconds)
+overlap_spectra = 0.9;              % Overlap factor for spectral analysis (0-1)
+analysis_flight = analysis_flight.calculate_spectra(resolution_factor_spectra, overlap_spectra);
+
+figure('Name','Spectra Flight'); clf
+analysis_flight.plot_spectra(do_insert_legends);
+
+% Get Spectogram
+resolution_factor_spectogram = 0.2;    % Window length for spectral analysis (seconds)
+overlap_spectogram = 0.9;              % Overlap factor for spectral analysis (0-1)
+
+analysis_flight = analysis_flight.calculate_spectogram(resolution_factor_spectogram, overlap_spectogram);
+
+figure('Name','Spectogram'); clf
+analysis_flight.plot_spectogram(3);
+
+%% Tuninig
 
 % =========================================================================
 %  Axis Selection: 1: roll, 2: pitch, 3: yaw
@@ -18,81 +72,14 @@ addpath class/
 
 ind_ax = 1;     % keep it now until plot_utils is finished
 
-% =========================================================================
-%  First flight: Define path to *.bbl.csv file for the 
-% =========================================================================
-
-log_folder1 = '';
-flight_folder1 = '20251104';
-log_name1 = 'LOG000.TXT.csv';
-% flight_folder1 = '20250908';
-% log_name1 = '20250908_flipmini_00.bbl.csv';
-
-file_path1 = fullfile(log_folder1, flight_folder1, log_name1);
-
-% =========================================================================
-%  Second flight: Define path to *.bbl.csv file for the 
-% =========================================================================
-
-% Set on true to compare two flights
-second_flight = false;
-
-log_folder2 = 'logs';
-flight_folder2 = '20250908';
-log_name2 = '20250908_flipmini_00.bbl.csv';
-
-file_path2 = fullfile(log_folder2, flight_folder2, log_name2);
-
-% =========================================================================
-%  Figures: Choose which figures you want to see
-% =========================================================================
-
-% Show Legends
-do_insert_legends = true;
 
 % I-term Relax on/off
 do_compensate_iterm = true;
-
-% show evaluation timing
-do_show_eval_time = true;
-
-% Spectral Analysis
-do_show_spec_figures = false; % Spectra, Spectrograms
-Nestfaspec = 0.2;            % Window length for spectral analysis (seconds)
-koverlapspec = 0.9;          % Overlap factor for spectral analysis (0-1)
-
-% Show Flight track & tuning figures 
-do_show_flight_track = true;    % Gyro Signals from RC, Gyro signals from Controller
-do_show_tuning_figures = false;  % closed loop bode plots, Step response
 
 % Transfer Function
 do_show_transferfunction = false; % Plant, PI & D Controller, PID Controller 
 Nestfatra = 2.0;                 % Window length for spectral analysis (seconds)
 koverlaptra = 0.9;               % Overlap factor for spectral analysis (0-1) 
-
-%-Plotting-Defines---------------------------------------------------------
-
-pu = plot_utils;
-pu.second_flight = second_flight;
-pu.do_insert_legends = do_insert_legends;
-pu.linewidth = 1.2;
-pu.ind_ax = ind_ax;
-
-% Defines
-set(cstprefs.tbxprefs,'MagnitudeUnits','dB');
-set(cstprefs.tbxprefs,'FrequencyUnits','Hz');
-set(cstprefs.tbxprefs,'UnwrapPhase','Off');
-set(cstprefs.tbxprefs,'Grid','On');
-
-% ---- Central Option for Bodeplots ----
-opt = bodeoptions('cstprefs');     % start with cstprefs
-opt.MagScale      = 'linear';         % Magnitude logarithmic
-opt.PhaseUnits    = 'deg';         % Phase in degrees
-opt.PhaseWrapping = 'on';          % Phase in the area [-180,180]    
-opt.YLimMode      = {'auto'; 'auto'};  % Autoscale for Mag and Manuel for Phase
-opt.Grid          = 'on';          % Grid ob
-
-pu.opt = opt;
 
 % New and old parameters are the same
 default_parameters = false; 
@@ -135,132 +122,16 @@ para_new1.yaw_lpf_hz          = 200;     % frequency of yaw lpf (pt1)
 
 switch ind_ax
     case 1 % roll: [45, 80, 30, 0] - Betaflight standard PIDs
-        P_new1       = 1.0 * 50;
-        I_new1       = 1.0 * 88;
-        D_new1       = 1.0 * 42;
+        P_new       = 1.0 * 50;
+        I_new       = 1.0 * 88;
+        D_new       = 1.0 * 42;
     case 2 % pitch: [47, 84, 34, 0] - Betaflight standard PIDs
-        P_new1       = 1.0 * 50;
-        I_new1       = 1.0 * 88;
-        D_new1       = 1.0 * 43;
+        P_new       = 1.0 * 50;
+        I_new       = 1.0 * 88;
+        D_new       = 1.0 * 43;
     case 3 % yaw: [45, 80, 0, 0] - Betaflight standard PIDs
-        P_new1       = 1.0 * 52;
-        I_new1       = 1.0 * 83;
-        D_new1       = 1.0 * 0;
+        P_new       = 1.0 * 52;
+        I_new       = 1.0 * 83;
+        D_new       = 1.0 * 0;
 end
 
-% =========================================================================
-%  Second flight: Parameters
-% =========================================================================
-
-% Configure filters to match Betaflight settings
-% All frequencies are in Hz
-% Filter types:
-%   0: PT1 (First order lowpass)
-%   1: BIQUAD (Second order)
-%   2: PT2 (Second order lowpass) 
-%   3: PT3 (Third order lowpass)
-para_new2.gyro_lpf            = 0;       % dono what this is
-para_new2.gyro_lowpass_hz     = 0;       % frequency of gyro lpf 1
-para_new2.gyro_soft_type      = 0;       % type of gyro lpf 1
-para_new2.gyro_lowpass_dyn_hz = [0, 0];  % dyn gyro lpf overwrites gyro_lowpass_hz
-para_new2.gyro_lowpass2_hz    = 800;     % frequency of gyro lpf 2
-para_new2.gyro_soft2_type     = 0;       % type of gyro lpf 2
-para_new2.gyro_notch_hz       = [0, 0];  % frequency of gyro notch 1 and 2
-para_new2.gyro_notch_cutoff   = get_fcut_from_D_and_fcenter([0.00, 0.00], para_new2.gyro_notch_hz); % damping of gyro notch 1 and 2
-para_new2.dterm_lpf_hz        = 0;       % frequency of dterm lpf 1
-para_new2.dterm_filter_type   = 0;       % type of dterm lpf 1
-para_new2.dterm_lpf_dyn_hz    = [0, 0];  % dyn dterm lpf overwrites dterm_lpf_hz
-para_new2.dterm_lpf2_hz       = 120;     % frequency of dterm lpf 2
-para_new2.dterm_filter2_type  = 3;       % type of dterm lpf 2
-para_new2.dterm_notch_hz      = 0;       % frequency of dterm notch
-para_new2.dterm_notch_cutoff  = get_fcut_from_D_and_fcenter(0.00, para_new2.dterm_notch_hz); % damping of dterm notch
-para_new2.yaw_lpf_hz          = 200;     % frequency of yaw lpf (pt1)
-
-%--------------------------------------------------------------------------
-%  tune your PIDs here
-%--------------------------------------------------------------------------
-% Adjust multipliers (1.0 *) to tune the response
-% Higher P: more immediate response but possible oscillations
-% Higher I: better steady-state tracking but slower response
-% Higher D: better damping but noise sensitive
-
-switch ind_ax
-    case 1 % roll: [45, 80, 30, 0] - Betaflight standard PIDs
-        P_new2       = 1.0 * 50;
-        I_new2       = 1.0 * 88;
-        D_new2       = 1.0 * 42;
-    case 2 % pitch: [47, 84, 34, 0] - Betaflight standard PIDs
-        P_new2       = 1.0 * 50;
-        I_new2       = 1.0 * 88;
-        D_new2       = 1.0 * 43;
-    case 3 % yaw: [45, 80, 0, 0] - Betaflight standard PIDs
-        P_new2       = 1.0 * 52;
-        I_new2       = 1.0 * 83;
-        D_new2       = 1.0 * 0;
-end
-
-%==========================================================================
-% make calculations and output plots
-
-% make calculations for flight 1
-flight1 = gyro_ctrl_tuning(file_path1, para_new1, ind_ax, do_compensate_iterm, ...
-    P_new1, I_new1, D_new1, Nestfaspec,koverlapspec, Nestfatra, koverlaptra ...
-    ,default_parameters);
-flight1 = flight1.run();
-
-%-plots--------------------------------------------------------------------
-
-% make calculations for flight 2
-if second_flight
-    flight2 = gyro_ctrl_tuning(file_path2 ,para_new2, ind_ax, do_compensate_iterm, ...
-        P_new2, I_new2, D_new2, Nestfaspec,koverlapspec,Nestfatra, koverlaptra, ...
-        default_parameters);
-    flight2 = flight2.run();
-
-    %-plots-for-flight-1-&-2-----------------------------------------------
-    if do_show_eval_time
-        pu.plotevaltime(flight1, flight2);
-    end
-    if do_show_flight_track
-        pu.plotGyroSignals(flight1, flight2);
-        pu.plotOverview (flight1, flight2);
-    end
-    if do_show_tuning_figures
-        pu.plotStepResp(flight1,flight2);
-        pu.plotGangofFour(flight1, flight2);
-    end
-
-    if do_show_transferfunction
-        pu.plotBode(flight1, flight2);
-        pu.plotCPIDBode(flight1, flight2);
-        pu.plotController(flight1, flight2);
-    end
-    if do_show_spec_figures
-        pu.plotGyroSpectra(flight1, flight2);
-        pu.plotspectogram(flight1, flight2);
-    end
-
-%-plots-for-flight-1-------------------------------------------------------
-else
-    if do_show_eval_time
-        pu.plotevaltime(flight1);
-    end
-    if do_show_flight_track
-        pu.plotGyroSignals(flight1);
-        pu.plotOverview (flight1);
-    end
-    if do_show_tuning_figures
-        pu.plotStepResp(flight1);
-        pu.plotGangofFour(flight1);
-    end
-    if do_show_transferfunction
-        pu.plotBode(flight1);
-        pu.plotCPIDBode(flight1);
-        pu.plotController(flight1);
-    end
-    
-    if do_show_spec_figures
-        pu.plotGyroSpectra(flight1);
-        pu.plotspectogram(flight1);
-    end
-end
