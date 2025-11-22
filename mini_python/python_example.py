@@ -5,7 +5,7 @@ import pickle
 import time
 import scipy.signal as signal
 
-import lib
+import mylib
 
 from matplotlib import pyplot as plt
 from pathlib import Path
@@ -128,7 +128,7 @@ def main():
     Noverlap = round(koverlap * Nest)
     window = signal.windows.hann(Nest, sym=False)
 
-    G, _, _, _ = lib.estimate_frequency_response(
+    G, _, _, _ = mylib.estimate_frequency_response(
         setpoint_roll_chirp, gyro_unfilt_roll_chirp, window, Noverlap, Nest, Ts_log
     )
 
@@ -136,7 +136,7 @@ def main():
     plt.figure()
     ct.bode_plot(G, title="FREQUENCY RESPONSE", dB=True, Hz=True)
 
-    step_resp = lib.calculate_step_response_from_frd(G, f_max_hz)
+    step_resp = mylib.calculate_step_response_from_frd(G, f_max_hz)
     time_step = np.arange(len(step_resp)) * Ts_log
 
     # PlOT STEP RESPONSE
