@@ -6,7 +6,7 @@ students:   Yuri Bianchi
             Janick Dort 
             Dario Jurietti
 
-date: september - december 2025
+time period: september - december 2025
 supervisor: Michael Peter, Ruprecht Altenburger
 institution: ZHAW School of Engineering
 ```
@@ -59,11 +59,13 @@ The project aims to further develop the existing proof of concept, to make the t
 
 # 2. Preparation
 ## 2.1 Chirp
+
 ### 2.1.1 Chirp concept
 A chirp is an input signal that sweeps continuously over a defined range (e.g. from a low frequency to a high frequency). This signal excites the system on multiple frequencies in one run and thus lets you observe the frequency response and step response, the foundation of controller tuning.
 
 Mathematically, a chirp signal can be represented as a sinusoidal wave with instantaneous frequency that varies linearly with time, such as $x(t) = \sin(2\pi (f_0 t + \frac{k}{2} t^2))$, where $(f_0)$
 is the starting frequency and $(k)$ is the chirp rate.
+
 ### 2.1.2 Chirp on drone
 In the context of tuning a drone's flight controller, an exponential sweep is used. This is due to the dominant low-frequency dynamics, where low frequencies exhibit more predictable responses, allowing the sweep to allocate more time to higher frequencies for better resolution of system behavior. Additionally, multirotor vibration resonances are typically spaced logarithmically, making exponential sweeps more suited for efficient excitation across the frequency range.
 
@@ -98,6 +100,7 @@ Once the chirp is initialised use the chirpUpdate() function once per loop itera
  - if bool isFinished is true -> return false
  - else if internal counter is equal to the number of samples inside the chirps period -> set bool isFinished true, call chirpResetSignals(), return false
 if none of the above is true the 
+
 # 3. Theory
 
 ## 3.1 signal processing
@@ -113,11 +116,21 @@ if none of the above is true the
 ## 4.1 Simulations
 
 
-## 4.2 Building a FPV drone
+## 4.2 Building an FPV drone
 
 
-## 4.3 tuning a FPV drone
-A part in understanding the workflow, was to tune a drone by ourselves
+## 4.3 tuning an FPV drone
+As part of understanding the workflow we tuned an FPV drone by ourselves. The goal was to adjust the PID parameters so that the step response and `disturbance rejection` could be analyzed using the proof-of-concept and later our restructured code.
+
+Initially, we deliberately applied a poor tuning configuration to observe its effects. During the first field test with this setup, it quickly became apparent that the tuning was excessively poor. The drone began oscillating aggressively and climbed rapidly. As the drone was out of control, the kill switch had to be activated, resulting in a crash that broke one of the four arms. Fortunately, the damage was minor and repaired quickly.
+
+After this incident, we decided not to repeat flights with intentionally bad tuning. Instead, we continued using the default Betaflight parameters as a baseline. `With these the drone flies reliably.` However, during demanding maneuvers such as flips or propwash manouvers, it becomes evident that there is room for improvement in terms of stability and responsiveness.
+
+The tuning process was carried out on a larger 6-inch FPV drone provided by one of the team members. The drone was freshly flashed with Betaflight v12, meaning all filters and settings were at factory defaults. Achieving an optimal tune required several attempts due to challenges with filter adjustments and occasional logging issues. Nevertheless, the drone was successfully tuned, and the improvement was noticeable. During propwash manoeuvres, the drone remained significantly more stable, and flips were executed with greater precision at the stop.
+
+Our tuning objective was to achieve a fast step response without overshoot, while maintaining good compliance and sensitivity. It is important to note that there is no universally “perfect” tune. Settings depend heavily on pilot preferences. Racing pilots for example maybe want more responsiveness for competitive performance, whereas freestyle pilots want smoothness and flight feel. 
+
+Since none of our team members are professional pilots, we focused on achieving robustness and a step response without overshoot. This tuning approach is probably somewhere between what a racing pilot and a freestyle pilot would prefer. Robustness in this context is important for practical scenarios, such as when a propeller is slightly bent, the battery sits slightly off center or when an additional component like a camera is mounted on the drone.
 
 ## 4.4 Decode
 
@@ -219,8 +232,8 @@ As Dario started an easy python version of the tool, the plan was to just build 
 ## 6.1 Discussion
 
 ## 6.2 Next steps
-Further develop the tool as part of a bachelor’s thesis
-Convert the code to python
+- Further develop the tool as part of a bachelor’s thesis
+- Convert the code to python
 
 ## 6.3 Conclusion
 
