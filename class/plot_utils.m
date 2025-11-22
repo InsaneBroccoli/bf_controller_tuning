@@ -366,6 +366,7 @@ classdef plot_utils
             ind_ax = td.ind_ax;
 
             figure(8)
+            set(gcf, 'Name', 'Gang of Four')
 
             % --- T: Tracking ---------------
             ax(1) = subplot(2,2,1);
@@ -404,19 +405,21 @@ classdef plot_utils
             td = obj.gyro_tuning;
             
             figure(9)
-                ax(1) = subplot(2,1,1);
-                plot(ax(1), td.step_time, td.step_resp_tra), grid on, ylabel('Gyro (deg/sec)')
-                if do_insert_legends, legend('actual calculated', ...
-                        'new calculated', 'measurd', 'location', 'best'), end
-                ylim(ax(1), 'auto');title('Tracking T Roll');
-                
-    
-                ax(2) = subplot(2,1,2);
-                plot(ax(2), td.step_time, td.step_resp_com), grid on
-                ylim(ax(2), 'auto')
-                title('Compliance SP Roll'), xlabel('Time (sec)'), ylabel('Gyro (deg/sec)')
-                linkaxes(ax, 'x'), clear ax, xlim([0 0.5])
-                set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
+            set(gcf, 'Name', 'Step Response')
+
+            ax(1) = subplot(2,1,1);
+            plot(ax(1), td.step_time, td.step_resp_tra), grid on, ylabel('Gyro (deg/sec)')
+            if do_insert_legends, legend('actual calculated', ...
+                    'new calculated', 'measurd', 'location', 'best'), end
+            ylim(ax(1), 'auto');title('Tracking T Roll');
+            
+
+            ax(2) = subplot(2,1,2);
+            plot(ax(2), td.step_time, td.step_resp_com), grid on
+            ylim(ax(2), 'auto')
+            title('Compliance SP Roll'), xlabel('Time (sec)'), ylabel('Gyro (deg/sec)')
+            linkaxes(ax, 'x'), clear ax, xlim([0 0.5])
+            set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
 
         end
 
