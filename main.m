@@ -32,12 +32,7 @@ data_flight = flight_data(file_path);
 % Load Data
 data_flight = data_flight.get_data();
 
-% Plots of Flightdata
-figure('Name','Plot Gyro Signals'); clf
-data_flight.plot_Gyro_Signal(do_insert_legends);
-
-
-gyro_tuning = flight_ctrl_tuning(data_flight.data, data_flight.ind, data_flight.Ts_log, ...
+gyro_tuning = gyro_ctrl_tuning(data_flight.data, data_flight.ind, data_flight.Ts_log, ...
     data_flight.para, data_flight.Ts_cntr);
 
 resolution_factor_tf = 2;    % Window length for spectral analysis (seconds)
@@ -47,31 +42,25 @@ gyro_tuning = gyro_tuning.calculate_transfer_func(resolution_factor_tf, overlap_
 %% Flight Analyser
 analysis_flight = flight_analyser(data_flight.data, data_flight.ind, data_flight.Ts_log);
 
-% Get Spectra
+% Data for Spectra
 resolution_factor_spectra = 2;    % Window length for spectral analysis (seconds)
 overlap_spectra = 0.9;              % Overlap factor for spectral analysis (0-1)
-analysis_flight = analysis_flight.calculate_spectra(resolution_factor_spectra, overlap_spectra);
+analysis_flight = analysis_flight.calculate_spectra(resolution_factor_spectra, ...
+    overlap_spectra);
 
-figure('Name','Spectra Flight'); clf
-analysis_flight.plot_spectra(do_insert_legends);
-
-% Get Spectogram
+% Data for Spectogram
 resolution_factor_spectogram = 0.2;    % Window length for spectral analysis (seconds)
 overlap_spectogram = 0.9;              % Overlap factor for spectral analysis (0-1)
+analysis_flight = analysis_flight.calculate_spectogram(resolution_factor_spectogram, ...
+    overlap_spectogram);
 
-analysis_flight = analysis_flight.calculate_spectogram(resolution_factor_spectogram, overlap_spectogram);
-
-figure('Name','Spectogram'); clf
-analysis_flight.plot_spectogram(3);
-
-%% Tuninig
+%% Tuninig Data
 
 % =========================================================================
 %  Axis Selection: 1: roll, 2: pitch, 3: yaw
 % =========================================================================
 
 ind_ax = 1;     % keep it now until plot_utils is finished
-
 
 % I-term Relax on/off
 do_compensate_iterm = true;
@@ -95,22 +84,22 @@ default_parameters = false;
 %   1: BIQUAD (Second order)
 %   2: PT2 (Second order lowpass) 
 %   3: PT3 (Third order lowpass)
-para_new1.gyro_lpf            = 0;       % dono what this is
-para_new1.gyro_lowpass_hz     = 0;       % frequency of gyro lpf 1
-para_new1.gyro_soft_type      = 0;       % type of gyro lpf 1
-para_new1.gyro_lowpass_dyn_hz = [0, 0];  % dyn gyro lpf overwrites gyro_lowpass_hz
-para_new1.gyro_lowpass2_hz    = 800;     % frequency of gyro lpf 2
-para_new1.gyro_soft2_type     = 0;       % type of gyro lpf 2
-para_new1.gyro_notch_hz       = [0, 0];  % frequency of gyro notch 1 and 2
-para_new1.gyro_notch_cutoff   = get_fcut_from_D_and_fcenter([0.00, 0.00], para_new1.gyro_notch_hz); % damping of gyro notch 1 and 2
-para_new1.dterm_lpf_hz        = 0;       % frequency of dterm lpf 1
-para_new1.dterm_filter_type   = 0;       % type of dterm lpf 1
-para_new1.dterm_lpf_dyn_hz    = [0, 0];  % dyn dterm lpf overwrites dterm_lpf_hz
-para_new1.dterm_lpf2_hz       = 100;     % frequency of dterm lpf 2
-para_new1.dterm_filter2_type  = 3;       % type of dterm lpf 2
-para_new1.dterm_notch_hz      = 0;       % frequency of dterm notch
-para_new1.dterm_notch_cutoff  = get_fcut_from_D_and_fcenter(0.00, para_new1.dterm_notch_hz); % damping of dterm notch
-para_new1.yaw_lpf_hz          = 200;     % frequency of yaw lpf (pt1)
+para_new.gyro_lpf            = 0;       % dono what this is
+para_new.gyro_lowpass_hz     = 0;       % frequency of gyro lpf 1
+para_new.gyro_soft_type      = 0;       % type of gyro lpf 1
+para_new.gyro_lowpass_dyn_hz = [0, 0];  % dyn gyro lpf overwrites gyro_lowpass_hz
+para_new.gyro_lowpass2_hz    = 800;     % frequency of gyro lpf 2
+para_new.gyro_soft2_type     = 0;       % type of gyro lpf 2
+para_new.gyro_notch_hz       = [0, 0];  % frequency of gyro notch 1 and 2
+para_new.gyro_notch_cutoff   = get_fcut_from_D_and_fcenter([0.00, 0.00], para_new.gyro_notch_hz); % damping of gyro notch 1 and 2
+para_new.dterm_lpf_hz        = 0;       % frequency of dterm lpf 1
+para_new.dterm_filter_type   = 0;       % type of dterm lpf 1
+para_new.dterm_lpf_dyn_hz    = [0, 0];  % dyn dterm lpf overwrites dterm_lpf_hz
+para_new.dterm_lpf2_hz       = 140;     % frequency of dterm lpf 2
+para_new.dterm_filter2_type  = 3;       % type of dterm lpf 2
+para_new.dterm_notch_hz      = 0;       % frequency of dterm notch
+para_new.dterm_notch_cutoff  = get_fcut_from_D_and_fcenter(0.00, para_new.dterm_notch_hz); % damping of dterm notch
+para_new.yaw_lpf_hz          = 200;     % frequency of yaw lpf (pt1)
 
 %--------------------------------------------------------------------------
 %  tune your PIDs here
@@ -122,9 +111,9 @@ para_new1.yaw_lpf_hz          = 200;     % frequency of yaw lpf (pt1)
 
 switch ind_ax
     case 1 % roll: [45, 80, 30, 0] - Betaflight standard PIDs
-        P_new       = 1.0 * 50;
-        I_new       = 1.0 * 88;
-        D_new       = 1.0 * 42;
+        P_new       = 1.0 * 46;
+        I_new       = 1.0 * 74;
+        D_new       = 1.0 * 30;
     case 2 % pitch: [47, 84, 34, 0] - Betaflight standard PIDs
         P_new       = 1.0 * 50;
         I_new       = 1.0 * 88;
@@ -135,3 +124,25 @@ switch ind_ax
         D_new       = 1.0 * 0;
 end
 
+gyro_tuning = gyro_tuning.calculate_new_controller(ind_ax, P_new, I_new, D_new, ...
+    default_parameters, para_new);
+gyro_tuning = gyro_tuning.get_tuning_data(do_compensate_iterm);
+
+%% Plot Gyro Data
+plotter = plot_utils(data_flight, gyro_tuning, analysis_flight);
+
+plotter.plot_Gyro_Signal(do_insert_legends);
+plotter.plot_Overview(do_insert_legends);
+plotter.plot_Eval_Time();
+
+%% Plot Flight Analyser
+
+plotter.plot_Gyro_spectra(do_insert_legends);
+plotter.plot_Spectogram(3);
+
+
+%% Plot Tuning Data
+plotter.plot_Bode_Plant(ind_ax);
+plotter.plot_Bode_Contr(ind_ax, do_insert_legends);
+plotter.plot_Gang_of_Four(do_insert_legends);
+plotter.plot_Step_Response(do_insert_legends);
