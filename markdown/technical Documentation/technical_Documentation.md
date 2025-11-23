@@ -6,7 +6,7 @@ students:   Yuri Bianchi
             Janick Dort 
             Dario Jurietti
 
-date: september - december 2025
+time period: september - december 2025
 supervisor: Michael Peter, Ruprecht Altenburger
 institution: ZHAW School of Engineering
 ```
@@ -42,11 +42,22 @@ The results will be published in a public GitHub repository and documented in a 
 - Optional: Erfahrungen, Herausforderungen oder Lernaspekte.
 
 # Table of contents
+```
 
+
+
+
+```
 
 
 # 1. Introduction
-As part of this project work…
+First-person view (FPV) racing drones require precise and responsive control to achieve high flight stability, minimize disturbances such as prop wash, and maintain agility during rapid maneuvers. The tuning of rate controllers is key to this performance, as it's what determines how the drone responds to pilot inputs and external influences. Until now, tuning these controllers has relied on iterative trial-and-error methods, a process that is both time-consuming and really hard to do for less experienced pilots.
+
+Betaflight, an open-source firmware widely used in the FPV community, provides a flexible platform for configuring flight controllers. However, despite its popularity, efficient tuning remains a challenge. To address this, our project builds upon an existing proof of concept for offline tuning of rate controllers using flight data and system identification techniques. The goal is to transform this concept into a robust, modular, and open-source library that simplifies the tuning process.
+
+The library will be implemented in `MATLAB and Python`, offering tools for analyzing flight logs, estimating system dynamics, and optimizing controller parameters without requiring repeated flight tests. A documentation is created, which shows how to use the tool and will be published on GitHub to ensure accessibility for the FPV community.
+
+Besides software development, the project involves also building an FPV drone and testing and confirm the effectiveness of the proposed methods. By providing a structured, data-driven approach to tuning, this work aims to improve flight performance and reduce the barriers to achieving optimal control settings for both hobbyists and professionals.
 
 ## 1.1 Initial situation
 The open-source firmware Betaflight is the most widely used platform for FPV racing drones and is continuously being developed by a large community. The quality of rate control is crucial for flight performance, as it ensures stability, agility and the suppression of disturbances such as prop wash.
@@ -59,11 +70,13 @@ The project aims to further develop the existing proof of concept, to make the t
 
 # 2. Preparation
 ## 2.1 Chirp
+
 ### 2.1.1 Chirp concept
 A chirp is an input signal that sweeps continuously over a defined range (e.g. from a low frequency to a high frequency). This signal excites the system on multiple frequencies in one run and thus lets you observe the frequency response and step response, the foundation of controller tuning.
 
 Mathematically, a chirp signal can be represented as a sinusoidal wave with instantaneous frequency that varies linearly with time, such as $x(t) = \sin(2\pi (f_0 t + \frac{k}{2} t^2))$, where $(f_0)$
 is the starting frequency and $(k)$ is the chirp rate.
+
 ### 2.1.2 Chirp on drone
 In the context of tuning a drone's flight controller, an exponential sweep is used. This is due to the dominant low-frequency dynamics, where low frequencies exhibit more predictable responses, allowing the sweep to allocate more time to higher frequencies for better resolution of system behavior. Additionally, multirotor vibration resonances are typically spaced logarithmically, making exponential sweeps more suited for efficient excitation across the frequency range.
 
@@ -98,6 +111,7 @@ Once the chirp is initialised use the chirpUpdate() function once per loop itera
  - if bool isFinished is true -> return false
  - else if internal counter is equal to the number of samples inside the chirps period -> set bool isFinished true, call chirpResetSignals(), return false
 if none of the above is true the 
+
 # 3. Theory
 
 ## 3.1 signal processing
@@ -113,11 +127,40 @@ if none of the above is true the
 ## 4.1 Simulations
 
 
-## 4.2 Building a FPV drone
+## 4.2 Building an FPV drone
+Besides the understanding of the code and further developing the proof of concept, building a drone and set it up correctly bridges the gap between the digital domain, where algorithms and simulations are developed and the physical reality of drone operation. By getting in touch with the hardware, it is easier for us to understand what practical challenges exist for pilots and the community.
+
+<p align="center">
+  <img src="./Images/"
+     alt=" ? Foto von aosmini ?"
+     width="800"
+     style="float:center; margin-left:10px; margin-right:10px;">
+</p>
+
+Therefore a three inch FPV drone was built from the ground up. 
+This work included:
+- creating schemes to see which connections were required
+- soldering all the components as the motors, receiver, video system, logger and gps module to the flight controller
+- attaching everything to the frame, so that nothing generates unnecessary oscillations during flight
+- double check all soldering connections and screws
+- setting everything up in betaflight
+- testfly the drone
+
+The biggest challange was to achieve good soldering connecions `...`
 
 
-## 4.3 tuning a FPV drone
-A part in understanding the workflow, was to tune a drone by ourselves
+## 4.3 tuning an FPV drone
+As part of understanding the workflow we tuned an FPV drone by ourselves. The goal was to adjust the PID parameters so that the step response and `disturbance rejection` could be analyzed using the proof-of-concept and later our restructured code.
+
+Initially, we deliberately applied a poor tuning configuration to observe its effects. During the first field test with this setup, it quickly became apparent that the tuning was excessively poor. The drone began oscillating aggressively and climbed rapidly. As the drone was out of control, the kill switch had to be activated, resulting in a crash that broke one of the four arms. Fortunately, the damage was minor and repaired quickly.
+
+After this incident, we decided not to repeat flights with intentionally bad tuning. Instead, we continued using the default Betaflight parameters as a baseline. `With these the drone flies reliably.` However, during demanding maneuvers such as flips or propwash manouvers, it becomes evident that there is room for improvement in terms of stability and responsiveness.
+
+The tuning process was carried out on a larger 6-inch FPV drone provided by one of the team members. The drone was freshly flashed with Betaflight v12, meaning all filters and settings were at factory defaults. Achieving an optimal tune required several attempts due to challenges with filter adjustments and occasional logging issues. Nevertheless, the drone was successfully tuned, and the improvement was noticeable. During propwash manoeuvres, the drone remained significantly more stable, and flips were executed with greater precision at the stop.
+
+Our tuning objective was to achieve a fast step response without overshoot, while maintaining good compliance and sensitivity. It is important to note that there is no universally “perfect” tune. Settings depend heavily on pilot preferences. Racing pilots for example maybe want more responsiveness for competitive performance, whereas freestyle pilots want smoothness and flight feel. 
+
+Since none of our team members are professional pilots, we focused on achieving robustness and a step response without overshoot. This tuning approach is probably somewhere between what a racing pilot and a freestyle pilot would prefer. Robustness in this context is important for practical scenarios, such as when a propeller is slightly bent, the battery sits slightly off center or when an additional component like a camera is mounted on the drone.
 
 ## 4.4 Decode
 
@@ -209,9 +252,18 @@ To be written...
 
 
 ## 4.6 Python in MATLAB
-The code has been divided into logically related sections in order to clearly separate topics such as spectral analysis or frequency response estimation and calculation. Dividing the code into thematic sections helps to improve readability and clearly present the individual topics. As we thaught the MATLAB code was structured good enough, we wanted to start with the conversion to python. First we considered starting from scratch and rewrite the whole code, but it was made clear, that this is hard to test within the rewriting process. The idea then was to convert all the MATLAB functions in the `\lib` to python first and then call these rewritten python functions from the `gyro_ctrl_tuning` class in MATLAB. The advantage of doing so, gave us the ablity to test every function, weather they were converted correctly or not. In a second step, the `gyro_ctrl_tuning` and lastly the `plot_utils` class would have been converted to python. Unfortunately we ran into the problem, $that in python no FRD objects exist$. This led us to write helper functions, which converted the MATLAB FRD objects into NumPy-arrays using the numpy library. One array holding the frequencies and one the response data. The same process had to be done in the opposite direction, from python to MATLAB. It quickly became clear, that this was too much effort. This is because later in python, these helperfunctions are not necessary anymore, as we would hold this data in two arrays anyway. 
+The code has been divided into logically related sections in order to clearly separate topics such as spectral analysis or frequency response estimation and calculation. Dividing the code into thematic sections helps to improve readability and clearly present the individual topics. 
 
-As Dario started an easy python version of the tool, the plan was to just build up on this. 
+As we thaught the MATLAB code was structured good enough, we wanted to start with the conversion to python. First we considered starting from scratch and rewrite the whole code, but it was made clear, that this is hard to test within the rewriting process. The idea then was to convert all the MATLAB functions in the `\lib` to python first and then call these rewritten python functions from the `gyro_ctrl_tuning` class in MATLAB. The advantage of doing so, gave us the ablity to test every function, weather they were converted correctly or not. In a second step, the `gyro_ctrl_tuning` and lastly the `plot_utils` class would have been converted to python. Unfortunately we ran into the problem, `that in python FRD objects do not exist the same way as they do in MATLAB`. This led us to write helper functions, which converted the MATLAB FRD objects into NumPy-arrays using the numpy library. One array holding the frequencies and one the response data. The same process had to be done in the opposite direction, from python to MATLAB. 
+
+```
+It quickly became clear, that this was a good idea, but not the most practical way. 
+
+This is because later in python, these helperfunctions are not necessary anymore, as we would hold this data in two arrays anyway. 
+
+As Dario started an easy python version of the tool, the plan was to just build up on this.
+
+```
 
 # 5. Results
 
@@ -219,8 +271,10 @@ As Dario started an easy python version of the tool, the plan was to just build 
 ## 6.1 Discussion
 
 ## 6.2 Next steps
-Further develop the tool as part of a bachelor’s thesis
-Convert the code to python
+This project is being continued and further developed as part of a bachelor's thesis. This mainly includes converting the code to python completely to make the PID tuning tool more accessible to the comunity and develop and implement a new function for position hold for example. 
+
+The goal of this is to make the tool good enough, that it can implemented directly into the betaflight configurator or blackbox explorer
+
 
 ## 6.3 Conclusion
 
