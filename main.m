@@ -60,7 +60,7 @@ analysis_flight = analysis_flight.calculate_spectogram(resolution_factor_spectog
 %  Axis Selection: 1: roll, 2: pitch, 3: yaw
 % =========================================================================
 
-ind_ax = 1;     % keep it now until plot_utils is finished
+ind_ax = 3;     % keep it now until plot_utils is finished
 
 % I-term Relax on/off
 do_compensate_iterm = true;
@@ -119,18 +119,18 @@ switch ind_ax
         I_new       = 1.0 * 88;
         D_new       = 1.0 * 43;
     case 3 % yaw: [45, 80, 0, 0] - Betaflight standard PIDs
-        P_new       = 1.0 * 52;
-        I_new       = 1.0 * 83;
-        D_new       = 1.0 * 0;
+        P_new       = 1.0 * 35;
+        I_new       = 1.0 * 70;
+        D_new       = 1.0 * 3;
 end
 
 gyro_tuning = gyro_tuning.calculate_new_controller(ind_ax, P_new, I_new, D_new, ...
     default_parameters, para_new);
 gyro_tuning = gyro_tuning.get_tuning_data(do_compensate_iterm);
 
-%% Plot Gyro Data
 plotter = plot_utils(data_flight, gyro_tuning, analysis_flight);
 
+%% Plot Gyro Data
 plotter.plot_Gyro_Signal(do_insert_legends);
 plotter.plot_Overview(do_insert_legends);
 plotter.plot_Eval_Time();
