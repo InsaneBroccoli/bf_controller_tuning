@@ -234,7 +234,7 @@ classdef plot_utils
 
         %%
         % =================================================================
-        %  FIGURE GYRO SPECTRA
+        %  FIGURE 5: GYRO SPECTRA
         % =================================================================
         % Generates spectogram plots
 
@@ -294,7 +294,7 @@ classdef plot_utils
         function obj = plot_Bode_Plant(obj, ind_ax)
             td = obj.gyro_tuning;
    
-            figure(6);clf;
+            figure(expand_multiple_figure_nr(6, ind_ax));clf;
             set(gcf, 'Name', 'Bode Plot');
 
             opt = bodeoptions('cstprefs');     % start with cstprefs
@@ -338,7 +338,7 @@ classdef plot_utils
             opt.YLimMode      = {'auto'; 'auto'};  % Autoscale for Mag and Manuel for Phase
             opt.Grid          = 'on';          % Grid ob
             
-            figure(7);clf;
+            figure(expand_multiple_figure_nr(7, ind_ax));clf;
             set(gcf, 'Name', 'Bode Controller');
             bode(td.Cpi{ind_ax}, td.Cpi_ana{ind_ax},td.Cd{ind_ax}, ...
                 td.Cd_ana{ind_ax}, td.omega_bode, opt), title('Controller PI Roll')              
@@ -365,7 +365,7 @@ classdef plot_utils
             
             ind_ax = td.ind_ax;
 
-            figure(8)
+            figure(expand_multiple_figure_nr(8, ind_ax))
             set(gcf, 'Name', 'Gang of Four')
 
             % --- T: Tracking ---------------
@@ -404,7 +404,7 @@ classdef plot_utils
 
             td = obj.gyro_tuning;
             
-            figure(9)
+            figure(expand_multiple_figure_nr(9, td.ind_ax))
             set(gcf, 'Name', 'Step Response')
 
             ax(1) = subplot(2,1,1);
