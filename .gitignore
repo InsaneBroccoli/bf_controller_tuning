@@ -1,5 +1,51 @@
 *.csv
-*.pkl
+
+# Matlab compiled files
 *.mat
+
+# Python compiled files
+*.pkl
 __pycache__/
+
+# Core latex/pdflatex auxiliary files
+*.aux
+*.log
+*.out
+*.toc
+*.fls
+*.fdb_latexmk
+
+# Bibliography auxiliary files (bibtex/biber)
+*.blg
+*.bcf
+*.run.xml
+
+# SyncTeX (for jumping between PDF and editor)
+*.synctex.gz
+*.synctex
+
+# Lists of figures and tables
+*.lof
+*.lot
+
+# Beamer class auxiliary files
+*.nav
+*.snm
+*.vrb
+
+# Intermediate output formats
+*.dvi
+*.ps
+
+# Final PDF (Optional: uncomment the line below if you DON'T want to commit PDFs)
+# *.pdf
+
+# Glossaries
+*.glg
+*.glo
+*.gls
+*.ist
+
+# Texpad/Editor specific
+.texpadtmp
 
