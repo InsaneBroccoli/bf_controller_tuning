@@ -42,9 +42,10 @@ classdef plot_utils
         do_insert_legends    (1,1) logical = true
         linewidth            (1,1) double  = 1.2
         colorOrder = get(0, 'DefaultAxesColorOrder')
+        axis_names cell = {'Roll', 'Pitch', 'Yaw'}
         pos_bode double = [0.1514, 0.5838-0.2, 0.7536, 0.3472+0.2; ...
                           0.1514, 0.1100,      0.7536, 0.1917] 
-
+    
     end
     methods
         function obj = plot_utils(data_flight, gyro_tuning, analysis_flight)
@@ -295,27 +296,18 @@ classdef plot_utils
             td = obj.gyro_tuning;
    
             figure(expand_multiple_figure_nr(6, ind_ax));clf;
-            set(gcf, 'Name', 'Bode Plot');
-
-            opt = bodeoptions('cstprefs');     % start with cstprefs
-            opt.MagScale      = 'linear';         % Magnitude logarithmic
-            opt.PhaseUnits    = 'deg';         % Phase in degrees
-            opt.PhaseWrapping = 'on';          % Phase in the area [-180,180]    
-            opt.YLimMode      = {'auto'; 'auto'};  % Autoscale for Mag and Manuel for Phase
-            opt.Grid          = 'on';          % Grid ob
+            set(gcf, 'Name', ['Bode Plot - ', obj.axis_names{ind_ax}]);
+            opt = bode_plot_options('dB', 'linear', 'deg');
 
             % --- Plant (Bode: magnitude + phase) ---
             ax(1) = subplot('Position', obj.pos_bode(1,:));
-            bode(ax(1), td.P{ind_ax}, 'k', td.omega_bode, opt), title('Plant P')
+            bode(ax(1), td.P{ind_ax}, 'k', td.omega_bode, opt);
+            title(['Plant P - ', obj.axis_names{ind_ax}]);
           
             % --- Coherence (magnitude only) ---
             ax(2) = subplot('Position', obj.pos_bode(2,:));
-            opt_coh = bodeoptions('cstprefs');    
-            opt_coh.FreqUnits = opt.FreqUnits; 
-            opt_coh.Grid      = opt.Grid;
-            opt_coh.MagUnits  = 'abs';
-            opt_coh.MagScale  = 'linear';         % lineare Y-Achse
-            
+            opt_coh = bode_plot_options('abs', 'linear', 'deg');
+
             bodemag(ax(2), td.Coh{ind_ax}, td.omega_bode,'-k', opt_coh);
             title(''); ylabel('Coherence'); ylim([0 1]);
             linkaxes(ax, 'x'),
@@ -328,23 +320,19 @@ classdef plot_utils
         % =================================================================
         % plotCPIDBode - Bode plot for PI and D controller (measured vs analytical)
         function obj = plot_Bode_Contr(obj, ind_ax, do_insert_legends)
-
+            
             td = obj.gyro_tuning;
-
-            opt = bodeoptions('cstprefs');     % start with cstprefs
-            opt.MagScale      = 'linear';         % Magnitude logarithmic
-            opt.PhaseUnits    = 'deg';         % Phase in degrees
-            opt.PhaseWrapping = 'on';          % Phase in the area [-180,180]    
-            opt.YLimMode      = {'auto'; 'auto'};  % Autoscale for Mag and Manuel for Phase
-            opt.Grid          = 'on';          % Grid ob
+            
+            opt = bode_plot_options('dB', 'linear', 'deg');
             
             figure(expand_multiple_figure_nr(7, ind_ax));clf;
-            set(gcf, 'Name', 'Bode Controller');
+            set(gcf, 'Name', ['Bode Controller - ', obj.axis_names{ind_ax}]);
             bode(td.Cpi{ind_ax}, td.Cpi_ana{ind_ax},td.Cd{ind_ax}, ...
-                td.Cd_ana{ind_ax}, td.omega_bode, opt), title('Controller PI Roll')              
+                td.Cd_ana{ind_ax}, td.omega_bode, opt)              
             if do_insert_legends
                 legend('PI measured','PI analytically', 'D measured', 'D analytically')
             end
+            title(['Bode PI and D Controller - ', obj.axis_names{ind_ax}]);
             set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
 
         end
@@ -355,19 +343,13 @@ classdef plot_utils
 
         function obj = plot_Gang_of_Four(obj, do_insert_legends)
             td = obj.gyro_tuning;
-
-            opt = bodeoptions('cstprefs');     % start with cstprefs
-            opt.MagScale      = 'linear';         % Magnitude logarithmic
-            opt.PhaseUnits    = 'deg';         % Phase in degrees
-            opt.PhaseWrapping = 'on';          % Phase in the area [-180,180]    
-            opt.YLimMode      = {'auto'; 'auto'};  % Autoscale for Mag and Manuel for Phase
-            opt.Grid          = 'on';          % Grid ob
+            opt = bode_plot_options('dB', 'linear', 'deg');
             
             ind_ax = td.ind_ax;
 
             figure(expand_multiple_figure_nr(8, ind_ax))
-            set(gcf, 'Name', 'Gang of Four')
-
+            set(gcf, 'Name', ['Gang of Four - ', obj.axis_names{ind_ax}]);
+            
             % --- T: Tracking ---------------
             ax(1) = subplot(2,2,1);
             bodemag(ax(1), td.CloLoAan.T, td.CloLoAanNew.T, td.T{ind_ax}, opt);
@@ -391,8 +373,8 @@ classdef plot_utils
             title('Compliance SP')
         
             linkaxes(ax, 'x'), clear ax
-            set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
-            sgtitle('Gang of Four')
+            set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth);
+            sgtitle(['Gang of Four - ', obj.axis_names{ind_ax}]);
         end
 %%
  %%
@@ -405,19 +387,20 @@ classdef plot_utils
             td = obj.gyro_tuning;
             
             figure(expand_multiple_figure_nr(9, td.ind_ax))
-            set(gcf, 'Name', 'Step Response')
+            set(gcf, 'Name', ['Step Response - ', obj.axis_names{td.ind_ax}]);
 
             ax(1) = subplot(2,1,1);
             plot(ax(1), td.step_time, td.step_resp_tra), grid on, ylabel('Gyro (deg/sec)')
             if do_insert_legends, legend('actual calculated', ...
                     'new calculated', 'measurd', 'location', 'best'), end
-            ylim(ax(1), 'auto');title('Tracking T Roll');
+            ylim(ax(1), 'auto');
+            title(['Tracking T - ', obj.axis_names{td.ind_ax}]);
             
 
             ax(2) = subplot(2,1,2);
             plot(ax(2), td.step_time, td.step_resp_com), grid on
             ylim(ax(2), 'auto')
-            title('Compliance SP Roll'), xlabel('Time (sec)'), ylabel('Gyro (deg/sec)')
+            title('Compliance SP'), xlabel('Time (sec)'), ylabel('Gyro (deg/sec)')
             linkaxes(ax, 'x'), clear ax, xlim([0 0.5])
             set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
 
