@@ -20,7 +20,7 @@ do_insert_legends = true;
 %% Load Data
 
 % =========================================================================
-%  First flight: Define path to *.bbl.csv file for the 
+%  Define path to *.bbl.csv file for the 
 % =========================================================================
 
 log_folder = '';
