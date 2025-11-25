@@ -150,7 +150,7 @@ The biggest challange was to achieve good soldering connecions `...`
 
 
 ## 4.3 tuning an FPV drone
-As part of understanding the workflow we tuned an FPV drone by ourselves. The goal was to adjust the PID parameters so that the step response and `disturbance rejection` could be analyzed using the proof-of-concept and later our restructured code.
+As part of understanding the workflow we tuned an FPV drone by ourselves. The goal was to adjust the PID parameters so that we achieve a fast rising step response without overshoot, a lower complianace than before and a rounded shaped Sensitivity. Also to mention is, that the axes roll and pitch should be tuned as simmilar to eachother as possible. This is because you want the drone to maintain a consistent and predictable response, so roll and pitch behave similarly for smoother control and a balanced flight experience.
 
 Initially, we deliberately applied a poor tuning configuration to observe its effects. During the first field test with this setup, it quickly became apparent that the tuning was excessively poor. The drone began oscillating aggressively and climbed rapidly. As the drone was out of control, the kill switch had to be activated, resulting in a crash that broke one of the four arms. Fortunately, the damage was minor and repaired quickly.
 
@@ -163,6 +163,7 @@ Our tuning objective was to achieve a fast step response without overshoot, whil
 Since none of our team members are professional pilots, we focused on achieving robustness and a step response without overshoot. This tuning approach is probably somewhere between what a racing pilot and a freestyle pilot would prefer. Robustness in this context is important for practical scenarios, such as when a propeller is slightly bent, the battery sits slightly off center or when an additional component like a camera is mounted on the drone.
 
 ## 4.4 Decode
+
 
 ## 4.5 Code Structure and programming style
 From the start of the project, we recognized that a clear and maintainable code structure would be essential. The initial proof-of-concept code already contained a rough separation into topics such as data I/O and step response, but everything was packed into a single file, making it difficult to navigate. Our first step was to comment out the proof-of-concept code and reorganize it into thematic sections. This was the foundation for a more organized layoutand we came to an initial directory structure:
@@ -214,7 +215,6 @@ After several attempts, we agreed on the following principles:
 
 Existing library functions from the proof of concept were reused without modification. The thematic grouping included:
 
-**Isch das eher d ordnerstruktur oder zellt das als Codestruktur??**
 ```
 bf_controller_tuning/
 │
@@ -245,16 +245,52 @@ bf_controller_tuning/
 ├── logs/
 └── main.m
 ```
-This structure worked well and kept the main script simple for the user. However, after a review meeting, our instructor suggested further modularization. The reason: we had created a “god class,” which limited flexibility. For example, if someone wanted to use the tool only for plotting spectrograms without any drone-specific logic, the current design made that difficult.
+This structure worked well and kept the main script simple for the user. However, after a review meeting, our instructor suggested further modularization. The reason: we had created a “god class,” which limited flexibility. For example, if someone wanted to use the tool only for plotting spectrograms without any drone-specific logic, the current design made that difficult. Also the program was slow. All calculations were made, everytime the user changed something. We wanted to improve the speed in only doing these calculations again, which are relevant on that specific user input change. 
 
 ### 4.5.2 Final Structure Concept
-To be written...
+Out of this, we decided to split up this god class into three classes. The `flight_analyzer` class handles **frequency domain analysis and vibration characterization**. Its core responsibility is performing spectral analysis on flight log data to identify resonance frequencies and assess filter effectiveness. It computes power spectral density of gyro signals (both filtered and unfiltered) and generates spectrograms showing how vibration frequencies vary with throttle levels across all three axes (roll, pitch, yaw). This analysis is essential for identifying noise sources, evaluating filtering strategies, and optimizing drone stability during tuning. The `flight_data` class is responsible for **loading, parsing, and managing flight log data**. It provides methods to extract relevant information from Blackbox logs, such as gyro and motor data, and prepares this data for analysis. The `gyro_ctrl_tuning` class focuses on **tuning the PID controllers** for the drone's flight. It uses the results from the frequency response and spectral analysis to adjust the PID parameters, aiming to optimize the drone's flight characteristics. The `plot_utils` class remains responsible for **visualization and graphical representation** of all analysis results. Unlike the previous approach, this class is now more flexible and reusable. It can be used independently to generate plots from pre-calculated data, making it suitable for users who only want to visualize spectrograms, frequency responses, or step responses without running the full analysis pipeline. This modularity allows the plotting functionality to be easily adapted for different visualization needs and integrated into other workflows.
 
+This approach still holds thematic sections, but is more accessible to use only specific parts of the tool. 
+
+```
+bf_controller_tuning/
+│
+├── class/
+│     ├─ flight_analyzer.m
+│     ├─ flight_data.m
+│     ├─ gyro_ctrl_tuning.m
+│     └── plot_utils.m
+├── lib/
+│     ├─ apply_rotfiltfilt.m
+│     ├─ calculate_closed_loop.m
+│     ├─ calculate_controllers.m
+│     ├─ calculate_step_response_from_frd.m
+│     ├─ calculate_transfer_functions.m
+│     ├─ downsample_frd.m
+│     ├─ estimate_frequency_response.m
+│     ├─ estimate_spectra.m
+│     ├─ estimate_spectrogram.m
+│     ├─ expand_multiple_figure_nr.m
+│     ├─ extract_header_information.m
+│     ├─ get_chirp_signals.m
+│     ├─ get_fcut_from_D_and_fcenter.m
+│     ├─ get_fcut_from_exp.m
+│     ├─ get_filter.m
+│     ├─ get_ind_eval.m
+│     ├─ get_my_colors.m
+│     ├─ get_notch_Q.m
+│     ├─ get_pid_scale.m
+│     └─ get_switch_case_text_from_para.m
+├── logs/
+└── main.m
+```
 
 ## 4.6 Python in MATLAB
 The code has been divided into logically related sections in order to clearly separate topics such as spectral analysis or frequency response estimation and calculation. Dividing the code into thematic sections helps to improve readability and clearly present the individual topics. 
 
-As we thaught the MATLAB code was structured good enough, we wanted to start with the conversion to python. First we considered starting from scratch and rewrite the whole code, but it was made clear, that this is hard to test within the rewriting process. The idea then was to convert all the MATLAB functions in the `\lib` to python first and then call these rewritten python functions from the `gyro_ctrl_tuning` class in MATLAB. The advantage of doing so, gave us the ablity to test every function, weather they were converted correctly or not. In a second step, the `gyro_ctrl_tuning` and lastly the `plot_utils` class would have been converted to python. Unfortunately we ran into the problem, `that in python FRD objects do not exist the same way as they do in MATLAB`. This led us to write helper functions, which converted the MATLAB FRD objects into NumPy-arrays using the numpy library. One array holding the frequencies and one the response data. The same process had to be done in the opposite direction, from python to MATLAB. 
+As we thaught the MATLAB code was structured good enough, we wanted to start with the conversion to python. First we considered starting from scratch and rewrite the whole code, but it was made clear, that this is hard to test within the rewriting process. The idea then was to convert all the MATLAB functions in the `\lib` to python first and then call these rewritten python functions from the `gyro_ctrl_tuning` class in MATLAB. The advantage of doing so, gave us the ablity to test every function, weather they were converted correctly or not. In a second step, the `gyro_ctrl_tuning` and lastly the `plot_utils` class would have been converted to python. Unfortunately we ran into the problem, `that in python FRD objects do not exist the same way as they do in MATLAB`. Exept you use the control toolbox. 
+
+This led us to write helper functions, which converted the MATLAB FRD objects into NumPy-arrays using the numpy library. One array holding the frequencies and one the response data. The same process had to be done in the opposite direction, from python to MATLAB. 
 
 ```
 It quickly became clear, that this was a good idea, but not the most practical way. 
