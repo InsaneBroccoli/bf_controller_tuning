@@ -7,39 +7,33 @@ students:   Yuri Bianchi
             Dario Jurietti
 
 time period: september - december 2025
-supervisor: Michael Peter, Ruprecht Altenburger
+supervisor: Michael Peter, Prof. Dr. Ruprecht Altenburger
 institution: ZHAW School of Engineering
 ```
 
 ---
-
 ### Was de Michi will
+```
 - fokus auf die arbeitsschritte damit verständlich ist was und wie wir es gemacht haben
     - wie wenn wir neu in einer firma anfangen mit einer aufgabe und ein vorarbeiter eine technische doku hinterlassen hat
 - keine zu tiefen technischen details, wie herleitungen etc. 
     - dazu der Verweis auf GitHub repo für genauere Informationen
 - Übung für BA -> unterteilte Abschnitte für individuelle Bewertung
 - 
-
+```
 ---
 
 # Abstract
 This project focuses on the further development of a method for offline tuning of rate controllers for FPV racing drones based on the open-source firmware Betaflight. The quality of rate control is crucial for flight stability, suppression of disturbances such as prop wash, and the agility of the drone. Until now, tuning has mostly been done through time-consuming trial and error.
-The aim of the project is to develop a modular, open-source library for offline tuning based on an existing proof of concept. The library will be implemented in MATLAB and Python and supplemented by detailed Markdown documentation with examples on GitHub. The solution should offer the community a simple way to efficiently optimise drone parameters and thereby improve flight performance.
+The aim of the project is to develop a modular, open-source library for offline tuning based on an existing proof of concept. The library will be implemented in MATLAB and a light version in Python and supplemented by detailed Markdown documentation with examples on GitHub. The solution should offer the community a simple way to efficiently optimise drone parameters and thereby improve flight performance.
 The results will be published in a public GitHub repository and documented in a report. In addition to software development, the project also includes practical work with FPV drones to validate the methods developed.
 
 # Foreword
+This document shows the results of our project thesis, which we worked on during the Fall Semester 2025 at the ZHAW School of Engineering. For us as Systems Engineering students, the Betaflight project was the perfect opportunity to apply complex control theory and signal processing concepts to a real, highly dynamic system. While FPV drones originally started as a hobby for one of our team members, we all became fascinated by the engineering challenge of mathematically modelling and optimising their flight behaviour.
 
-### Zweck und Motivation
-- Warum wurde das Projekt durchgeführt?
-- Welche Bedeutung hat es für dich oder das Team?
-### Rahmenbedingungen
-- In welchem Kontext entstand die Arbeit (Studium, Projektarbeit, Kooperation)?
-- Eventuell kurze Erwähnung des Fachgebiets oder der Zielsetzung.
-### Dank
-- Danksagung an Betreuer, Unterstützer oder Personen, die geholfen haben.
-### Persönliche Note
-- Optional: Erfahrungen, Herausforderungen oder Lernaspekte.
+Our motivation was to bridge the gap between academic theory and practical application. We aimed to develop a tool that not only meets engineering standards but also provides real value to the FPV community by replacing subjective tuning with objective data analysis.
+
+This work was carried out at the Institute of Mechatronic Systems (IMS). We would also like to thank our supervisors, Michael Peter and also Prof. Dr. Ruprecht Altenburger, who was our assistant supervisor. They helped us with the technical side of our project and gave us the equipment we needed.
 
 # Table of contents
 ```
@@ -48,7 +42,6 @@ The results will be published in a public GitHub repository and documented in a 
 
 
 ```
-
 
 # 1. Introduction
 First-person view (FPV) racing drones require precise and responsive control to achieve high flight stability, minimize disturbances such as prop wash, and maintain agility during rapid maneuvers. The tuning of rate controllers is key to this performance, as it's what determines how the drone responds to pilot inputs and external influences. Until now, tuning these controllers has relied on iterative trial-and-error methods, a process that is both time-consuming and really hard to do for less experienced pilots.
@@ -116,6 +109,118 @@ if none of the above is true the
 
 ## 3.1 signal processing
 
+References to `/Data`:
+
+- `Convert_and_evolution_Time.md`
+- `Dataimport.md`
+- `Unscale_high_Resolution_Gain.md`
+
+The data-processing chain prepares Betaflight Blackbox logs for all subsequent analysis steps. Its purpose is to reconstruct a physically meaningful time axis, parse configuration and signal metadata, and undo Betaflight’s internal scaling so that all channels are expressed in correct physical units.
+
+**Purpose of the scripts**
+
+- Convert the raw timestamp counter to a continuous time axis in seconds.
+- Import large Blackbox logs efficiently and extract all header parameters.
+- Undo “high‑resolution” scaling in selected channels.
+- Provide clean, well-structured arrays for later signal processing, frequency analysis and controller evaluation.
+
+---
+
+##### Time Conversion and Sampling Intervals (`Convert_and_evolution_Time.md`)
+
+In Betaflight Blackbox logs, time is stored as a continuously increasing **microsecond counter**, not directly in seconds. The logger also does **not guarantee a perfectly constant sample interval** (due to SD-card latency, CPU load, scheduler, etc.), so the effective sampling period must be reconstructed from the data.
+
+Let $t_\mu[n]$ denote the timestamp counter in microseconds. Then:
+
+- The **sample interval** between two records is
+  $$
+  \Delta t[n] = \frac{t_\mu[n] - t_\mu[n-1]}{10^6} \quad [\text{s}],
+  $$
+- The **time vector** in seconds can be obtained by cumulative summation of $\Delta t[n]$,
+- The **effective logging rate** is approximately
+  $$
+  f_\text{log} \approx \frac{1}{\text{mean}(\Delta t[n])}.
+  $$
+
+Analyzing $\Delta t[n]$ enables:
+
+- detection of **jitter** in the sampling,
+- identification of **dropped frames** (unusually large $\Delta t$),
+- use of the **true time base** in FFTs, filter design and frequency-response analysis.
+
+Together, these steps convert the raw timestamp data into a **physically correct time structure**, which is essential for any numerically valid signal processing.
+
+---
+
+##### Data Import and Header Parsing (`Dataimport.md`)
+
+A Betaflight log consists of:
+
+- a **header**, containing configuration and system information, and  
+- a **data block**, containing the recorded sensor values.
+
+The measurement data alone are not sufficient; the header specifies how the data must be interpreted.
+
+**Efficient loading**
+
+- On first use, the CSV file is fully parsed and then stored as a `.mat` file.
+- Subsequent analyses load the `.mat` file directly, avoiding repeated CSV parsing and making the workflow efficient even for large logs.
+
+**Extraction of parameter data**
+
+- The function `extract_header_information()` reads the textual header.
+- Parameter lines between `frameIntervalI` and `loopIteration` are interpreted as **Betaflight configuration values** (e.g. loop frequencies, filter settings, logging configuration) and stored in a structured parameter object `para`.
+
+**Signal name parsing and indexing**
+
+- The line containing `loopIteration` marks the end of the header and provides the **list of all recorded signals** in the order they appear in the numeric data.
+- From this line, an index structure `ind` is created, mapping each signal name to its column index in the data matrix.
+- The numeric data block is then read into a matrix (e.g. `data`), where each row is a time sample and each column a signal.
+
+Example access:
+
+- `data(:, ind.gyroADC(1))` — gyro X,
+- `data(:, ind.setpoint(3))` — yaw setpoint,
+- `data(:, ind.motor)` — motor outputs.
+
+This results in a **clean, self-describing dataset**: numeric data in `data`, metadata in `para`, and robust name-based access via `ind`.
+
+---
+
+##### Unscaling High-Resolution Gains (`Unscale_high_Resolution_Gain.md`)
+
+When **High Resolution Mode** is enabled in Betaflight, several channels are stored with an **integer scaling factor of 10** to improve resolution and reduce storage requirements. The affected signals include:
+
+- `gyroADC` (filtered gyro data),
+- `gyroUnfilt` (unfiltered gyro),
+- `rcCommand` (control inputs),
+- `setpoint` (controller targets).
+
+For correct analysis (e.g. FFT, frequency response, PID tuning), these channels must be **rescaled back** to their physical units. If $x_\text{raw}$ is the logged value and $s = 10$ is the scale factor, then the physical value is:
+
+$$
+x_\text{phys} = \frac{x_\text{raw}}{s}.
+$$
+
+Without this unscaling step:
+
+- gyro amplitudes and spectral peaks would be a factor of 10 too large,
+- setpoint and RC magnitudes would be incorrect,
+- PID-related calculations and frequency-response estimates would be **systematically wrong**.
+
+By consistently applying the inverse scaling, all affected channels are brought back to **correct physical magnitude**, ensuring that subsequent spectral analysis, system identification and controller evaluation are based on valid data.
+
+---
+
+**Summary**
+
+The data-processing stage:
+
+1. reconstructs the **true time axis** and sampling intervals from the microsecond counter,
+2. parses the **header and signal definitions** to obtain configuration parameters and robust name-based indexing,
+3. and **rescales high-resolution channels** to their physical units.
+
+Only after these steps is the dataset ready for reliable spectral analysis, frequency-response estimation, plant identification and controller tuning. Detailed algorithmic descriptions and derivations can be found in the referenced files in `/Data`.
 
 ## 3.2 control system
 
