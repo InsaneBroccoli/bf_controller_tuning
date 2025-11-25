@@ -60,7 +60,7 @@ analysis_flight = analysis_flight.calculate_spectogram(resolution_factor_spectog
 %  Axis Selection: 1: roll, 2: pitch, 3: yaw
 % =========================================================================
 
-ind_ax = 3;     % keep it now until plot_utils is finished
+ind_ax = 1;     % keep it now until plot_utils is finished
 
 % I-term Relax on/off
 do_compensate_iterm = true;
