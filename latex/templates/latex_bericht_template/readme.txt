@@ -1,0 +1,1 @@
+Dieses Template wurde am 21.10.2013 von Michael Ernst Peter erstellt und ist frei zur Nutzung und Weiterverarbeitung verfügbar. Alles ohne Gewähr!

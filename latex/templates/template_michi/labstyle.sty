@@ -1,0 +1,239 @@
+% labstyle.sty — minimal+modern lab style (v1.5)
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{labstyle}[2025/09/17 v1.5 Minimal lab template]
+
+% -----------------------------------------------------------------------------
+% Engine + fonts
+% -----------------------------------------------------------------------------
+\RequirePackage{iftex}
+\ifPDFTeX
+    \RequirePackage[T1]{fontenc}
+    \RequirePackage[utf8]{inputenc}
+    \RequirePackage{lmodern}
+\else
+    \RequirePackage{fontspec}
+    \setmainfont{TeX Gyre Pagella}
+    \setsansfont{TeX Gyre Heros}
+    \IfFontExistsTF{JetBrains Mono}
+    {\setmonofont{JetBrains Mono}}
+    {\setmonofont{TeX Gyre Cursor}}
+\fi
+
+% -----------------------------------------------------------------------------
+% Core packages
+% -----------------------------------------------------------------------------
+\RequirePackage{microtype}
+\RequirePackage{graphicx}
+\RequirePackage[dvipsnames]{xcolor}
+
+\RequirePackage{siunitx}
+\sisetup{
+    per-mode = symbol,
+    range-units = single
+}
+
+\RequirePackage{amsmath,amssymb}
+\RequirePackage{booktabs}
+\RequirePackage{enumitem}
+\setlist{itemsep=.1\baselineskip, topsep=.1\baselineskip, leftmargin=*}
+
+\RequirePackage{hyperref}
+\hypersetup{colorlinks=true, linkcolor=NavyBlue, citecolor=RoyalBlue, urlcolor=RoyalBlue}
+\urlstyle{same}
+\RequirePackage[nameinlink,capitalise]{cleveref}
+\RequirePackage{etoolbox} % for \ifdefempty
+
+% -----------------------------------------------------------------------------
+% Paths / colors
+% -----------------------------------------------------------------------------
+\graphicspath{{figures/}{Figures/}}
+\definecolor{labColor}{RGB}{0,100,166}
+% \definecolor{labColor}{RGB}{0,0,0}
+
+% -----------------------------------------------------------------------------
+% Metadata (override in main .tex)
+% -----------------------------------------------------------------------------
+\newcommand{\labtitle}{}
+\newcommand{\labsubtitle}{}
+\newcommand{\labauthor}{}
+\newcommand{\labdate}{\today}
+
+% -----------------------------------------------------------------------------
+% Title block
+% -----------------------------------------------------------------------------
+\makeatletter
+\newcommand{\makelabtitle}{%
+    \par\vspace*{1em}%
+    {\LARGE\bfseries \labtitle\par}%
+    \ifdefempty{\labsubtitle}{}{%
+        {\large\color{labColor}\labsubtitle\par}%
+    }%
+    {\normalsize \labauthor\quad\textendash\quad \labdate\par}
+    \vspace{1em}\par
+}
+\makeatother
+
+% -----------------------------------------------------------------------------
+% Aufgaben environment
+% -----------------------------------------------------------------------------
+\newenvironment{aufgaben}[1][Aufgaben]{%
+    \par\smallskip
+    \begingroup\color{labColor}%
+    \noindent\textbf{#1}\par\smallskip
+    \begin{enumerate}[leftmargin=*]
+        }{%
+    \end{enumerate}%
+    \endgroup
+    \par\smallskip
+}
+
+% -----------------------------------------------------------------------------
+% Helpers
+% -----------------------------------------------------------------------------
+\makeatletter
+\newcommand{\labfig}[3][]{%
+    \filename@parse{#2}% sets \filename@base
+    \begin{figure}[htbp]
+        \centering
+        \includegraphics[#1]{#2}%
+        \caption{#3}\label{fig:\filename@base}%
+    \end{figure}
+}
+\makeatother
+
+% --- gentable: caption below the table (store #2, then use it at the end)
+\makeatletter
+\newcommand{\gentable@cap}{}% storage for caption text
+\newenvironment{gentable}[2]{%
+    \def\gentable@cap{#2}%
+    \begin{table}[htbp]\centering
+        \begin{tabular}{#1}\toprule
+            }{%
+            \bottomrule\end{tabular}%
+        \caption{\gentable@cap}%
+    \end{table}%
+}
+\makeatother
+
+\newcommand{\dd}{\mathrm{d}}
+\newcommand{\e}{\mathrm{e}}
+
+% -----------------------------------------------------------------------------
+% Page style: thin rules + header/footer text & logo
+% -----------------------------------------------------------------------------
+\RequirePackage{scrlayer-scrpage}
+\clearpairofpagestyles
+\pagestyle{scrheadings}
+\setkomafont{pageheadfoot}{\normalfont}
+
+\KOMAoptions{
+    headsepline=.2pt:\textwidth,
+    footsepline=false,
+    headinclude=true,     % include header in typearea calc
+    headheight=36pt       % ≥ 34.08pt as per warning; round up
+}
+
+% -----------------------------------------------------------------------------
+% User metadata for header/footer
+% -----------------------------------------------------------------------------
+\newcommand{\labheader}{RT I}         % top-left text
+\newcommand{\labfooter}{ZHAW/IMS}     % bottom-left text
+\newcommand{\lablogo}{imslogo.pdf}    % small image filename for top-right (optional)
+
+\makeatletter
+\ihead{\small \labheader}
+\ohead{%
+    \ifdefempty{\lablogo}{}{%
+        \IfFileExists{\lablogo}{\includegraphics[height=30pt]{\lablogo}}{}%
+    }%
+}
+\ifoot{\small \labfooter}
+\ofoot{\pagemark}
+\makeatother
+
+% -----------------------------------------------------------------------------
+% Answer boxes (vertically scaled)
+% -----------------------------------------------------------------------------
+\RequirePackage[most]{tcolorbox} % loads TikZ
+\usetikzlibrary{calc}            % needed for coordinate math
+
+\tcbset{
+    labbox/.style={
+            colframe=labColor,
+            colback=white,
+            boxrule=0.8pt,
+            arc=2pt,
+            left=6pt,right=6pt,top=4pt,bottom=4pt,
+        }
+}
+
+% Scale factor: 1.2 × baseline (change 7/5 to adjust)
+\newlength{\labrowskip}
+\setlength{\labrowskip}{\dimexpr 7\baselineskip/5\relax} % 1.2 × \baselineskip
+% \setlength{\labrowskip}{\dimexpr 1\baselineskip/1\relax} % 1.0 × \baselineskip
+
+% Fixed-height empty box (N lines tall with scaled line height)
+\newenvironment{answerbox}[1][3]{%
+    \begin{tcolorbox}[
+            labbox, enhanced,
+            width=\linewidth,
+            height=\dimexpr #1\labrowskip + 8pt\relax, % + top/bottom padding (4pt each)
+            valign=center
+        ]%
+        }{\end{tcolorbox}}
+
+% Ruled variant: N lines of writing space → draw N−1 guides, centered in rows
+\newenvironment{answerboxruled}[1][3]{%
+    \begin{tcolorbox}[
+            labbox, enhanced,
+            width=\linewidth,
+            height=\dimexpr #1\labrowskip + 8pt\relax,
+            overlay={%
+                    \pgfmathtruncatemacro{\N}{#1-1}%
+                    \foreach \i in {1,...,\N} {%
+                            % y = (i - 0.5) * \labrowskip  (center of each row; even top/bottom margins)
+                            \pgfmathsetlengthmacro{\y}{(\i + 0.25) * \the\labrowskip}%
+                            \draw[opacity=0.25]
+                            ($(interior.south west) + (0pt,\y)$) --
+                            ($(interior.south east) + (0pt,\y)$);
+                        }%
+                }
+        ]%
+        }{\end{tcolorbox}}
+
+% Auto-height: fill to end of page, matching answerbox scaling
+\makeatletter
+\newlength{\ab@h}      % remaining vertical space
+\newlength{\ab@tmp}    % scratch
+\newcount\ab@N         % rows that fit
+\newcommand*\ab@pad{8pt}% tcolorbox top+bottom padding (4pt each)
+
+\newenvironment{answerboxfillpage}{%
+    \par\begingroup
+    \ifhmode\par\fi
+    % Remaining height; at top-of-page \pagegoal=\maxdimen → use \textheight
+    \setlength{\ab@h}{%
+        \ifdim\pagegoal=\maxdimen \textheight\else \dimexpr\pagegoal-\pagetotal\relax\fi
+    }%
+    % Headroom: keep small; tweak 0pt … \baselineskip if you like
+    \addtolength{\ab@h}{-\baselineskip}%
+    % Snap: rows fit in (remaining - padding), then add padding back
+    \setlength{\ab@tmp}{\dimexpr \ab@h - \ab@pad\relax}%
+    \ifdim\ab@tmp<0pt \setlength{\ab@tmp}{0pt}\fi
+    \ab@N=0\relax
+    \loop\ifdim\ab@tmp>\labrowskip
+    \addtolength{\ab@tmp}{-\labrowskip}%
+    \advance\ab@N by 1\relax
+    \repeat
+    % Optional 'ceil' if the leftover is big enough to risk visible gap:
+    \ifdim\ab@tmp>.6\labrowskip \advance\ab@N by 1\relax\fi
+    % Enforce a small minimum
+    \ifnum\ab@N<3 \ab@N=3\fi
+    % Final box height = rows*rowheight + padding
+    \setlength{\ab@h}{\dimexpr \ab@N\labrowskip + \ab@pad\relax}%
+    \begin{tcolorbox}[labbox, enhanced,
+            width=\linewidth, height=\ab@h, valign=top]%
+        }{%
+    \end{tcolorbox}\endgroup
+}
+\makeatother
