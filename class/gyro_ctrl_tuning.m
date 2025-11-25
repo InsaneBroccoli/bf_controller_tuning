@@ -195,7 +195,7 @@ classdef gyro_ctrl_tuning
             % Handle default parameter case
             if default_parameters
                  para_new = obj.para;
-                 pid_vec = para.(pid_axis{ind_ax});
+                 pid_vec = obj.para.(pid_axis{ind_ax});
 
                  % Use existing parameters
                  P_new = pid_vec(1);    % Current P gain
@@ -347,8 +347,8 @@ classdef gyro_ctrl_tuning
                          calculate_step_response_from_frd(CL_ana_new.SP, f_max)];       % New parameters
             
             % Center responses around their mean
-            step_resp_mean = mean(step_resp(obj.step_time > T_mean(1) & obj.step_time < T_mean(2),:));
-            step_resp = step_resp - step_resp_mean;
+            % step_resp_mean = mean(step_resp(obj.step_time > T_mean(1) & obj.step_time < T_mean(2),:));
+            % step_resp = step_resp - step_resp_mean;
             % Store disturbance response results
             obj.step_resp_com = step_resp;
                        

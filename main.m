@@ -24,8 +24,8 @@ do_insert_legends = true;
 % =========================================================================
 
 log_folder = '';
-flight_folder = '20250908';
-log_name = '20250908_flipmini_00.bbl.csv';
+flight_folder = '20250907';
+log_name = '20250907_apex5_00.bbl.csv';
 file_path = fullfile(log_folder, flight_folder, log_name);
 
 data_flight = flight_data(file_path);
@@ -90,15 +90,15 @@ para_new.gyro_soft_type      = 0;       % type of gyro lpf 1
 para_new.gyro_lowpass_dyn_hz = [0, 0];  % dyn gyro lpf overwrites gyro_lowpass_hz
 para_new.gyro_lowpass2_hz    = 800;     % frequency of gyro lpf 2
 para_new.gyro_soft2_type     = 0;       % type of gyro lpf 2
-para_new.gyro_notch_hz       = [0, 0];  % frequency of gyro notch 1 and 2
-para_new.gyro_notch_cutoff   = get_fcut_from_D_and_fcenter([0.00, 0.00], para_new.gyro_notch_hz); % damping of gyro notch 1 and 2
+para_new.gyro_notch_hz       = [0, 520];  % frequency of gyro notch 1 and 2
+para_new.gyro_notch_cutoff   = [0, 448] % % Cutoff frequency gyro notch 1 and 2
 para_new.dterm_lpf_hz        = 0;       % frequency of dterm lpf 1
 para_new.dterm_filter_type   = 0;       % type of dterm lpf 1
 para_new.dterm_lpf_dyn_hz    = [0, 0];  % dyn dterm lpf overwrites dterm_lpf_hz
-para_new.dterm_lpf2_hz       = 140;     % frequency of dterm lpf 2
+para_new.dterm_lpf2_hz       = 130;     % frequency of dterm lpf 2
 para_new.dterm_filter2_type  = 3;       % type of dterm lpf 2
-para_new.dterm_notch_hz      = 0;       % frequency of dterm notch
-para_new.dterm_notch_cutoff  = get_fcut_from_D_and_fcenter(0.00, para_new.dterm_notch_hz); % damping of dterm notch
+para_new.dterm_notch_hz      = 235;       % frequency of dterm notch
+para_new.dterm_notch_cutoff  = 202;     % Cutoff frequency dterm notch
 para_new.yaw_lpf_hz          = 200;     % frequency of yaw lpf (pt1)
 
 %--------------------------------------------------------------------------
@@ -139,7 +139,6 @@ plotter.plot_Eval_Time();
 
 plotter.plot_Gyro_spectra(do_insert_legends);
 plotter.plot_Spectogram(3);
-
 
 %% Plot Tuning Data
 plotter.plot_Bode_Plant(ind_ax);
