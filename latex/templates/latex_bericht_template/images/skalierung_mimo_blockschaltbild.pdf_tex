@@ -1,0 +1,68 @@
+%% Creator: Inkscape 0.48.3.1, www.inkscape.org
+%% PDF/EPS/PS + LaTeX output extension by Johan Engelen, 2010
+%% Accompanies image file 'skalierung_mimo_blockschaltbild.pdf' (pdf, eps, ps)
+%%
+%% To include the image in your LaTeX document, write
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics{<filename>.pdf}
+%% To scale the image, write
+%%   \def\svgwidth{<desired width>}
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics[width=<desired width>]{<filename>.pdf}
+%%
+%% Images with a different path to the parent latex file can
+%% be accessed with the `import' package (which may need to be
+%% installed) using
+%%   \usepackage{import}
+%% in the preamble, and then including the image with
+%%   \import{<path to file>}{<filename>.pdf_tex}
+%% Alternatively, one can specify
+%%   \graphicspath{{<path to file>/}}
+%% 
+%% For more information, please see info/svg-inkscape on CTAN:
+%%   http://tug.ctan.org/tex-archive/info/svg-inkscape
+%%
+\begingroup%
+  \makeatletter%
+  \providecommand\color[2][]{%
+    \errmessage{(Inkscape) Color is used for the text in Inkscape, but the package 'color.sty' is not loaded}%
+    \renewcommand\color[2][]{}%
+  }%
+  \providecommand\transparent[1]{%
+    \errmessage{(Inkscape) Transparency is used (non-zero) for the text in Inkscape, but the package 'transparent.sty' is not loaded}%
+    \renewcommand\transparent[1]{}%
+  }%
+  \providecommand\rotatebox[2]{#2}%
+  \ifx\svgwidth\undefined%
+    \setlength{\unitlength}{485.19931641bp}%
+    \ifx\svgscale\undefined%
+      \relax%
+    \else%
+      \setlength{\unitlength}{\unitlength * \real{\svgscale}}%
+    \fi%
+  \else%
+    \setlength{\unitlength}{\svgwidth}%
+  \fi%
+  \global\let\svgwidth\undefined%
+  \global\let\svgscale\undefined%
+  \makeatother%
+  \begin{picture}(1,0.39459895)%
+    \put(0,0){\includegraphics[width=\unitlength]{skalierung_mimo_blockschaltbild.pdf}}%
+    \put(0.45759735,0.13686756){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{$\underline{A}$}}}%
+    \put(0.18125261,0.20376628){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{$\underline{u}$}}}%
+    \put(0.26131185,0.22590733){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{$\underline{B}$}}}%
+    \put(0.65329906,0.22424177){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{$\underline{C}$}}}%
+    \put(0.45843013,0.31295331){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{$\underline{D}$}}}%
+    \put(0.07275123,0.22507453){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{$\underline{W}^{-1}_u$}}}%
+    \put(0.86126927,0.22389264){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{$\underline{W}_y$}}}%
+    \put(0.65163349,0.02721769){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{$\underline{T}$}}}%
+    \put(0.58662356,0.13722514){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{$\underline{x}$}}}%
+    \put(0.76882508,0.02417423){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{$\tilde{\underline{x}}$}}}%
+    \put(0.98209334,0.22285371){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{$\tilde{\underline{y}}$}}}%
+    \put(0.77362191,0.20091182){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{$\underline{y}$}}}%
+    \put(-0.03050132,0.22319864){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{$\tilde{\underline{u}}$}}}%
+    \put(0.15220598,0.37778241){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{Unskaliertes System}}}%
+  \end{picture}%
+\endgroup%

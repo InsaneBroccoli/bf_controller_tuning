@@ -1,0 +1,47 @@
+%------------------------------------------------------
+% Layouteinstellungen
+%------------------------------------------------------
+\include{layout}
+%------------------------------------------------------
+\begin{document}
+%------------------------------------------------------
+% Importiere Titelseite
+%------------------------------------------------------
+\include{titlepage}
+%------------------------------------------------------
+% Erstelle Inhaltsverzeichnis und Zusammenfassung
+%------------------------------------------------------
+\frontmatter
+\include{zusammenfassung}
+\cleardoublepage
+\include{copyright}
+\setcounter{tocdepth}{1} % Führe im Inhaltsverzeichnis nur Titel und Untertitel auf
+\tableofcontents
+\include{abkuerzungen}
+%------------------------------------------------------
+% Importiere Einzeldokumente
+%------------------------------------------------------
+\mainmatter
+\include{kapitel1}
+%------------------------------------------------------
+% Importiere Anhang
+%------------------------------------------------------
+\appendix
+\include{anhang}
+\backmatter
+%\include{zeitplan}
+%------------------------------------------------------
+% Erstelle Literaturverzeichnis
+%------------------------------------------------------
+\renewcommand{\refname}{Literaturverzeichnis}
+\include{references}
+\bibliography{references/references}{}
+\bibliographystyle{alphadin}
+%------------------------------------------------------
+% Erstelle Abbildungsverzeichnis etc.
+%------------------------------------------------------
+\listoffigures
+\listoftables
+%------------------------------------------------------
+\end{document}
+%------------------------------------------------------
