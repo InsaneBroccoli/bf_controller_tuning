@@ -1,14 +1,13 @@
-# BF Controller Tuning
+# Betaflight Controller Tuning
 
 ## Overview
-
 This repository provides an **offline controller tuning framework** for Betaflight.
 It enables analysis of **Blackbox (BBL) flight logs** with automatic chirp excitation,
 to tune **linear filters** and **PID controllers** offline.
 
 The workflow:
 
-1. Enable and configure the **chirp signal generator** in Betaflight.
+1. Enable and configure the **chirp signal generator** in Betaflight ([see implementation below](#implementation-of-the-chirp-signal-generator-in-betaflight)).
 2. Perform flights with chirp excitation and log data (`.bbl` files).
 3. Convert `.bbl` files to `.csv` using the [Betaflight Blackbox Explorer]
 4. Use the MATLAB script [`bf_controller_tuning.m`](./bf_controller_tuning.m) together with the functions in [`lib/`](./lib) to:
@@ -30,32 +29,36 @@ The configurator and the blackbox explorer can be found here:
 - [Betaflight Blackbox Explorer](https://master.blackbox.betaflight.com/)
 
 ## Requirements
-
 - **MATLAB** (last tested with R2024a)
 - **Control System Toolbox**
 - **Signal Processing Toolbox**
 
-## Chirp Signal Generator in Betaflight
 
-### Concept
+## Implementation of the CHIRP Signal Generator in betaflight
+The chirp signal generator in Betaflight provides an automated excitation input for analyzing the quadcopter’s dynamic response. It produces a sweep signal whose frequency rises exponentially from a defined starting point to a chosen final value over a preset duration.
 
-An automatic chirp signal generator is used to excite the quadcopter during flight. The chirp frequency increases exponentially over a defined period, starting from a chosen initial frequency and ending at a specified final frequency.
-
-The chirp signal generator is the module responsible for producing this excitation signal.
-
-The chirp signal is added to the currentPidSetpoint in the `pid.c` file. This means the quadcopter can still be controlled while the measurement is running. The system’s behavior can be tested in both `ACRO` and `ANGLE` modes.
+This generator outputs a signal that is added directly to currentPidSetpoint inside pid.c. Because of this, the pilot is still in full control over the aircraft during the measurement, and the test can be performed in both `ACRO` and `ANGLE` flight modes.
 
 Because a typical rate-controlled closed-loop system exhibits differentiating behavior from `pidSetpoint` to `pidSum` at low frequencies (up to around 30 Hz), the chirp signal is shaped by a Lag Filter before being injected into the loop.
 
-The chirp generator is implemented as a feature. To enable it, include chirp in the custom defines or add the `CHIRP` flag when building locally.
+In order to bring the `CHIRP` signal generator onto your drone, you must include it as a custom define while flashing the Betaflight 2025.12.xx Firmware. You can just type CHIRP into the Field under User Definitions (see picture below). After flashing the Firmware, the `CHIRP` mode appears in the modes tab.
 
-It is recommended to assign the `CHIRP` mode to a non-momentary switch. The first time `CHIRP` mode is activated, the chirp is applied to the roll axis. If the switch is toggled off and on again, it is applied to the pitch axis, then to the yaw axis, and then cycles back to roll. This makes it possible to cycle through all three axes multiple times if needed. The `CHIRP` mode can be disabled and re-enabled at any point.
+<p align="center">
+  <img src="./markdown/technical Documentation/Images/betaflight_firmware_flasher.png"
+     alt="Original noisy signals"
+     width="800"
+     style="float:center; margin-left:10px; margin-right:10px;">
+</p>
 
-When `CHIRP` mode is enabled, `CHIR` is displayed as the active flight mode in the goggles. Once the chirp signal finishes, a blinking warning `CHIRP IS FINISHED` is shown, and the `CHIR` label disappears.
 
-The chirp mode can also be tested safely on the bench without propellers. In this case, reduce the PID gains (e.g. P = 10, I = 0, D = 0) and set `chirp_amplitude_roll = chirp_amplitude_pitch = chirp_amplitude_yaw = 10` while in `ACRO` mode.
+It is recommended to assign the `CHIRP` mode to a non-momentary switch. During the first activation, the chirp is applied to the roll axis. After toggling the switch off and on, the signal is applied to the pitch axis and then to the yaw axis. After one full cycle it resets to the roll axis again. This allows repeated analysis of all axes as needed. The mode can be turned off and reactivated at any time.
 
-## CLI Parameters
+When `CHIRP` mode is active, the goggles show CHIR as flight-mode label. Once the chirp sequence is complete (after 20 sec), a blinking message CHIRP IS FINISHED is displayed and the flight-mode label changes back to current flight mode.
+
+If you want to test the mode before flight, it is also possible to do this safely on the bench. To prevent damages to your components, lower the PID gains (e.g., P = 10, I = 0, D = 0), and set the values for chirp_amplitude_roll, chirp_amplitude_pitch, and chirp_amplitude_yaw to 10 while the quadcopter is in `ACRO` mode.
+
+## CLI Paramters
+
 | Name                            | Default Value        | Explanation                                               |
 | ------------------------------- | -------------------- | --------------------------------------------------------- |
 | `chirp_lag_freq_hz`             | 3 Hz                 | leadlag1Filter cutoff/pole to shape the excitation signal |
@@ -68,75 +71,68 @@ The chirp mode can also be tested safely on the bench without propellers. In thi
 | `chirp_time_seconds`            | 20 sec               | excitation time                                           |
 
 ## Assumptions for Offline Tuning
-
 - Dynamic Notch filters are tuned (time-variant)
 - RPM filters are tuned (time-variant)
 - Thrust Linear is tuned (nonlinear)
 - Iterm Relax is tuned (nonlinear)
 - Feedforward (FF) is disabled (nonlinear)
 - Dynamic Damping is disabled (Dmax = D or 0) (nonlinear)
-- Debug mode is set to `CHIRP` (`set debug_mode = CHIRP`)
-- Blackbox high-resolution logging is enabled (`set blackbox_high_resolution = ON`)
-- Let chirp run for the full `chirp_time_seconds`
+- Debug mode is set to CHIRP (set debug_mode = CHIRP)
+- Blackbox high-resolution logging is enabled (set blackbox_high_resolution = ON)
+- Let chirp run for the full chirp_time_seconds
 
 ## Tuning Recommendations
-
 - Ensure motors/outputs do not saturate during chirp.
 - Adjust amplitude and lag filter if saturation occurs.
 
-## Typical testing procedure within one BB-log file / flight
-
-1. Perform two to three throttle sweeps while in ``ACRO`` mode.
-2. Complete at least one full sequence of chirp signal excitation, covering roll, pitch, and yaw axes. It is preferable to cycle through all axes twice. Whether you choose ``ACRO`` or ``ANGLE`` mode does not matter. Fly in an open space and try to maintain altitude. Be prepared to adjust the throttle as the chirp generator runs. Aim for a smooth and steady flight during the chirp excitation. Ideally, the quadcopter should maintain a steady position and orientation (appart from the axes thats excited).
+## Recommended procedure within one log file per flight
+1. Perform two to three throttle sweeps while in `ACRO` mode.
+2. Complete at least one full sequence of chirp signal excitation, covering roll, pitch, and yaw axes. It is preferable to
+cycle through all axes twice. Whether you choose ACRO or ANGLE mode does not matter. Fly in an open space and try to maintain altitude. Be prepared to adjust the throttle as the chirp generator runs. Aim for a smooth and steady flight during the chirp excitation. Ideally, the quadcopter should maintain a steady position and orientation (appart from the axes thats excited).
 3. Conduct some maneuvers to test propwash handling, including 180-degree and 360-degree flips. Enjoy yourself and have fun!
 
-## Data Required
-
-- A `.bbl` log (with chirp excitation enabled). This can be converted to `.csv` using the [Betaflight Blackbox Explorer](https://master.blackbox.betaflight.com/).
+## Data for evaluation
+To evaluate your flight data, the log file from the Blackbox is required. This has to be converted to a .csv file. You can do this with the [Betaflight Blackbox Explorer](https://blackbox.betaflight.com/).
 
 ## Example Flight
-
 - [YouTube Example](https://www.youtube.com/watch?v=bU63eY66QX0)
 
 ## Related Theory
+- [Chirp](https://github.com/InsaneBroccoli/bf_controller_tuning/tree/PA_final/markdown/Sinarg)
+- [Data](https://github.com/InsaneBroccoli/bf_controller_tuning/tree/PA_final/markdown/Data)
+- [Frequency Response](https://github.com/InsaneBroccoli/bf_controller_tuning/tree/PA_final/markdown/Frequency_Response)
+- [Spectrum and Spectrogram](https://github.com/InsaneBroccoli/bf_controller_tuning/tree/PA_final/markdown/Spectrum_Spectogram)
 
-- [Chirp (Wikipedia)](https://en.wikipedia.org/wiki/Chirp)
-- [MATLAB chirp()](https://ch.mathworks.com/help/signal/ref/chirp.html)
-
-## Repository Structure (as of 21.09.2025)
-
+## Repository Structure (as of xx.xx.2025)
 ```tree
-.
-├── bf_controller_tuning.m           # Main analysis script
-├── dev/
-│   └── bf_controller_tuning.m       # Old evaluation script (reference only)
-├── examples/                        # Example scripts
-│   ├── bf_biquad_delay.m
-│   ├── bf_biquad_step.m
-│   ├── bf_chirp_signals.m
-│   ├── bf_filter_compare_sampling_rates.m
-│   └── bf_notch_Q.m
-├── lib/                             # Core analysis functions
-│   ├── apply_rotfiltfilt.m
-│   ├── calculate_closed_loop.m
-│   ├── calculate_controllers.m
-│   ├── calculate_step_response_from_frd.m
-│   ├── calculate_transfer_functions.m
-│   ├── downsample_frd.m
-│   ├── estimate_frequency_response.m
-│   ├── estimate_spectra.m
-│   ├── estimate_spectrogram.m
-│   ├── expand_multiple_figure_nr.m
-│   ├── extract_header_information.m
-│   ├── get_chirp_signals.m
-│   ├── get_fcut_from_D_and_fcenter.m
-│   ├── get_fcut_from_exp.m
-│   ├── get_filter.m
-│   ├── get_ind_eval.m
-│   ├── get_my_colors.m
-│   ├── get_notch_Q.m
-│   ├── get_pid_scale.m
-│   └── get_switch_case_text_from_para.m
-├── LICENSE
-└── README.md
+bf_controller_tuning/
+│
+├── class/
+│     ├─ flight_analyzer.m
+│     ├─ flight_data.m
+│     ├─ gyro_ctrl_tuning.m
+│     └── plot_utils.m
+├── lib/
+│     ├─ apply_rotfiltfilt.m
+│     ├─ calculate_closed_loop.m
+│     ├─ calculate_controllers.m
+│     ├─ calculate_step_response_from_frd.m
+│     ├─ calculate_transfer_functions.m
+│     ├─ downsample_frd.m
+│     ├─ estimate_frequency_response.m
+│     ├─ estimate_spectra.m
+│     ├─ estimate_spectrogram.m
+│     ├─ expand_multiple_figure_nr.m
+│     ├─ extract_header_information.m
+│     ├─ get_chirp_signals.m
+│     ├─ get_fcut_from_D_and_fcenter.m
+│     ├─ get_fcut_from_exp.m
+│     ├─ get_filter.m
+│     ├─ get_ind_eval.m
+│     ├─ get_my_colors.m
+│     ├─ get_notch_Q.m
+│     ├─ get_pid_scale.m
+│     └─ get_switch_case_text_from_para.m
+├── logs/
+└── main.m
 ```

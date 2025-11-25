@@ -7,39 +7,33 @@ students:   Yuri Bianchi
             Dario Jurietti
 
 time period: september - december 2025
-supervisor: Michael Peter, Ruprecht Altenburger
+supervisor: Michael Peter, Prof. Dr. Ruprecht Altenburger
 institution: ZHAW School of Engineering
 ```
 
 ---
-
 ### Was de Michi will
+```
 - fokus auf die arbeitsschritte damit verständlich ist was und wie wir es gemacht haben
     - wie wenn wir neu in einer firma anfangen mit einer aufgabe und ein vorarbeiter eine technische doku hinterlassen hat
 - keine zu tiefen technischen details, wie herleitungen etc. 
     - dazu der Verweis auf GitHub repo für genauere Informationen
 - Übung für BA -> unterteilte Abschnitte für individuelle Bewertung
 - 
-
+```
 ---
 
 # Abstract
 This project focuses on the further development of a method for offline tuning of rate controllers for FPV racing drones based on the open-source firmware Betaflight. The quality of rate control is crucial for flight stability, suppression of disturbances such as prop wash, and the agility of the drone. Until now, tuning has mostly been done through time-consuming trial and error.
-The aim of the project is to develop a modular, open-source library for offline tuning based on an existing proof of concept. The library will be implemented in MATLAB and Python and supplemented by detailed Markdown documentation with examples on GitHub. The solution should offer the community a simple way to efficiently optimise drone parameters and thereby improve flight performance.
+The aim of the project is to develop a modular, open-source library for offline tuning based on an existing proof of concept. The library will be implemented in MATLAB and a light version in Python and supplemented by detailed Markdown documentation with examples on GitHub. The solution should offer the community a simple way to efficiently optimise drone parameters and thereby improve flight performance.
 The results will be published in a public GitHub repository and documented in a report. In addition to software development, the project also includes practical work with FPV drones to validate the methods developed.
 
 # Foreword
+This document shows the results of our project thesis, which we worked on during the Fall Semester 2025 at the ZHAW School of Engineering. For us as Systems Engineering students, the Betaflight project was the perfect opportunity to apply complex control theory and signal processing concepts to a real, highly dynamic system. While FPV drones originally started as a hobby for one of our team members, we all became fascinated by the engineering challenge of mathematically modelling and optimising their flight behaviour.
 
-### Zweck und Motivation
-- Warum wurde das Projekt durchgeführt?
-- Welche Bedeutung hat es für dich oder das Team?
-### Rahmenbedingungen
-- In welchem Kontext entstand die Arbeit (Studium, Projektarbeit, Kooperation)?
-- Eventuell kurze Erwähnung des Fachgebiets oder der Zielsetzung.
-### Dank
-- Danksagung an Betreuer, Unterstützer oder Personen, die geholfen haben.
-### Persönliche Note
-- Optional: Erfahrungen, Herausforderungen oder Lernaspekte.
+Our motivation was to bridge the gap between academic theory and practical application. We aimed to develop a tool that not only meets engineering standards but also provides real value to the FPV community by replacing subjective tuning with objective data analysis.
+
+This work was carried out at the Institute of Mechatronic Systems (IMS). We would also like to thank our supervisors, Michael Peter and also Prof. Dr. Ruprecht Altenburger, who was our assistant supervisor. They helped us with the technical side of our project and gave us the equipment we needed.
 
 # Table of contents
 ```
@@ -48,7 +42,6 @@ The results will be published in a public GitHub repository and documented in a 
 
 
 ```
-
 
 # 1. Introduction
 First-person view (FPV) racing drones require precise and responsive control to achieve high flight stability, minimize disturbances such as prop wash, and maintain agility during rapid maneuvers. The tuning of rate controllers is key to this performance, as it's what determines how the drone responds to pilot inputs and external influences. Until now, tuning these controllers has relied on iterative trial-and-error methods, a process that is both time-consuming and really hard to do for less experienced pilots.
@@ -116,6 +109,118 @@ if none of the above is true the
 
 ## 3.1 signal processing
 
+References to `/Data`:
+
+- `Convert_and_evolution_Time.md`
+- `Dataimport.md`
+- `Unscale_high_Resolution_Gain.md`
+
+The data-processing chain prepares Betaflight Blackbox logs for all subsequent analysis steps. Its purpose is to reconstruct a physically meaningful time axis, parse configuration and signal metadata, and undo Betaflight’s internal scaling so that all channels are expressed in correct physical units.
+
+**Purpose of the scripts**
+
+- Convert the raw timestamp counter to a continuous time axis in seconds.
+- Import large Blackbox logs efficiently and extract all header parameters.
+- Undo “high‑resolution” scaling in selected channels.
+- Provide clean, well-structured arrays for later signal processing, frequency analysis and controller evaluation.
+
+---
+
+##### Time Conversion and Sampling Intervals (`Convert_and_evolution_Time.md`)
+
+In Betaflight Blackbox logs, time is stored as a continuously increasing **microsecond counter**, not directly in seconds. The logger also does **not guarantee a perfectly constant sample interval** (due to SD-card latency, CPU load, scheduler, etc.), so the effective sampling period must be reconstructed from the data.
+
+Let $t_\mu[n]$ denote the timestamp counter in microseconds. Then:
+
+- The **sample interval** between two records is
+  $$
+  \Delta t[n] = \frac{t_\mu[n] - t_\mu[n-1]}{10^6} \quad [\text{s}],
+  $$
+- The **time vector** in seconds can be obtained by cumulative summation of $\Delta t[n]$,
+- The **effective logging rate** is approximately
+  $$
+  f_\text{log} \approx \frac{1}{\text{mean}(\Delta t[n])}.
+  $$
+
+Analyzing $\Delta t[n]$ enables:
+
+- detection of **jitter** in the sampling,
+- identification of **dropped frames** (unusually large $\Delta t$),
+- use of the **true time base** in FFTs, filter design and frequency-response analysis.
+
+Together, these steps convert the raw timestamp data into a **physically correct time structure**, which is essential for any numerically valid signal processing.
+
+---
+
+##### Data Import and Header Parsing (`Dataimport.md`)
+
+A Betaflight log consists of:
+
+- a **header**, containing configuration and system information, and  
+- a **data block**, containing the recorded sensor values.
+
+The measurement data alone are not sufficient; the header specifies how the data must be interpreted.
+
+**Efficient loading**
+
+- On first use, the CSV file is fully parsed and then stored as a `.mat` file.
+- Subsequent analyses load the `.mat` file directly, avoiding repeated CSV parsing and making the workflow efficient even for large logs.
+
+**Extraction of parameter data**
+
+- The function `extract_header_information()` reads the textual header.
+- Parameter lines between `frameIntervalI` and `loopIteration` are interpreted as **Betaflight configuration values** (e.g. loop frequencies, filter settings, logging configuration) and stored in a structured parameter object `para`.
+
+**Signal name parsing and indexing**
+
+- The line containing `loopIteration` marks the end of the header and provides the **list of all recorded signals** in the order they appear in the numeric data.
+- From this line, an index structure `ind` is created, mapping each signal name to its column index in the data matrix.
+- The numeric data block is then read into a matrix (e.g. `data`), where each row is a time sample and each column a signal.
+
+Example access:
+
+- `data(:, ind.gyroADC(1))` — gyro X,
+- `data(:, ind.setpoint(3))` — yaw setpoint,
+- `data(:, ind.motor)` — motor outputs.
+
+This results in a **clean, self-describing dataset**: numeric data in `data`, metadata in `para`, and robust name-based access via `ind`.
+
+---
+
+##### Unscaling High-Resolution Gains (`Unscale_high_Resolution_Gain.md`)
+
+When **High Resolution Mode** is enabled in Betaflight, several channels are stored with an **integer scaling factor of 10** to improve resolution and reduce storage requirements. The affected signals include:
+
+- `gyroADC` (filtered gyro data),
+- `gyroUnfilt` (unfiltered gyro),
+- `rcCommand` (control inputs),
+- `setpoint` (controller targets).
+
+For correct analysis (e.g. FFT, frequency response, PID tuning), these channels must be **rescaled back** to their physical units. If $x_\text{raw}$ is the logged value and $s = 10$ is the scale factor, then the physical value is:
+
+$$
+x_\text{phys} = \frac{x_\text{raw}}{s}.
+$$
+
+Without this unscaling step:
+
+- gyro amplitudes and spectral peaks would be a factor of 10 too large,
+- setpoint and RC magnitudes would be incorrect,
+- PID-related calculations and frequency-response estimates would be **systematically wrong**.
+
+By consistently applying the inverse scaling, all affected channels are brought back to **correct physical magnitude**, ensuring that subsequent spectral analysis, system identification and controller evaluation are based on valid data.
+
+---
+
+**Summary**
+
+The data-processing stage:
+
+1. reconstructs the **true time axis** and sampling intervals from the microsecond counter,
+2. parses the **header and signal definitions** to obtain configuration parameters and robust name-based indexing,
+3. and **rescales high-resolution channels** to their physical units.
+
+Only after these steps is the dataset ready for reliable spectral analysis, frequency-response estimation, plant identification and controller tuning. Detailed algorithmic descriptions and derivations can be found in the referenced files in `/Data`.
 
 ## 3.2 control system
 
@@ -150,7 +255,7 @@ The biggest challange was to achieve good soldering connecions `...`
 
 
 ## 4.3 tuning an FPV drone
-As part of understanding the workflow we tuned an FPV drone by ourselves. The goal was to adjust the PID parameters so that the step response and `disturbance rejection` could be analyzed using the proof-of-concept and later our restructured code.
+As part of understanding the workflow we tuned an FPV drone by ourselves. The goal was to adjust the PID parameters so that we achieve a fast rising step response without overshoot, a lower complianace than before and a rounded shaped Sensitivity. Also to mention is, that the axes roll and pitch should be tuned as simmilar to eachother as possible. This is because you want the drone to maintain a consistent and predictable response, so roll and pitch behave similarly for smoother control and a balanced flight experience.
 
 Initially, we deliberately applied a poor tuning configuration to observe its effects. During the first field test with this setup, it quickly became apparent that the tuning was excessively poor. The drone began oscillating aggressively and climbed rapidly. As the drone was out of control, the kill switch had to be activated, resulting in a crash that broke one of the four arms. Fortunately, the damage was minor and repaired quickly.
 
@@ -163,6 +268,7 @@ Our tuning objective was to achieve a fast step response without overshoot, whil
 Since none of our team members are professional pilots, we focused on achieving robustness and a step response without overshoot. This tuning approach is probably somewhere between what a racing pilot and a freestyle pilot would prefer. Robustness in this context is important for practical scenarios, such as when a propeller is slightly bent, the battery sits slightly off center or when an additional component like a camera is mounted on the drone.
 
 ## 4.4 Decode
+
 
 ## 4.5 Code Structure and programming style
 From the start of the project, we recognized that a clear and maintainable code structure would be essential. The initial proof-of-concept code already contained a rough separation into topics such as data I/O and step response, but everything was packed into a single file, making it difficult to navigate. Our first step was to comment out the proof-of-concept code and reorganize it into thematic sections. This was the foundation for a more organized layoutand we came to an initial directory structure:
@@ -214,7 +320,6 @@ After several attempts, we agreed on the following principles:
 
 Existing library functions from the proof of concept were reused without modification. The thematic grouping included:
 
-**Isch das eher d ordnerstruktur oder zellt das als Codestruktur??**
 ```
 bf_controller_tuning/
 │
@@ -245,16 +350,52 @@ bf_controller_tuning/
 ├── logs/
 └── main.m
 ```
-This structure worked well and kept the main script simple for the user. However, after a review meeting, our instructor suggested further modularization. The reason: we had created a “god class,” which limited flexibility. For example, if someone wanted to use the tool only for plotting spectrograms without any drone-specific logic, the current design made that difficult.
+This structure worked well and kept the main script simple for the user. However, after a review meeting, our instructor suggested further modularization. The reason: we had created a “god class,” which limited flexibility. For example, if someone wanted to use the tool only for plotting spectrograms without any drone-specific logic, the current design made that difficult. Also the program was slow. All calculations were made, everytime the user changed something. We wanted to improve the speed in only doing these calculations again, which are relevant on that specific user input change. 
 
 ### 4.5.2 Final Structure Concept
-To be written...
+Out of this, we decided to split up this god class into three classes. The `flight_analyzer` class handles **frequency domain analysis and vibration characterization**. Its core responsibility is performing spectral analysis on flight log data to identify resonance frequencies and assess filter effectiveness. It computes power spectral density of gyro signals (both filtered and unfiltered) and generates spectrograms showing how vibration frequencies vary with throttle levels across all three axes (roll, pitch, yaw). This analysis is essential for identifying noise sources, evaluating filtering strategies, and optimizing drone stability during tuning. The `flight_data` class is responsible for **loading, parsing, and managing flight log data**. It provides methods to extract relevant information from Blackbox logs, such as gyro and motor data, and prepares this data for analysis. The `gyro_ctrl_tuning` class focuses on **tuning the PID controllers** for the drone's flight. It uses the results from the frequency response and spectral analysis to adjust the PID parameters, aiming to optimize the drone's flight characteristics. The `plot_utils` class remains responsible for **visualization and graphical representation** of all analysis results. Unlike the previous approach, this class is now more flexible and reusable. It can be used independently to generate plots from pre-calculated data, making it suitable for users who only want to visualize spectrograms, frequency responses, or step responses without running the full analysis pipeline. This modularity allows the plotting functionality to be easily adapted for different visualization needs and integrated into other workflows.
 
+This approach still holds thematic sections, but is more accessible to use only specific parts of the tool. 
+
+```
+bf_controller_tuning/
+│
+├── class/
+│     ├─ flight_analyzer.m
+│     ├─ flight_data.m
+│     ├─ gyro_ctrl_tuning.m
+│     └── plot_utils.m
+├── lib/
+│     ├─ apply_rotfiltfilt.m
+│     ├─ calculate_closed_loop.m
+│     ├─ calculate_controllers.m
+│     ├─ calculate_step_response_from_frd.m
+│     ├─ calculate_transfer_functions.m
+│     ├─ downsample_frd.m
+│     ├─ estimate_frequency_response.m
+│     ├─ estimate_spectra.m
+│     ├─ estimate_spectrogram.m
+│     ├─ expand_multiple_figure_nr.m
+│     ├─ extract_header_information.m
+│     ├─ get_chirp_signals.m
+│     ├─ get_fcut_from_D_and_fcenter.m
+│     ├─ get_fcut_from_exp.m
+│     ├─ get_filter.m
+│     ├─ get_ind_eval.m
+│     ├─ get_my_colors.m
+│     ├─ get_notch_Q.m
+│     ├─ get_pid_scale.m
+│     └─ get_switch_case_text_from_para.m
+├── logs/
+└── main.m
+```
 
 ## 4.6 Python in MATLAB
 The code has been divided into logically related sections in order to clearly separate topics such as spectral analysis or frequency response estimation and calculation. Dividing the code into thematic sections helps to improve readability and clearly present the individual topics. 
 
-As we thaught the MATLAB code was structured good enough, we wanted to start with the conversion to python. First we considered starting from scratch and rewrite the whole code, but it was made clear, that this is hard to test within the rewriting process. The idea then was to convert all the MATLAB functions in the `\lib` to python first and then call these rewritten python functions from the `gyro_ctrl_tuning` class in MATLAB. The advantage of doing so, gave us the ablity to test every function, weather they were converted correctly or not. In a second step, the `gyro_ctrl_tuning` and lastly the `plot_utils` class would have been converted to python. Unfortunately we ran into the problem, `that in python FRD objects do not exist the same way as they do in MATLAB`. This led us to write helper functions, which converted the MATLAB FRD objects into NumPy-arrays using the numpy library. One array holding the frequencies and one the response data. The same process had to be done in the opposite direction, from python to MATLAB. 
+As we thaught the MATLAB code was structured good enough, we wanted to start with the conversion to python. First we considered starting from scratch and rewrite the whole code, but it was made clear, that this is hard to test within the rewriting process. The idea then was to convert all the MATLAB functions in the `\lib` to python first and then call these rewritten python functions from the `gyro_ctrl_tuning` class in MATLAB. The advantage of doing so, gave us the ablity to test every function, weather they were converted correctly or not. In a second step, the `gyro_ctrl_tuning` and lastly the `plot_utils` class would have been converted to python. Unfortunately we ran into the problem, `that in python FRD objects do not exist the same way as they do in MATLAB`. Exept you use the control toolbox. 
+
+This led us to write helper functions, which converted the MATLAB FRD objects into NumPy-arrays using the numpy library. One array holding the frequencies and one the response data. The same process had to be done in the opposite direction, from python to MATLAB. 
 
 ```
 It quickly became clear, that this was a good idea, but not the most practical way. 
