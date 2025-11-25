@@ -1,4 +1,4 @@
-function opt = bode_plot_options(mag_unit, mag_scale, phase_unit)
+function opt = bode_plot_options(mag_unit, mag_scale, phase_unit, freq_unit)
 % bode_plot_options  Create a set of bode plot options.
 %
 % Inputs:
@@ -37,6 +37,15 @@ function opt = bode_plot_options(mag_unit, mag_scale, phase_unit)
         opt.PhaseUnits = 'rad';
     else
         error("Invalid phase_unit. Use 'deg' or 'rad'.");
+    end
+
+    %% --- Validate frequency unit ---
+    if strcmp(freq_unit, 'Hz')
+        opt.FreqUnits = 'Hz';
+    elseif strcmp(freq_unit, 'rad/s')
+        opt.FreqUnits = 'rad/s';
+    else
+        error("Invalid freq_unit. Use 'Hz' or 'rad/s'.");
     end
 
     %% --- Useful defaults ---

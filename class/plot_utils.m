@@ -14,23 +14,22 @@
 %
 % Methods are organized into categories:
 % Time Domain Analysis:
-%   - plotGyroSignals    - Raw gyro data visualization
-%   - plotOverview       - Overview of flight parameters
-%   - plotevaltime       - Timing analysis
+%   - plot_Gyro_Signal    - Raw gyro data visualization
+%   - plot_Overview       - Overview of flight parameters
+%   - plot_Eval_Time       - Timing analysis
 %
 % Frequency Domain Analysis:  
-%   - plotGyroSpectra    - Frequency spectra
-%   - plotspectogram     - Time-frequency analysis
-%   - plotBode           - System frequency response
+%   - plot_Gyro_spectra    - Frequency spectra
+%   - plot_Spectogram     - Time-frequency analysis
+%   - plot_Bode_Plant      - System frequency response
 %
 % Controller Analysis:
-%   - plotController     - PID controller response
-%   - plotCPIDBode       - PI and D components
-%   - plotGangofFour     - Closed loop characteristics
-%   - plotStepResp       - Step response analysis
+%   - plot_Bode_Contr    - PI and D components
+%   - plot_Gang_of_Four     - Closed loop characteristics
+%   - plot_Step_Response       - Step response analysis
 %
-% Author: [Your Name]
-% Date: [Current Date]
+% Author: [Janick Dort, Yuri Bianchi, Dario Jurietti]
+% Date: [25.11.2025]
 %==========================================================================
 
 classdef plot_utils
@@ -60,14 +59,7 @@ classdef plot_utils
         %  FIGURE 1: GYRO SIGNALS
         % =================================================================
         % Plots gyro signals for roll, pitch and yaw axes
-        % 
-        % Parameters:
-        %   flight1 - Data from first flight
-        %   varargin{1} - Optional second flight data for comparison
-        % 
-        % Generates three subplots showing:
-        % - Setpoint, unfiltered gyro, and filtered gyro data
-        % - Optional comparison with second flight
+
         function obj = plot_Gyro_Signal(obj, do_insert_legends)
             df = obj.data_flight;
             figure(1);clf;
@@ -79,12 +71,12 @@ classdef plot_utils
             plot(ax(1), df.time, df.data(:, df.ind.gyroADC(1)));
             grid(ax(1),'on');
             ylabel(ax(1),'Roll (deg/s)');
-            title(ax(1),'Gyro Signals - Setpoints from RemoteController');
+            title(ax(1),'Flight Gyro Data');
         
             if do_insert_legends
                 legend(ax(1), ...
                     {'setpoint','gyro unfiltert','gyroADC'}, ...
-                    'Location','northeastoutside');
+                    'Location','best');
             end
         
             % --- Pitch ---
@@ -117,6 +109,8 @@ classdef plot_utils
         % =================================================================
         %  FIGURE 2: OVERVIEW PLOTS
         % =================================================================
+        % Plots gyro signals, motor data and setpoint data
+
         function obj = plot_Overview(obj, do_insert_legends)
             df = obj.data_flight;
             figure(2); clf
@@ -181,10 +175,7 @@ classdef plot_utils
         %  FIGURE 4: GYRO SPECTRA
         % =================================================================
         % Generates spectral analysis plots for gyro data
-        % Shows:
-        % - Unfiltered spectra
-        % - Filtered (ADC) spectra  
-        % - Axis sum spectra
+
         function obj = plot_Gyro_spectra(obj, do_insert_legends)
 
             fa = obj.analysis_flight;
@@ -237,7 +228,7 @@ classdef plot_utils
         % =================================================================
         %  FIGURE 5: GYRO SPECTRA
         % =================================================================
-        % Generates spectogram plots
+        % Generates spectogram plots (Thrust and Frequency)
 
         function obj = plot_Spectogram(obj,num_spectrograms)
 
@@ -256,7 +247,8 @@ classdef plot_utils
                 qmesh = pcolor(fa.freq_spectogram{spectrogram_nr}, ...
                                fa.throttle_all{spectrogram_nr}, ...
                                fa.spectrogram_unf{spectrogram_nr});
-                set(qmesh, 'EdgeColor', 'none');
+                set(qmesh, 'EdgeColor', 'flat'); 
+                set(qmesh, 'LineWidth', obj.linewidth);
                 if spectrogram_nr == 1
                     ylabel('Throttle (%)')
                 end
@@ -273,7 +265,8 @@ classdef plot_utils
                 qmesh = pcolor(fa.freq_spectogram{spectrogram_nr}, ...
                                fa.throttle_all{spectrogram_nr}, ...
                                fa.spectrogram_fil{spectrogram_nr});
-                set(qmesh, 'EdgeColor', 'none');
+                set(qmesh, 'EdgeColor', 'flat'); 
+                set(qmesh, 'LineWidth', obj.linewidth);
                 xlabel('Frequency (Hz)')
                 if spectrogram_nr == 1
                     ylabel('Throttle (%)')
@@ -283,6 +276,7 @@ classdef plot_utils
                 set(gca, 'ColorScale', 'log')
                 clim(c_lim);
                 ylim([0 100])
+                set(findall(gcf, 'type', 'line'), 'LineWidth', obj.linewidth);
             end
 
         end
@@ -290,14 +284,14 @@ classdef plot_utils
         % =================================================================
         %  FIGURE 6: BODE PLOTS
         % =================================================================
-        % plotBode - Bode plot (Plant and Coherence) for selected axis
+        % Bode plot (Plant and Coherence) for selected axis
 
         function obj = plot_Bode_Plant(obj, ind_ax)
             td = obj.gyro_tuning;
    
             figure(expand_multiple_figure_nr(6, ind_ax));clf;
             set(gcf, 'Name', ['Bode Plot - ', obj.axis_names{ind_ax}]);
-            opt = bode_plot_options('dB', 'linear', 'deg');
+            opt = bode_plot_options('dB', 'linear', 'deg', 'Hz');
 
             % --- Plant (Bode: magnitude + phase) ---
             ax(1) = subplot('Position', obj.pos_bode(1,:));
@@ -306,11 +300,11 @@ classdef plot_utils
           
             % --- Coherence (magnitude only) ---
             ax(2) = subplot('Position', obj.pos_bode(2,:));
-            opt_coh = bode_plot_options('abs', 'linear', 'deg');
+            opt_coh = bode_plot_options('abs', 'linear', 'deg', 'Hz');
 
             bodemag(ax(2), td.Coh{ind_ax}, td.omega_bode,'-k', opt_coh);
             title(''); ylabel('Coherence'); ylim([0 1]);
-            linkaxes(ax, 'x'),
+            linkaxes(ax, 'x'),xlim('auto'),
             set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
 
         end
@@ -318,12 +312,13 @@ classdef plot_utils
          % =================================================================
         %  FIGURE 7: BODE PLOTS PI & D CONTROLLER
         % =================================================================
-        % plotCPIDBode - Bode plot for PI and D controller (measured vs analytical)
+        % Bode plot for PI and D controller (measured vs analytical)
+
         function obj = plot_Bode_Contr(obj, ind_ax, do_insert_legends)
             
             td = obj.gyro_tuning;
             
-            opt = bode_plot_options('dB', 'linear', 'deg');
+            opt = bode_plot_options('dB', 'linear', 'deg', 'Hz');
             
             figure(expand_multiple_figure_nr(7, ind_ax));clf;
             set(gcf, 'Name', ['Bode Controller - ', obj.axis_names{ind_ax}]);
@@ -333,6 +328,7 @@ classdef plot_utils
                 legend('PI measured','PI analytically', 'D measured', 'D analytically')
             end
             title(['Bode PI and D Controller - ', obj.axis_names{ind_ax}]);
+            xlim('auto');
             set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
 
         end
@@ -340,10 +336,11 @@ classdef plot_utils
         % =================================================================
         %  FIGURE 8: Gang of Four
         % =================================================================
+        % Bode of Tacking, Sensitivity, Controller Effort and Compliance
 
         function obj = plot_Gang_of_Four(obj, do_insert_legends)
             td = obj.gyro_tuning;
-            opt = bode_plot_options('dB', 'linear', 'deg');
+            opt = bode_plot_options('dB', 'linear', 'deg', 'Hz');
             
             ind_ax = td.ind_ax;
 
@@ -372,15 +369,16 @@ classdef plot_utils
             bodemag(ax(4), td.CloLoAan.SP, td.CloLoAanNew.SP, td.omega_bode, opt); 
             title('Compliance SP')
         
-            linkaxes(ax, 'x'), clear ax
+            linkaxes(ax, 'x'),xlim('auto'),,
             set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth);
             sgtitle(['Gang of Four - ', obj.axis_names{ind_ax}]);
         end
 %%
  %%
         % =================================================================
-        %  FIGURE 9: Gang of Four
+        %  FIGURE 9: Step Response
         % =================================================================
+        % Step Response of choicen axis
 
         function obj = plot_Step_Response(obj, do_insert_legends)
 
@@ -388,7 +386,7 @@ classdef plot_utils
             
             figure(expand_multiple_figure_nr(9, td.ind_ax))
             set(gcf, 'Name', ['Step Response - ', obj.axis_names{td.ind_ax}]);
-
+            % --- Step Response Plot ---
             ax(1) = subplot(2,1,1);
             plot(ax(1), td.step_time, td.step_resp_tra), grid on, ylabel('Gyro (deg/sec)')
             if do_insert_legends, legend('actual calculated', ...
@@ -396,7 +394,7 @@ classdef plot_utils
             ylim(ax(1), 'auto');
             title(['Tracking T - ', obj.axis_names{td.ind_ax}]);
             
-
+             % --- Compliance-Plot (SP) ---
             ax(2) = subplot(2,1,2);
             plot(ax(2), td.step_time, td.step_resp_com), grid on
             ylim(ax(2), 'auto')
