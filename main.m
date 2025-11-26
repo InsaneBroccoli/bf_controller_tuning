@@ -2,8 +2,8 @@
 % Betaflight Controller Tuning Analysis Script
 % Purpose: Analyzes flight logs and tunes PID controllers for a quadcopter
 %
-% Author: [Your Name]
-% Date: [Current Date]
+% Author: [Janick Dort, Yuri Bianchi, Dario Jurietti]
+% Date: [25.11.2025]
 %==========================================================================
 
 %% General
@@ -110,15 +110,15 @@ para_new.yaw_lpf_hz          = 200;     % frequency of yaw lpf (pt1)
 % Higher D: better damping but noise sensitive
 
 switch ind_ax
-    case 1 % roll: [45, 80, 30, 0] - Betaflight standard PIDs
+    case 1 % Roll PID values
         P_new       = 1.0 * 46;
         I_new       = 1.0 * 74;
         D_new       = 1.0 * 30;
-    case 2 % pitch: [47, 84, 34, 0] - Betaflight standard PIDs
+    case 2 % Pitch PID values
         P_new       = 1.0 * 50;
         I_new       = 1.0 * 88;
         D_new       = 1.0 * 43;
-    case 3 % yaw: [45, 80, 0, 0] - Betaflight standard PIDs
+    case 3 % Yaw PID values
         P_new       = 1.0 * 35;
         I_new       = 1.0 * 70;
         D_new       = 1.0 * 3;
@@ -136,7 +136,6 @@ plotter.plot_Overview(do_insert_legends);
 plotter.plot_Eval_Time();
 
 %% Plot Flight Analyser
-
 plotter.plot_Gyro_spectra(do_insert_legends);
 plotter.plot_Spectogram(3);
 
