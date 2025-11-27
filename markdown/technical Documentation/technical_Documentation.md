@@ -98,135 +98,103 @@ This initialises the values in the data struct and:
 The chirpReset() function sets:
  - internal counter to 0
  - bool isFinished to false
-then calls the function chirpResetSignals() to set signal-related fields to 0.
+then calls the function chirpResetSignals() to set signal-related fields to 0
 
 Once the chirp is initialised use the chirpUpdate() function once per loop iteration. This function checks:
  - if bool isFinished is true -> return false
  - else if internal counter is equal to the number of samples inside the chirps period -> set bool isFinished true, call chirpResetSignals(), return false
-if none of the above is true the 
+if none of the above is true the ...
 
 # 3. Theory
 
 ## 3.1 signal processing
 
-References to `/Data`:
+Signal processing in Betaflight Blackbox logs is the process of turning raw flight data into clear, usable information for in-depth analysis. These logs capture detailed data about a flight controller's performance, including stick inputs, gyro data, PID responses, and motor outputs. While the logs themselves can seem complex, tools like the [Betaflight Blackbox Explorer](https://blackbox.betaflight.com/) simplify the data, providing visualizations and insights that make troubleshooting, tuning, and system performance evaluation more accessible.
 
-- `Convert_and_evolution_Time.md`
-- `Dataimport.md`
-- `Unscale_high_Resolution_Gain.md`
+Preparing this data is a key part of the signal-processing pipeline. It involves cleaning and transforming raw data into a form ready for further analysis. This process begins with filtering. It removes unwanted noise while keeping the signals in their original state. Then the frequency response estimation can be done, which measures how the system reacts to different frequencies. Each of these steps ensures that the data becomes reliable, insightful, and easy to work with during analysis.
 
-The data-processing chain prepares Betaflight Blackbox logs for all subsequent analysis steps. Its purpose is to reconstruct a physically meaningful time axis, parse configuration and signal metadata, and undo Betaflight’s internal scaling so that all channels are expressed in correct physical units.
+### Importing the Data
 
-**Purpose of the scripts**
+The first step of any analysis is to load the measurement data properly. Betaflight Blackbox logs have two important parts: the **header** and the **data block**. The header contains important information about how the flight data was recorded, like loop speeds and logging settings. Without this context, the data would not make sense. 
 
-- Convert the raw timestamp counter to a continuous time axis in seconds.
-- Import large Blackbox logs efficiently and extract all header parameters.
-- Undo “high‑resolution” scaling in selected channels.
-- Provide clean, well-structured arrays for later signal processing, frequency analysis and controller evaluation.
+To save time during analysis, the logs are converted from raw CSV files into a faster `.mat` format. This way, you don’t need to reprocess the big log files every time. The signal names (like gyro and motor outputs) are also automatically assigned to their correct data columns. This makes it easy to find and use the signals later. For more details, check the [Dataimport documentation](https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Data/Dataimport.md).
 
----
+### Handle High-Resolution Data
 
-##### Time Conversion and Sampling Intervals (`Convert_and_evolution_Time.md`)
+Betaflight has a **High Resolution Mode** in its logs, where some signals are multiplied with 10 to save space during recording. However, these signals must be scaled back down during analysis to get their real values. If this step is skipped, the results will be completely wrong, like seeing incorrect frequencies in a graph or tuning the controller incorrectly. 
 
-In Betaflight Blackbox logs, time is stored as a continuously increasing **microsecond counter**, not directly in seconds. The logger also does **not guarantee a perfectly constant sample interval** (due to SD-card latency, CPU load, scheduler, etc.), so the effective sampling period must be reconstructed from the data.
+Important signals like gyro data and control inputs are included in this step. Rescaling their values is critical for all kinds of analysis, from looking at signal behavior to calculating performance. Learn how this works in the [Unscale_high_Resolution_Gain documentation](https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Data/Unscale_high_Resolution_Gain.md).
 
-Let $t_\mu[n]$ denote the timestamp counter in microseconds. Then:
+### Converting Time and Checking Sampling
 
-- The **sample interval** between two records is
-  $$
-  \Delta t[n] = \frac{t_\mu[n] - t_\mu[n-1]}{10^6} \quad [\text{s}],
-  $$
-- The **time vector** in seconds can be obtained by cumulative summation of $\Delta t[n]$,
-- The **effective logging rate** is approximately
-  $$
-  f_\text{log} \approx \frac{1}{\text{mean}(\Delta t[n])}.
-  $$
+In a Betaflight log, time is stored as a growing microsecond counter, not as regular seconds. The time between samples isn’t always the same because of hardware limits or system load. This step converts the time data into a simple and consistent format that shows what’s happening at each point.
 
-Analyzing $\Delta t[n]$ enables:
-
-- detection of **jitter** in the sampling,
-- identification of **dropped frames** (unusually large $\Delta t$),
-- use of the **true time base** in FFTs, filter design and frequency-response analysis.
-
-Together, these steps convert the raw timestamp data into a **physically correct time structure**, which is essential for any numerically valid signal processing.
+By checking the time steps between samples, you can find logging errors like dropped frames or slight changes in the real sampling rate. Correctly handling the time information is very important for further analysis, like frequency calculations or tuning the controller. For a clearer explanation, see the [Convert_and_evolution_Time documentation](https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Data/Convert_and_evolution_Time.md).
 
 ---
 
-##### Data Import and Header Parsing (`Dataimport.md`)
+### Application of Rotational Filtering (Apply Rotfiltfilt)
 
-A Betaflight log consists of:
+Filtering is an essential step in preparing data for analysis, as it removes unwanted noise while preserving the integrity of the signal. The `Apply Rotfiltfilt` operation applies a zero-phase filter, ensuring that the data's phase relationships remain intact while suppressing specific frequency components like low-frequency drifts or high-frequency noise.
 
-- a **header**, containing configuration and system information, and  
-- a **data block**, containing the recorded sensor values.
+This step uses a forward-backward filtering technique, which processes the data in both forward and reverse directions, effectively cancelling out phase distortions. The choice of filter type and its parameters `(cutoff frequency, order ??)` allows for detailed customization for various use cases like controller tuning or signal characterization.
 
-The measurement data alone are not sufficient; the header specifies how the data must be interpreted.
+Proper application of this technique ensures that the data is clean and reliable for downstream processes. For more insights on how this method works, refer to the full description in the [Apply Rotfiltfilt documentation](https://github.com/InsaneBroccoli/bf_controller_tuning).
 
-**Efficient loading**
+### Estimation of Frequency Response
 
-- On first use, the CSV file is fully parsed and then stored as a `.mat` file.
-- Subsequent analyses load the `.mat` file directly, avoiding repeated CSV parsing and making the workflow efficient even for large logs.
+Understanding how a system responds to various frequencies is critical in assessing its dynamics. The `Estimate Frequency Response` function uses advanced techniques to measure and analyze the relationship between a system's input and output signals in the frequency domain.
 
-**Extraction of parameter data**
+This technique primarily relies on the **Welch Method**, which divides the signal into overlapping segments. By applying a window function to each segment (Hann) and performing spectral averaging, this approach minimizes noise effects and ensures a smoother estimate of the frequency response. It outputs a single-sided, amplitude-calibrated response curve that reveals how each frequency is amplified or attenuated and how the phase shifts occur across the spectrum.
 
-- The function `extract_header_information()` reads the textual header.
-- Parameter lines between `frameIntervalI` and `loopIteration` are interpreted as **Betaflight configuration values** (e.g. loop frequencies, filter settings, logging configuration) and stored in a structured parameter object `para`.
+The resulting data is not only accurate but also robust, making it suitable for applications like control system tuning or stability analysis. For a deeper dive into the theoretical principles and implementation steps, consult the detailed [Estimate Frequency Response documentation](https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/estimate_frequency_response.md).
 
-**Signal name parsing and indexing**
-
-- The line containing `loopIteration` marks the end of the header and provides the **list of all recorded signals** in the order they appear in the numeric data.
-- From this line, an index structure `ind` is created, mapping each signal name to its column index in the data matrix.
-- The numeric data block is then read into a matrix (e.g. `data`), where each row is a time sample and each column a signal.
-
-Example access:
-
-- `data(:, ind.gyroADC(1))` — gyro X,
-- `data(:, ind.setpoint(3))` — yaw setpoint,
-- `data(:, ind.motor)` — motor outputs.
-
-This results in a **clean, self-describing dataset**: numeric data in `data`, metadata in `para`, and robust name-based access via `ind`.
-
----
-
-##### Unscaling High-Resolution Gains (`Unscale_high_Resolution_Gain.md`)
-
-When **High Resolution Mode** is enabled in Betaflight, several channels are stored with an **integer scaling factor of 10** to improve resolution and reduce storage requirements. The affected signals include:
-
-- `gyroADC` (filtered gyro data),
-- `gyroUnfilt` (unfiltered gyro),
-- `rcCommand` (control inputs),
-- `setpoint` (controller targets).
-
-For correct analysis (e.g. FFT, frequency response, PID tuning), these channels must be **rescaled back** to their physical units. If $x_\text{raw}$ is the logged value and $s = 10$ is the scale factor, then the physical value is:
-
-$$
-x_\text{phys} = \frac{x_\text{raw}}{s}.
-$$
-
-Without this unscaling step:
-
-- gyro amplitudes and spectral peaks would be a factor of 10 too large,
-- setpoint and RC magnitudes would be incorrect,
-- PID-related calculations and frequency-response estimates would be **systematically wrong**.
-
-By consistently applying the inverse scaling, all affected channels are brought back to **correct physical magnitude**, ensuring that subsequent spectral analysis, system identification and controller evaluation are based on valid data.
-
----
-
-**Summary**
-
-The data-processing stage:
-
-1. reconstructs the **true time axis** and sampling intervals from the microsecond counter,
-2. parses the **header and signal definitions** to obtain configuration parameters and robust name-based indexing,
-3. and **rescales high-resolution channels** to their physical units.
-
-Only after these steps is the dataset ready for reliable spectral analysis, frequency-response estimation, plant identification and controller tuning. Detailed algorithmic descriptions and derivations can be found in the referenced files in `/Data`.
 
 ## 3.2 control system
+
+The control system is a vital component of any flight controller, ensuring stability and precision in drone operation. This section focuses on the steps required to understand, analyze, and tune the controller's behavior. Each part of this process is designed to help refine the system, improving its overall performance and responsiveness.
+
+### Estimating the Transfer Function
+
+To understand how the system reacts to different inputs, the transfer function of the plant must be estimated. This process allows the behavior of the system to be reconstructed from closed-loop data. Without needing to open the control loop, it becomes possible to identify how the system transforms input signals into outputs. This insight is critical for identifying system dynamics and ensuring that the controller parameters match actual system behavior. More details can be explored in the [Estimate Transfer Function documentation](https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/Estimate_Transferfunction_Plant.md).
+
+### Calculating the Closed Loop
+
+The interaction between the controller and the plant, as well as the response of the closed-loop system as a whole, determines how stable and reliable the control process is. By calculating the closed-loop transfer functions for both inner and outer loops, it is possible to assess sensitivity, disturbance rejection, and overall system stability. These calculations provide an understanding of key controller dynamics and how they influence the system. For a closer look at how this process is carried out, refer to the [Calculate Closed Loop documentation](https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/CalculateClosedLoop.md).
+
+<p align="center">
+  <img src="../Frequency_Response/Images/Regelstrecke.png"
+     alt="Regelstrecke"
+     width="800"
+     style="float:center; margin-left:20px; margin-right:20px;
+     margin-top:20px;">
+     Figure xx: control system
+</p>
+
+### Filters and Controllers
+
+Filters and controllers form the foundation of the control loop. Filters are responsible for removing unwanted noise from sensor signals or motor outputs, while controllers ensure that the flight system remains stable and tracks the desired inputs accurately. The system makes use of various low-pass, notch, and dynamic filters that are designed to optimize the control process. The controllers, such as the PI and D components, are then tuned to achieve the desired balance between reactivity and stability. For further insights, see the [Filters and Controllers documentation](https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/Filter_and_Controller.md).
+
+### Compensating the I-Term
+
+The integral term in a PID controller addresses long-term errors, ensuring steady corrections over time. However, it can become problematic during quick stick movements, where it may overcorrect and destabilize the system. To avoid this, compensation methods adjust the influence of the I-term based on the situation, suppressing it during rapid changes while allowing it to integrate errors during slower movements. This approach helps maintain both precision and responsiveness. For more information, refer to the [Compensate I-Term documentation](https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/Compensate_Iterm.md).
 
 
 ## 3.3 evaluation
 
+Evaluation is a critical part of understanding and improving the behavior of the control system. This section outlines key analytical steps, such as analyzing time-domain responses and interpreting frequency-domain data to assess system dynamics comprehensively.
+
+### Step Response
+
+The step response provides a direct view of how the system reacts to sudden changes in the input signal. By transforming the closed-loop transfer function from the frequency domain into the time domain, the transient behavior of the control loop can be observed. Key performance indicators like rise time, overshoot, settling time, and steady-state error are derived to evaluate system stability and responsiveness. The calculations rely on tools that perform inverse Fourier transforms of frequency response data to estimate the system’s step response curve. This curve allows engineers to identify and correct underdamped or poorly tuned dynamics. More details can be found in the [Step Response documentation](https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/Step_response.md).
+
+### Spectra Analysis
+
+Spectral analysis examines how the system reacts to various input frequencies, providing crucial insights into its dynamic behavior. The analysis breaks down complex signals into their frequency components using algorithms like Welch’s method. Overlapping signal segments, combined with windowing techniques such as the Hann window, help ensure smoother, statistically reliable estimation of power spectra. This frequency-domain perspective highlights resonances, noise characteristics, and the effectiveness of applied filters. The [Spectra Analysis documentation](https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Spectrum_Spectogram/Spectra_Analysis.md) describes the steps in detail.
+
+### Spectrum Analysis
+
+Spectrum analysis extends the ideas of spectral analysis by providing a richer, multi-dimensional understanding of the signal’s frequency content over time or in our case thrust. By grouping FFT segments into bins across an additional axis, such as throttle or angle, this technique maps the power spectrum as a function of both frequency and a chosen variable. This multi-dimensional approach is particularly useful in applications that require an understanding of how system dynamics evolve during flight. Relevant methodologies and results are documented in the [Spectrum Analysis section](https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Spectrum_Spectogram/Spectrum_Analysis.md).
 
 # 4. Working steps and Problems
 ## 4.1 Simulations
