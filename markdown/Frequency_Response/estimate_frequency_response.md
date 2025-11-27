@@ -1,4 +1,4 @@
-# Estimate Frequency Resopnse
+# Estimate Frequency Response
 
 The `estimate_frequency_response` function estimates the **frequency response** and **coherence** between a measured input and output signal using the **Welch method** for spectral averaging [1][2].  
 It returns an amplitude-calibrated, single-sided frequency response with correct phase and energy scaling.
