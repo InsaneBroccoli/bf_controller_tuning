@@ -66,7 +66,6 @@ ind_ax = 1;     % keep it now until plot_utils is finished
 do_compensate_iterm = true;
 
 % Transfer Function
-do_show_transferfunction = false; % Plant, PI & D Controller, PID Controller 
 Nestfatra = 2.0;                 % Window length for spectral analysis (seconds)
 koverlaptra = 0.9;               % Overlap factor for spectral analysis (0-1) 
 

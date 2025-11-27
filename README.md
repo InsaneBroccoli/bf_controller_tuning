@@ -94,6 +94,24 @@ cycle through all axes twice. Whether you choose ACRO or ANGLE mode does not mat
 ## Data for evaluation
 To evaluate your flight data, the log file from the Blackbox is required. This has to be converted to a .csv file. You can do this with the [Betaflight Blackbox Explorer](https://blackbox.betaflight.com/).
 
+# Tuning via MATLAB
+
+1. Open the main.m file. This is the only file you need to make changes to tune
+2. With `do_insert_legends` you can decide if you would like to have a legend on your plots
+3. Define a path to the csv file. For example your file is saved under `bf_controller_tuning\logs\20250908` you have to define `log_folder = 'logs';`, `log_name = '20250908'` and `log_name = '20250908_flipmini_00.bbl.csv` your filename.
+4. With `ind_ax` you can choose which axis (Roll = 1, Pitch = 2, Yaw = 3) you want to tune
+5. `do_compensate_iterm` defines if you want to tune your drone with I-Term Relax (recommended) 
+6. For the first flight it is recommended to set default_parameters on `true`. In this case the plot uses the same parameters for the new tune as the old.
+7. After this you can define the filter types and you can change their frequencies
+8. Below that, you can enter the new PID parameters for Roll, Pitch and Yaw. You can either multiply them or just enter the new value. The values matching the values in Betaflight
+9. Now press on **run**, that the first calculation can start. After you pressed run, it should open nine figures. If you want to know, how to tune with them go to [Descriptions Figures](./markdown/Descriptions_Figures/).
+10. Now enter your new parameters in the main.m file.
+11. After the first time of tuning, you don't need to run the hole file anymore. It is enough if you just run the section **Tuninig Data** and **Plot Tuning Data**. Through that, the calculations will be faster and you don't have to wait that long for your plots.
+
+# How the Calculations Work
+
+You might wonder how we get our results an plots. We can totally understand your wish. Therefore, we created a [detailed documentations](./markdown/). With this documentation and little prior knowledge you might be able to understand our calculations and how the code works.
+
 ## Example Flight
 - [YouTube Example](https://www.youtube.com/watch?v=bU63eY66QX0)
 
