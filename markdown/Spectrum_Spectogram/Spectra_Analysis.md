@@ -33,7 +33,7 @@ $$\text{N}_{\text{Shift}} = \text{Nest} - \text{N}_{\text{Overlap}}$$
 
 Overlaps in the range of **50–90%** yield smoother and statistically more stable spectra,  which aligns with standard recommendations for Welch averaging [2, pp. 455–457].
 
-### 3. Windowing and Amplitude-Correct FFT Scaling
+### 4. Windowing and Amplitude-Correct FFT Scaling
 
 The function uses a custom normalization: 
 
@@ -54,7 +54,7 @@ This correction ensures:
 - correct amplitude level for sinusoidal bins  
 - correct energy conservation  
 - proper handling of real-valued signals with even FFT length
-- 
+
 These characteristics are well documented in frequency-domain signal analysis literature [2, pp. 50–53].
 
 ---

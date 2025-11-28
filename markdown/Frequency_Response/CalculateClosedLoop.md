@@ -1,7 +1,7 @@
 # Closed-Loop Analysis
 
-The function `calculate_closed_loop` determines the main transfer relationships of the closed-loop control system, including how the controller, plant, and filters — as described in [Filter and Controller](./Filter_and_Controller.md) and [Frequency Response Estimation](./estimate_frequency_response.md) interact to shape the overall system behavior.  
-This structure separates the control actions into an **inner loop** (e.g., rate or current control) and an **outer loop** (e.g., attitude or position control), allowing for a flexible distribution of stability and tracking performance — a concept also applied in the Betaflight control architecture.
+The function `calculate_closed_loop` determines the main transfer relationships of the closed-loop control system, including how the controller, plant, and filters, as described in [Filter and Controller](./Filter_and_Controller.md) and [Frequency Response Estimation](./estimate_frequency_response.md) interact to shape the overall system behavior.  
+This structure separates the control actions into an **inner loop**  and an **outer loop** (e.g., attitude or position control), allowing for a flexible distribution of stability and tracking performance — a concept also applied in the Betaflight control architecture.
 
 ## Sensitivity
 
@@ -11,13 +11,11 @@ while higher sensitivity at high frequencies helps to avoid noise amplification 
 
 In the Bode plot, $|S(j\omega)|$ should ideally be **small at low frequencies** (below the controller bandwidth)  
 to minimize steady-state errors and suppress disturbances.  
-Around the **crossover frequency**, a moderate peak may appear — typically limited to about **6 dB** —  
-indicating the trade-off between tracking performance and stability margin.  
+Around the **crossover frequency**, a moderate peak may appear — typically limited to about **6 dB** indicating the trade-off between tracking performance and stability margin.  
 At **high frequencies**, $|S(j\omega)|$ should approach 0 dB, ensuring that the controller does not react to sensor noise or unmodelled dynamics.  
 
 A well-shaped sensitivity curve therefore combines **good disturbance rejection**, **sufficient stability margin**,  
 and **robust behavior** against uncertainties in the plant model.
-
 
 ## Loop Calculation
 
@@ -38,6 +36,7 @@ $$L_{out}(j\omega) = G_{yu}(j\omega) \cdot C_{PI}(j\omega)$$ $$S_{out}(j\omega) 
      style="float:center; margin-left:20px; margin-right:20px;
      margin-top:20px;">
 </p>
+
 ---
 
 **References**

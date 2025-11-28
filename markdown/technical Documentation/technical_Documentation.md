@@ -180,7 +180,6 @@ Filters and controllers form the foundation of the control loop. Filters are res
 
 The integral term in a PID controller addresses long-term errors, ensuring steady corrections over time. However, it can become problematic during quick stick movements, where it may overcorrect and destabilize the system. To avoid this, compensation methods adjust the influence of the I-term based on the situation, suppressing it during rapid changes while allowing it to integrate errors during slower movements. This approach helps maintain both precision and responsiveness. For more information, refer to the [Compensate I-Term documentation](https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/Compensate_Iterm.md).
 
-
 ## 3.3 evaluation
 
 Evaluation is a critical part of understanding and improving the behavior of the control system. This section outlines key analytical steps, such as analyzing time-domain responses and interpreting frequency-domain data to assess system dynamics comprehensively.
@@ -198,6 +197,7 @@ Spectral analysis examines how the system reacts to various input frequencies, p
 Spectrum analysis extends the ideas of spectral analysis by providing a richer, multi-dimensional understanding of the signal’s frequency content over time or in our case thrust. By grouping FFT segments into bins across an additional axis, such as throttle or angle, this technique maps the power spectrum as a function of both frequency and a chosen variable. This multi-dimensional approach is particularly useful in applications that require an understanding of how system dynamics evolve during flight. Relevant methodologies and results are documented in the [Spectrum Analysis section](https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Spectrum_Spectogram/Spectrum_Analysis.md).
 
 # 4. Working steps and Problems
+
 ## 4.1 Simulations
 
 At the beging of our thesis, we started to create simulation. We used this simulation to deepen our understandig of the existing code and to understand the used methods. This simulations were crucial, but als very time intensive. They formed the basis for all later analysis steps and helped us understand the existing functions before we used them further.
@@ -407,16 +407,25 @@ As Dario started an easy python version of the tool, the plan was to just build 
 
 # 5. Results
 
+The project delivered in different practical and technical result. First we successfully reconstructed 
+
+
 # 6. Discussion and next steps
 ## 6.1 Discussion
+
+Overall, the work in the last 14 weeks mainly served as a foundation for the future work at the project during our Bachlor thesis rather than a finished end product. We were able to lay the groundwork for further developments. For example, we newly structured the code, which allows us to make addtions and upgrades in the code faster and clearer. But more importantly, we were able to lern much about the behaviour of the Betaflight controll system and how we have to face challenges in it. Dario and Janick also lerned how a drone flys and how to build an FPV drone. This experience helped us to better relate the abstract analysis results and behaviour in the air.
+Additionally to this, we deepened our understanding how advanced signal-processing methode and more complex controll loops working. We achived this through a series of simulations which made it us easier to connect the theorie to the measuered data of real flights. Also, we improved our skills in object oriented programming and how to structer a big code. We also were able to get our first experiene in using control-engineering in Python, even though the Python implementation is not finished yet. All of this will help us to develope new features quickly and with high quality in our Bachlor thesis. 
 
 ## 6.2 Next steps
 This project is being continued and further developed as part of a bachelor's thesis. This mainly includes converting the code to python completely to make the PID tuning tool more accessible to the comunity and develop and implement a new function for position hold for example. 
 
 The goal of this is to make the tool good enough, that it can implemented directly into the betaflight configurator or blackbox explorer
 
-
 ## 6.3 Conclusion
 
+During this project we successfully developed the foundation of a modular and easy to use tool for offline gyro tuning of Betaflight FPV drones. Throught the works on the project, we gained a solid understanding of the gyro control struction and the behaviour of the Betaflight filters. We also lerned, how different methods works to exclude noise works and how we have to use it. Building and flying also helped us to bridging the gap between theore calculation and the real world behaviour of the drone during the flights.
+On the software side, we lerned to handle such a big project. We restructert the existing code, that will allow us to develop further features on this basis. Through that we were able to deepen our skills in object oriented programming. We were also able to recreate key functions to python, such as calculate closed loop or transfer fuction estimation. While the full transfer from MATLAB to Python is ongoing, we have a clear roadmap and enough tecnical knowledge.
+
+Overall, even the transfer form MATLAB to Python is not finished yet, the project achieved its main goal. We estabilished a robust starting point for future developments, both for our bachelor thesis and for a possible integration into the Betaflight tools for the FPV community.
 
 # 7. Directories
