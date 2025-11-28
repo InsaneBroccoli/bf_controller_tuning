@@ -31,6 +31,7 @@ All filters are discretized with the sample time $T_s$.  The function `get_filte
 
 This function constructs the **filter chains and controllers** for a selected axis.  
 It creates three filter paths:
+
 1. **Gyro path $G_f$:** Low-pass filters, dynamic low-pass filters, notch filters, optional phase compensation  
 2. **D-term path $G_d$:** Filter chain for the derivative path, cascaded with $C_D$  
 3. **P-term path $G_{f_p}$:** Optional path with phase compensation or yaw low-pass
