@@ -1,4 +1,6 @@
 %==========================================================================
+% MAIN - Betaflight Controller Analysis Main File
+%==========================================================================
 % Betaflight Controller Tuning Analysis Script
 % Purpose: Analyzes flight logs and tunes PID controllers for a quadcopter
 %
@@ -40,7 +42,7 @@ overlap_tf = 0.9;              % Overlap factor for spectral analysis (0-1)
 gyro_tuning = gyro_tuning.calculate_transfer_func(resolution_factor_tf, overlap_tf);
 
 %% Flight Analyser
-analysis_flight = flight_analyser(data_flight.data, data_flight.ind, data_flight.Ts_log);
+analysis_flight = flight_analyzer(data_flight.data, data_flight.ind, data_flight.Ts_log);
 
 % Data for Spectra
 resolution_factor_spectra = 2;    % Window length for spectral analysis (seconds)

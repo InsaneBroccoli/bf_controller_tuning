@@ -1,4 +1,14 @@
-classdef flight_analyser
+%==========================================================================
+% FLIGHT ANALYZER - Betaflight Controller Analysis ANALYSIS CLASS
+%==========================================================================
+% Betaflight Controller Tuning Analysis Script
+% Purpose: Get Spectra and Spectogram out of Data
+%
+% Author: [Janick Dort, Yuri Bianchi, Dario Jurietti]
+% Date: [25.11.2025]
+%==========================================================================
+
+classdef flight_analyzer
     properties       
         % Raw flight data inputs
 
@@ -22,7 +32,7 @@ classdef flight_analyser
     end
 
     methods
-        function obj = flight_analyser(data, ind, Ts_log)
+        function obj = flight_analyzer(data, ind, Ts_log)
             obj.data = data;
             obj.ind = ind;
             obj.Ts_log = Ts_log;

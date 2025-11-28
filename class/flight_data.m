@@ -1,3 +1,13 @@
+%==========================================================================
+% FLIGHT DATA - Betaflight Controller Analysis DATA IMPORT CLASS
+%==========================================================================
+% Betaflight Controller Tuning Analysis Script
+% Purpose: Read Data for further calculations
+%
+% Author: [Janick Dort, Yuri Bianchi, Dario Jurietti]
+% Date: [25.11.2025]
+%==========================================================================
+
 classdef flight_data
     properties
         % File handling

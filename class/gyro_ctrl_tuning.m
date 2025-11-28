@@ -1,3 +1,13 @@
+%==========================================================================
+% GYRO CTRL TUNING - Betaflight Controller Analysis GYRO TUNING CLASS
+%==========================================================================
+% Betaflight Controller Tuning Analysis Script
+% Purpose: Calculation for Gyro Tuning
+%
+% Author: [Janick Dort, Yuri Bianchi, Dario Jurietti]
+% Date: [25.11.2025]
+%==========================================================================
+
 classdef gyro_ctrl_tuning
     properties       
         % Raw flight data inputs

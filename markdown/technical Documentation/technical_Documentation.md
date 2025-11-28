@@ -24,11 +24,13 @@ institution: ZHAW School of Engineering
 ---
 
 # Abstract
+
 This project focuses on the further development of a method for offline tuning of rate controllers for FPV racing drones based on the open-source firmware Betaflight. The quality of rate control is crucial for flight stability, suppression of disturbances such as prop wash, and the agility of the drone. Until now, tuning has mostly been done through time-consuming trial and error.
 The aim of the project is to develop a modular, open-source library for offline tuning based on an existing proof of concept. The library will be implemented in MATLAB and a light version in Python and supplemented by detailed Markdown documentation with examples on GitHub. The solution should offer the community a simple way to efficiently optimise drone parameters and thereby improve flight performance.
 The results will be published in a public GitHub repository and documented in a report. In addition to software development, the project also includes practical work with FPV drones to validate the methods developed.
 
 # Foreword
+
 This document shows the results of our project thesis, which we worked on during the Fall Semester 2025 at the ZHAW School of Engineering. For us as Systems Engineering students, the Betaflight project was the perfect opportunity to apply complex control theory and signal processing concepts to a real, highly dynamic system. While FPV drones originally started as a hobby for one of our team members, we all became fascinated by the engineering challenge of mathematically modelling and optimising their flight behaviour.
 
 Our motivation was to bridge the gap between academic theory and practical application. We aimed to develop a tool that not only meets engineering standards but also provides real value to the FPV community by replacing subjective tuning with objective data analysis.
