@@ -70,7 +70,7 @@ In MATLAB, this is typically achieved using the `filtfilt` function, which appli
 After the filtering in the baseband, the signal is **rotated back** to its original frequency range.  
 This is done by multiplying the filtered signals $y_R(t)$ and $y_Q(t)$ with their respective inverse phasors and then combining them back into a **real signal**:
 
-$x_f(t) = \text{Re}\left\{ \frac{1}{2}\big( y_R(t)\,p^*(t) + y_Q(t)\,p(t) \big) \right\}$
+$x_f(t) = \text{Re}{ \frac{1}{2}\big( y_R(t)\,p^*(t) + y_Q(t)\,p(t) \big)}$$
 
 This step reverses the previously applied frequency shift.  
 The signal that was centered around 0 Hz during filtering is now “rotated back up” to follow its original carrier frequency trajectory.  
