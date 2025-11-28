@@ -5,29 +5,6 @@
 %     This class provides visualization methods for analyzing quadcopter 
 %     flight controller performance and tuning data.
 %
-% Main Features:
-%   - Time domain analysis (gyro signals, motor outputs)
-%   - Frequency domain analysis (spectra, Bode plots)
-%   - Controller response visualization (PID components)
-%   - Step response and closed-loop system analysis
-%   - Support for comparing two flight datasets
-%
-% Methods are organized into categories:
-% Time Domain Analysis:
-%   - plot_Gyro_Signal    - Raw gyro data visualization
-%   - plot_Overview       - Overview of flight parameters
-%   - plot_Eval_Time       - Timing analysis
-%
-% Frequency Domain Analysis:  
-%   - plot_Gyro_spectra    - Frequency spectra
-%   - plot_Spectogram     - Time-frequency analysis
-%   - plot_Bode_Plant      - System frequency response
-%
-% Controller Analysis:
-%   - plot_Bode_Contr    - PI and D components
-%   - plot_Gang_of_Four     - Closed loop characteristics
-%   - plot_Step_Response       - Step response analysis
-%
 % Author: [Janick Dort, Yuri Bianchi, Dario Jurietti]
 % Date: [25.11.2025]
 %==========================================================================
