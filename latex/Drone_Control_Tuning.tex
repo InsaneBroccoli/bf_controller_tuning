@@ -1,0 +1,90 @@
+\documentclass[a4paper,11pt,headheight=36pt]{scrartcl}
+
+\KOMAoptions{
+  parskip=half,
+  headings=small,
+  headinclude=true,
+  footinclude=true
+}
+% Die 270mm sind sehr hoch, 240mm ist meist entspannter
+\areaset{175mm}{260mm}
+
+\usepackage[ngerman]{babel}
+\usepackage{csquotes}
+\usepackage{labstyle} % lädt graphicx, xcolor etc. schon
+% Überschriftengrössen anpassen
+\setkomafont{section}{\Large\bfseries}      % \section
+\setkomafont{subsection}{\large\bfseries}   % \subsection
+\setkomafont{subsubsection}{\normalsize\bfseries} % \subsubsection
+
+
+\DeclareSIUnit{\rpm}{rpm}
+\DeclareSIUnit{\newtonmeter}{\newton\metre}
+
+% labstyle-Metadaten
+\renewcommand{\labtitle}{Drone Control Tuning}
+\renewcommand{\labsubtitle}{Development of an Offline Betaflight Drone Control Tuner}
+\renewcommand{\labauthor}{ Yuri Bianchi, Dario Jurietti and Janick Dort}
+\renewcommand{\labdate}{\today}
+
+% Header/Fußzeile aus labstyle nach Bedarf anpassen
+% (labheader steht aktuell in labstyle.sty auf "Drone Control Tuning")
+% \renewcommand{\labheader}{PA Drone Control Tuning}
+% \renewcommand{\labfooter}{ZHAW/IMS}
+% \renewcommand{\lablogo}{}  % Logo oben rechts deaktivieren, falls nicht vorhanden
+
+\begin{document}
+
+% -------------------------------------------------
+% TITELBLATT
+% -------------------------------------------------
+\begin{titlepage}
+  \thispagestyle{empty}
+  \begin{center}
+   \includegraphics[width=0.35\linewidth]{imslogo.pdf}\par\vspace{1.5cm} % :contentReference[oaicite:0]{index=0}
+
+
+    {\large ZHAW – Zurich University of Applied Sciences\par}
+    \vspace{0.4cm}
+    {\large School of Engineering\par}
+    \vspace{1.8cm}
+
+    {\LARGE\bfseries \labtitle\par}
+    \vspace{0.5cm}
+    {\Large\color{labColor}\labsubtitle\par}
+    \vspace{2cm}
+
+    \rule{0.6\linewidth}{0.5pt}\par
+    \vspace{1.5cm}
+
+    \begin{tabular}{ll}
+      \textbf{Autor:}      & \labauthor \\
+      \textbf{Modul / PA:} & Project Thesis \\ % anpassen
+      \textbf{Supervisor:}    & Michael Ernst Peter \\
+       \textbf{Co-Supervisor:} & Dr. Prof. Ruprecht Altenburger \\	
+    \end{tabular}\par
+    \vspace{2cm}
+
+    Winterthur, \labdate
+
+  \end{center}
+\end{titlepage}
+
+% -------------------------------------------------
+% ERSTE INHALTSSEITE MIT labstyle-TITELBLOCK
+% -------------------------------------------------
+
+\section{Abstract}
+Text ...
+
+\section{Foreword}
+Text...
+
+\newpage
+
+\tableofcontents
+
+
+
+
+\end{document}

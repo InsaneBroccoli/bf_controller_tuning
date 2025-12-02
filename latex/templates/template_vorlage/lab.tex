@@ -1,0 +1,219 @@
+% lab_template.tex — neutrale Vorlage für Laborberichte mit labstyle.sty
+\documentclass[a4paper,11pt]{scrartcl}
+\KOMAoptions{
+  parskip=half,
+  headings=small,
+  headinclude=true,
+  footinclude=true
+}
+\areaset{175mm}{270mm}
+
+\usepackage{labstyle}
+
+% ------------------------------------------
+% Sprache
+% ------------------------------------------
+% pdfLaTeX:
+\usepackage[ngerman]{babel}
+% LuaLaTeX / XeLaTeX:
+% \usepackage{polyglossia}
+% \setmainlanguage{german}
+
+% ------------------------------------------
+% Zitate
+% ------------------------------------------
+\usepackage{csquotes}
+
+% ------------------------------------------
+% Beispiele für eigene Einheiten (optional)
+% ------------------------------------------
+\DeclareSIUnit{\rpm}{rpm}
+\DeclareSIUnit{\newtonmeter}{\newton\metre}
+
+% ------------------------------------------
+% Metadaten (Titelblatt)
+% ------------------------------------------
+\renewcommand{\labtitle}{Praktikum X}
+\renewcommand{\labsubtitle}{Kurzer Untertitel des Versuchs}
+\renewcommand{\labauthor}{Name / Gruppe}
+\renewcommand{\labdate}{\today}
+
+\begin{document}
+\makelabtitle
+
+% ==========================================================
+% Abschnitt: Kurzbeschreibung / Lernziele
+% ==========================================================
+\section*{Kurzbeschreibung}
+% Kurze Einleitung zum Versuch:
+% - Was wird untersucht?
+% - Was ist das Ziel?
+% - Welche Grössen sind Ein- und Ausgänge?
+
+Hier kurz den Inhalt und Zweck des Praktikums beschreiben.
+
+\medskip
+\textbf{Lernziele}
+\begin{itemize}
+    \item Lernziel 1 (z.\,B. Modellbildung eines dynamischen Systems)
+    \item Lernziel 2 (z.\,B. Entwurf eines Reglers)
+    \item Lernziel 3 (z.\,B. Umsetzung in Simulink / auf Hardware)
+    \item Lernziel 4 (z.\,B. Auswertung und Interpretation der Ergebnisse)
+\end{itemize}
+
+\begin{answerboxfillpage}
+% Platz für Antworten / Notizen zu den Lernzielen (falls benötigt)
+\end{answerboxfillpage}
+
+% ==========================================================
+% Abschnitt: Systembeschreibung / Differentialgleichung
+% ==========================================================
+\section{Systembeschreibung und Modellierung}
+
+% Beispielabbildung (Foto / Skizze des Aufbaus)
+\labfig[width=0.9\linewidth]{example_setup.png}{Versuchsaufbau (Beispielbild).}
+
+% Kurze verbale Beschreibung des Systems:
+% - Welche physikalischen Grössen sind beteiligt?
+% - Welche Vereinfachungen werden getroffen?
+
+Hier System in Worten beschreiben.
+
+% Beispiel: allgemeine Differentialgleichung
+\[ 
+    % Beispielstruktur:
+    % a_2 \ddot{x}(t) + a_1 \dot{x}(t) + a_0 x(t) = b_0 u(t)
+\]
+
+\begin{gentable}{ll}{Systemparameter (Beispieltabelle)}
+    \textbf{Grösse} & \textbf{Wert} \\
+    \midrule
+    Parameter 1 & Wert / Einheit \\
+    Parameter 2 & Wert / Einheit \\
+    Parameter 3 & Wert / Einheit \\
+\end{gentable}
+
+\begin{aufgaben}
+    \item Skizzieren Sie die angreifenden Kräfte / Ströme / Momente am System.
+    \item Benennen Sie Systemeingang und Systemausgang.
+    \item Stellen Sie die Bewegungsgleichung / Systemgleichung auf.
+\end{aufgaben}
+
+\begin{answerboxfillpage}
+% Platz für Herleitungen / Skizzen
+\end{answerboxfillpage}
+
+% ==========================================================
+% Abschnitt: Linearisierung und Übertragungsfunktion
+% ==========================================================
+\section{Linearisierung und Übertragungsfunktion}
+
+\subsection*{Systemanalyse}
+
+\begin{aufgaben}
+    \item Linearisieren Sie die nichtlineare Differentialgleichung um einen gegebenen Arbeitspunkt.
+    \item Bestimmen Sie die Übertragungsfunktion vom Eingang $U(s)$ zum Ausgang $Y(s)$.
+    \item Vereinfachen Sie das Modell ggf. (z.\,B. Reibung vernachlässigen, Totzeiten, etc.).
+    \item Bestimmen Sie Pol- und Nullstellen der Übertragungsfunktion.
+    \item Charakterisieren Sie das System hinsichtlich Stabilität und statischem Verhalten.
+\end{aufgaben}
+
+\begin{answerboxfillpage}
+% Rechnungen / Ergebnisse zur Übertragungsfunktion
+\end{answerboxfillpage}
+
+\begin{answerbox}[8]
+% Kompakte Zusammenfassung (z.B. finale Übertragungsfunktion, Pole, Nullstellen)
+\end{answerbox}
+
+% ==========================================================
+% Abschnitt: Reglerentwurf (z.B. PI-Regler, Root Locus)
+% ==========================================================
+\section{Reglerentwurf}
+
+% Beispiel PI-Regler
+\[
+    C(s) = k_p \left( \frac{T_i s + 1}{T_i s} \right)
+\]
+
+\begin{aufgaben}
+    \item Wählen Sie eine geeignete Nachstellzeit $T_i$ (z.\,B. über Vorgabe einer Nullstelle).
+    \item Bestimmen Sie die Übertragungsfunktion des offenen Regelkreises $L(s)$.
+    \item Normieren Sie $L(s)$ auf $k \tilde{L}(s)$.
+    \item Skizzieren Sie die Wurzelortskurve:
+    \begin{enumerate}[label*=\alph*), leftmargin=2em]
+        \item Pol- und Nullstellen von $\tilde{L}(s)$ eintragen.
+        \item Polüberschuss und Asymptoten-Schnittpunkt bestimmen.
+        \item Reelle Achsenanteile der Wurzelortskurve identifizieren.
+        \item Verzweigungspunkte (breakaway/break-in) bestimmen.
+        \item Wurzelortskurve vervollständigen.
+        \item Verstärkung $k$ bzw. $k_p$ bestimmen, z.\,B. für doppelte Polstellen.
+    \end{enumerate}
+\end{aufgaben}
+
+\begin{answerboxfillpage}
+% Root-Locus-Konstruktion, Berechnungen, gewählte Reglerparameter
+\end{answerboxfillpage}
+
+% ==========================================================
+% Abschnitt: Implementation und Test
+% ==========================================================
+\section{Implementation und Test}
+
+% Hinweis auf Simulink / Implementierung auf Hardware:
+% - Logik für Enable/Reset
+% - Begrenzung von Stellgrössen
+% - Initialbedingungen
+
+\begin{aufgaben}
+    \item Implementieren Sie den entworfenen Regler im gegebenen \emph{Simulink}-Modell.
+    \item Führen Sie Versuche mit unterschiedlichen Sollwerten / Störungen durch.
+    \item Dokumentieren Sie typische Verläufe (z.B. Führungsverhalten, Störverhalten).
+\end{aufgaben}
+
+\begin{answerboxfillpage}
+% Versuchsbeschreibung, Screenshots von Verläufen, Beobachtungen
+\end{answerboxfillpage}
+
+% ==========================================================
+% Abschnitt: Auswertung und Diskussion
+% ==========================================================
+\section{Auswertung und Diskussion}
+
+\begin{aufgaben}
+    \item Vergleichen Sie Messung und Modell (z.B. Sprungantwort, Frequenzgang).
+    \item Diskutieren Sie Abweichungen und mögliche Ursachen.
+    \item Beurteilen Sie die Qualität der Regelung (Überschwingen, Einregelzeit, Stellgrössenbegrenzung).
+\end{aufgaben}
+
+\begin{answerboxruled}[8]
+% Zusammenhängender Text für die Auswertung / Diskussion
+\end{answerboxruled}
+
+% ==========================================================
+% Abschnitt: Anhang / Zusatzaufgaben
+% ==========================================================
+\section*{Zusatzaufgaben}
+
+\begin{aufgaben}[Zusatzaufgaben]
+    \item Diskutieren Sie Vor- und Nachteile der gewählten Modellvereinfachungen.
+    \item Erweitern Sie das Modell um ein nichtlineares Element (z.B. Reibung, Sättigung).
+\end{aufgaben}
+
+\begin{answerboxruled}[5]
+% Platz für weiterführende Gedanken / Erweiterungen
+\end{answerboxruled}
+
+% ==========================================================
+% Literatur (Beispieleintrag, anpassen/erweitern)
+% ==========================================================
+\begin{thebibliography}{1}
+
+    \bibitem{BeispielQuelle}
+    A.~Autor,
+    \newblock ``Titel des Artikels oder Buches,''
+    \newblock {\em Zeitschrift / Verlag}, Jahr.
+
+\end{thebibliography}
+
+\end{document}
