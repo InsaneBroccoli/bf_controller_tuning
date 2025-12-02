@@ -70,8 +70,16 @@ The project aims to further develop the existing proof of concept, to make the t
 ### 2.1.1 Chirp concept
 A chirp is an input signal that sweeps continuously over a defined range (e.g. from a low frequency to a high frequency). This signal excites the system on multiple frequencies in one run and thus lets you observe the frequency response and step response, the foundation of controller tuning.
 
-Mathematically, a chirp signal can be represented as a sinusoidal wave with instantaneous frequency that varies linearly with time, such as $x(t) = \sin(2\pi (f_0 t + \frac{k}{2} t^2))$, where $(f_0)$
-is the starting frequency and $(k)$ is the chirp rate.
+Mathematically, a chirp signal can be represented as a sinusoidal wave with instantaneous frequency that varies linearly or exponential with time. For more inforation about the mathematical background, please have a look in the document [Chirp Signal](https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Sinarg/Chirp.md).
+
+<p align="center">
+  <img src="../Sinarg/Images/chirp_signal.jpg"
+     alt="Chirp Signal"
+     width="800"
+     style="float:center; margin-left:20px; margin-right:20px;
+     margin-top:20px;">
+     Figure xx: Chirp Signal example
+</p>
 
 ### 2.1.2 Chirp on drone
 In the context of tuning a drone's flight controller, an exponential sweep is used. This is due to the dominant low-frequency dynamics, where low frequencies exhibit more predictable responses, allowing the sweep to allocate more time to higher frequencies for better resolution of system behavior. Additionally, multirotor vibration resonances are typically spaced logarithmically, making exponential sweeps more suited for efficient excitation across the frequency range.
@@ -124,7 +132,7 @@ To save time during analysis, the logs are converted from raw CSV files into a f
 
 ### Handle High-Resolution Data
 
-Betaflight has a **High Resolution Mode** in its logs, where some signals are multiplied with 10 to save space during recording. However, these signals must be scaled back down during analysis to get their real values. If this step is skipped, the results will be completely wrong, like seeing incorrect frequencies in a graph or tuning the controller incorrectly. 
+Betaflight has a **High Resolution Mode** in its logs, where some signals are multiplied with 10 to save space and get rid of nummerical errors during recording. However, these signals must be scaled back down during analysis to get their real values. If this step is skipped, the results will be completely wrong, like seeing incorrect frequencies in a graph or tuning the controller incorrectly.
 
 Important signals like gyro data and control inputs are included in this step. Rescaling their values is critical for all kinds of analysis, from looking at signal behavior to calculating performance. Learn how this works in the [Unscale_high_Resolution_Gain documentation](https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Data/Unscale_high_Resolution_Gain.md).
 
@@ -140,17 +148,27 @@ By checking the time steps between samples, you can find logging errors like dro
 
 Filtering is an essential step in preparing data for analysis, as it removes unwanted noise while preserving the integrity of the signal. The `Apply Rotfiltfilt` operation applies a zero-phase filter, ensuring that the data's phase relationships remain intact while suppressing specific frequency components like low-frequency drifts or high-frequency noise.
 
-This step uses a forward-backward filtering technique, which processes the data in both forward and reverse directions, effectively cancelling out phase distortions. The choice of filter type and its parameters `(cutoff frequency, order ??)` allows for detailed customization for various use cases like controller tuning or signal characterization.
+This step uses a forward-backward filtering technique, which processes the data in both forward and reverse directions, effectively cancelling out phase distortions. This methode is especially useful when dealing with chirp signals, as it allows for precise filtering without introducing phase shifts that could alter the signal's characteristics.
 
 Proper application of this technique ensures that the data is clean and reliable for downstream processes. For more insights on how this method works, refer to the full description in the [Apply Rotfiltfilt documentation](https://github.com/InsaneBroccoli/bf_controller_tuning).
 
 ### Estimation of Frequency Response
 
-Understanding how a system responds to various frequencies is critical in assessing its dynamics. The `Estimate Frequency Response` function uses advanced techniques to measure and analyze the relationship between a system's input and output signals in the frequency domain.
+ The `Estimate Frequency Response` function uses advanced techniques to measure and analyze the relationship between a system's input and output signals in the frequency domain. Through that, it reveals how different frequencies are amplified or attenuated by the system, providing crucial insights into its dynamic behavior.
 
 This technique primarily relies on the **Welch Method**, which divides the signal into overlapping segments. By applying a window function to each segment (Hann) and performing spectral averaging, this approach minimizes noise effects and ensures a smoother estimate of the frequency response. It outputs a single-sided, amplitude-calibrated response curve that reveals how each frequency is amplified or attenuated and how the phase shifts occur across the spectrum.
 
 The resulting data is not only accurate but also robust, making it suitable for applications like control system tuning or stability analysis. For a deeper dive into the theoretical principles and implementation steps, consult the detailed [Estimate Frequency Response documentation](https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/estimate_frequency_response.md).
+
+
+<p align="center">
+  <img src="./Images/segmentation.jpg"
+     alt="Segmentation"
+     width="800"
+     style="float:center; margin-left:20px; margin-right:20px;
+     margin-top:20px;">
+     Figure xx: Segementation of a Signal
+</p>
 
 
 ## 3.2 control system
@@ -163,7 +181,7 @@ To understand how the system reacts to different inputs, the transfer function o
 
 ### Calculating the Closed Loop
 
-The interaction between the controller and the plant, as well as the response of the closed-loop system as a whole, determines how stable and reliable the control process is. By calculating the closed-loop transfer functions for both inner and outer loops, it is possible to assess sensitivity, disturbance rejection, and overall system stability. These calculations provide an understanding of key controller dynamics and how they influence the system. For a closer look at how this process is carried out, refer to the [Calculate Closed Loop documentation](https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/CalculateClosedLoop.md).
+The interaction between the controller and the plant, as well as the response of the closed-loop system as a whole, determines how stable and reliable the control process is. By calculating the closed-loop transfer functions for both inner and outer loops, it is possible to assess sensitivity, disturbance rejection, and overall system stability. These calculations provide an understanding of key controller dynamics and how they influence the system. For a closer look at how this process is carried out, see the document [Calculate Closed Loop documentation](https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/CalculateClosedLoop.md).
 
 <p align="center">
   <img src="../Frequency_Response/Images/Regelstrecke.png"
@@ -180,9 +198,9 @@ Filters and controllers form the foundation of the control loop. Filters are res
 
 ### Compensating the I-Term
 
-The integral term in a PID controller addresses long-term errors, ensuring steady corrections over time. However, it can become problematic during quick stick movements, where it may overcorrect and destabilize the system. To avoid this, compensation methods adjust the influence of the I-term based on the situation, suppressing it during rapid changes while allowing it to integrate errors during slower movements. This approach helps maintain both precision and responsiveness. For more information, refer to the [Compensate I-Term documentation](https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/Compensate_Iterm.md).
+The integral term in a PID controller addresses long-term errors, ensuring steady corrections over time. However, it can become problematic during quick stick movements, where it may overcorrect and destabilize the system. To avoid this, compensation methods adjust the influence of the I-term based on the situation, suppressing it during rapid changes while allowing it to integrate errors during slower movements. This approach helps maintain both precision and responsiveness. Have a look at [Compensate I-Term documentation](https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/Compensate_Iterm.md) to see how we added compensation to the calculation.
 
-## 3.3 evaluation
+## 3.3 Evaluation
 
 Evaluation is a critical part of understanding and improving the behavior of the control system. This section outlines key analytical steps, such as analyzing time-domain responses and interpreting frequency-domain data to assess system dynamics comprehensively.
 
@@ -255,7 +273,7 @@ This work included:
 The biggest challange was to achieve good soldering connecions `...`
 
 
-## 4.3 tuning an FPV drone
+## 4.3 Tuning an FPV drone
 As part of understanding the workflow we tuned an FPV drone by ourselves. The goal was to adjust the PID parameters so that we achieve a fast rising step response without overshoot, a lower complianace than before and a rounded shaped Sensitivity. Also to mention is, that the axes roll and pitch should be tuned as simmilar to eachother as possible. This is because you want the drone to maintain a consistent and predictable response, so roll and pitch behave similarly for smoother control and a balanced flight experience.
 
 Initially, we deliberately applied a poor tuning configuration to observe its effects. During the first field test with this setup, it quickly became apparent that the tuning was excessively poor. The drone began oscillating aggressively and climbed rapidly. As the drone was out of control, the kill switch had to be activated, resulting in a crash that broke one of the four arms. Fortunately, the damage was minor and repaired quickly.
