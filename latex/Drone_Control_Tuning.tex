@@ -7,7 +7,7 @@
   footinclude=true
 }
 % Die 270mm sind sehr hoch, 240mm ist meist entspannter
-\areaset{175mm}{260mm}
+\areaset{175mm}{270mm}
 
 \usepackage[ngerman]{babel}
 \usepackage{csquotes}
@@ -82,8 +82,8 @@
 % -------------------------------------------------
 
 \section{Abstract}
-This project focuses on the development of a method for offline tuning of rate controllers for FPV racing
-drones based on the open-source firmware Betaflight. The quality of the rate control loop has a direct influence
+This project focuses on the development of a tool for offline tuning of gyro controllers for FPV racing
+drones based on the open-source firmware Betaflight. The quality of the gyro control loop has a direct influence
 on flight stability, the suppression of disturbances such as prop wash, and the agility of the drone. Until now,
 rate controller tuning has mostly been performed through time-consuming trial and error. \par
 The aim of the project is to develop a modular, open-source solution for offline tuning based on an existing
@@ -196,6 +196,140 @@ Once the chirp is initialised use the chirpUpdate() function once per loop itera
 \end{itemize}
 
 if none of the above is true the ...
+
+\newpage
+
+\section{Theory}
+
+\subsection{Signal Processing}
+Text....
+
+\subsubsection{Data Import}
+Text....
+
+\subsubsection{Handle High-Resolution Data}
+Text...
+
+\subsubsection{Time Conversion and Sampling Rate Verification}
+Text...
+
+\subsubsection{Application of Rotational Filtering (Apply Rotfiltfilt)}
+Text...
+
+\subsubsection{Estimation of Frequency Response}
+Text...
+
+\newpage
+\subsection{Control System}
+Text...
+
+\subsubsection{Transfer Function Estimation}
+Text...
+
+\subsubsection{Closed Loop Calculation}
+Text...
+
+\subsubsection{Filters and Controllers}
+Text...
+
+\subsubsection{Compensation of the I-Term} 
+Text...
+
+\newpage
+\subsection{Evaluation}
+Text...
+\subsubsection{Step Response}
+Text...
+
+\subsubsection{Spectra Analysis}
+Text...
+
+\subsubsection{Spectrum Analysis}
+Text...
+
+\newpage
+
+\section{Challenges and Methodological Approach}
+
+\subsection{Simulations}
+Text...
+
+\subsubsection{Simulation of Betaflight Controller Order}
+Text....
+
+\subsubsection{Simulation PID Controller}
+Text...
+
+\subsubsection{Simulation Frequency Response}
+Text....
+
+\subsubsection{Simulation Spectra}
+Text....
+
+\subsubsection{Simulation Spectogram}
+Text....
+
+\newpage
+
+\subsection{Building an FPV drone}
+Text...
+
+\subsection{Tuning an FPV drone}
+Text...
+\newpage
+
+\subsection{Decode}
+Text...
+\newpage
+
+\subsection{Code Structure and programming style}
+Text...
+
+\subsubsection{OOP vs. Functional Approach}
+Text...
+
+\subsubsection{Final Structure Concept}
+Text...
+
+\newpage
+
+
+\subsection{Convertion MATLAB to Python}
+Text...
+\subsection{Python in MATLAB}
+Text...
+\subsection{Transfer MATLAB Libary to Python}
+Text...
+
+\newpage
+
+\section{Results}
+Text...
+
+\section{Discussion and next steps}
+\subsection{Discussion}
+Text...
+
+\subsection{Next Steps}
+Text...
+
+\subsection{Conclusion}
+Text...
+
+\newpage
+
+\section{Directories}
+
+
+
+
+
+
+
+
+
+
+
 
 
 
