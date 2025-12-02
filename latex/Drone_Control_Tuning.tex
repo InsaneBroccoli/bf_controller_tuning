@@ -12,6 +12,13 @@
 \usepackage[ngerman]{babel}
 \usepackage{csquotes}
 \usepackage{labstyle} % lädt graphicx, xcolor etc. schon
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,      % internal links (sections, figures)
+  urlcolor=blue,       % external URLs
+  citecolor=blue       % citations
+}
 % Überschriftengrössen anpassen
 \setkomafont{section}{\Large\bfseries}      % \section
 \setkomafont{subsection}{\large\bfseries}   % \subsection
@@ -101,12 +108,71 @@ Text...
 \section{Preparation}
 
 \subsection{Chirp}
-Text...
+\subsubsection{Chirp Concept}
+A chirp is an input signal that sweeps continuously over a defined range (e.g. from a low frequency to a high frequency). 
+This signal excites the system on multiple frequencies in one run and thus lets you observe the frequency response and step response, 
+the foundation of controller tuning.
+Mathematically, a chirp signal can be represented as a sinusoidal wave with instantaneous frequency that varies linearly or exponential with time. 
+For more inforation about the mathematical background, please have a look in the document \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Sinarg/Chirp.md}{Chirp Signal}.
 
- \subsubsection{Chirp Concept}
-Text..
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\textwidth]{./Images/chirp_signal.jpg}
+  \caption{Chirp Signal example}
+  \label{fig:chirp}
+\end{figure}
 
+\subsubsection{Chirp on a drone}
+In the context of tuning a drone's flight controller, an exponential sweep is used. 
+This is due to the dominant low-frequency dynamics, where low frequencies exhibit more predictable responses, 
+allowing the sweep to allocate more time to higher frequencies for better resolution of system behavior. Additionally, 
+multirotor vibration resonances are typically spaced logarithmically, 
+making exponential sweeps more suited for efficient excitation across the frequency range.
 
+The process involves these steps:
+\begin{enumerate}
+  \item Signal Injection: The chirp signal is added to the pilot's stick input. This composite signal becomes the setpoint for the PID controller.
+  \item System Response: The drone attempts to follow this rapidly changing setpoint. The motors react, and the drone will oscillate at varying frequencies corresponding to the chirp signal.
+  \item Data Logging: While the chirp is active, high-resolution data from the gyroscope and the motor outputs are recorded using Betaflight's Blackbox feature. This data captures how the drone responds to the control inputs at different frequencies.
+\end{enumerate}
+
+The recorded log file, containing the input chirp and the corresponding gyroscope output, 
+is then used for offline analysis to determine the frequency response of the system.
+
+\subsubsection{Chirp programming}
+The implementation of the chirp signal in Betaflight is straightforward. You call the function chirpInit() and pass:
+\begin{itemize} 
+  \item a struct of type chirp\_t defined in chirp.h
+  \item starting frequency
+  \item end frequency
+  \item signal length
+  \item loop-time in microseconds\\[1pt]
+\end{itemize}
+
+This initialises the values in the data struct and:
+\begin{itemize}
+  \item converts loop period from microseconds to seconds
+  \item calculates the number of samples in the signal duration
+  \item calculates the exponential growth factor
+  \item precomputes the constants used to get the phase from the frequency evolution
+  \item calls chirpReset() function
+\end{itemize}
+
+The chirpReset() function sets:
+\begin{itemize}
+  \item internal counter to 0
+  \item bool isFinished to false
+\end{itemize}
+then calls the function chirpResetSignals() to set signal-related fields to 0\\
+
+Once the chirp is initialised use the chirpUpdate() function once per loop iteration. This function checks:
+\begin{itemize}
+  \item if bool isFinished is true -> return false
+  \item else if internal counter is equal to the number of samples inside the chirps period 
+        \\-> set bool isFinished true, call chirpResetSignals(), return false
+\end{itemize}
+
+if none of the above is true the ...
 
 
 
