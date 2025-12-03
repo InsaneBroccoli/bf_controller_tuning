@@ -19,6 +19,14 @@
   urlcolor=blue,       % external URLs
   citecolor=blue       % citations
 }
+\usepackage{listings}
+\lstset{
+  basicstyle=\ttfamily\small,
+  frame=none,
+  breaklines=true,
+  literate={│}{{\textbar}}1 {├}{{$\vdash$}}1 {└}{{$\llcorner$}}1 {─}{{-}}1
+}
+\usepackage{dirtree}
 % Überschriftengrössen anpassen
 \setkomafont{section}{\Large\bfseries}      % \section
 \setkomafont{subsection}{\large\bfseries}   % \subsection
@@ -252,30 +260,129 @@ Text...
 \section{Challenges and Methodological Approach}
 
 \subsection{Simulations}
-Text...
+At the beging of our thesis, we started to create simulations. 
+We used these simulations to deepen our understandig of the existing code and to understand the used methods. 
+The simulations were crucial, but als very time intensive. 
+They formed the basis for all later analysis steps and helped us understanding the existing functions before we used them further.
 
 \subsubsection{Simulation of Betaflight Controller Order}
-Text....
+For analysis and for better understanding of the Betaflight control system, we recreated the complete control structure in MATLAB. 
+You will find the corresponding script in the attachments. In the simulation, 
+we attempted to reproduce the step response of the recorded data by using the same PID parameters and filter settings as in the real system.
+The different filter where created according to the documentation \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/Filter_and_Controller.md}{Filter and Controller}
+We implemented the filters both continuously and discretely, so that we could compare the two types. The PI- and D-Controller were built in the same way.
+For the transfer function of the plant we used a simplified version out of PT `??` elements and dead time, 
+based on the approaches form the documentation \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/CalculateClosedLoop.md}{Calculation Closed Loop}
+In addition to the MATLAB code, we created a Simulink model, in which we tested the step response of our simulation of the Betaflight control system. 
+The simulated answer got close to the step response of the real drone. For us, this was the confirmation, that we got the controller order correct.
 
 \subsubsection{Simulation PID Controller}
-Text...
+To deepen our understanding of the different controller components, we created an additional MATLAB script. 
+It allowed us to combine different controller types with simple plant models. 
+In the program you can switch between P, I, PI, PD and PID controllers, and between basic plant types. 
+Through this, we were able to observe how each controller component influences the overall system behaviour.
+The script calculates the open and closed loop of the chosen settings and generates Bode plots, Nyquist diagrams and step responses. 
+This helped us to understand and visualize the effect of each component. 
+Trough that, our overall understanding of contoller behaviour significantly improved.
 
 \subsubsection{Simulation Frequency Response}
-Text....
+To analyse the frequency response of a system based on input and output data, we created an additional simulation. 
+In this simulation we created a chirp signal on which we added noise for a more realisic measurement condition. 
+Using these signals, we implemented different methods to estimate the system’s transfer function.
+First, we calculated a basic frequency response using the plain \textbf{F}ast \textbf{F}ourier \textbf{T}ransformation (FFT). That got us a good benchmark. 
+After that, we applied different signal processing methods. 
+First we used the Welch method to improve the estimation by averaging over overlapping segments. 
+The implementation of the Welch \textbf{F}requency \textbf{R}esponse \textbf{F}unction (FRF) follows the theory described in the documentation 
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/estimate_frequency_response.md}{Estimate Frequency Response}
+This allowed us to compare the plain FFT approach with the more robust Welch estimator.
+In the next step we implemented a rotated-signal approach, where the chirp is demodulated to baseband before filtering. 
+For this part we used the zero-phase filtering method apply\_rotfiltfilt, as described in the documentation 
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/ApplyRotfiltfilt.md}{Apply Rotfiltfilt}.
+After that we compared the orignal bode plot to the signal processed one `??`, to see how the rotation technique improves the noise robustness.
+Overall, this script helped us understand how noise affects the estimated transfer function and how we can increase the robustness of the signals.
 
 \subsubsection{Simulation Spectra}
-Text....
+To better understand the different components use to create a meaningful spectrum, we developed a simulation based on the system used in the given code. 
+In this script we generated a noisy sinusoidal input signal out of which we created different spectra. 
+In one case we applied a window function and in the other we did not use any window. 
+By splitting the signal into several overlapping segments, 
+we were able to observe how averaging across segments reduces noise and stabilises the resulting spectrum. 
+The implementation is described in detail in the document \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Spectrum_Spectogram/Spectra_Analysis.md}{Spectra Analysis}.
+Overall, this exercise helped us understand how windowing, overlap and segment length affect the spectral estimation. 
+Also how these methods can increase robustness and reduce spectral leakage.
 
 \subsubsection{Simulation Spectogram}
-Text....
+For better understandig of the analysis how the frequency content of the excitation signal changes with both time and thrust, 
+we developed an further MATLAB simulation. In this script, we generated a noisy sinusoidal input signal and a slowly varying thrust signal. 
+The input signal is then split up in different segments and windowed with a Hann window. 
+After this the signal is transformad using the FFT in order to obtain a time-frequency representation.
+At first, we arranged the segment spectra along the time axis and in e second step, along the thrust levels. 
+So we got two spectrograms, one is showing the amplitude over frequency and time, 
+and the other one is showing us the amplitude over frequency and thrust. Through this visualisation, 
+we can identify the dominant frequency components depending on thrust. 
+The underlying method is described in detail in the document \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Spectrum_Spectogram/Spectogram_Analysis.md}{Spectrogram Analysis}.
 
 \newpage
 
 \subsection{Building an FPV drone}
-Text...
+Besides the understanding of the code and further developing the proof of concept, 
+building a drone and set it up correctly bridges the gap between the digital domain, 
+where algorithms and simulations are developed and the physical reality of drone operation. 
+By getting in touch with the hardware, it is easier for us to understand what practical challenges exist for pilots and the community.
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=0.8\textwidth]{./Images/Stock_Photo.png}
+	\caption{IFLIGHT aosmini build}
+	\label{fig:aosmini}
+\end{figure}
+
+Therefore a three inch FPV drone was built from the ground up. 
+This work included:
+\begin{itemize}
+	\item creating schemes to see which connections were required
+	\item soldering all the components as the motors, receiver, video system, logger and gps module to the flight controller
+	\item attaching everything to the frame, so that nothing generates unnecessary oscillations during flight
+	\item double check all soldering connections and screws
+	\item setting everything up in betaflight
+	\item testfly the drone
+\end{itemize}
+
+The biggest challange was to achieve good soldering connecions ...
 
 \subsection{Tuning an FPV drone}
-Text...
+As part of understanding the workflow we tuned an FPV drone by ourselves. 
+The goal was to adjust the PID parameters so that we achieve a fast rising step response without overshoot, 
+a lower complianace than before and a rounded shaped Sensitivity. Also to mention is, 
+that the axes roll and pitch should be tuned as simmilar to eachother as possible. 
+This is because you want the drone to maintain a consistent and predictable response, 
+so roll and pitch behave similarly for smoother control and a balanced flight experience.
+
+Initially, we deliberately applied a poor tuning configuration to observe its effects. 
+During the first field test with this setup, it quickly became apparent that the tuning was excessively poor. 
+The drone began oscillating aggressively and climbed rapidly. As the drone was out of control, the kill switch had to be activated, 
+resulting in a crash that broke one of the four arms. Fortunately, the damage was minor and repaired quickly.
+
+After this incident, we decided not to repeat flights with intentionally bad tuning. 
+Instead, we continued using the default Betaflight parameters as a baseline. \colorbox{yellow}{With these the drone flies reliably}.
+However, during demanding maneuvers such as flips or propwash manouvers, 
+it becomes evident that there is room for improvement in terms of stability and responsiveness.
+
+The tuning process was carried out on a larger 6-inch FPV drone provided by one of the team members. 
+The drone was freshly flashed with Betaflight v12, meaning all filters and settings were at factory defaults. 
+Achieving an optimal tune required several attempts due to challenges with filter adjustments and occasional logging issues. 
+Nevertheless, the drone was successfully tuned, and the improvement was noticeable. 
+During propwash manoeuvres, the drone remained significantly more stable, and flips were executed with greater precision at the stop.
+
+Our tuning objective was to achieve a fast step response without overshoot, while maintaining good compliance and sensitivity. 
+It is important to note that there is no universally “perfect” tune. Settings depend heavily on pilot preferences. 
+Racing pilots for example maybe want more responsiveness for competitive performance, whereas freestyle pilots want smoothness and flight feel. 
+
+Since none of our team members are professional pilots, we focused on achieving robustness and a step response without overshoot. 
+This tuning approach is probably somewhere between what a racing pilot and a freestyle pilot would prefer. 
+Robustness in this context is important for practical scenarios, such as when a propeller is slightly bent, 
+the battery sits slightly off center or when an additional component like a camera is mounted on the drone.
+
 \newpage
 
 \subsection{Decode}
@@ -283,13 +390,145 @@ Text...
 \newpage
 
 \subsection{Code Structure and programming style}
-Text...
+From the start of the project, we recognized that a clear and maintainable code structure would be essential. 
+The initial proof-of-concept code already contained a rough separation into topics such as data I/O and step response, 
+but everything was packed into a single file, making it difficult to navigate. 
+Our first step was to comment out the proof-of-concept code and reorganize it into thematic sections. 
+This was the foundation for a more organized layoutand we came to an initial directory structure:
+\\
+\dirtree{%
+.1 bf\_controller\_tuning/.
+.2 main.m.
+.2 data\_io/.
+.3 load\_data.m.
+.3 extract\_header\_information.m.
+.3 preprocess\_data.m.
+.2 flight\_parameters/.
+.3 get\_pid\_parameters.m.
+.3 scale\_pid\_parameters.m.
+.3 print\_parameters.m.
+.2 spectrogram/.
+.3 calculate\_spectrogram.m.
+.3 plot\_spectrogram.m.
+.3 show\_spectrogram.m.
+.2 spectra/.
+.3 estimate\_spectra.m.
+.3 plot\_spectra.m.
+.3 show\_spectra.m.
+.2 frequency\_response/.
+.3 estimate\_frequency\_response.m.
+.3 plot\_bode.m.
+.3 show\_frequency\_response.m.
+.2 controller\_analysis/.
+.3 calculate\_closed\_loop.m.
+.3 calculate\_step\_response.m.
+.3 show\_controller\_analysis.m.
+.2 utils/.
+.3 apply\_rotfiltfilt.m.
+.3 downsample\_frd.m.
+.3 get\_my\_colors.m.
+}
+
+This draft was never intended to be final. Rather, it served as an initial attempt to bring clarity and separation between different functional areas.
 
 \subsubsection{OOP vs. Functional Approach}
-Text...
+At this stage, we discussed whether to implement the entire project using object-oriented programming (OOP) or stick to a modular, 
+function-based approach. Initially, we considered OOP as a challenge, since most of us were not very experienced with it. 
+We started writing some components as classes, but quickly realized that only one team member really was comfortable with OOP, while the others struggled. This made us reconsider.
+Our conclusion was to use OOP selectively—only for parts that benefit from reuse and encapsulation, such as data loading and plotting, 
+while keeping the rest function-based for simplicity. This hybrid approach allowed us to maintain flexibility without overcomplicating the design.
+
+After several attempts, we agreed on the following principles:
+
+\begin{itemize}
+	\item A main script (main.m) for user input, figure selection, filter settings, and PID tuning
+	\item A core class to handle all calculations (essentially the logic from the proof of concept, but without plotting)
+	\item A plot utilities class to centralize all plotting functions for consistency
+\end{itemize}
+
+Existing library functions from the proof of concept were reused without modification. The thematic grouping included:
+\\
+\dirtree{%
+.1 bf\_controller\_tuning/.
+.2 class/.
+.3 main\_class.m.
+.3 plot\_utils.m.
+.2 lib/.
+.3 apply\_rotfiltfilt.m.
+.3 calculate\_closed\_loop.m.
+.3 calculate\_controllers.m.
+.3 calculate\_step\_response\_from\_frd.m.
+.3 calculate\_transfer\_functions.m.
+.3 downsample\_frd.m.
+.3 estimate\_frequency\_response.m.
+.3 estimate\_spectra.m.
+.3 estimate\_spectrogram.m.
+.3 expand\_multiple\_figure\_nr.m.
+.3 extract\_header\_information.m.
+.3 get\_chirp\_signals.m.
+.3 get\_fcut\_from\_D\_and\_fcenter.m.
+.3 get\_fcut\_from\_exp.m.
+.3 get\_filter.m.
+.3 get\_ind\_eval.m.
+.3 get\_my\_colors.m.
+.3 get\_notch\_Q.m.
+.3 get\_pid\_scale.m.
+.3 get\_switch\_case\_text\_from\_para.m.
+.2 logs/.
+.2 main.m.
+}
+
+This structure worked well and kept the main script simple for the user. However, after a review meeting, our instructor suggested further modularization. The reason: we had created a “god class,” which limited flexibility. For example, if someone wanted to use the tool only for plotting spectrograms without any drone-specific logic, the current design made that difficult. Also the program was slow. All calculations were made, everytime the user changed something. We wanted to improve the speed in only doing these calculations again, which are relevant on that specific user input change. 
 
 \subsubsection{Final Structure Concept}
-Text...
+Out of this, we decided to split up this god class into three classes.
+The \texttt{flight\_analyzer} class handles \textbf{frequency domain analysis and vibration characterization}. 
+Its core responsibility is performing spectral analysis on flight log data to identify resonance frequencies and assess filter effectiveness. 
+It computes power spectral density of gyro signals (both filtered and unfiltered) and generates spectrograms showing 
+how vibration frequencies vary with throttle levels across all three axes (roll, pitch, yaw). 
+This analysis is essential for identifying noise sources, evaluating filtering strategies, and optimizing drone stability during tuning. 
+The \texttt{flight\_data} class is responsible for \textbf{loading, parsing, and managing flight log data}. 
+It provides methods to extract relevant information from Blackbox logs, such as gyro and motor data, and prepares this data for analysis. 
+The \texttt{gyro\_ctrl\_tuning} class focuses on \textbf{tuning the PID controllers} for the drone's flight. 
+It uses the results from the frequency response and spectral analysis to adjust the PID parameters, aiming to optimize the drone's flight characteristics. 
+The \texttt{plot\_utils} class remains responsible for \textbf{visualization and graphical representation} of all analysis results. 
+Unlike the previous approach, this class is now more flexible and reusable. It can be used independently to generate plots from pre-calculated data, 
+making it suitable for users who only want to visualize spectrograms, frequency responses, or step responses without running the full analysis pipeline. 
+This modularity allows the plotting functionality to be easily adapted for different visualization needs and integrated into other workflows.
+
+This approach still holds thematic sections, but is more accessible to use only specific parts of the tool.
+\\
+\dirtree{%
+.1 bf\_controller\_tuning/.
+.2 class/.
+.3 flight\_analyzer.m.
+.3 flight\_data.m.
+.3 gyro\_ctrl\_tuning.m.
+.3 plot\_utils.m.
+.2 lib/.
+.3 apply\_rotfiltfilt.m.
+.3 calculate\_closed\_loop.m.
+.3 calculate\_controllers.m.
+.3 calculate\_step\_response\_from\_frd.m.
+.3 calculate\_transfer\_functions.m.
+.3 downsample\_frd.m.
+.3 estimate\_frequency\_response.m.
+.3 estimate\_spectra.m.
+.3 estimate\_spectrogram.m.
+.3 expand\_multiple\_figure\_nr.m.
+.3 extract\_header\_information.m.
+.3 get\_chirp\_signals.m.
+.3 get\_fcut\_from\_D\_and\_fcenter.m.
+.3 get\_fcut\_from\_exp.m.
+.3 get\_filter.m.
+.3 get\_ind\_eval.m.
+.3 get\_my\_colors.m.
+.3 get\_notch\_Q.m.
+.3 get\_pid\_scale.m.
+.3 get\_switch\_case\_text\_from\_para.m.
+.2 logs/.
+.2 main.m.
+}
 
 \newpage
 
