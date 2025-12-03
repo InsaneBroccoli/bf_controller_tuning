@@ -1,38 +1,56 @@
 \documentclass[a4paper,11pt,headheight=36pt]{scrartcl}
 
+% Seitenränder und Kopf-/Fußzeilen anpassen
 \KOMAoptions{
-  parskip=half,
-  headings=small,
-  headinclude=true,
-  footinclude=true
+  parskip=half,     % halber Zeilenabstand zwischen Absätzen
+  headings=small,   % kleinere Überschriften
+  headinclude=true, % Kopfzeile einbeziehen
+  footinclude=true  % Fußzeile einbeziehen
 }
-% Die 270mm sind sehr hoch, 240mm ist meist entspannter
-\areaset{175mm}{270mm}
+% Seitenränder setzen
+\areaset{165mm}{250mm} % Breite und Höhe des Textbereichs
 
 \usepackage[ngerman]{babel}
-\usepackage{csquotes}
+\usepackage{csquotes} % für Zitate
 \usepackage{labstyle} % lädt graphicx, xcolor etc. schon
-\usepackage{hyperref}
+\usepackage{hyperref} % für Links im PDF
 \hypersetup{
-  colorlinks=true,
-  linkcolor=blue,      % internal links (sections, figures)
-  urlcolor=blue,       % external URLs
-  citecolor=blue       % citations
+  colorlinks=true,    % farbige Links
+  linkcolor=black,    % internal links (sections, figures)
+  urlcolor=blue,      % external URLs
+  citecolor=blue      % citations
 }
-\usepackage{listings}
+\usepackage{listings} % für Quellcode-Darstellung
 \lstset{
-  basicstyle=\ttfamily\small,
-  frame=none,
-  breaklines=true,
-  literate={│}{{\textbar}}1 {├}{{$\vdash$}}1 {└}{{$\llcorner$}}1 {─}{{-}}1
+  basicstyle=\ttfamily\small, % Schriftart und -grösse
+  frame=none, % kein Rahmen
+  breaklines=true, % Zeilen umbrechen
+  literate={│}{{\textbar}}1 {├}{{$\vdash$}}1 {└}{{$\llcorner$}}1 {─}{{-}}1 % für dirtree
 }
-\usepackage{dirtree}
+\usepackage{dirtree} % für Verzeichnisbäume
+
+% Abstände vor und nach Überschriften anpassen
+\RedeclareSectionCommand[
+  beforeskip=1.5em,   % Abstand vor der Überschrift
+  afterskip=0.75em    % Abstand nach der Überschrift
+]{section}
+
+\RedeclareSectionCommand[
+  beforeskip=1.25em,
+  afterskip=0.1em
+]{subsection}
+
+\RedeclareSectionCommand[
+  beforeskip=1em,
+  afterskip=0.1em
+]{subsubsection}
+
 % Überschriftengrössen anpassen
 \setkomafont{section}{\Large\bfseries}      % \section
 \setkomafont{subsection}{\large\bfseries}   % \subsection
 \setkomafont{subsubsection}{\normalsize\bfseries} % \subsubsection
 
-
+% SI-Einheiten definieren
 \DeclareSIUnit{\rpm}{rpm}
 \DeclareSIUnit{\newtonmeter}{\newton\metre}
 
@@ -144,7 +162,7 @@ A chirp is an input signal that sweeps continuously over a defined range (e.g. f
 This signal excites the system on multiple frequencies in one run and thus lets you observe the frequency response and step response,
 the foundation of controller tuning.
 Mathematically, a chirp signal can be represented as a sinusoidal wave with instantaneous frequency that varies linearly or exponential with time.
-For more inforation about the mathematical background, please have a look in the document \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Sinarg/Chirp.md}{Chirp Signal}.
+For more information about the mathematical background, please have a look in the document \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Sinarg/Chirp.md}{Chirp Signal}.
 
 \begin{figure}[htbp]
 	\centering
@@ -166,6 +184,7 @@ The process involves these steps:
 	\item System Response: The drone attempts to follow this rapidly changing setpoint. The motors react, and the drone will oscillate at varying frequencies corresponding to the chirp signal.
 	\item Data Logging: While the chirp is active, high-resolution data from the gyroscope and the motor outputs are recorded using Betaflight's Blackbox feature. This data captures how the drone responds to the control inputs at different frequencies.
 \end{enumerate}
+\vspace{1em}
 
 The recorded log file, containing the input chirp and the corresponding gyroscope output,
 is then used for offline analysis to determine the frequency response of the system.
@@ -177,8 +196,9 @@ The implementation of the chirp signal in Betaflight is straightforward. You cal
 	\item starting frequency
 	\item end frequency
 	\item signal length
-	\item loop-time in microseconds\\[1pt]
+	\item loop-time in microseconds
 \end{itemize}
+\vspace{1em}
 
 This initialises the values in the data struct and:
 \begin{itemize}
@@ -188,15 +208,19 @@ This initialises the values in the data struct and:
 	\item precomputes the constants used to get the phase from the frequency evolution
 	\item calls chirpReset() function
 \end{itemize}
+\vspace{1em}
 
 The chirpReset() function sets:
 \begin{itemize}
 	\item internal counter to 0
 	\item bool isFinished to false
 \end{itemize}
-then calls the function chirpResetSignals() to set signal-related fields to 0\\
 
-Once the chirp is initialised use the chirpUpdate() function once per loop iteration. This function checks:
+and then calls the function chirpResetSignals() to set signal-related fields to 0.
+\\
+Once the chirp is initialised use the chirpUpdate() function once per loop iteration. 
+\\
+This function checks:
 \begin{itemize}
 	\item if bool isFinished is true -> return false
 	\item else if internal counter is equal to the number of samples inside the chirps period
@@ -260,66 +284,65 @@ Text...
 \section{Challenges and Methodological Approach}
 
 \subsection{Simulations}
-At the beging of our thesis, we started to create simulations. 
-We used these simulations to deepen our understandig of the existing code and to understand the used methods. 
-The simulations were crucial, but als very time intensive. 
-They formed the basis for all later analysis steps and helped us understanding the existing functions before we used them further.
+At the beginning of our thesis, we started creating simulations. 
+We used these simulations to deepen our understanding of the existing code and the methods it employed. 
+Although the simulations were time-intensive, they proved crucial for our work. 
+They formed the basis for all subsequent analysis steps and helped us understand the existing functions before applying them further.
 
 \subsubsection{Simulation of Betaflight Controller Order}
-For analysis and for better understanding of the Betaflight control system, we recreated the complete control structure in MATLAB. 
-You will find the corresponding script in the attachments. In the simulation, 
+To analyse and better understand the Betaflight control system, we recreated the complete control structure in MATLAB. 
+The corresponding script can be found in the attachments. In this simulation, 
 we attempted to reproduce the step response of the recorded data by using the same PID parameters and filter settings as in the real system.
-The different filter where created according to the documentation \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/Filter_and_Controller.md}{Filter and Controller}
-We implemented the filters both continuously and discretely, so that we could compare the two types. The PI- and D-Controller were built in the same way.
-For the transfer function of the plant we used a simplified version out of PT `??` elements and dead time, 
-based on the approaches form the documentation \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/CalculateClosedLoop.md}{Calculation Closed Loop}
-In addition to the MATLAB code, we created a Simulink model, in which we tested the step response of our simulation of the Betaflight control system. 
-The simulated answer got close to the step response of the real drone. For us, this was the confirmation, that we got the controller order correct.
+The different filters were created according to the documentation \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/Filter_and_Controller.md}{Filter and Controller}.
+We implemented the filters both in continuous and discrete form, allowing us to compare the two approaches. The PI and D controllers were built in the same way.
+For the plant transfer function, we used a simplified \colorbox{yellow}{\textbf{P}roportional \textbf{T}ime constant element (PT1)} combined with dead time, 
+based on the approaches described in the documentation \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/CalculateClosedLoop.md}{Calculation Closed Loop}.
+In addition to the MATLAB code, we created a Simulink model to test the step response of our Betaflight control system simulation. 
+The simulated response closely matched the step response of the real drone, confirming that we had correctly modelled the controller order.
 
 \subsubsection{Simulation PID Controller}
 To deepen our understanding of the different controller components, we created an additional MATLAB script. 
-It allowed us to combine different controller types with simple plant models. 
-In the program you can switch between P, I, PI, PD and PID controllers, and between basic plant types. 
-Through this, we were able to observe how each controller component influences the overall system behaviour.
-The script calculates the open and closed loop of the chosen settings and generates Bode plots, Nyquist diagrams and step responses. 
-This helped us to understand and visualize the effect of each component. 
-Trough that, our overall understanding of contoller behaviour significantly improved.
+This script allowed us to combine various controller types with simple plant models. 
+The user can switch between P, I, PI, PD and PID controllers, as well as between basic plant types. 
+This enabled us to observe how each controller component influences the overall system behaviour.
+The script calculates the open-loop and closed-loop transfer functions for the chosen settings and generates Bode plots, Nyquist diagrams, and step responses. 
+This helped us understand and visualise the effect of each component, significantly improving our overall understanding of controller behaviour.
 
 \subsubsection{Simulation Frequency Response}
-To analyse the frequency response of a system based on input and output data, we created an additional simulation. 
-In this simulation we created a chirp signal on which we added noise for a more realisic measurement condition. 
-Using these signals, we implemented different methods to estimate the system’s transfer function.
-First, we calculated a basic frequency response using the plain \textbf{F}ast \textbf{F}ourier \textbf{T}ransformation (FFT). That got us a good benchmark. 
-After that, we applied different signal processing methods. 
-First we used the Welch method to improve the estimation by averaging over overlapping segments. 
+To analyse the frequency response of a system based on input and output data, we created a dedicated simulation. 
+In this simulation, we generated a chirp signal with added noise to replicate realistic measurement conditions. 
+Using these signals, we implemented different methods to estimate the system's transfer function.
+First, we calculated a basic frequency response using the plain \textbf{F}ast \textbf{F}ourier \textbf{T}ransformation (FFT), which served as a benchmark. 
+After that, we applied various signal processing methods. 
+We began with the Welch method to improve the estimation by averaging over overlapping segments. 
 The implementation of the Welch \textbf{F}requency \textbf{R}esponse \textbf{F}unction (FRF) follows the theory described in the documentation 
-\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/estimate_frequency_response.md}{Estimate Frequency Response}
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/estimate_frequency_response.md}{Estimate Frequency Response}.
 This allowed us to compare the plain FFT approach with the more robust Welch estimator.
-In the next step we implemented a rotated-signal approach, where the chirp is demodulated to baseband before filtering. 
-For this part we used the zero-phase filtering method apply\_rotfiltfilt, as described in the documentation 
+In the next step, we implemented a rotated-signal approach, where the chirp is demodulated to baseband before filtering. 
+For this part, we used the zero-phase filtering method apply\_rotfiltfilt, as described in the documentation 
 \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/ApplyRotfiltfilt.md}{Apply Rotfiltfilt}.
-After that we compared the orignal bode plot to the signal processed one `??`, to see how the rotation technique improves the noise robustness.
-Overall, this script helped us understand how noise affects the estimated transfer function and how we can increase the robustness of the signals.
+We then compared the original Bode plot to the processed one to evaluate how the rotation technique improves noise robustness.
+Overall, this script helped us understand how noise affects the estimated transfer function and how signal processing techniques can increase robustness.
 
 \subsubsection{Simulation Spectra}
-To better understand the different components use to create a meaningful spectrum, we developed a simulation based on the system used in the given code. 
-In this script we generated a noisy sinusoidal input signal out of which we created different spectra. 
-In one case we applied a window function and in the other we did not use any window. 
+We developed a simulation to examine the different components used to create a meaningful spectrum, based on the system used in the existing code. 
+In this script, we generated a noisy sinusoidal input signal from which we created different spectra. 
+In one case, we applied a window function, while in the other we used no window at all. 
 By splitting the signal into several overlapping segments, 
-we were able to observe how averaging across segments reduces noise and stabilises the resulting spectrum. 
+we observed how averaging across segments reduces noise and stabilises the resulting spectrum. 
 The implementation is described in detail in the document \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Spectrum_Spectogram/Spectra_Analysis.md}{Spectra Analysis}.
-Overall, this exercise helped us understand how windowing, overlap and segment length affect the spectral estimation. 
-Also how these methods can increase robustness and reduce spectral leakage.
+This exercise helped us understand how windowing, overlap, and segment length affect spectral estimation, 
+as well as how these methods can increase robustness and reduce spectral leakage.
 
-\subsubsection{Simulation Spectogram}
-For better understandig of the analysis how the frequency content of the excitation signal changes with both time and thrust, 
-we developed an further MATLAB simulation. In this script, we generated a noisy sinusoidal input signal and a slowly varying thrust signal. 
-The input signal is then split up in different segments and windowed with a Hann window. 
-After this the signal is transformad using the FFT in order to obtain a time-frequency representation.
-At first, we arranged the segment spectra along the time axis and in e second step, along the thrust levels. 
-So we got two spectrograms, one is showing the amplitude over frequency and time, 
-and the other one is showing us the amplitude over frequency and thrust. Through this visualisation, 
-we can identify the dominant frequency components depending on thrust. 
+\subsubsection{Simulation Spectrogram}
+To analyse how the frequency content of the excitation signal changes with both time and thrust, 
+we developed an additional MATLAB simulation. In this script, we generated a noisy sinusoidal input signal and a slowly varying thrust signal. 
+The input signal was then divided into segments and windowed with a Hann window. 
+Each segment was transformed using the FFT to obtain a time-frequency representation.
+First, we arranged the segment spectra along the time axis, and in a second step, along the thrust levels. 
+This resulted in two spectrograms: one showing amplitude over frequency and time, 
+and the other showing amplitude over frequency and thrust. Through this visualisation, 
+we could identify the dominant frequency components as a function of thrust. 
 The underlying method is described in detail in the document \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Spectrum_Spectogram/Spectogram_Analysis.md}{Spectrogram Analysis}.
 
 \newpage
@@ -348,13 +371,13 @@ This work included:
 	\item testfly the drone
 \end{itemize}
 
-The biggest challange was to achieve good soldering connecions ...
+The biggest challenge was to achieve good soldering connections ...
 
 \subsection{Tuning an FPV drone}
 As part of understanding the workflow we tuned an FPV drone by ourselves. 
 The goal was to adjust the PID parameters so that we achieve a fast rising step response without overshoot, 
-a lower complianace than before and a rounded shaped Sensitivity. Also to mention is, 
-that the axes roll and pitch should be tuned as simmilar to eachother as possible. 
+a lower compliance than before and a rounded shaped Sensitivity. Also to mention is, 
+that the axes roll and pitch should be tuned as similar to each other as possible. 
 This is because you want the drone to maintain a consistent and predictable response, 
 so roll and pitch behave similarly for smoother control and a balanced flight experience.
 
@@ -365,7 +388,7 @@ resulting in a crash that broke one of the four arms. Fortunately, the damage wa
 
 After this incident, we decided not to repeat flights with intentionally bad tuning. 
 Instead, we continued using the default Betaflight parameters as a baseline. \colorbox{yellow}{With these the drone flies reliably}.
-However, during demanding maneuvers such as flips or propwash manouvers, 
+However, during demanding manoeuvres such as flips or propwash manoeuvres, 
 it becomes evident that there is room for improvement in terms of stability and responsiveness.
 
 The tuning process was carried out on a larger 6-inch FPV drone provided by one of the team members. 
@@ -376,7 +399,7 @@ During propwash manoeuvres, the drone remained significantly more stable, and fl
 
 Our tuning objective was to achieve a fast step response without overshoot, while maintaining good compliance and sensitivity. 
 It is important to note that there is no universally “perfect” tune. Settings depend heavily on pilot preferences. 
-Racing pilots for example maybe want more responsiveness for competitive performance, whereas freestyle pilots want smoothness and flight feel. 
+Racing pilots, for example, may want more responsiveness for competitive performance, whereas freestyle pilots want smoothness and flight feel. 
 
 Since none of our team members are professional pilots, we focused on achieving robustness and a step response without overshoot. 
 This tuning approach is probably somewhere between what a racing pilot and a freestyle pilot would prefer. 
@@ -394,7 +417,7 @@ From the start of the project, we recognized that a clear and maintainable code 
 The initial proof-of-concept code already contained a rough separation into topics such as data I/O and step response, 
 but everything was packed into a single file, making it difficult to navigate. 
 Our first step was to comment out the proof-of-concept code and reorganize it into thematic sections. 
-This was the foundation for a more organized layoutand we came to an initial directory structure:
+This was the foundation for a more organized layout and we came to an initial directory structure:
 \\
 \dirtree{%
 .1 bf\_controller\_tuning/.
@@ -434,7 +457,8 @@ This draft was never intended to be final. Rather, it served as an initial attem
 \subsubsection{OOP vs. Functional Approach}
 At this stage, we discussed whether to implement the entire project using object-oriented programming (OOP) or stick to a modular, 
 function-based approach. Initially, we considered OOP as a challenge, since most of us were not very experienced with it. 
-We started writing some components as classes, but quickly realized that only one team member really was comfortable with OOP, while the others struggled. This made us reconsider.
+We started writing some components as classes, but quickly realized that only one team member was really comfortable with OOP,
+while the others struggled. This made us reconsider.
 Our conclusion was to use OOP selectively—only for parts that benefit from reuse and encapsulation, such as data loading and plotting, 
 while keeping the rest function-based for simplicity. This hybrid approach allowed us to maintain flexibility without overcomplicating the design.
 
@@ -478,7 +502,12 @@ Existing library functions from the proof of concept were reused without modific
 .2 main.m.
 }
 
-This structure worked well and kept the main script simple for the user. However, after a review meeting, our instructor suggested further modularization. The reason: we had created a “god class,” which limited flexibility. For example, if someone wanted to use the tool only for plotting spectrograms without any drone-specific logic, the current design made that difficult. Also the program was slow. All calculations were made, everytime the user changed something. We wanted to improve the speed in only doing these calculations again, which are relevant on that specific user input change. 
+This structure worked well and kept the main script simple for the user. 
+However, after a review meeting, our instructor suggested further modularization. 
+The reason: we had created a “god class,” which limited flexibility. For example, 
+if someone wanted to use the tool only for plotting spectrograms without any drone-specific logic, the current design made that difficult. 
+Also the program was slow. All calculations were made, every time the user changed something. 
+We wanted to improve the speed in only doing these calculations again, which are relevant on that specific user input change. 
 
 \subsubsection{Final Structure Concept}
 Out of this, we decided to split up this god class into three classes.
@@ -558,7 +587,6 @@ Text...
 \newpage
 
 \section{Directories}
-
 
 
 
