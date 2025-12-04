@@ -8,7 +8,7 @@
   footinclude=true  % Fußzeile einbeziehen
 }
 % Seitenränder setzen
-\areaset{165mm}{250mm} % Breite und Höhe des Textbereichs
+\areaset{165mm}{270mm} % Breite und Höhe des Textbereichs
 
 \usepackage[ngerman]{babel}
 \usepackage{csquotes} % für Zitate
@@ -68,40 +68,16 @@
 \usepackage{pdfpages}
 \begin{document}
 
-% -------------------------------------------------
-% TITELBLATT
-% -------------------------------------------------
+% ---------------------------------------------
+% TITELBLATT GEMÄSS ZHAW-WORD-VORLAGE
+% ---------------------------------------------
 \begin{titlepage}
-	\thispagestyle{empty}
-	\begin{center}
-		\includegraphics[width=0.35\linewidth]{imslogo.pdf}\par\vspace{1.5cm} % :contentReference[oaicite:0]{index=0}
+
+\includepdf[pages=1]{Images/Titelblatt.pdf}
 
 
-		{\large ZHAW – Zurich University of Applied Sciences\par}
-		\vspace{0.4cm}
-		{\large School of Engineering\par}
-		\vspace{1.8cm}
-
-		{\LARGE\bfseries \labtitle\par}
-		\vspace{0.5cm}
-		{\Large\color{labColor}\labsubtitle\par}
-		\vspace{2cm}
-
-		\rule{0.6\linewidth}{0.5pt}\par
-		\vspace{1.5cm}
-
-		\begin{tabular}{ll}
-			\textbf{Autor:}         & \labauthor                     \\
-			\textbf{Modul:}    & Project Thesis                 \\ % anpassen
-			\textbf{Supervisor:}    & Michael Ernst Peter            \\
-			\textbf{Co-Supervisor:} & Dr. Prof. Ruprecht Altenburger \\
-		\end{tabular}\par
-		\vspace{2cm}
-
-		Winterthur, \labdate
-
-	\end{center}
 \end{titlepage}
+
 
 % -------------------------------------------------
 % ERSTE INHALTSSEITE MIT labstyle-TITELBLOCK
@@ -654,6 +630,7 @@ This project schedule was created prior to the first milestone meeting and appro
 	\caption{Project Schedule – Version 1}
 	\label{fig:Project Schedule – Version 1}
 \end{figure}
+\newpage
 
 \subsubsection{Project Schedule – Version 2}
 This project schedule was created prior to the second milestone meeting and approved during the meeting.

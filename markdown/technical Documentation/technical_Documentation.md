@@ -181,7 +181,7 @@ To understand how the system reacts to different inputs, the transfer function o
 
 ### Calculating the Closed Loop
 
-The interaction between the controller and the plant, as well as the response of the closed-loop system as a whole, determines how stable and reliable the control process is. By calculating the closed-loop transfer functions for both inner and outer loops, it is possible to assess sensitivity, disturbance rejection, and overall system stability. These calculations provide an understanding of key controller dynamics and how they influence the system. For a closer look at how this process is carried out, see the document [Calculate Closed Loop documentation](https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/CalculateClosedLoop.md).
+The interaction between the controller and the estimateted transfer function, as well as the response of the closed-loop system as a whole, determines how stable and reliable the control process is. By calculating the closed-loop transfer functions for both inner and outer loops, it is possible to assess sensitivity, disturbance rejection, and overall system stability. These calculations provide an understanding of key controller dynamics and how they influence the system. For a closer look at how this process is carried out, see the document [Calculate Closed Loop documentation](https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/CalculateClosedLoop.md).
 
 <p align="center">
   <img src="../Frequency_Response/Images/Regelstrecke.png"
