@@ -12,7 +12,7 @@
 
 \usepackage[ngerman]{babel}
 \usepackage{csquotes} % für Zitate
-\usepackage{labstyle} % lädt graphicx, xcolor etc. schon
+\usepackage{labstyle} % lädt graphicx, xcolor etc.
 \usepackage{hyperref} % für Links im PDF
 \hypersetup{
   colorlinks=true,    % farbige Links
@@ -144,7 +144,8 @@ A chirp is an input signal that sweeps continuously over a defined range (e.g. f
 This signal excites the system on multiple frequencies in one run and thus lets you observe the frequency response and step response,
 the foundation of controller tuning.
 Mathematically, a chirp signal can be represented as a sinusoidal wave with instantaneous frequency that varies linearly or exponential with time.
-For more information about the mathematical background, please have a look in the document \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Sinarg/Chirp.md}{Chirp Signal}.
+For more information about the mathematical background, please have a look in the document 
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Sinarg/Chirp.md}{Chirp Signal}.
 
 \begin{figure}[htbp]
 	\centering
@@ -216,35 +217,81 @@ if none of the above is true the ...
 \section{Theory}
 
 \subsection{Signal Processing}
-Signal processing applied to Betaflight Blackbox logs transforms raw flight data into usable information for in-depth analysis. These logs contain flight measurements such as stick inputs, gyro signals, PID responses and more. Although the dataset may appear complex at first, software solutions including our analysis tool and the \href{https://blackbox.betaflight.com/}{Betaflight Blackbox Explorer} make interpretation more straightforward by providing visualisations and metrics that support troubleshooting, tuning and performance evaluation.\par
-Preparing the logged data is a central part of the workflow. Before any analysis can be performed, the raw signals are conditioned into a consistent and meaningful representation. This typically begins with filtering to suppress noise without altering the underlying dynamics. Based on the processed signals, the frequency response of the control system can be estimated to characterise how it reacts to different input spectra. Each processing step increases the reliability of the data and leads to more robust conclusions in subsequent analysis.
+Signal processing applied to Betaflight Blackbox logs transforms raw flight data into usable information for in-depth analysis. 
+These logs contain flight measurements such as stick inputs, gyro signals, PID responses and more. 
+Although the dataset may appear complex at first, software solutions including our analysis tool and the 
+\href{https://blackbox.betaflight.com/}{Betaflight Blackbox Explorer} 
+make interpretation more straightforward by providing visualisations and metrics that support troubleshooting, tuning and performance evaluation.\par
+Preparing the logged data is a central part of the workflow. Before any analysis can be performed, 
+the raw signals are conditioned into a consistent and meaningful representation. 
+This typically begins with filtering to suppress noise without altering the underlying dynamics. 
+Based on the processed signals, the frequency response of the control system can be estimated to characterise how it reacts to different input spectra. 
+Each processing step increases the reliability of the data and leads to more robust conclusions in subsequent analysis.
 
 \subsubsection{Data Import}
-The first step of any analysis is to load the measurement data properly. Betaflight Blackbox logs consist of two essential parts: the header and the data block. The header contains key information about the conditions under which the flight data was recorded, including loop rates, logging settings, active filter configurations and the PID controller values. Without this information, calculations cannot be performed correctly and the recorded data loses its analytical value.\par
-Data imports are unfortunately very computationally expensive. Therefore, to save time during analysis, the logs are converted from raw CSV files into a faster `.mat` format. This way, you don’t need to reprocess the large log files every time. The signal names (like gyro and motor outputs) are also automatically assigned to their correct data columns. This makes it easy to find and assign the signals later. For more details, check the \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Data/Dataimport.md/}{Dataimport Documentation}.
+The first step of any analysis is to load the measurement data properly. 
+Betaflight Blackbox logs consist of two essential parts: 
+the header and the data block. The header contains key information about the conditions under which the flight data was recorded, 
+including loop rates, logging settings, active filter configurations and the PID controller values. Without this information, 
+calculations cannot be performed correctly and the recorded data loses its analytical value.\par
+Data imports are unfortunately very computationally expensive. Therefore, to save time during analysis, 
+the logs are converted from raw CSV files into a faster `.mat` format. This way, you don’t need to reprocess the large log files every time. 
+The signal names (like gyro and motor outputs) are also automatically assigned to their correct data columns. 
+This makes it easy to find and assign the signals later. For more details, check the 
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Data/Dataimport.md/}{Dataimport Documentation}.
 
 \subsubsection{Handle High-Resolution Data}
-Betaflight provides a High Resolution Mode as an optional logging setting, in which selected signals are multiplied by a factor of ten before being written to the log. Because these values are stored as integers, this reduces decimal precision requirements and minimises rounding effects. During analysis, the affected signals must be scaled back to their original units; otherwise, frequency plots, controller tuning results or general interpretations will be incorrect. Important signals such as gyro data and control inputs are affected by this step. To get more information, check the \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Data/Unscale_high_Resolution_Gain.md}{Unscale high Resolution Gain documentation}.
+Betaflight provides a High Resolution Mode as an optional logging setting, 
+in which selected signals are multiplied by a factor of ten before being written to the log. 
+Because these values are stored as integers, this reduces decimal precision requirements and minimises rounding effects. During analysis, 
+the affected signals must be scaled back to their original units; otherwise, frequency plots, 
+controller tuning results or general interpretations will be incorrect. Important signals such as gyro data and control inputs are affected by this step. 
+To get more information, check the 
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Data/Unscale_high_Resolution_Gain.md}{Unscale high Resolution Gain documentation}.
 
 
 \subsubsection{Time Conversion and Sampling Rate Verification}
-In a Betaflight log, time is stored as an increasing microsecond counter rather than as regular seconds. Because of hardware limits or system load, the spacing between time stamps isn’t always the same. This step converts the time information into a uniform time base, ensuring that all samples can be compared consistently and interpreted in their correct temporal context. \par
-By checking the time differences between samples, you can detect logging issues such as dropped frames or small variations in the actual sampling rate. Correct handling of the time information is important for all further analysis steps, for example frequency calculations or controller tuning. For a more detailed explanation, see the \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Data/Convert_and_evolution_Time.md}{Convert and evolution Time documentation}. If you are interested in tuning your drone, you can also refer to the \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Descriptions_Figures/Evolution_Time_Flight.md}{Evolution Time Flight description}.
+In a Betaflight log, time is stored as an increasing microsecond counter rather than as regular seconds. 
+Because of hardware limits or system load, the spacing between time stamps isn’t always the same. 
+This step converts the time information into a uniform time base, 
+ensuring that all samples can be compared consistently and interpreted in their correct temporal context. \par
+By checking the time differences between samples, 
+you can detect logging issues such as dropped frames or small variations in the actual sampling rate. 
+Correct handling of the time information is important for all further analysis steps, for example frequency calculations or controller tuning. 
+For a more detailed explanation, see the 
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Data/Convert_and_evolution_Time.md}{Convert and evolution Time documentation}. If you are interested in tuning your drone, you can also refer to the \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Descriptions_Figures/Evolution_Time_Flight.md}{Evolution Time Flight description}.
 
 \subsubsection{Application of Rotational Filtering (Apply Rotfiltfilt)}
-Filtering is a fundamental step in preparing the data for analysis, as it removes unwanted noise while preserving the original characteristics of the signals. The function \texttt{Apply Rotfiltfilt} operation applies a zero-phase filter, ensuring that the data’s phase relationships remain intact while suppressing selected frequency components such as low-frequency drifts or high-frequency noise. \par
-This step applies a forward-backward filtering technique, which processes the data in both forward and reverse directions and effectively cancels out phase distortions. This method is particularly useful when working with chirp signals, as it enables precise filtering without introducing phase shifts that could alter the signal’s characteristics. \par
+Filtering is a fundamental step in preparing the data for analysis, 
+as it removes unwanted noise while preserving the original characteristics of the signals. 
+The function \texttt{Apply Rotfiltfilt} operation applies a zero-phase filter, 
+ensuring that the data’s phase relationships remain intact while suppressing selected frequency components such as low-frequency drifts or high-frequency noise. \par
+This step applies a forward-backward filtering technique, 
+which processes the data in both forward and reverse directions and effectively cancels out phase distortions. 
+This method is particularly useful when working with chirp signals, 
+as it enables precise filtering without introducing phase shifts that could alter the signal’s characteristics. \par
 
-Proper application of this technique ensures that the data is clean and reliable for subsequent analysis steps. For more insights on how this method works, refer to the full description in the \href{https://github.com/InsaneBroccoli/bf_controller_tuning/markdown/Frequency_Response/ApplyRotfiltfilt.md}{Apply Rotfiltfilt documentation}.
+Proper application of this technique ensures that the data is clean and reliable for subsequent analysis steps. 
+For more insights on how this method works, refer to the full description in the 
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/markdown/Frequency_Response/ApplyRotfiltfilt.md}{Apply Rotfiltfilt documentation}.
 
 \subsubsection{Estimation of Frequency Response}
-The \texttt{Estimate Frequency Response} function uses advanced techniques to measure and analyze the relationship between a system’s input and output signals in the frequency domain. This makes it possible to determine how different frequencies are amplified or attenuated by the system, providing valuable information about its dynamic behavior. \par
-This technique is based on the Welch Method, which divides the signal into overlapping segments. By applying a Hann window to each segment and performing spectral averaging, the influence of noise is reduced and a smoother estimate of the frequency response is obtained. The result is a single-sided, amplitude-calibrated response curve that shows how individual frequencies are amplified or attenuated, as well as how phase shifts occur across the spectrum. \par
-The resulting data is not only accurate but also robust, making it suitable for applications like control system tuning or stability analysis. For a deeper dive into the theoretical principles and implementation steps, consult the detailed \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/estimate_frequency_response.md}{Estimate Frequency Response documentation}.
+The \texttt{Estimate Frequency Response} function uses advanced techniques to measure 
+and analyze the relationship between a system’s input and output signals in the frequency domain. 
+This makes it possible to determine how different frequencies are amplified or attenuated by the system, 
+providing valuable information about its dynamic behavior. \par
+This technique is based on the Welch Method, which divides the signal into overlapping segments. 
+By applying a Hann window to each segment and performing spectral averaging, the influence of noise is reduced 
+and a smoother estimate of the frequency response is obtained. 
+The result is a single-sided, amplitude-calibrated response curve that shows how individual frequencies are amplified or attenuated, 
+as well as how phase shifts occur across the spectrum. \par
+The resulting data is not only accurate but also robust, making it suitable for applications like control system tuning or stability analysis. 
+For a deeper dive into the theoretical principles and implementation steps, consult the detailed 
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/estimate_frequency_response.md}{Estimate Frequency Response documentation}.
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics[width=0.62\textwidth]{./Images/segmentation.jpg}
+	\includegraphics[width=0.8\textwidth]{./Images/segmentation.jpg}
 	\caption{Segmentations of Data}
 	\label{fig:segmentation}
 \end{figure}
@@ -252,14 +299,24 @@ The resulting data is not only accurate but also robust, making it suitable for 
 
 \newpage
 \subsection{Control System}
-The control system determines the dynamic response of a drone and is therefore central to flight stability and precise maneuvering. In this section, we analyse the individual components of the controller, examine their influence on the system behaviour and outline the methods used for tuning in order to improve performance and responsiveness.
+The control system determines the dynamic response of a drone and is therefore central to flight stability and precise maneuvering. 
+In this section, we analyse the individual components of the controller, 
+examine their influence on the system behaviour and outline the methods used for tuning in order to improve performance and responsiveness.
 
 \subsubsection{Transfer Function Estimation}
-To analyse how the system reacts to control inputs, the transfer function of the plant is estimated directly from closed-loop flight data. This makes it possible to characterise the system dynamics without opening the control loop and to determine how input signals are transformed into outputs. The resulting model forms the basis for matching the controller parameters to the real system. More details can be found in the \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/Estimate_Transferfunction_Plant.md}{Estimate Transfer Function documentation}.
+To analyse how the system reacts to control inputs, the transfer function of the plant is estimated directly from closed-loop flight data. 
+This makes it possible to characterise the system dynamics without opening the control loop 
+and to determine how input signals are transformed into outputs. 
+The resulting model forms the basis for matching the controller parameters to the real system. More details can be found in the 
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/Estimate_Transferfunction_Plant.md}{Estimate Transfer Function documentation}.
 
 
 \subsubsection{Closed Loop Calculation}
-The interaction between the controller and the estimated transfer function of the plant determines the stability and robustness of the closed-loop system. By calculating the closed-loop transfer functions for both inner and outer loops, sensitivity, disturbance rejection, and overall system stability can be evaluated. These calculations provide a clear view of the controller dynamics and their impact on the system response. For details on the implementation, see the \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/CalculateClosedLoop.md}{Calculate Closed Loop documentation}.
+The interaction between the controller and the estimated transfer function of the plant determines the stability and robustness of the closed-loop system. 
+By calculating the closed-loop transfer functions for both inner and outer loops, sensitivity, disturbance rejection, 
+and overall system stability can be evaluated. These calculations provide a clear view of the controller dynamics and their impact on the system response. 
+For details on the implementation, see the 
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/CalculateClosedLoop.md}{Calculate Closed Loop documentation}.
 
 \begin{figure}[htbp]
 	\centering
@@ -276,17 +333,38 @@ The integral term in a PID controller addresses long-term errors, ensuring stead
 
 \newpage
 \subsection{Evaluation}
-Evaluation is an essential part of understanding and improving the behaviour of the control system. This section outlines the key analytical steps, such as analysing time-domain responses and interpreting frequency-domain data to evaluate the system dynamics. Detailed information on how to interpret the generated figures can be found in the \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Descriptions_Figures}{Descriptions Figures}.
+Evaluation is an essential part of understanding and improving the behaviour of the control system. 
+This section outlines the key analytical steps, 
+such as analysing time-domain responses and interpreting frequency-domain data to evaluate the system dynamics. 
+Detailed information on how to interpret the generated figures can be found in the 
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Descriptions_Figures}{Descriptions Figures}.
 
 \subsubsection{Step Response}
-The step response provides a direct view of how the system reacts to sudden changes in the input signal. By transforming the closed-loop transfer function from the frequency domain into the time domain, the dynamic behaviour of the control loop can be evaluated. Key performance indicators such as rise time, overshoot, settling time, and steady-state error can be determined to assess system stability and responsiveness. The calculations use inverse Fourier transforms of frequency response data to reconstruct the system’s step response curve. This curve can be used to identify underdamped or insufficiently tuned dynamics. More details can be found in the \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/Step_response.md}{Step Response documentation}.
+The step response provides a direct view of how the system reacts to sudden changes in the input signal. 
+By transforming the closed-loop transfer function from the frequency domain into the time domain, 
+the dynamic behaviour of the control loop can be evaluated. 
+Key performance indicators such as rise time, overshoot, settling time, 
+and steady-state error can be determined to assess system stability and responsiveness. 
+The calculations use inverse Fourier transforms of frequency response data to reconstruct the system’s step response curve. 
+This curve can be used to identify underdamped or insufficiently tuned dynamics. More details can be found in the 
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/Step_response.md}{Step Response documentation}.
 
 \subsubsection{Spectra Analysis}
-Spectral analysis examines how the system responds to different input frequencies and provides valuable insight into its dynamic characteristics. The method separates complex signals into their frequency components using algorithms such as Welch’s method. Overlapping signal segments, combined with windowing techniques like the Hann window, yield smoother and statistically more reliable estimates of power spectra. This frequency-domain perspective highlights resonances, noise characteristics, and the effectiveness of applied filters. The steps of this process are described in detail in the \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Spectrum_Spectogram/Spectra_Analysis.md}{Spectra Analysis documentation}.
+Spectral analysis examines how the system responds to different input frequencies and provides valuable insight into its dynamic characteristics. 
+The method separates complex signals into their frequency components using algorithms such as Welch’s method. Overlapping signal segments, 
+combined with windowing techniques like the Hann window, yield smoother and statistically more reliable estimates of power spectra. 
+This frequency-domain perspective highlights resonances, noise characteristics, and the effectiveness of applied filters. 
+The steps of this process are described in detail in the 
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Spectrum_Spectogram/Spectra_Analysis.md}{Spectra Analysis documentation}.
 
 
 \subsubsection{Spectrum Analysis}
-Spectrum analysis builds on spectral analysis by providing a multi-dimensional view of the signal’s frequency content over time or, in this case, thrust. By grouping FFT segments into bins along an additional axis, such as throttle or angle, the power spectrum can be mapped as a function of both frequency and the selected variable. This approach is particularly useful in applications that require an understanding of how system dynamics change during flight. Relevant methodologies and results are described in the \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Spectrum_Spectogram/Spectrum_Analysis.md}{Spectrum Analysis section}.
+Spectrum analysis builds on spectral analysis by providing a multi-dimensional view of the signal’s frequency content over time or, 
+in this case, thrust. By grouping FFT segments into bins along an additional axis, such as throttle or angle, 
+the power spectrum can be mapped as a function of both frequency and the selected variable. 
+This approach is particularly useful in applications that require an understanding of how system dynamics change during flight. 
+Relevant methodologies and results are described in the 
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Spectrum_Spectogram/Spectrum_Analysis.md}{Spectrum Analysis section}.
 
 \subsubsection{Gang of Four}
 New!!!
@@ -305,10 +383,13 @@ They formed the basis for all subsequent analysis steps and helped us understand
 To analyse and better understand the Betaflight control system, we recreated the complete control structure in MATLAB. 
 The corresponding script can be found in the attachments. In this simulation, 
 we attempted to reproduce the step response of the recorded data by using the same PID parameters and filter settings as in the real system.
-The different filters were created according to the documentation \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/Filter_and_Controller.md}{Filter and Controller}.
-We implemented the filters both in continuous and discrete form, allowing us to compare the two approaches. The PI and D controllers were built in the same way.
-For the plant transfer function, we used a simplified \colorbox{yellow}{\textbf{P}roportional \textbf{T}ime constant element (PT1)} combined with dead time, 
-based on the approaches described in the documentation \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/CalculateClosedLoop.md}{Calculation Closed Loop}.
+The different filters were created according to the documentation 
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/Filter_and_Controller.md}{Filter and Controller}.
+We implemented the filters both in continuous and discrete form, allowing us to compare the two approaches. 
+The PI and D controllers were built in the same way.
+For the plant transfer function, we used a low pass filter combined with dead time, 
+based on the approaches described in the documentation 
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/CalculateClosedLoop.md}{Calculation Closed Loop}.
 In addition to the MATLAB code, we created a Simulink model to test the step response of our Betaflight control system simulation. 
 The simulated response closely matched the step response of the real drone, confirming that we had correctly modelled the controller order.
 
@@ -342,7 +423,8 @@ In this script, we generated a noisy sinusoidal input signal from which we creat
 In one case, we applied a window function, while in the other we used no window at all. 
 By splitting the signal into several overlapping segments, 
 we observed how averaging across segments reduces noise and stabilises the resulting spectrum. 
-The implementation is described in detail in the document \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Spectrum_Spectogram/Spectra_Analysis.md}{Spectra Analysis}.
+The implementation is described in detail in the document 
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Spectrum_Spectogram/Spectra_Analysis.md}{Spectra Analysis}.
 This exercise helped us understand how windowing, overlap, and segment length affect spectral estimation, 
 as well as how these methods can increase robustness and reduce spectral leakage.
 
@@ -355,7 +437,8 @@ First, we arranged the segment spectra along the time axis, and in a second step
 This resulted in two spectrograms: one showing amplitude over frequency and time, 
 and the other showing amplitude over frequency and thrust. Through this visualisation, 
 we could identify the dominant frequency components as a function of thrust. 
-The underlying method is described in detail in the document \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Spectrum_Spectogram/Spectogram_Analysis.md}{Spectrogram Analysis}.
+The underlying method is described in detail in the document 
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Spectrum_Spectogram/Spectogram_Analysis.md}{Spectrogram Analysis}.
 
 \newpage
 
@@ -367,8 +450,8 @@ By getting in touch with the hardware, it is easier for us to understand what pr
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics[width=0.8\textwidth]{./Images/Stock_Photo.png}
-	\caption{IFLIGHT aosmini build}
+	\includegraphics[width=0.8\textwidth]{./Images/OvershootExpress.jpg}
+	\caption{aosmini 3-inch build}
 	\label{fig:aosmini}
 \end{figure}
 
@@ -383,7 +466,17 @@ This work included:
 	\item testfly the drone
 \end{itemize}
 
-The biggest challenge was to achieve good soldering connections ...
+The flightcontroller just fitted into this frame. The GPS mount had to be trimmed off a little bit, that we could mount the all in one stack. 
+Also the video system was mounted super close to the stack. Due to a connector between these two parts, we had to lift the videosystem up with some spacers.
+This resulted in not enough space on top of the videosystem for the screws, which hold the component. 
+So the videosystem had to be mounted with just two screws instead of four. In the first testflights, we couldn't see any too hard vibrations from this,
+so it's probably mounted good enough.
+
+The logger is mounted on the bottom of the drone... -> we designed some stands
+
+\colorbox{yellow}{The biggest challenge was to achieve good soldering connections, ...}
+
+
 
 \subsection{Tuning an FPV drone}
 As part of understanding the workflow we tuned an FPV drone by ourselves. 
@@ -399,7 +492,7 @@ The drone began oscillating aggressively and climbed rapidly. As the drone was o
 resulting in a crash that broke one of the four arms. Fortunately, the damage was minor and repaired quickly.
 
 After this incident, we decided not to repeat flights with intentionally bad tuning. 
-Instead, we continued using the default Betaflight parameters as a baseline. \colorbox{yellow}{With these the drone flies reliably}.
+Instead, we continued using the default Betaflight parameters as a baseline. With these the drone flies quite good.
 However, during demanding manoeuvres such as flips or propwash manoeuvres, 
 it becomes evident that there is room for improvement in terms of stability and responsiveness.
 
@@ -523,22 +616,22 @@ We wanted to improve the speed in only doing these calculations again, which are
 
 \subsubsection{Final Structure Concept}
 Out of this, we decided to split up this god class into three classes.
-The \texttt{flight\_analyzer} class handles \textbf{frequency domain analysis and vibration characterization}. 
-Its core responsibility is performing spectral analysis on flight log data to identify resonance frequencies and assess filter effectiveness. 
+The \texttt{flight\_analyzer} class handles frequency domain analysis and vibration characterization.
+Its core responsibility is performing spectral analysis on flight log data to identify resonance frequencies and assess filter effectiveness.
 It computes power spectral density of gyro signals (both filtered and unfiltered) and generates spectrograms showing 
-how vibration frequencies vary with throttle levels across all three axes (roll, pitch, yaw). 
-This analysis is essential for identifying noise sources, evaluating filtering strategies, and optimizing drone stability during tuning. 
-The \texttt{flight\_data} class is responsible for \textbf{loading, parsing, and managing flight log data}. 
-It provides methods to extract relevant information from Blackbox logs, such as gyro and motor data, and prepares this data for analysis. 
-The \texttt{gyro\_ctrl\_tuning} class focuses on \textbf{tuning the PID controllers} for the drone's flight. 
+how vibration frequencies vary with throttle levels across all three axes (roll, pitch, yaw).
+This analysis is essential for identifying noise sources, evaluating filtering strategies, and optimizing drone stability during tuning.
+The \texttt{flight\_data} class is responsible for loading, parsing, and managing flight log data. 
+It provides methods to extract relevant information from Blackbox logs, such as gyro and motor data, and prepares this data for analysis.
+The \texttt{gyro\_ctrl\_tuning} class focuses on tuning the PID controllers for the drone's flight.
 It uses the results from the frequency response and spectral analysis to adjust the PID parameters, aiming to optimize the drone's flight characteristics. 
-The \texttt{plot\_utils} class remains responsible for \textbf{visualization and graphical representation} of all analysis results. 
+The \texttt{plot\_utils} class remains responsible for visualization and graphical representation of all analysis results.
 Unlike the previous approach, this class is now more flexible and reusable. It can be used independently to generate plots from pre-calculated data, 
-making it suitable for users who only want to visualize spectrograms, frequency responses, or step responses without running the full analysis pipeline. 
+making it suitable for users who only want to visualize spectrograms, frequency responses, or step responses without running the full analysis pipeline.
 This modularity allows the plotting functionality to be easily adapted for different visualization needs and integrated into other workflows.
 
 This approach still holds thematic sections, but is more accessible to use only specific parts of the tool.
-\\
+
 \dirtree{%
 .1 bf\_controller\_tuning/.
 .2 class/.
