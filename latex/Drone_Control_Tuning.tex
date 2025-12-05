@@ -14,6 +14,14 @@
 \usepackage{csquotes} % für Zitate
 \usepackage{labstyle} % lädt graphicx, xcolor etc.
 \usepackage{hyperref} % für Links im PDF
+% In der Präambel
+\usepackage[
+  backend=biber,
+  style=numeric,   % <-- statt authoryear
+  sorting=none     % Reihenfolge = Zitierreihenfolge im Text
+]{biblatex}
+\addbibresource{references.bib}
+
 \hypersetup{
   colorlinks=true,    % farbige Links
   linkcolor=black,    % internal links (sections, figures)
@@ -145,7 +153,7 @@ This signal excites the system on multiple frequencies in one run and thus lets 
 the foundation of controller tuning.
 Mathematically, a chirp signal can be represented as a sinusoidal wave with instantaneous frequency that varies linearly or exponential with time.
 For more information about the mathematical background, please have a look in the document 
-\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Sinarg/Chirp.md}{Chirp Signal}.
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Sinarg/Chirp.md}{Chirp Signal} \cite{bf_chirp}.
 
 \begin{figure}[htbp]
 	\centering
@@ -238,7 +246,7 @@ Data imports are unfortunately very computationally expensive. Therefore, to sav
 the logs are converted from raw CSV files into a faster `.mat` format. This way, you don’t need to reprocess the large log files every time. 
 The signal names (like gyro and motor outputs) are also automatically assigned to their correct data columns. 
 This makes it easy to find and assign the signals later. For more details, check the 
-\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Data/Dataimport.md/}{Dataimport Documentation}.
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Data/Dataimport.md/}{Dataimport Documentation} \cite{bf_dataimport}.
 
 \subsubsection{Handle High-Resolution Data}
 Betaflight provides a High Resolution Mode as an optional logging setting, 
@@ -247,7 +255,7 @@ Because these values are stored as integers, this reduces decimal precision requ
 the affected signals must be scaled back to their original units; otherwise, frequency plots, 
 controller tuning results or general interpretations will be incorrect. Important signals such as gyro data and control inputs are affected by this step. 
 To get more information, check the 
-\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Data/Unscale_high_Resolution_Gain.md}{Unscale high Resolution Gain documentation}.
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Data/Unscale_high_Resolution_Gain.md}{Unscale high Resolution Gain documentation} \cite{bf_unscale_highres}.
 
 
 \subsubsection{Time Conversion and Sampling Rate Verification}
@@ -367,7 +375,8 @@ Relevant methodologies and results are described in the
 \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Spectrum_Spectogram/Spectrum_Analysis.md}{Spectrum Analysis section}.
 
 \subsubsection{Gang of Four}
-New!!!
+The Gang of Four plots provide a compact overview of the closed-loop behaviour of the control system. They show how the tuned controller influences stability, noise handling, and control authority. The Bode Diagram illustrates the overall frequency response of the closed loop. The Sensitivity curve indicates how well disturbances are rejected at different frequencies, while the Controller Effort shows the control action required from the PID loop. Finally, the Compliance plot reflects how external disturbances pass through the system. \par
+These diagrams form an essential basis for controller tuning, as they allow a direct comparison between the measured system behaviour and the simulated response using the estimated transfer functions. For a detailed explanation of the control relationships, refer to the \href{https://github.com/InsaneBroccoli/bf_controller_tuning/tree/PA_final/markdown/Frequency_Response/Spectrum_Analysis.md}{Calculate Closed Loop} documentation. Practical tuning guidance can be found in the section \href{https://github.com/InsaneBroccoli/bf_controller_tuning/tree/PA_final/markdown/Descriptions_Figures/Gang_of_Four.md}{Gang of Four Figures}.
 
 \newpage
 
@@ -700,9 +709,11 @@ Throughout the project, we gained a deep understanding of the Betaflight control
 
 \newpage
 
-\section{Directories}
 
-\subsection{Bibliography}
+\section*{References}
+\printbibliography[title={References}]
+
+
 
 \subsubsection{Overview of Generative AI Systems}
 
@@ -727,6 +738,31 @@ Throughout the project, we gained a deep understanding of the Betaflight control
         \item Translation of text
     \end{itemize}
 \end{itemize}
+
+\paragraph{Microsoft (2025) – Copilot AI Assistant}
+\begin{itemize}
+    \item Available online: 
+    \href{https://copilot.microsoft.com/}{https://copilot.microsoft.com/}
+    \item Functions:
+    \begin{itemize}
+        \item Generation of text and summaries
+        \item Integration into Microsoft Office tools such as Word and PowerPoint
+        \item Assistance in software development (e.g., code suggestions)
+    \end{itemize}
+\end{itemize}
+
+\paragraph{Anthropic (2025) – Claude AI}
+\begin{itemize}
+    \item Available online: 
+    \href{https://claude.ai/}{https://claude.ai/}
+    \item Functions:
+    \begin{itemize}
+        \item Text generation and editing
+        \item Support for research tasks (e.g., summarisation and structuring)
+        \item Assistance in programming-related workflows
+    \end{itemize}
+\end{itemize}
+
 
 
 \newpage
@@ -793,9 +829,6 @@ This project schedule was created prior to the second milestone meeting and appr
 
 
 \subsection{Additional Information}
-
-
-
 
 
 
