@@ -134,9 +134,13 @@
 \KOMAoptions{
     headsepline=.2pt:\textwidth,
     footsepline=false,
-    headinclude=true,     % include header in typearea calc
-    headheight=36pt       % ≥ 34.08pt as per warning; round up
+    headinclude=true,
+    headheight=45pt
 }
+
+\setlength{\headheight}{45pt}
+\recalctypearea
+
 
 % -----------------------------------------------------------------------------
 % User metadata for header/footer
@@ -149,7 +153,7 @@
 \ihead{\small \labheader}
 \ohead{%
     \ifdefempty{\lablogo}{}{%
-        \IfFileExists{\lablogo}{\includegraphics[height=30pt]{\lablogo}}{}%
+        \IfFileExists{\lablogo}{\includegraphics[height=40pt]{\lablogo}}{}%
     }%
 }
 \ifoot{\small \labfooter}

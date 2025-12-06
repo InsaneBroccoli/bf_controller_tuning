@@ -1,23 +1,64 @@
-\documentclass[a4paper,11pt,headheight=36pt]{scrartcl}
+\documentclass[a4paper,11pt,headheight=200pt]{scrartcl}
 
+% Seitenränder und Kopf-/Fußzeilen anpassen
 \KOMAoptions{
-  parskip=half,
-  headings=small,
-  headinclude=true,
-  footinclude=true
+  parskip=half,     % halber Zeilenabstand zwischen Absätzen
+  headings=small,   % kleinere Überschriften
+  headinclude=true, % Kopfzeile einbeziehen
+  footinclude=true  % Fußzeile einbeziehen
 }
-% Die 270mm sind sehr hoch, 240mm ist meist entspannter
-\areaset{175mm}{260mm}
+% Seitenränder setzen
+\areaset{165mm}{270mm} % Breite und Höhe des Textbereichs
 
 \usepackage[ngerman]{babel}
-\usepackage{csquotes}
-\usepackage{labstyle} % lädt graphicx, xcolor etc. schon
+\usepackage{csquotes} % für Zitate
+\usepackage{labstyle} % lädt graphicx, xcolor etc.
+\usepackage{hyperref} % für Links im PDF
+% In der Präambel
+\usepackage[
+  backend=biber,
+  style=numeric,   % <-- statt authoryear
+  sorting=none     % Reihenfolge = Zitierreihenfolge im Text
+]{biblatex}
+\addbibresource{references.bib}
+
+\hypersetup{
+  colorlinks=true,    % farbige Links
+  linkcolor=black,    % internal links (sections, figures)
+  urlcolor=blue,      % external URLs
+  citecolor=blue      % citations
+}
+\usepackage{float}
+\lstset{
+  basicstyle=\ttfamily\small, % Schriftart und -grösse
+  frame=none, % kein Rahmen
+  breaklines=true, % Zeilen umbrechen
+  literate={│}{{\textbar}}1 {├}{{$\vdash$}}1 {└}{{$\llcorner$}}1 {─}{{-}}1 % für dirtree
+}
+\usepackage{dirtree} % für Verzeichnisbäume
+
+% Abstände vor und nach Überschriften anpassen
+\RedeclareSectionCommand[
+  beforeskip=1.5em,   % Abstand vor der Überschrift
+  afterskip=0.75em    % Abstand nach der Überschrift
+]{section}
+
+\RedeclareSectionCommand[
+  beforeskip=1.25em,
+  afterskip=0.1em
+]{subsection}
+
+\RedeclareSectionCommand[
+  beforeskip=1em,
+  afterskip=0.1em
+]{subsubsection}
+
 % Überschriftengrössen anpassen
 \setkomafont{section}{\Large\bfseries}      % \section
 \setkomafont{subsection}{\large\bfseries}   % \subsection
 \setkomafont{subsubsection}{\normalsize\bfseries} % \subsubsection
 
-
+% SI-Einheiten definieren
 \DeclareSIUnit{\rpm}{rpm}
 \DeclareSIUnit{\newtonmeter}{\newton\metre}
 
@@ -32,53 +73,55 @@
 % \renewcommand{\labheader}{PA Drone Control Tuning}
 % \renewcommand{\labfooter}{ZHAW/IMS}
 % \renewcommand{\lablogo}{}  % Logo oben rechts deaktivieren, falls nicht vorhanden
+\usepackage{pdfpages}
+\usepackage{listings}
+\usepackage{xcolor}
 
 \begin{document}
 
-% -------------------------------------------------
-% TITELBLATT
-% -------------------------------------------------
+% ---------------------------------------------
+% TITELBLATT GEMÄSS ZHAW-WORD-VORLAGE
+% ---------------------------------------------
 \begin{titlepage}
-  \thispagestyle{empty}
-  \begin{center}
-   \includegraphics[width=0.35\linewidth]{imslogo.pdf}\par\vspace{1.5cm} % :contentReference[oaicite:0]{index=0}
+
+\includepdf[pages=1]{Images/Titelblatt.pdf}
 
 
-    {\large ZHAW – Zurich University of Applied Sciences\par}
-    \vspace{0.4cm}
-    {\large School of Engineering\par}
-    \vspace{1.8cm}
-
-    {\LARGE\bfseries \labtitle\par}
-    \vspace{0.5cm}
-    {\Large\color{labColor}\labsubtitle\par}
-    \vspace{2cm}
-
-    \rule{0.6\linewidth}{0.5pt}\par
-    \vspace{1.5cm}
-
-    \begin{tabular}{ll}
-      \textbf{Autor:}      & \labauthor \\
-      \textbf{Modul / PA:} & Project Thesis \\ % anpassen
-      \textbf{Supervisor:}    & Michael Ernst Peter \\
-       \textbf{Co-Supervisor:} & Dr. Prof. Ruprecht Altenburger \\	
-    \end{tabular}\par
-    \vspace{2cm}
-
-    Winterthur, \labdate
-
-  \end{center}
 \end{titlepage}
+
 
 % -------------------------------------------------
 % ERSTE INHALTSSEITE MIT labstyle-TITELBLOCK
 % -------------------------------------------------
 
 \section{Abstract}
-Text ...
+This project focuses on the development of a tool for offline tuning of gyro controllers for FPV racing
+drones based on the open-source firmware Betaflight. The quality of the gyro control loop has a direct influence
+on flight stability, the suppression of disturbances such as prop wash, and the agility of the drone. Until now,
+rate controller tuning has mostly been performed through time-consuming trial and error. \par
+The aim of the project is to develop a modular, open-source solution for offline tuning based on an existing
+proof of concept. The code will be implemented in MATLAB, accompanied by a lightweight Python version, and
+supplemented with detailed Markdown documentation and examples on GitHub. The project aims to provide the
+community with a simple way to efficiently optimise drone parameters and thereby improve flight performance.
+\par
+The results will be published in a public GitHub repository and documented in a report. In addition to the
+software development, the project also includes practical work with FPV drones to validate the developed
+methods.
 
 \section{Foreword}
-Text...
+This document summarizes the results of our project thesis, which we worked on during the fall semester 2025 at
+the ZHAW School of Engineering. For us as systems engineering students, this project provided an ideal
+opportunity to apply advanced control theory and signal processing methods to a real, highly dynamic system. FPV
+drones present an interesting engineering challenge due to their highly dynamic behaviour and the need for
+precise control. This motivated us to investigate mathematical modelling, control engineering aspects, and
+offline tuning methods aimed at improving flight performance. \par
+Our motivation was to translate the theoretical control concepts we learned over the past three years to a
+real, highly dynamic system. We also aimed to develop a tool that not only meets engineering standards but also
+provides real value to the FPV community by replacing subjective tuning with objective data analysis. \par
+This work was carried out at the Institute of Mechatronic Systems (IMS) at the ZHAW School of Engineering. We
+would like to express our gratitude to our supervisor, Michael Peter, for his guidance and support throughout
+this project. His expertise, constructive feedback, and willingness to take the time to assist us in developing
+complex algorithms were invaluable.
 
 \newpage
 
@@ -87,26 +130,729 @@ Text...
 \newpage
 
 \section{Introduction}
-Text...
+First-person-view (FPV) racing drones require precise and responsive control to achieve high flight stability, minimize disturbances such as prop wash, and maintain agility during rapid manoeuvres. Proper tuning of the rate controllers is key to this performance, as it directly determines how the drone reacts to pilot inputs and external influences.
+Until now, tuning these controllers has mainly relied on iterative trial-and-error methods, a process that is both time-consuming and difficult to perform, especially for less experienced pilots.\par
+Betaflight, an open-source firmware widely used in the FPV community, provides a flexible platform for configuring flight controllers. However, despite its popularity, efficient tuning remains a challenge. To address this, our project builds upon an existing proof of concept for offline tuning of rate controllers using flight data and system identification techniques. The goal is to transform this concept into a robust, modular, and open-source library that simplifies the tuning process.\par
+The library will be implemented in `MATLAB and Python`, offering tools for analyzing flight logs, estimating system dynamics, and optimizing controller parameters without requiring repeated flight tests. A documentation is created, which shows how to use the tool and will be published on GitHub to ensure accessibility for the FPV community. \par
+Besides software development, the project involves also building an FPV drone and testing and confirm the effectiveness of the proposed methods. By providing a structured, data-driven approach to tuning, this work aims to improve flight performance and reduce the barriers to achieving optimal control settings for both hobbyists and professionals.
 
 \subsection{Initial situation}
-Text...
-
+The open-source firmware Betaflight is the most widely used platform for FPV racing drones and is continuously developed by a large community. The quality of the rate control is crucial for flight performance, as it enables stability, agility, and effective suppression of disturbances such as prop wash.\par
+Today, tuning of controller parameters is still largely performed by trial-and-error adjustments, a method that is time-consuming and often challenging for less experienced pilots. A proof of concept (developed by Michael Peter) already exists, which enables offline tuning of rate controllers using flight measurement data obtained from chirp signal excitation. However, the current implementation is based on MATLAB, which is not widely used within the FPV community and therefore limits accessibility. In addition, the proof-of-concept requires a certain level of technical knowledge to operate, which further complicates its practical use for many pilots.
 
 \subsection{Task and Objective}
-Text...
+The aim of this project is to further develop the existing proof of concept into an accessible and practical tool for tuning rate controllers on Betaflight-based FPV drones. The focus lies on transforming the prototype from a research-oriented MATLAB implementation into a solution that can be used by the wider community with minimal technical barriers. This includes designing a clean and modular software architecture, improving usability, and integrating functions for importing, processing, and analysing flight data.
+\par
+In addition, the tool will be accompanied by comprehensive Markdown documentation, including explanations of key methods, usage instructions, and practical examples to support new users. The implementation will serve as a foundation for future developments, such as extended analysis features, alternative controller designs, or deployment in other embedded flight control systems. The overarching objective is to provide a reliable, data-driven workflow that replaces subjective trial-and-error tuning and enables verifiable control performance improvements.
 
 \newpage
 
 \section{Preparation}
 
 \subsection{Chirp}
+\subsubsection{Chirp Concept}
+A chirp is an input signal that sweeps continuously over a defined range (e.g. from a low frequency to a high frequency).
+This signal excites the system on multiple frequencies in one run and thus lets you observe the frequency response and step response,
+the foundation of controller tuning.
+Mathematically, a chirp signal can be represented as a sinusoidal wave with instantaneous frequency that varies linearly or exponential with time.
+For more information about the mathematical background, please have a look in the document 
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Sinarg/Chirp.md}{Chirp Signal} \cite{bf_chirp}.
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=0.8\textwidth]{./Images/chirp_signal.jpg}
+	\caption{Chirp Signal example}
+	\label{fig:chirp}
+\end{figure}
+
+\subsubsection{Chirp on a drone}
+In the context of tuning a drone's flight controller, an exponential sweep is used.
+This is due to the dominant low-frequency dynamics, where low frequencies exhibit more predictable responses,
+allowing the sweep to allocate more time to higher frequencies for better resolution of system behavior. Additionally,
+multirotor vibration resonances are typically spaced logarithmically,
+making exponential sweeps more suited for efficient excitation across the frequency range.
+
+The process involves these steps:
+\begin{enumerate}
+	\item Signal Injection: The chirp signal is added to the pilot's stick input. This composite signal becomes the setpoint for the PID controller.
+	\item System Response: The drone attempts to follow this rapidly changing setpoint. The motors react, and the drone will oscillate at varying frequencies corresponding to the chirp signal.
+	\item Data Logging: While the chirp is active, high-resolution data from the gyroscope and the motor outputs are recorded using Betaflight's Blackbox feature. This data captures how the drone responds to the control inputs at different frequencies.
+\end{enumerate}
+\vspace{1em}
+
+The recorded log file, containing the input chirp and the corresponding gyroscope output,
+is then used for offline analysis to determine the frequency response of the system.
+
+\subsubsection{Chirp programming}
+The implementation of the chirp signal in Betaflight is straightforward. You call the function chirpInit() and pass:
+\begin{itemize}
+	\item a struct of type chirp\_t defined in chirp.h
+	\item starting frequency
+	\item end frequency
+	\item signal length
+	\item loop-time in microseconds
+\end{itemize}
+\vspace{1em}
+
+This initialises the values in the data struct and:
+\begin{itemize}
+	\item converts loop period from microseconds to seconds
+	\item calculates the number of samples in the signal duration
+	\item calculates the exponential growth factor
+	\item precomputes the constants used to get the phase from the frequency evolution
+	\item calls chirpReset() function
+\end{itemize}
+\vspace{1em}
+
+The chirpReset() function sets:
+\begin{itemize}
+	\item internal counter to 0
+	\item bool isFinished to false
+\end{itemize}
+
+and then calls the function chirpResetSignals() to set signal-related fields to 0.
+\\
+Once the chirp is initialised use the chirpUpdate() function once per loop iteration. 
+\\
+This function checks:
+\begin{itemize}
+	\item if bool isFinished is true -> return false
+	\item else if internal counter is equal to the number of samples inside the chirps period
+	      \\-> set bool isFinished true, call chirpResetSignals(), return false
+\end{itemize}
+
+if none of the above is true the ...
+
+\newpage
+
+\section{Theory}
+
+\subsection{Signal Processing}
+Signal processing applied to Betaflight Blackbox logs transforms raw flight data into usable information for in-depth analysis. 
+These logs contain flight measurements such as stick inputs, gyro signals, PID responses and more. 
+Although the dataset may appear complex at first, software solutions including our analysis tool and the 
+\href{https://blackbox.betaflight.com/}{Betaflight Blackbox Explorer} 
+make interpretation more straightforward by providing visualisations and metrics that support troubleshooting, tuning and performance evaluation.\par
+Preparing the logged data is a central part of the workflow. Before any analysis can be performed, 
+the raw signals are conditioned into a consistent and meaningful representation. 
+This typically begins with filtering to suppress noise without altering the underlying dynamics. 
+Based on the processed signals, the frequency response of the control system can be estimated to characterise how it reacts to different input spectra. 
+Each processing step increases the reliability of the data and leads to more robust conclusions in subsequent analysis.
+
+\subsubsection{Data Import}
+The first step of any analysis is to load the measurement data properly. 
+Betaflight Blackbox logs consist of two essential parts: 
+the header and the data block. The header contains key information about the conditions under which the flight data was recorded, 
+including loop rates, logging settings, active filter configurations and the PID controller values. Without this information, 
+calculations cannot be performed correctly and the recorded data loses its analytical value.\par
+Data imports are unfortunately very computationally expensive. Therefore, to save time during analysis, 
+the logs are converted from raw CSV files into a faster `.mat` format. This way, you don’t need to reprocess the large log files every time. 
+The signal names (like gyro and motor outputs) are also automatically assigned to their correct data columns. 
+This makes it easy to find and assign the signals later. For more details, check the 
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Data/Dataimport.md/}{Dataimport Documentation} \cite{bf_dataimport}.
+
+\subsubsection{Handle High-Resolution Data}
+Betaflight provides a High Resolution Mode as an optional logging setting, 
+in which selected signals are multiplied by a factor of ten before being written to the log. 
+Because these values are stored as integers, this reduces decimal precision requirements and minimises rounding effects. During analysis, 
+the affected signals must be scaled back to their original units; otherwise, frequency plots, 
+controller tuning results or general interpretations will be incorrect. Important signals such as gyro data and control inputs are affected by this step. 
+To get more information, check the 
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Data/Unscale_high_Resolution_Gain.md}{Unscale high Resolution Gain documentation} \cite{bf_unscale_highres}.
+
+
+\subsubsection{Time Conversion and Sampling Rate Verification}
+In a Betaflight log, time is stored as an increasing microsecond counter rather than as regular seconds. 
+Because of hardware limits or system load, the spacing between time stamps isn’t always the same. 
+This step converts the time information into a uniform time base, 
+ensuring that all samples can be compared consistently and interpreted in their correct temporal context. \par
+By checking the time differences between samples, 
+you can detect logging issues such as dropped frames or small variations in the actual sampling rate. 
+Correct handling of the time information is important for all further analysis steps, for example frequency calculations or controller tuning. 
+For a more detailed explanation, see the 
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Data/Convert_and_evolution_Time.md}{Convert and evolution Time documentation}. If you are interested in tuning your drone, you can also refer to the \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Descriptions_Figures/Evolution_Time_Flight.md}{Evolution Time Flight description}.
+
+\subsubsection{Application of Rotational Filtering (Apply Rotfiltfilt)}
+Filtering is a fundamental step in preparing the data for analysis, 
+as it removes unwanted noise while preserving the original characteristics of the signals. 
+The function \texttt{Apply Rotfiltfilt} operation applies a zero-phase filter, 
+ensuring that the data’s phase relationships remain intact while suppressing selected frequency components such as low-frequency drifts or high-frequency noise. \par
+This step applies a forward-backward filtering technique, 
+which processes the data in both forward and reverse directions and effectively cancels out phase distortions. 
+This method is particularly useful when working with chirp signals, 
+as it enables precise filtering without introducing phase shifts that could alter the signal’s characteristics. \par
+
+Proper application of this technique ensures that the data is clean and reliable for subsequent analysis steps. 
+For more insights on how this method works, refer to the full description in the 
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/markdown/Frequency_Response/ApplyRotfiltfilt.md}{Apply Rotfiltfilt documentation}.
+
+\subsubsection{Estimation of Frequency Response}
+The \texttt{Estimate Frequency Response} function uses advanced techniques to measure 
+and analyze the relationship between a system’s input and output signals in the frequency domain. 
+This makes it possible to determine how different frequencies are amplified or attenuated by the system, 
+providing valuable information about its dynamic behavior. \par
+This technique is based on the Welch Method, which divides the signal into overlapping segments. 
+By applying a Hann window to each segment and performing spectral averaging, the influence of noise is reduced 
+and a smoother estimate of the frequency response is obtained. 
+The result is a single-sided, amplitude-calibrated response curve that shows how individual frequencies are amplified or attenuated, 
+as well as how phase shifts occur across the spectrum. \par
+The resulting data is not only accurate but also robust, making it suitable for applications like control system tuning or stability analysis. 
+For a deeper dive into the theoretical principles and implementation steps, consult the detailed 
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/estimate_frequency_response.md}{Estimate Frequency Response documentation}.
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=0.8\textwidth]{./Images/segmentation.jpg}
+	\caption{Segmentations of Data}
+	\label{fig:segmentation}
+\end{figure}
+
+
+\newpage
+\subsection{Control System}
+The control system determines the dynamic response of a drone and is therefore central to flight stability and precise maneuvering. 
+In this section, we analyse the individual components of the controller, 
+examine their influence on the system behaviour and outline the methods used for tuning in order to improve performance and responsiveness.
+
+\subsubsection{Transfer Function Estimation}
+To analyse how the system reacts to control inputs, the transfer function of the plant is estimated directly from closed-loop flight data. 
+This makes it possible to characterise the system dynamics without opening the control loop 
+and to determine how input signals are transformed into outputs. 
+The resulting model forms the basis for matching the controller parameters to the real system. More details can be found in the 
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/Estimate_Transferfunction_Plant.md}{Estimate Transfer Function documentation}.
+
+
+\subsubsection{Closed Loop Calculation}
+The interaction between the controller and the estimated transfer function of the plant determines the stability and robustness of the closed-loop system. 
+By calculating the closed-loop transfer functions for both inner and outer loops, sensitivity, disturbance rejection, 
+and overall system stability can be evaluated. These calculations provide a clear view of the controller dynamics and their impact on the system response. 
+For details on the implementation, see the 
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/CalculateClosedLoop.md}{Calculate Closed Loop documentation}.
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=0.7\textwidth]{./Images/Regelstrecke.png}
+	\caption{Gyro Control Loop}
+	\label{fig:Gyro_Control_Loop}
+\end{figure}
+
+\subsubsection{Filters and Controllers}
+Filters and controllers form the foundation of the control loop. Filters remove unwanted noise from sensor data or motor outputs, while controllers ensure that the flight system remains stable and tracks the desired setpoints accurately. The system makes use of various low-pass, notch, and dynamic filters that are designed to optimize the control process. The controllers, such as the PI and D components, are then tuned to achieve the desired balance between reactivity and stability. For further insights, see the \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/Filter_and_Controller.md}{Filters and Controllers documentation}.
+
+\subsubsection{Compensation of the I-Term} 
+The integral term in a PID controller addresses long-term errors, ensuring steady corrections over time. However, it can become problematic during quick stick movements, where it may overcorrect and destabilize the system. To avoid this, compensation methods adjust the influence of the I-term based on the situation, suppressing it during rapid changes while allowing it to integrate errors during slower movements. This approach helps maintain both precision and responsiveness. Have a look at \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/Compensate_Iterm.md}{Compensate I-Term documentation} to see how we added compensation to the calculation.
+
+\newpage
+\subsection{Evaluation}
+Evaluation is an essential part of understanding and improving the behaviour of the control system. 
+This section outlines the key analytical steps, 
+such as analysing time-domain responses and interpreting frequency-domain data to evaluate the system dynamics. 
+Detailed information on how to interpret the generated figures can be found in the 
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Descriptions_Figures}{Descriptions Figures}.
+
+\subsubsection{Step Response}
+The step response provides a direct view of how the system reacts to sudden changes in the input signal. 
+By transforming the closed-loop transfer function from the frequency domain into the time domain, 
+the dynamic behaviour of the control loop can be evaluated. 
+Key performance indicators such as rise time, overshoot, settling time, 
+and steady-state error can be determined to assess system stability and responsiveness. 
+The calculations use inverse Fourier transforms of frequency response data to reconstruct the system’s step response curve. 
+This curve can be used to identify underdamped or insufficiently tuned dynamics. More details can be found in the 
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/Step_response.md}{Step Response documentation}.
+
+\subsubsection{Spectra Analysis}
+Spectral analysis examines how the system responds to different input frequencies and provides valuable insight into its dynamic characteristics. 
+The method separates complex signals into their frequency components using algorithms such as Welch’s method. Overlapping signal segments, 
+combined with windowing techniques like the Hann window, yield smoother and statistically more reliable estimates of power spectra. 
+This frequency-domain perspective highlights resonances, noise characteristics, and the effectiveness of applied filters. 
+The steps of this process are described in detail in the 
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Spectrum_Spectogram/Spectra_Analysis.md}{Spectra Analysis documentation}.
+
+
+\subsubsection{Spectrum Analysis}
+Spectrum analysis builds on spectral analysis by providing a multi-dimensional view of the signal’s frequency content over time or, 
+in this case, thrust. By grouping FFT segments into bins along an additional axis, such as throttle or angle, 
+the power spectrum can be mapped as a function of both frequency and the selected variable. 
+This approach is particularly useful in applications that require an understanding of how system dynamics change during flight. 
+Relevant methodologies and results are described in the 
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Spectrum_Spectogram/Spectrum_Analysis.md}{Spectrum Analysis section}.
+
+\subsubsection{Gang of Four}
+The Gang of Four plots provide a compact overview of the closed-loop behaviour of the control system. They show how the tuned controller influences stability, noise handling, and control authority. The Bode Diagram illustrates the overall frequency response of the closed loop. The Sensitivity curve indicates how well disturbances are rejected at different frequencies, while the Controller Effort shows the control action required from the PID loop. Finally, the Compliance plot reflects how external disturbances pass through the system. \par
+These diagrams form an essential basis for controller tuning, as they allow a direct comparison between the measured system behaviour and the simulated response using the estimated transfer functions. For a detailed explanation of the control relationships, refer to the \href{https://github.com/InsaneBroccoli/bf_controller_tuning/tree/PA_final/markdown/Frequency_Response/Spectrum_Analysis.md}{Calculate Closed Loop} documentation. Practical tuning guidance can be found in the section \href{https://github.com/InsaneBroccoli/bf_controller_tuning/tree/PA_final/markdown/Descriptions_Figures/Gang_of_Four.md}{Gang of Four Figures}.
+
+\newpage
+
+\section{Challenges and Methodological Approach}
+
+\subsection{Simulations}
+At the beginning of our thesis, we started creating simulations. 
+We used these simulations to deepen our understanding of the existing code and the methods it employed. 
+Although the simulations were time-intensive, they proved crucial for our work. 
+They formed the basis for all subsequent analysis steps and helped us understand the existing functions before applying them further.
+
+\subsubsection{Simulation of Betaflight Controller Order}
+To analyse and better understand the Betaflight control system, we recreated the complete control structure in MATLAB. 
+The corresponding script can be found in the attachments. In this simulation, 
+we attempted to reproduce the step response of the recorded data by using the same PID parameters and filter settings as in the real system.
+The different filters were created according to the documentation 
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/Filter_and_Controller.md}{Filter and Controller}.
+We implemented the filters both in continuous and discrete form, allowing us to compare the two approaches. 
+The PI and D controllers were built in the same way.
+For the plant transfer function, we used a low pass filter combined with dead time, 
+based on the approaches described in the documentation 
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/CalculateClosedLoop.md}{Calculation Closed Loop}.
+In addition to the MATLAB code, we created a Simulink model to test the step response of our Betaflight control system simulation. 
+The simulated response closely matched the step response of the real drone, confirming that we had correctly modelled the controller order.
+
+\subsubsection{Simulation PID Controller}
+To deepen our understanding of the different controller components, we created an additional MATLAB script. 
+This script allowed us to combine various controller types with simple plant models. 
+The user can switch between P, I, PI, PD and PID controllers, as well as between basic plant types. 
+This enabled us to observe how each controller component influences the overall system behaviour.
+The script calculates the open-loop and closed-loop transfer functions for the chosen settings and generates Bode plots, Nyquist diagrams, and step responses. 
+This helped us understand and visualise the effect of each component, significantly improving our overall understanding of controller behaviour.
+
+\subsubsection{Simulation Frequency Response}
+To analyse the frequency response of a system based on input and output data, we created a dedicated simulation. 
+In this simulation, we generated a chirp signal with added noise to replicate realistic measurement conditions. 
+Using these signals, we implemented different methods to estimate the system's transfer function.
+First, we calculated a basic frequency response using the plain \textbf{F}ast \textbf{F}ourier \textbf{T}ransformation (FFT), which served as a benchmark. 
+After that, we applied various signal processing methods. 
+We began with the Welch method to improve the estimation by averaging over overlapping segments. 
+The implementation of the Welch \textbf{F}requency \textbf{R}esponse \textbf{F}unction (FRF) follows the theory described in the documentation 
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/estimate_frequency_response.md}{Estimate Frequency Response}.
+This allowed us to compare the plain FFT approach with the more robust Welch estimator.
+In the next step, we implemented a rotated-signal approach, where the chirp is demodulated to baseband before filtering. 
+For this part, we used the zero-phase filtering method apply\_rotfiltfilt, as described in the documentation 
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/ApplyRotfiltfilt.md}{Apply Rotfiltfilt}.
+We then compared the original Bode plot to the processed one to evaluate how the rotation technique improves noise robustness.
+Overall, this script helped us understand how noise affects the estimated transfer function and how signal processing techniques can increase robustness.
+
+\subsubsection{Simulation Spectra}
+We developed a simulation to examine the different components used to create a meaningful spectrum, based on the system used in the existing code. 
+In this script, we generated a noisy sinusoidal input signal from which we created different spectra. 
+In one case, we applied a window function, while in the other we used no window at all. 
+By splitting the signal into several overlapping segments, 
+we observed how averaging across segments reduces noise and stabilises the resulting spectrum. 
+The implementation is described in detail in the document 
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Spectrum_Spectogram/Spectra_Analysis.md}{Spectra Analysis}.
+This exercise helped us understand how windowing, overlap, and segment length affect spectral estimation, 
+as well as how these methods can increase robustness and reduce spectral leakage.
+
+\subsubsection{Simulation Spectrogram}
+To analyse how the frequency content of the excitation signal changes with both time and thrust, 
+we developed an additional MATLAB simulation. In this script, we generated a noisy sinusoidal input signal and a slowly varying thrust signal. 
+The input signal was then divided into segments and windowed with a Hann window. 
+Each segment was transformed using the FFT to obtain a time-frequency representation.
+First, we arranged the segment spectra along the time axis, and in a second step, along the thrust levels. 
+This resulted in two spectrograms: one showing amplitude over frequency and time, 
+and the other showing amplitude over frequency and thrust. Through this visualisation, 
+we could identify the dominant frequency components as a function of thrust. 
+The underlying method is described in detail in the document 
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Spectrum_Spectogram/Spectogram_Analysis.md}{Spectrogram Analysis}.
+
+\newpage
+
+\subsection{Building an FPV drone}
+Besides the understanding of the code and further developing the proof of concept, 
+building a drone and set it up correctly bridges the gap between the digital domain, 
+where algorithms and simulations are developed and the physical reality of drone operation. 
+By getting in touch with the hardware, it is easier for us to understand what practical challenges exist for pilots and the community.
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=0.8\textwidth]{./Images/OvershootExpress.jpg}
+	\caption{aosmini 3-inch build}
+	\label{fig:aosmini}
+\end{figure}
+
+Therefore a three inch FPV drone was built from the ground up. 
+This work included:
+\begin{itemize}
+	\item creating schemes to see which connections were required
+	\item soldering all the components as the motors, receiver, video system, logger and gps module to the flight controller
+	\item attaching everything to the frame, so that nothing generates unnecessary oscillations during flight
+	\item double check all soldering connections and screws
+	\item setting everything up in betaflight
+	\item testfly the drone
+\end{itemize}
+
+The flightcontroller just fitted into this frame. The GPS mount had to be trimmed off a little bit, that we could mount the all in one stack. 
+Also the video system was mounted super close to the stack. Due to a connector between these two parts, we had to lift the videosystem up with some spacers.
+This resulted in not enough space on top of the videosystem for the screws, which hold the component. 
+So the videosystem had to be mounted with just two screws instead of four. In the first testflights, we couldn't see any too hard vibrations from this,
+so it's probably mounted good enough.
+
+The logger is mounted on the bottom of the drone... -> we designed some stands
+
+\colorbox{yellow}{The biggest challenge was to achieve good soldering connections, ...}
+
+
+
+\subsection{Tuning an FPV drone}
+As part of understanding the workflow we tuned an FPV drone by ourselves. 
+The goal was to adjust the PID parameters so that we achieve a fast rising step response without overshoot, 
+a lower compliance than before and a rounded shaped Sensitivity. Also to mention is, 
+that the axes roll and pitch should be tuned as similar to each other as possible. 
+This is because you want the drone to maintain a consistent and predictable response, 
+so roll and pitch behave similarly for smoother control and a balanced flight experience.
+
+Initially, we deliberately applied a poor tuning configuration to observe its effects. 
+During the first field test with this setup, it quickly became apparent that the tuning was excessively poor. 
+The drone began oscillating aggressively and climbed rapidly. As the drone was out of control, the kill switch had to be activated, 
+resulting in a crash that broke one of the four arms. Fortunately, the damage was minor and repaired quickly.
+
+After this incident, we decided not to repeat flights with intentionally bad tuning. 
+Instead, we continued using the default Betaflight parameters as a baseline. With these the drone flies quite good.
+However, during demanding manoeuvres such as flips or propwash manoeuvres, 
+it becomes evident that there is room for improvement in terms of stability and responsiveness.
+
+The tuning process was carried out on a larger 6-inch FPV drone provided by one of the team members. 
+The drone was freshly flashed with Betaflight v12, meaning all filters and settings were at factory defaults. 
+Achieving an optimal tune required several attempts due to challenges with filter adjustments and occasional logging issues. 
+Nevertheless, the drone was successfully tuned, and the improvement was noticeable. 
+During propwash manoeuvres, the drone remained significantly more stable, and flips were executed with greater precision at the stop.
+
+Our tuning objective was to achieve a fast step response without overshoot, while maintaining good compliance and sensitivity. 
+It is important to note that there is no universally “perfect” tune. Settings depend heavily on pilot preferences. 
+Racing pilots, for example, may want more responsiveness for competitive performance, whereas freestyle pilots want smoothness and flight feel. 
+
+Since none of our team members are professional pilots, we focused on achieving robustness and a step response without overshoot. 
+This tuning approach is probably somewhere between what a racing pilot and a freestyle pilot would prefer. 
+Robustness in this context is important for practical scenarios, such as when a propeller is slightly bent, 
+the battery sits slightly off center or when an additional component like a camera is mounted on the drone.
+
+\newpage
+
+\subsection{Decode}
+Text...
+\newpage
+
+\subsection{Code Structure and programming style}
+From the start of the project, we recognized that a clear and maintainable code structure would be essential. 
+The initial proof-of-concept code already contained a rough separation into topics such as data I/O and step response, 
+but everything was packed into a single file, making it difficult to navigate. 
+Our first step was to comment out the proof-of-concept code and reorganize it into thematic sections. 
+This was the foundation for a more organized layout and we came to an initial directory structure:
+\\
+\dirtree{%
+.1 bf\_controller\_tuning/.
+.2 main.m.
+.2 data\_io/.
+.3 load\_data.m.
+.3 extract\_header\_information.m.
+.3 preprocess\_data.m.
+.2 flight\_parameters/.
+.3 get\_pid\_parameters.m.
+.3 scale\_pid\_parameters.m.
+.3 print\_parameters.m.
+.2 spectrogram/.
+.3 calculate\_spectrogram.m.
+.3 plot\_spectrogram.m.
+.3 show\_spectrogram.m.
+.2 spectra/.
+.3 estimate\_spectra.m.
+.3 plot\_spectra.m.
+.3 show\_spectra.m.
+.2 frequency\_response/.
+.3 estimate\_frequency\_response.m.
+.3 plot\_bode.m.
+.3 show\_frequency\_response.m.
+.2 controller\_analysis/.
+.3 calculate\_closed\_loop.m.
+.3 calculate\_step\_response.m.
+.3 show\_controller\_analysis.m.
+.2 utils/.
+.3 apply\_rotfiltfilt.m.
+.3 downsample\_frd.m.
+.3 get\_my\_colors.m.
+}
+
+This draft was never intended to be final. Rather, it served as an initial attempt to bring clarity and separation between different functional areas.
+
+\subsubsection{OOP vs. Functional Approach}
+At this stage, we discussed whether to implement the entire project using object-oriented programming (OOP) or stick to a modular, 
+function-based approach. Initially, we considered OOP as a challenge, since most of us were not very experienced with it. 
+We started writing some components as classes, but quickly realized that only one team member was really comfortable with OOP,
+while the others struggled. This made us reconsider.
+Our conclusion was to use OOP selectively—only for parts that benefit from reuse and encapsulation, such as data loading and plotting, 
+while keeping the rest function-based for simplicity. This hybrid approach allowed us to maintain flexibility without overcomplicating the design.
+
+After several attempts, we agreed on the following principles:
+
+\begin{itemize}
+	\item A main script (main.m) for user input, figure selection, filter settings, and PID tuning
+	\item A core class to handle all calculations (essentially the logic from the proof of concept, but without plotting)
+	\item A plot utilities class to centralize all plotting functions for consistency
+\end{itemize}
+
+Existing library functions from the proof of concept were reused without modification. The thematic grouping included:
+\\
+\dirtree{%
+.1 bf\_controller\_tuning/.
+.2 class/.
+.3 main\_class.m.
+.3 plot\_utils.m.
+.2 lib/.
+.3 apply\_rotfiltfilt.m.
+.3 calculate\_closed\_loop.m.
+.3 calculate\_controllers.m.
+.3 calculate\_step\_response\_from\_frd.m.
+.3 calculate\_transfer\_functions.m.
+.3 downsample\_frd.m.
+.3 estimate\_frequency\_response.m.
+.3 estimate\_spectra.m.
+.3 estimate\_spectrogram.m.
+.3 expand\_multiple\_figure\_nr.m.
+.3 extract\_header\_information.m.
+.3 get\_chirp\_signals.m.
+.3 get\_fcut\_from\_D\_and\_fcenter.m.
+.3 get\_fcut\_from\_exp.m.
+.3 get\_filter.m.
+.3 get\_ind\_eval.m.
+.3 get\_my\_colors.m.
+.3 get\_notch\_Q.m.
+.3 get\_pid\_scale.m.
+.3 get\_switch\_case\_text\_from\_para.m.
+.2 logs/.
+.2 main.m.
+}
+
+This structure worked well and kept the main script simple for the user. 
+However, after a review meeting, our instructor suggested further modularization. 
+The reason: we had created a “god class,” which limited flexibility. For example, 
+if someone wanted to use the tool only for plotting spectrograms without any drone-specific logic, the current design made that difficult. 
+Also the program was slow. All calculations were made, every time the user changed something. 
+We wanted to improve the speed in only doing these calculations again, which are relevant on that specific user input change. 
+
+\subsubsection{Final Structure Concept}
+Out of this, we decided to split up this god class into three classes.
+The \texttt{flight\_analyzer} class handles frequency domain analysis and vibration characterization.
+Its core responsibility is performing spectral analysis on flight log data to identify resonance frequencies and assess filter effectiveness.
+It computes power spectral density of gyro signals (both filtered and unfiltered) and generates spectrograms showing 
+how vibration frequencies vary with throttle levels across all three axes (roll, pitch, yaw).
+This analysis is essential for identifying noise sources, evaluating filtering strategies, and optimizing drone stability during tuning.
+The \texttt{flight\_data} class is responsible for loading, parsing, and managing flight log data. 
+It provides methods to extract relevant information from Blackbox logs, such as gyro and motor data, and prepares this data for analysis.
+The \texttt{gyro\_ctrl\_tuning} class focuses on tuning the PID controllers for the drone's flight.
+It uses the results from the frequency response and spectral analysis to adjust the PID parameters, aiming to optimize the drone's flight characteristics. 
+The \texttt{plot\_utils} class remains responsible for visualization and graphical representation of all analysis results.
+Unlike the previous approach, this class is now more flexible and reusable. It can be used independently to generate plots from pre-calculated data, 
+making it suitable for users who only want to visualize spectrograms, frequency responses, or step responses without running the full analysis pipeline.
+This modularity allows the plotting functionality to be easily adapted for different visualization needs and integrated into other workflows.
+
+This approach still holds thematic sections, but is more accessible to use only specific parts of the tool.
+
+\dirtree{%
+.1 bf\_controller\_tuning/.
+.2 class/.
+.3 flight\_analyzer.m.
+.3 flight\_data.m.
+.3 gyro\_ctrl\_tuning.m.
+.3 plot\_utils.m.
+.2 lib/.
+.3 apply\_rotfiltfilt.m.
+.3 calculate\_closed\_loop.m.
+.3 calculate\_controllers.m.
+.3 calculate\_step\_response\_from\_frd.m.
+.3 calculate\_transfer\_functions.m.
+.3 downsample\_frd.m.
+.3 estimate\_frequency\_response.m.
+.3 estimate\_spectra.m.
+.3 estimate\_spectrogram.m.
+.3 expand\_multiple\_figure\_nr.m.
+.3 extract\_header\_information.m.
+.3 get\_chirp\_signals.m.
+.3 get\_fcut\_from\_D\_and\_fcenter.m.
+.3 get\_fcut\_from\_exp.m.
+.3 get\_filter.m.
+.3 get\_ind\_eval.m.
+.3 get\_my\_colors.m.
+.3 get\_notch\_Q.m.
+.3 get\_pid\_scale.m.
+.3 get\_switch\_case\_text\_from\_para.m.
+.2 logs/.
+.2 main.m.
+}
+
+\newpage
+
+
+\subsection{Convertion MATLAB to Python}
+Text...
+\subsection{Python in MATLAB}
+Text...
+\subsection{Transfer MATLAB Libary to Python}
 Text...
 
- \subsubsection{Chirp Concept}
-Text..
+\newpage
+
+\section{Results}
+Throughout the project, we achieved a range of practical and technical results. The most important outcome was gaining a deep understanding of the Betaflight control system, including how its filter structures and controller components interact to stabilise the gyro control loop. In addition, we developed a solid foundation in the application of essential signal-processing methods and learned how to use them correctly for frequency-domain analysis, step-response estimation and data preparation. This newly acquired knowledge will be crucial for the further development of the tool and forms an important basis for the work that will follow in the bachelor’s thesis. The simulations carried out during the project helped us link theoretical concepts to the real dynamic behaviour of an FPV drone and validate our understanding of the control loops. \par
+Alongside the theoretical work, we also built and configured an FPV drone from scr atch and performed flight tests and tuning. This hands-on experience provided valuable insight into the practical challenges of drone construction, setup, flight and tuning. It helped us better understand the real-world implications of our analysis, the needs of the FPV community, and ultimately strengthened the connection between theory and practice. \par
+On the software side, we restructured the existing prototype into a modular codebase, created comprehensive Markdown documentation on GitHub, and began transferring key functions from MATLAB to Python to enable future extensions. We also gained experience in object-oriented programming and code organisation for larger projects. In addition, we made significant progress in migrating core functions from MATLAB to Python, such as closed-loop calculations and transfer-function estimation. Although the full transfer is still ongoing, the results achieved so far provide a strong foundation for further development and refinement during the bachelor’s thesis.\par
+A particularly time-consuming part of the project was the development of an automatic extraction method for flight data directly from Betaflight Blackbox logs. Despite testing different approaches, we were not able to complete a reliable solution within the given time frame. However, the insights gained during this process form a valuable basis for further investigations, and we plan to revisit this topic as part of the bachelor’s thesis. \par
+In summary, the project demonstrates that offline analysis and tuning of Betaflight-based FPV drones provides a robust, objective and data-driven approach to optimising flight performance. The implemented methods enable the reconstruction of control-loop behaviour from flight measurements, allowing for a detailed understanding of system dynamics and the impact of controller settings. The work carried out so far lays a solid foundation for the bachelor’s thesis, during which the tool will be extended with additional tuning capabilities, fully migrated to Python, and validated through further flight tests.
+
+\newpage
+
+\section{Discussion and next steps}
+\subsection{Discussion}
+Overall, the work in the last 14 weeks mainly served as a foundation for the future work at the project during our Bachlor thesis rather than a finished end product. We were able to lay the groundwork for further developments. For example, we newly structured the code, which allows us to make addtions and upgrades in the code faster and clearer. But more importantly, we were able to lern much about the behaviour of the Betaflight controll system and how we have to face challenges in it. Dario Jurietti and Janick Dort also lerned how a drone flys and how to build an FPV drone. This experience helped them to better relate the abstract analysis results and behaviour in the air. \par
+Additionally to this, we deepened our understanding how advanced signal-processing methode and more complex controll loops working. We achived this through a series of simulations which made it us easier to connect the theorie to the measuered data of real flights. Also, we improved our skills in object oriented programming and how to structer a big code. We also were able to get our first experiene in using control-engineering in Python, even though the Python implementation is not finished yet. All of this will help us to develope new features quickly and with high quality in our Bachlor thesis. 
+
+\subsection{Next Steps}
+This project is being continued and further developed as part of a bachelor’s thesis. In this context, we plan to extend the existing codebase with new features such as offline tuning for position and altitude hold. These additions will provide deeper insight into the behaviour of the corresponding control loops and allow their optimisation. \par
+Furthermore, a full transfer of the implementation from MATLAB to Python is planned. This will make the tool more accessible to the FPV community, as Python is open source, widely used and free of charge. Our long-term goal is to enable seamless integration of the tool into existing Betaflight utilities, so that pilots can use it for offline tuning of their drones. \par
+Finally, we intend to validate the analysis results through additional flight tests. By comparing the outcomes of the offline analysis with real flight behaviour, we aim to ensure that the methods are accurate and reliable. This will help us further refine the tool and increase its practical value for the FPV community.
+
+\subsection{Conclusion}
+Throughout the project, we gained a deep understanding of the Betaflight control system, learned how its filter and controller structures interact, and applied advanced signal-processing techniques for frequency-domain analysis, step-response evaluation and flight-data preparation. Simulations allowed us to connect theoretical models with observed flight behaviour, while building and test-flying an FPV drone helped us translate analytical findings into practical insights. On the software side, we restructured the existing prototype into a modular codebase and began transferring key functions from MATLAB to Python, enabling future extensions and wider accessibility. Although the fully automated extraction of flight data from Blackbox logs could not be completed, the knowledge gained provides an important basis for further investigation. Overall, the results show that offline analysis and tuning of Betaflight FPV drones offers a robust, objective, and data-driven approach to optimize flight performance. The implemented methods enable reconstruction of control-loop dynamics from flight measurements, allowing detailed understanding of system behaviour and the impact of different controller settings. The work carried out so far lays a solid foundation for further development and refinement of the tool in our bachelor’s thesis, where we will add new tuning capabilities, complete the Python migration, and validate through additional flight tests.
+
+\newpage
 
 
+\section*{References}
+\printbibliography[title={References}]
+
+
+
+\subsubsection{Overview of Generative AI Systems}
+
+\paragraph{OpenAI (2025) – ChatGPT 5.1}
+\begin{itemize}
+    \item Available online: 
+    \href{https://chat.openai.com/}{https://chat.openai.com/}
+    \item Functions:
+    \begin{itemize}
+        \item Generation of text suggestions
+        \item Grammar and language correction
+        \item Support in writing LaTeX and MATLAB code
+    \end{itemize}
+\end{itemize}
+
+\paragraph{DeepL (2025) – DeepL Translator (Free Version)}
+\begin{itemize}
+    \item Available online: 
+    \href{https://www.deepl.com/translator}{https://www.deepl.com/translator}
+    \item Functions:
+    \begin{itemize}
+        \item Translation of text
+    \end{itemize}
+\end{itemize}
+
+\paragraph{Microsoft (2025) – Copilot AI Assistant}
+\begin{itemize}
+    \item Available online: 
+    \href{https://copilot.microsoft.com/}{https://copilot.microsoft.com/}
+    \item Functions:
+    \begin{itemize}
+        \item Generation of text and summaries
+        \item Integration into Microsoft Office tools such as Word and PowerPoint
+        \item Assistance in software development (e.g., code suggestions)
+    \end{itemize}
+\end{itemize}
+
+\paragraph{Anthropic (2025) – Claude AI}
+\begin{itemize}
+    \item Available online: 
+    \href{https://claude.ai/}{https://claude.ai/}
+    \item Functions:
+    \begin{itemize}
+        \item Text generation and editing
+        \item Support for research tasks (e.g., summarisation and structuring)
+        \item Assistance in programming-related workflows
+    \end{itemize}
+\end{itemize}
+
+
+
+\newpage
+
+\subsection{List of Figures}
+\vspace*{-3\baselineskip}% Wert nach Geschmack anpassen
+\begingroup
+  % keine eigene Überschrift von \listoffigures
+  \renewcommand{\listfigurename}{}
+  % optional: verhindert einen zusätzlichen Eintrag im Inhaltsverzeichnis
+  \renewcommand{\addcontentsline}[3]{}
+  \listoffigures
+\endgroup
+
+\section{Appendix}
+\subsection{Project Management}
+\subsubsection{Project Assignment}
+
+% Seite 1 direkt unter dem Titel
+\begin{figure}[H]
+  \centering
+  \includegraphics[page=1,width=\textwidth]{Images/aufgabenstellung.pdf}
+  \caption{Project Assignment}
+  \label{fig:project_assignment_1}
+\end{figure}
+
+% Seite 2 und 3 als reine PDFs
+\includepdf[pages=2]{Images/aufgabenstellung.pdf}
+\includepdf[pages=3]{Images/aufgabenstellung.pdf}
+
+
+\subsubsection{Project Schedule – Version 0}
+
+This project schedule was created at the beginning of the project.
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=0.75\textwidth]{./Images/Zeitplan_V00.png}
+	\caption{Project Schedule – Version 0}
+	\label{fig:Project Schedule – Version 0}
+\end{figure}
+
+\subsubsection{Project Schedule – Version 1}
+This project schedule was created prior to the first milestone meeting and approved during the meeting.
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=0.75\textwidth]{./Images/Zeitplan_V01.png}
+	\caption{Project Schedule – Version 1}
+	\label{fig:Project Schedule – Version 1}
+\end{figure}
+\newpage
+
+\subsubsection{Project Schedule – Version 2}
+This project schedule was created prior to the second milestone meeting and approved during the meeting.
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=0.75\textwidth]{./Images/Zeitplan_V02.png}
+	\caption{Project Schedule – Version 2}
+	\label{fig:Project Schedule – Version 2}
+\end{figure}
+
+\subsubsection{Meeting Minutes}
+\includepdf[pages=1]{Images/Weekly Meeting/Weekly_Meeting2209.pdf}
+\includepdf[pages=1]{Images/Weekly Meeting/Weekly_Meeting2909.pdf}
+\includepdf[pages=1]{Images/Weekly Meeting/Weekly_Meeting0210.pdf}
+\includepdf[pages=1]{Images/Weekly Meeting/Weekly_Meeting1610.pdf}
+\includepdf[pages=1]{Images/Weekly Meeting/Milestone1610.pdf}
+\includepdf[pages=1]{Images/Weekly Meeting/Weekly_Meeting2810.pdf}
+\includepdf[pages=2]{Images/Weekly Meeting/Weekly_Meeting2810.pdf}
+\includepdf[pages=1]{Images/Weekly Meeting/Weekly_Meeting0311.pdf}
+\includepdf[pages=1]{Images/Weekly Meeting/Weekly_Meeting1011.pdf}
+\includepdf[pages=2]{Images/Weekly Meeting/Weekly_Meeting1011.pdf}
+\includepdf[pages=1]{Images/Weekly Meeting/Weekly_Meeting1711.pdf}
+\includepdf[pages=1]{Images/Weekly Meeting/Weekly_Meeting2411.pdf}
+\includepdf[pages=1]{Images/Weekly Meeting/Weekly_Meeting0112.pdf}
+
+\newpage
+
+
+\subsection{Additional Information}
+
+\includepdf[pages=-]{Images/Simulationen/Sim_Controller_Bode_step.pdf}
+\includepdf[pages=-]{Images/Simulationen/Simulation_Plant.pdf}
+\includepdf[pages=-]{Images/Simulationen/Simulation_Regler.pdf}
+\includepdf[pages=-]{Images/Simulationen/Simulation_Spectogram.pdf}
+\includepdf[pages=-]{Images/Simulationen/Simulation_Spectrum.pdf}
 
 
 
