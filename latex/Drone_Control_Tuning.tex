@@ -14,13 +14,13 @@
 \usepackage{csquotes} % für Zitate
 \usepackage{labstyle} % lädt graphicx, xcolor etc.
 \usepackage{hyperref} % für Links im PDF
-% In der Präambel
+
 \usepackage[
   backend=biber,
   style=numeric,   % <-- statt authoryear
   sorting=none     % Reihenfolge = Zitierreihenfolge im Text
 ]{biblatex}
-\addbibresource{references.bib}
+\addbibresource{Zotero_zitieren.bib}
 
 \hypersetup{
   colorlinks=true,    % farbige Links
@@ -93,6 +93,8 @@
 % -------------------------------------------------
 % ERSTE INHALTSSEITE MIT labstyle-TITELBLOCK
 % -------------------------------------------------
+
+Test für das zitieren \parencite{zotero-item-80}
 
 \section{Abstract}
 This project focuses on the development of a tool for offline tuning of gyro controllers for FPV racing
