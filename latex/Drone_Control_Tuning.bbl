@@ -1,0 +1,115 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.2 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{none/global//global/global}
+    \entry{bf_chirp}{online}{}
+      \name{author}{1}{}{%
+        {{hash=9d9c36848e9079f55f65f7eeb16ac664}{%
+           family={InsaneBroccoli},
+           familyi={I\bibinitperiod}}}%
+      }
+      \strng{namehash}{9d9c36848e9079f55f65f7eeb16ac664}
+      \strng{fullhash}{9d9c36848e9079f55f65f7eeb16ac664}
+      \strng{bibnamehash}{9d9c36848e9079f55f65f7eeb16ac664}
+      \strng{authorbibnamehash}{9d9c36848e9079f55f65f7eeb16ac664}
+      \strng{authornamehash}{9d9c36848e9079f55f65f7eeb16ac664}
+      \strng{authorfullhash}{9d9c36848e9079f55f65f7eeb16ac664}
+      \field{extraname}{1}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Chirp Signal Documentation — bf\_controller\_tuning}
+      \field{urlday}{5}
+      \field{urlmonth}{12}
+      \field{urlyear}{2025}
+      \field{year}{2025}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Sinarg/Chirp.md
+      \endverb
+      \verb{url}
+      \verb https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Sinarg/Chirp.md
+      \endverb
+    \endentry
+    \entry{bf_dataimport}{online}{}
+      \name{author}{1}{}{%
+        {{hash=9d9c36848e9079f55f65f7eeb16ac664}{%
+           family={InsaneBroccoli},
+           familyi={I\bibinitperiod}}}%
+      }
+      \strng{namehash}{9d9c36848e9079f55f65f7eeb16ac664}
+      \strng{fullhash}{9d9c36848e9079f55f65f7eeb16ac664}
+      \strng{bibnamehash}{9d9c36848e9079f55f65f7eeb16ac664}
+      \strng{authorbibnamehash}{9d9c36848e9079f55f65f7eeb16ac664}
+      \strng{authornamehash}{9d9c36848e9079f55f65f7eeb16ac664}
+      \strng{authorfullhash}{9d9c36848e9079f55f65f7eeb16ac664}
+      \field{extraname}{2}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Dataimport Documentation — bf\_controller\_tuning}
+      \field{urlday}{5}
+      \field{urlmonth}{12}
+      \field{urlyear}{2025}
+      \field{year}{2025}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Data/Dataimport.md
+      \endverb
+      \verb{url}
+      \verb https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Data/Dataimport.md
+      \endverb
+    \endentry
+    \entry{bf_unscale_highres}{online}{}
+      \name{author}{1}{}{%
+        {{hash=9d9c36848e9079f55f65f7eeb16ac664}{%
+           family={InsaneBroccoli},
+           familyi={I\bibinitperiod}}}%
+      }
+      \strng{namehash}{9d9c36848e9079f55f65f7eeb16ac664}
+      \strng{fullhash}{9d9c36848e9079f55f65f7eeb16ac664}
+      \strng{bibnamehash}{9d9c36848e9079f55f65f7eeb16ac664}
+      \strng{authorbibnamehash}{9d9c36848e9079f55f65f7eeb16ac664}
+      \strng{authornamehash}{9d9c36848e9079f55f65f7eeb16ac664}
+      \strng{authorfullhash}{9d9c36848e9079f55f65f7eeb16ac664}
+      \field{extraname}{3}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Unscale High Resolution Gain Documentation — bf\_controller\_tuning}
+      \field{urlday}{5}
+      \field{urlmonth}{12}
+      \field{urlyear}{2025}
+      \field{year}{2025}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Data/Unscale_high_Resolution_Gain.md
+      \endverb
+      \verb{url}
+      \verb https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Data/Unscale_high_Resolution_Gain.md
+      \endverb
+    \endentry
+  \enddatalist
+\endrefsection
+\endinput
+
