@@ -528,19 +528,25 @@ the battery sits slightly off center or when an additional component like a came
 
 \newpage
 
-\subsection{Decode}
-\subsubsection{Purpose of Decode}
+\subsection{Decoding Betaflight Blackbox Logs}
+\subsubsection{Purpose}
 Currently to obtain a useable Blackbox log from Betaflight, pilots rely on the Betaflight Explorer. 
 Wich is a reliable tool, but lacks comfort if the tuning tool is used iteratively since you have to visit the Explorer every time you want to download a new log.
 To improve this workflow, we tried to make use of the existing open-source blackbox\_decode tool.
 
 \subsubsection{\href{https://github.com/betaflight/blackbox-tools/}{blackbox\_decode tool}}
-the blackbox\_decode tool is a C-based command-line utility designed to convert Betaflight Blackbox log files from their proprietary binary format into more accessible formats like CSV.
-I has the same core functionality as the Betaflight Blackbox Explorer but is intended for users who prefer command-line tools or need to automate log processing tasks. \par
-unfortunately, the blackbox\_decode tool presented several challenges that hindered its integration into our project.
-The moste obivious is the missing header information per default. This is not really a problem since you can create them with the extra flag --save-headers. 
-Hovever, the format of the headers differs from the one used in the Betaflight Explorer. Still not that big of a problem, since we could simply adapt our data import functions to handle both formats. \par
+The blackbox\_decode tool is a C-based command-line utility designed to convert Betaflight Blackbox log files from their proprietary binary format into more accessible formats such as CSV.
+It offers similar core functionality to the Betaflight Blackbox Explorer but is intended for users who prefer command-line tools or need to automate log processing tasks.\par
 
+However, integrating blackbox\_decode into our project presented several challenges.
+The most obvious issue is the absence of header information by default. 
+While this can be addressed by using the --save-headers flag, the format of these headers differs from that used by the Betaflight Explorer. 
+This discrepancy is manageable, as we could adapt our data import functions to handle both formats.\par
+
+A more significant problem is the presence of numerical differences in the decoded data.
+When comparing logs decoded with blackbox\_decode to those processed with Betaflight Explorer, the resulting datasets differ structurally and semantically in several critical ways.
+Specifically, the blackbox\_decode stores the vehicle attitude as Euler angles in degrees, whereas the Explorer provides quaternion-like components. 
+With priority set on other tasks, we decided to set aside the integration of blackbox\_decode for now.
  
 
 \newpage
