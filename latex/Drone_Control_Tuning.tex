@@ -700,11 +700,32 @@ This approach still holds thematic sections, but is more accessible to use only 
 
 \newpage
 
+\subsection{Conversion from MATLAB to Python}
+To make the project more accessible to the FPV community, we decided to migrate the existing MATLAB codebase to Python. The first step was to select suitable Python libraries that offer similar functionality to MATLAB, while maintaining code efficiency and readability. After evaluating several options, we chose the following libraries:
+\begin{itemize}
+  \item \textbf{NumPy}: For numerical operations and array manipulations, analogous to MATLAB's matrix operations.
+  \item \textbf{SciPy}: For scientific computing tasks, including signal processing functions comparable to MATLAB’s capabilities.
+  \item \textbf{Matplotlib}: For plotting and visualization, providing features similar to MATLAB's plotting tools.
+  \item \textbf{Pandas}: For data manipulation and analysis, useful for handling tabular data as in MATLAB tables.
+  \item \textbf{Control Systems Library (control)}: For control system analysis and design, offering functions equivalent to MATLAB's Control System Toolbox.
+\end{itemize}
+We selected Python version 3.12, as it is well-supported and compatible with the required libraries.
 
-\subsection{Convertion MATLAB to Python}
-Text...
+To validate these choices, we developed a prototype script that implements the core functionalities needed for the Drone Tuning Tool.
+The script loads flight log data from CSV files, parses and caches the data efficiently, and extracts relevant signals such as setpoints and gyro measurements.
+NumPy and Pandas are used for numerical and tabular data handling, while SciPy provides signal processing utilities for windowing and frequency analysis.
+The Control Systems Library is employed to estimate the system’s frequency response and step response from flight data, replicating MATLAB’s identification routines.
+Matplotlib is used for visualizing raw signals, chirp responses, and system characteristics.
+The modular structure, including custom data classes and caching, ensures fast and reproducible analysis.
+
+
+This approach demonstrates that Python and its scientific libraries are suitable replacements for MATLAB in the drone tuning workflow.
+While Pandas is not strictly necessary for the prototype, it simplifies data handling and improves code readability.
+However, to minimize dependencies and ensure cross-platform compatibility, we may consider removing Pandas in the final implementation.
+
 \subsection{Python in MATLAB}
-Text...
+In our initial porting attempt, we utilized MATLAB’s built-in functionality to execute Python code directly from within the MATLAB environment. While this approach allowed us to access Python libraries and scripts, it introduced several challenges. One major issue was the frequent need for unit conversions between MATLAB and Python data types, which often led to subtle bugs and inconsistencies. Additionally, we encountered differences in the implementation of certain algorithms, such as varying scaling conventions in the state-space representation of transfer functions. These discrepancies complicated the integration process and made it difficult to ensure consistent results across both platforms. As a result, this method proved unreliable for our project’s requirements.
+
 \subsection{Transfer MATLAB Libary to Python}
 Text...
 
