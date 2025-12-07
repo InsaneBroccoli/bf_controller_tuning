@@ -73,6 +73,7 @@
 % \renewcommand{\labheader}{PA Drone Control Tuning}
 % \renewcommand{\labfooter}{ZHAW/IMS}
 % \renewcommand{\lablogo}{}  % Logo oben rechts deaktivieren, falls nicht vorhanden
+
 \usepackage{pdfpages}
 \usepackage{listings}
 \usepackage{xcolor}
@@ -528,7 +529,20 @@ the battery sits slightly off center or when an additional component like a came
 \newpage
 
 \subsection{Decode}
-Text...
+\subsubsection{Purpose of Decode}
+Currently to obtain a useable Blackbox log from Betaflight, pilots rely on the Betaflight Explorer. 
+Wich is a reliable tool, but lacks comfort if the tuning tool is used iteratively since you have to visit the Explorer every time you want to download a new log.
+To improve this workflow, we tried to make use of the existing open-source blackbox\_decode tool.
+
+\subsubsection{\href{https://github.com/betaflight/blackbox-tools/}{blackbox\_decode tool}}
+the blackbox\_decode tool is a C-based command-line utility designed to convert Betaflight Blackbox log files from their proprietary binary format into more accessible formats like CSV.
+I has the same core functionality as the Betaflight Blackbox Explorer but is intended for users who prefer command-line tools or need to automate log processing tasks. \par
+unfortunately, the blackbox\_decode tool presented several challenges that hindered its integration into our project.
+The moste obivious is the missing header information per default. This is not really a problem since you can create them with the extra flag --save-headers. 
+Hovever, the format of the headers differs from the one used in the Betaflight Explorer. Still not that big of a problem, since we could simply adapt our data import functions to handle both formats. \par
+
+ 
+
 \newpage
 
 \subsection{Code Structure and programming style}
