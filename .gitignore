@@ -14,6 +14,7 @@ __pycache__/
 *.toc
 *.fls
 *.fdb_latexmk
+latex/*.bbl
 
 # Bibliography auxiliary files (bibtex/biber)
 *.blg
@@ -38,7 +39,7 @@ __pycache__/
 *.ps
 
 # Final PDF (Optional: uncomment the line below if you DON'T want to commit PDFs)
-# *.pdf
+latex/*.pdf
 
 # Glossaries
 *.glg
