@@ -8,7 +8,7 @@
   footinclude=true  % Fußzeile einbeziehen
 }
 % Seitenränder setzen
-\areaset{165mm}{270mm} % Breite und Höhe des Textbereichs
+\areaset{165mm}{275mm} % Breite und Höhe des Textbereichs
 
 \usepackage[ngerman]{babel}
 \usepackage{csquotes} % für Zitate
@@ -223,47 +223,51 @@ if none of the above is true the ...
 \section{Theory}
 
 \subsection{Signal Processing}
-Signal processing applied to Betaflight Blackbox logs transforms raw flight data into usable information for in-depth analysis. 
-These logs contain flight measurements such as stick inputs, gyro signals, PID responses and more. 
-Although the dataset may appear complex at first, software solutions including our analysis tool and the 
-\href{https://blackbox.betaflight.com/}{Betaflight Blackbox Explorer} 
-make interpretation more straightforward by providing visualisations and metrics that support troubleshooting, tuning and performance evaluation.\par
-Preparing the logged data is a central part of the workflow. Before any analysis can be performed, 
-the raw signals are conditioned into a consistent and meaningful representation. 
-This typically begins with filtering to suppress noise without altering the underlying dynamics. 
-Based on the processed signals, the frequency response of the control system can be estimated to characterise how it reacts to different input spectra. 
-Each processing step increases the reliability of the data and leads to more robust conclusions in subsequent analysis.
+Signal processing converts raw Betaflight Blackbox flight data into useful information for analysis.
+These logs contain data such as stick movements, gyro signals and PID responses.
+Although the data may seem complex at first, tools like our analysis software and the
+\href{https://blackbox.betaflight.com/}{Betaflight
+ Blackbox Explorer}
+help to make it easier to understand through clear visualisations for troubleshooting and tuning.\par
+
+Preparing the data is a key step in the workflow. Before analysis, the signals are cleaned and brought into a consistent form, usually by filtering to reduce noise without changing the real flight behaviour.
+Based on the processed signals, the frequency response of the control system can be estimated to describe how it reacts to different inputs.
+This improves data quality and leads to more reliable results.
 
 \subsubsection{Data Import}
-The first step of any analysis is to load the measurement data properly. 
-Betaflight Blackbox logs consist of two essential parts: 
-the header and the data block. The header contains key information about the conditions under which the flight data was recorded, 
-including loop rates, logging settings, active filter configurations and the PID controller values. Without this information, 
-calculations cannot be performed correctly and the recorded data loses its analytical value.\par
-Data imports are unfortunately very computationally expensive. Therefore, to save time during analysis, the logs are converted from raw CSV files into a faster `.mat` format. his way, you don’t need to reprocess the large log files every time. The signal names (like gyro and motor outputs) are also automatically assigned to their correct data columns. For more details, check the
-\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Data/Dataimport.md/}{Dataimport Documentation} \parencite{bf_LoadData}.
+The first step of any analysis is to load the measurement data correctly.
+A Betaflight Blackbox log has two main parts: the header and the data block.
+The header contains important information about the recording conditions, such as loop rates, logging settings, filter setup and PID values.
+Without this information, correct calculations are not possible and the data loses its value for analysis.\par
+
+Importing the data is very computationally demanding. To save time, the logs are converted from raw CSV files into the faster .mat format.
+This avoids reprocessing the large files every time. The signal names (for example gyro and motor outputs) are also assigned automatically to the correct data columns.
+More details can be found in the
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Data/Dataimport.md/}{Dataimport
+ Documentation} \parencite{bf_LoadData}.
 
 \subsubsection{Handle High-Resolution Data}
-Betaflight provides a High Resolution Mode as an optional logging setting, 
-in which selected signals are multiplied by a factor of ten before being written to the log. 
-Because these values are stored as integers, this reduces decimal precision requirements and minimises rounding effects. During analysis, 
-the affected signals must be scaled back to their original units; otherwise, frequency plots, 
-controller tuning results or general interpretations will be incorrect. Important signals such as gyro data and control inputs are affected by this step. 
-To get more information, check the 
-\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Data/Unscale_high_Resolution_Gain.md}{Unscale high Resolution Gain documentation} \parencite{bf_UnshigRes}.
+Betaflight offers an optional High Resolution Mode for logging, where selected signals are multiplied by ten before being saved.
+Since the data is stored as integers, this reduces the need for decimal values and limits rounding errors.
+During analysis, these signals must be scaled back to their original units; otherwise, frequency plots, tuning results and general interpretation will be incorrect.
+Key signals such as gyro data and control inputs are affected by this process.
+More details can be found in the
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Data/Unscale_high_Resolution_Gain.md}{Unscale
+ high Resolution Gain documentation} \parencite{bf_UnshigRes}.
 
 
 \subsubsection{Time Conversion and Sampling Rate Verification}
-In a Betaflight log, time is stored as an increasing microsecond counter rather than as regular seconds. 
-Because of hardware limits or system load, the spacing between time stamps isn’t always the same. 
-This step converts the time information into a uniform time base, 
-ensuring that all samples can be compared consistently and interpreted in their correct temporal context. \par
-By checking the time differences between samples, 
-you can detect logging issues such as dropped frames or small variations in the actual sampling rate. 
-Correct handling of the time information is important for all further analysis steps, for example frequency calculations or controller tuning. 
-For a more detailed explanation, see the 
-\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Data/Convert_and_evolution_Time.md}{Convert and evolution Time documentation}. 
-If you are interested in tuning your drone, you can also refer to the \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Descriptions_Figures/Evolution_Time_Flight.md}{Evolution Time Flight description} \parencite{bf_UnshigRes}.
+In a Betaflight log, time is stored as a rising counter in microseconds, not as regular seconds.
+Due to hardware limits or system load, the spacing between time stamps is not always constant.
+This step converts the time data into a uniform time base so that all samples can be compared correctly in time.\par
+By checking the time differences between samples, logging issues such as dropped frames or small changes in the sampling rate can be detected.
+Correct time handling is essential for all later analysis steps, such as frequency calculations or controller tuning.
+More details are given in the
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Data/Convert_and_evolution_Time.md}{Convert
+ and evolution Time documentation}.
+For drone tuning, see also the
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Descriptions_Figures/Evolution_Time_Flight.md}{Evolution
+ Time Flight description} \parencite{bf_UnshigRes}.
 
 \subsubsection{Application of Rotational Filtering (Apply Rotfiltfilt)}
 Filtering is a fundamental step in preparing the data for analysis, 
@@ -324,7 +328,7 @@ For details on the implementation, see the
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics[width=0.7\textwidth]{./Images/Regelstrecke.png}
+	\includegraphics[width=0.6\textwidth]{./Images/Regelstrecke.png}
 	\caption{Gyro Control Loop}
 	\label{fig:Gyro_Control_Loop}
 \end{figure}
@@ -476,7 +480,7 @@ By getting in touch with the hardware, it is easier for us to understand what pr
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics[width=0.8\textwidth]{./Images/OvershootExpress.jpg}
+	\includegraphics[width=0.6\textwidth]{./Images/OvershootExpress.jpg}
 	\caption{aosmini 3-inch build}
 	\label{fig:aosmini}
 \end{figure}
@@ -600,6 +604,8 @@ This was the foundation for a more organized layout and we came to an initial di
 }
 
 This draft was never intended to be final. Rather, it served as an initial attempt to bring clarity and separation between different functional areas.
+
+\newpage
 
 \subsubsection{OOP vs. Functional Approach}
 At this stage, we discussed whether to implement the entire project using object-oriented programming (OOP) or stick to a modular, 
