@@ -22,12 +22,6 @@
 ]{biblatex}
 \addbibresource{Zotero_zitieren.bib}
 
-\hypersetup{
-  colorlinks=true,    % farbige Links
-  linkcolor=black,    % internal links (sections, figures)
-  urlcolor=blue,      % external URLs
-  citecolor=blue      % citations
-}
 \usepackage{float}
 \lstset{
   basicstyle=\ttfamily\small, % Schriftart und -grösse
@@ -73,9 +67,9 @@
 % \renewcommand{\labheader}{PA Drone Control Tuning}
 % \renewcommand{\labfooter}{ZHAW/IMS}
 % \renewcommand{\lablogo}{}  % Logo oben rechts deaktivieren, falls nicht vorhanden
+
 \usepackage{pdfpages}
 \usepackage{listings}
-\usepackage{xcolor}
 
 \begin{document}
 
@@ -158,7 +152,7 @@ This signal excites the system on multiple frequencies in one run and thus lets 
 the foundation of controller tuning.
 Mathematically, a chirp signal can be represented as a sinusoidal wave with instantaneous frequency that varies linearly or exponential with time.
 For more information about the mathematical background, please have a look in the document 
-\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Sinarg/Chirp.md}{Chirp Signal} \cite{bf_chirp}.
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Sinarg/Chirp.md}{Chirp Signal} \parencite{bf_chirp}.
 
 \begin{figure}[htbp]
 	\centering
@@ -527,8 +521,27 @@ the battery sits slightly off center or when an additional component like a came
 
 \newpage
 
-\subsection{Decode}
-Text...
+\subsection{Decoding Betaflight Blackbox Logs}
+\subsubsection{Purpose}
+Currently to obtain a useable Blackbox log from Betaflight, pilots rely on the Betaflight Explorer. 
+Wich is a reliable tool, but lacks comfort if the tuning tool is used iteratively since you have to visit the Explorer every time you want to download a new log.
+To improve this workflow, we tried to make use of the existing open-source blackbox\_decode tool.
+
+\subsubsection{\href{https://github.com/betaflight/blackbox-tools/}{blackbox\_decode tool}}
+The blackbox\_decode tool is a C-based command-line utility designed to convert Betaflight Blackbox log files from their proprietary binary format into more accessible formats such as CSV.
+It offers similar core functionality to the Betaflight Blackbox Explorer but is intended for users who prefer command-line tools or need to automate log processing tasks.\par
+
+However, integrating blackbox\_decode into our project presented several challenges.
+The most obvious issue is the absence of header information by default. 
+While this can be addressed by using the --save-headers flag, the format of these headers differs from that used by the Betaflight Explorer. 
+This discrepancy is manageable, as we could adapt our data import functions to handle both formats.\par
+
+A more significant problem is the presence of numerical differences in the decoded data.
+When comparing logs decoded with blackbox\_decode to those processed with Betaflight Explorer, the resulting datasets differ structurally and semantically in several critical ways.
+Specifically, the blackbox\_decode stores the vehicle attitude as Euler angles in degrees, whereas the Explorer provides quaternion-like components. 
+With priority set on other tasks, we decided to set aside the integration of blackbox\_decode for now.
+ 
+
 \newpage
 
 \subsection{Code Structure and programming style}
@@ -680,13 +693,50 @@ This approach still holds thematic sections, but is more accessible to use only 
 
 \newpage
 
+\subsection{Conversion from MATLAB to Python}
 
-\subsection{Convertion MATLAB to Python}
-Text...
+To make the project more accessible to the FPV community, we decided to migrate the existing MATLAB codebase to Python.  
+The first step was to select suitable Python libraries that offer similar functionality to MATLAB, while maintaining code efficiency and readability.  
+After evaluating several options, we chose the following libraries:  
+\begin{itemize}
+  \item \textbf{NumPy}: For numerical operations and array manipulations, analogous to MATLAB's matrix operations.
+  \item \textbf{SciPy}: For scientific computing tasks, including signal processing functions comparable to MATLAB’s capabilities.
+  \item \textbf{Matplotlib}: For plotting and visualization, providing features similar to MATLAB's plotting tools.
+  \item \textbf{Pandas}: For data manipulation and analysis, useful for handling tabular data as in MATLAB tables.
+  \item \textbf{Control Systems Library (control)}: For control system analysis and design, offering functions equivalent to MATLAB's Control System Toolbox.
+\end{itemize}
+We selected Python version 3.12, as it is well-supported and compatible with the required libraries.  
+To validate these choices, we developed a prototype script that implements the core functionalities needed for the Drone Tuning Tool.  
+The script loads flight log data from CSV files, parses and caches the data efficiently, and extracts relevant signals such as setpoints and gyro measurements.  
+NumPy and Pandas are used for numerical and tabular data handling, while SciPy provides signal processing utilities for windowing and frequency analysis.  
+The Control Systems Library is employed to estimate the system’s frequency response and step response from flight data, replicating MATLAB’s identification routines.  
+Matplotlib is used for visualizing raw signals, chirp responses, and system characteristics.  
+The modular structure, including custom data classes and caching, ensures fast and reproducible analysis.  
+This approach demonstrates that Python and its scientific libraries are suitable replacements for MATLAB in the drone tuning workflow.  
+While Pandas is not strictly necessary for the prototype, it simplifies data handling and improves code readability.  
+However, to minimize dependencies and ensure cross-platform compatibility, we may consider removing Pandas in the final implementation.  
+The flexibility of Python also allows for easier integration with other tools and automation of data processing tasks, which is beneficial for large-scale log analysis.  
+
 \subsection{Python in MATLAB}
-Text...
-\subsection{Transfer MATLAB Libary to Python}
-Text...
+
+In our initial porting attempt, we utilized MATLAB’s built-in functionality to execute Python code directly from within the MATLAB environment.  
+While this approach allowed us to access Python libraries and scripts, it introduced some challenges.  
+One major issue was the frequent need for unit conversions between MATLAB and Python data types, which often led to subtle bugs and inconsistencies.  
+Additionally, we encountered differences in the implementation of certain algorithms, such as varying scaling conventions in the state-space representation of transfer functions.  
+These discrepancies complicated the integration process and made it difficult to ensure consistent results across both platforms.  
+Managing library dependencies and Python environments within MATLAB also proved cumbersome, especially when working across different operating systems or MATLAB versions.  
+As a result, this method proved unreliable for our project’s requirements.  
+We ultimately decided to pursue a native Python implementation to avoid these integration issues and streamline the development workflow.  
+
+\subsection{Transferring the MATLAB Library to Python}
+
+The core functionality of the Drone Tuning Tool resides in its library functions.  
+To ensure that the Python implementation is both reliable and consistent with the original MATLAB code, we systematically transferred each library function from MATLAB to Python.  
+For functions with simple numerical outputs, we used \texttt{np.testing.assert\_allclose} with appropriate absolute and relative tolerances, saving the function inputs and outputs from MATLAB and comparing them with the Python implementation.  
+For more complex functions, such as those involving state-space outputs, we developed dedicated test scripts to compare the behavior of the MATLAB and Python versions across a range of scenarios.  
+This rigorous testing approach helped us validate the correctness and consistency of the ported library functions.  
+Automated testing and comparison between MATLAB and Python outputs were essential to ensure that the new implementation maintained the expected performance and accuracy.  
+This systematic transfer and validation process significantly reduced the risk of introducing errors during migration and increased confidence in the reliability of the Python-based tool.  
 
 \newpage
 
