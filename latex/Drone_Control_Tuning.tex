@@ -132,7 +132,8 @@ Besides software development, the project involves also building an FPV drone an
 
 \subsection{Initial situation}
 The open-source firmware Betaflight is the most widely used platform for FPV racing drones and is continuously developed by a large community. The quality of the rate control is crucial for flight performance, as it enables stability, agility, and effective suppression of disturbances such as prop wash.\par
-Today, tuning of controller parameters is still largely performed by trial-and-error adjustments, a method that is time-consuming and often challenging for less experienced pilots. A proof of concept (developed by Michael Peter) already exists, which enables offline tuning of rate controllers using flight measurement data obtained from chirp signal excitation. However, the current implementation is based on MATLAB, which is not widely used within the FPV community and therefore limits accessibility. In addition, the proof-of-concept requires a certain level of technical knowledge to operate, which further complicates its practical use for many pilots.
+Today, tuning of controller parameters is still largely performed by trial-and-error adjustments, a method that is time-consuming and often challenging for less experienced pilots. A proof of concept (developed by Michael Peter) already exists, which enables offline tuning of rate controllers using flight measurement data obtained from chirp signal excitation. However, the current implementation is based on MATLAB, which is not widely used within the FPV community and therefore limits accessibility. In addition, the proof-of-concept requires a certain level of technical knowledge to operate, which further complicates its practical use for many pilots. \par
+As a result, the potential of data-driven controller tuning remains largely unused in everyday FPV practice. This creates a gap between academically established system identification and control design methods on the one hand, and the predominantly experience-based tuning approaches used by pilots on the other. Bridging this gap represents a key motivation for the further development of the existing proof of concept.
 
 \subsection{Task and Objective}
 The aim of this project is to further develop the existing proof of concept into an accessible and practical tool for tuning rate controllers on Betaflight-based FPV drones. The focus lies on transforming the prototype from a research-oriented MATLAB implementation into a solution that can be used by the wider community with minimal technical barriers. This includes designing a clean and modular software architecture, improving usability, and integrating functions for importing, processing, and analysing flight data.
@@ -239,10 +240,7 @@ Betaflight Blackbox logs consist of two essential parts:
 the header and the data block. The header contains key information about the conditions under which the flight data was recorded, 
 including loop rates, logging settings, active filter configurations and the PID controller values. Without this information, 
 calculations cannot be performed correctly and the recorded data loses its analytical value.\par
-Data imports are unfortunately very computationally expensive. Therefore, to save time during analysis, 
-the logs are converted from raw CSV files into a faster `.mat` format. This way, you don’t need to reprocess the large log files every time. 
-The signal names (like gyro and motor outputs) are also automatically assigned to their correct data columns. 
-This makes it easy to find and assign the signals later. For more details, check the 
+Data imports are unfortunately very computationally expensive. Therefore, to save time during analysis, the logs are converted from raw CSV files into a faster `.mat` format. his way, you don’t need to reprocess the large log files every time. The signal names (like gyro and motor outputs) are also automatically assigned to their correct data columns. For more details, check the
 \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Data/Dataimport.md/}{Dataimport Documentation} \parencite{bf_LoadData}.
 
 \subsubsection{Handle High-Resolution Data}
@@ -780,11 +778,8 @@ Finally, we intend to validate the analysis results through additional flight te
 Throughout the project, we gained a deep understanding of the Betaflight control system, learned how its filter and controller structures interact, and applied advanced signal-processing techniques for frequency-domain analysis, step-response evaluation and flight-data preparation. Simulations allowed us to connect theoretical models with observed flight behaviour, while building and test-flying an FPV drone helped us translate analytical findings into practical insights. On the software side, we restructured the existing prototype into a modular codebase and began transferring key functions from MATLAB to Python, enabling future extensions and wider accessibility. Although the fully automated extraction of flight data from Blackbox logs could not be completed, the knowledge gained provides an important basis for further investigation. Overall, the results show that offline analysis and tuning of Betaflight FPV drones offers a robust, objective, and data-driven approach to optimize flight performance. The implemented methods enable reconstruction of control-loop dynamics from flight measurements, allowing detailed understanding of system behaviour and the impact of different controller settings. The work carried out so far lays a solid foundation for further development and refinement of the tool in our bachelor’s thesis, where we will add new tuning capabilities, complete the Python migration, and validate through additional flight tests.
 
 \newpage
-
-
-\section*{References}
 \printbibliography[title={References}]
-
+\newpage
 
 
 \subsubsection{Overview of Generative AI Systems}
