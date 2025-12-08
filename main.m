@@ -25,9 +25,9 @@ do_insert_legends = true;
 %  Define path to *.bbl.csv file for the 
 % =========================================================================
 
-log_folder = '';
-flight_folder = '20250907';
-log_name = '20250907_apex5_00.bbl.csv';
+log_folder = 'logs';
+flight_folder = '20251208';
+log_name = '01_20251208_OvershootExpress.csv';
 file_path = fullfile(log_folder, flight_folder, log_name);
 
 data_flight = flight_data(file_path);
