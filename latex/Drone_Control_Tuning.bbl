@@ -19,34 +19,6 @@
 
 \refsection{0}
   \datalist[entry]{none/global//global/global}
-    \entry{zotero-item-80}{online}{}
-      \name{author}{1}{}{%
-        {{hash=40f7e7feb0534f11263bd3ea34c0a3b1}{%
-           family={{Betaflight}},
-           familyi={B\bibinitperiod}}}%
-      }
-      \list{organization}{1}{%
-        {Betaflight Wiki}%
-      }
-      \strng{namehash}{40f7e7feb0534f11263bd3ea34c0a3b1}
-      \strng{fullhash}{40f7e7feb0534f11263bd3ea34c0a3b1}
-      \strng{bibnamehash}{40f7e7feb0534f11263bd3ea34c0a3b1}
-      \strng{authorbibnamehash}{40f7e7feb0534f11263bd3ea34c0a3b1}
-      \strng{authornamehash}{40f7e7feb0534f11263bd3ea34c0a3b1}
-      \strng{authorfullhash}{40f7e7feb0534f11263bd3ea34c0a3b1}
-      \field{sortinit}{1}
-      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
-      \field{labelnamesource}{author}
-      \field{labeltitlesource}{title}
-      \field{langid}{english}
-      \field{title}{Betaflight {{Wiki PID}} Tuning}
-      \verb{urlraw}
-      \verb https://www.betaflight.com/docs/wiki/configurator/pid-tuning-tab
-      \endverb
-      \verb{url}
-      \verb https://www.betaflight.com/docs/wiki/configurator/pid-tuning-tab
-      \endverb
-    \endentry
     \entry{bf_chirp}{report}{}
       \name{author}{3}{}{%
         {{hash=4135e53aa8333d4fa5139382bb2b45df}{%
@@ -75,8 +47,8 @@
       \strng{authornamehash}{3269ef9f96789c448af457a9e27a1328}
       \strng{authorfullhash}{3269ef9f96789c448af457a9e27a1328}
       \field{extraname}{1}
-      \field{sortinit}{2}
-      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{langid}{Englisch}
@@ -116,8 +88,8 @@
       \strng{authornamehash}{3269ef9f96789c448af457a9e27a1328}
       \strng{authorfullhash}{3269ef9f96789c448af457a9e27a1328}
       \field{extraname}{2}
-      \field{sortinit}{3}
-      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{langid}{Englisch}
@@ -157,8 +129,8 @@
       \strng{authornamehash}{3269ef9f96789c448af457a9e27a1328}
       \strng{authorfullhash}{3269ef9f96789c448af457a9e27a1328}
       \field{extraname}{3}
-      \field{sortinit}{4}
-      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{langid}{Englisch}
