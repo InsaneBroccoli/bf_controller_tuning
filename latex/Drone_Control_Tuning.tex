@@ -245,7 +245,7 @@ Data imports are unfortunately very computationally expensive. Therefore, to sav
 the logs are converted from raw CSV files into a faster `.mat` format. This way, you don’t need to reprocess the large log files every time. 
 The signal names (like gyro and motor outputs) are also automatically assigned to their correct data columns. 
 This makes it easy to find and assign the signals later. For more details, check the 
-\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Data/Dataimport.md/}{Dataimport Documentation} \cite{bf_dataimport}.
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Data/Dataimport.md/}{Dataimport Documentation} \parencite{bf_LoadData}.
 
 \subsubsection{Handle High-Resolution Data}
 Betaflight provides a High Resolution Mode as an optional logging setting, 
@@ -254,7 +254,7 @@ Because these values are stored as integers, this reduces decimal precision requ
 the affected signals must be scaled back to their original units; otherwise, frequency plots, 
 controller tuning results or general interpretations will be incorrect. Important signals such as gyro data and control inputs are affected by this step. 
 To get more information, check the 
-\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Data/Unscale_high_Resolution_Gain.md}{Unscale high Resolution Gain documentation} \cite{bf_unscale_highres}.
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Data/Unscale_high_Resolution_Gain.md}{Unscale high Resolution Gain documentation} \parencite{bf_UnshigRes}.
 
 
 \subsubsection{Time Conversion and Sampling Rate Verification}
@@ -266,7 +266,8 @@ By checking the time differences between samples,
 you can detect logging issues such as dropped frames or small variations in the actual sampling rate. 
 Correct handling of the time information is important for all further analysis steps, for example frequency calculations or controller tuning. 
 For a more detailed explanation, see the 
-\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Data/Convert_and_evolution_Time.md}{Convert and evolution Time documentation}. If you are interested in tuning your drone, you can also refer to the \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Descriptions_Figures/Evolution_Time_Flight.md}{Evolution Time Flight description}.
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Data/Convert_and_evolution_Time.md}{Convert and evolution Time documentation}. 
+If you are interested in tuning your drone, you can also refer to the \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Descriptions_Figures/Evolution_Time_Flight.md}{Evolution Time Flight description}.
 
 \subsubsection{Application of Rotational Filtering (Apply Rotfiltfilt)}
 Filtering is a fundamental step in preparing the data for analysis, 
@@ -333,10 +334,22 @@ For details on the implementation, see the
 \end{figure}
 
 \subsubsection{Filters and Controllers}
-Filters and controllers form the foundation of the control loop. Filters remove unwanted noise from sensor data or motor outputs, while controllers ensure that the flight system remains stable and tracks the desired setpoints accurately. The system makes use of various low-pass, notch, and dynamic filters that are designed to optimize the control process. The controllers, such as the PI and D components, are then tuned to achieve the desired balance between reactivity and stability. For further insights, see the \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/Filter_and_Controller.md}{Filters and Controllers documentation}.
+Filters and controllers form the foundation of the control loop. 
+Filters remove unwanted noise from sensor data or motor outputs, 
+while controllers ensure that the flight system remains stable and tracks the desired setpoints accurately. 
+The system makes use of various low-pass, notch, and dynamic filters that are designed to optimize the control process. 
+The controllers, such as the PI and D components, are then tuned to achieve the desired balance between reactivity and stability. 
+For further insights, see the 
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/Filter_and_Controller.md}{Filters and Controllers documentation}.
 
 \subsubsection{Compensation of the I-Term} 
-The integral term in a PID controller addresses long-term errors, ensuring steady corrections over time. However, it can become problematic during quick stick movements, where it may overcorrect and destabilize the system. To avoid this, compensation methods adjust the influence of the I-term based on the situation, suppressing it during rapid changes while allowing it to integrate errors during slower movements. This approach helps maintain both precision and responsiveness. Have a look at \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/Compensate_Iterm.md}{Compensate I-Term documentation} to see how we added compensation to the calculation.
+The integral term in a PID controller addresses long-term errors, ensuring steady corrections over time. 
+However, it can become problematic during quick stick movements, where it may overcorrect and destabilize the system. 
+To avoid this, compensation methods adjust the influence of the I-term based on the situation, 
+suppressing it during rapid changes while allowing it to integrate errors during slower movements. 
+This approach helps maintain both precision and responsiveness. 
+Have a look at \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/Compensate_Iterm.md}{Compensate I-Term documentation} 
+to see how we added compensation to the calculation.
 
 \newpage
 \subsection{Evaluation}
@@ -374,8 +387,17 @@ Relevant methodologies and results are described in the
 \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Spectrum_Spectogram/Spectrum_Analysis.md}{Spectrum Analysis section}.
 
 \subsubsection{Gang of Four}
-The Gang of Four plots provide a compact overview of the closed-loop behaviour of the control system. They show how the tuned controller influences stability, noise handling, and control authority. The Bode Diagram illustrates the overall frequency response of the closed loop. The Sensitivity curve indicates how well disturbances are rejected at different frequencies, while the Controller Effort shows the control action required from the PID loop. Finally, the Compliance plot reflects how external disturbances pass through the system. \par
-These diagrams form an essential basis for controller tuning, as they allow a direct comparison between the measured system behaviour and the simulated response using the estimated transfer functions. For a detailed explanation of the control relationships, refer to the \href{https://github.com/InsaneBroccoli/bf_controller_tuning/tree/PA_final/markdown/Frequency_Response/Spectrum_Analysis.md}{Calculate Closed Loop} documentation. Practical tuning guidance can be found in the section \href{https://github.com/InsaneBroccoli/bf_controller_tuning/tree/PA_final/markdown/Descriptions_Figures/Gang_of_Four.md}{Gang of Four Figures}.
+The Gang of Four plots provide a compact overview of the closed-loop behaviour of the control system. 
+They show how the tuned controller influences stability, noise handling, and control authority. 
+The Bode Diagram illustrates the overall frequency response of the closed loop. 
+The Sensitivity curve indicates how well disturbances are rejected at different frequencies, 
+while the Controller Effort shows the control action required from the PID loop. 
+Finally, the Compliance plot reflects how external disturbances pass through the system. \par
+These diagrams form an essential basis for controller tuning, 
+as they allow a direct comparison between the measured system behaviour and the simulated response using the estimated transfer functions. 
+For a detailed explanation of the control relationships, 
+refer to the \href{https://github.com/InsaneBroccoli/bf_controller_tuning/tree/PA_final/markdown/Frequency_Response/Spectrum_Analysis.md}{Calculate Closed Loop} documentation. 
+Practical tuning guidance can be found in the section \href{https://github.com/InsaneBroccoli/bf_controller_tuning/tree/PA_final/markdown/Descriptions_Figures/Gang_of_Four.md}{Gang of Four Figures}.
 
 \newpage
 
@@ -476,15 +498,12 @@ This work included:
 
 The flightcontroller just fitted into this frame. The GPS mount had to be trimmed off a little bit, that we could mount the all in one stack. 
 Also the video system was mounted super close to the stack. Due to a connector between these two parts, we had to lift the videosystem up with some spacers.
-This resulted in not enough space on top of the videosystem for the screws, which hold the component. 
-So the videosystem had to be mounted with just two screws instead of four. In the first testflights, we couldn't see any too hard vibrations from this,
-so it's probably mounted good enough.
-
-The logger is mounted on the bottom of the drone... -> we designed some stands
-
-\colorbox{yellow}{The biggest challenge was to achieve good soldering connections, ...}
-
-
+This resulted in not enough space on top of the videosystem for the screws, which attaches the component to the frame. 
+The videosystem then had to be mounted with just two screws instead of four. In the first testflights, we couldn't see any too hard vibrations from this,
+so it's probably mounted good enough. As we need to be able to get the microSD card out of the the logger, the little pcp has to be mounted somewhere outside the drone. 
+We designed a little 3D printed surface, where the logger could be mounted with some doublesided tape. This component then was the lowest part of the drone, 
+which was a problem. In the first test flight we had the issue, that in the first landing, the microSD card hold openend and we lost the card. 
+Due to this problem, we designed some 3D printed stands for the frame, that the logger is not being crushed anymore on landings.
 
 \subsection{Tuning an FPV drone}
 As part of understanding the workflow we tuned an FPV drone by ourselves. 
