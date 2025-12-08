@@ -265,7 +265,7 @@ you can detect logging issues such as dropped frames or small variations in the 
 Correct handling of the time information is important for all further analysis steps, for example frequency calculations or controller tuning. 
 For a more detailed explanation, see the 
 \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Data/Convert_and_evolution_Time.md}{Convert and evolution Time documentation}. 
-If you are interested in tuning your drone, you can also refer to the \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Descriptions_Figures/Evolution_Time_Flight.md}{Evolution Time Flight description}.
+If you are interested in tuning your drone, you can also refer to the \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Descriptions_Figures/Evolution_Time_Flight.md}{Evolution Time Flight description} \parencite{bf_UnshigRes}.
 
 \subsubsection{Application of Rotational Filtering (Apply Rotfiltfilt)}
 Filtering is a fundamental step in preparing the data for analysis, 
@@ -279,7 +279,7 @@ as it enables precise filtering without introducing phase shifts that could alte
 
 Proper application of this technique ensures that the data is clean and reliable for subsequent analysis steps. 
 For more insights on how this method works, refer to the full description in the 
-\href{https://github.com/InsaneBroccoli/bf_controller_tuning/markdown/Frequency_Response/ApplyRotfiltfilt.md}{Apply Rotfiltfilt documentation}.
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/markdown/Frequency_Response/ApplyRotfiltfilt.md}{Apply Rotfiltfilt documentation} \parencite{bf_ApplyRot}.
 
 \subsubsection{Estimation of Frequency Response}
 The \texttt{Estimate Frequency Response} function uses advanced techniques to measure 
@@ -293,7 +293,7 @@ The result is a single-sided, amplitude-calibrated response curve that shows how
 as well as how phase shifts occur across the spectrum. \par
 The resulting data is not only accurate but also robust, making it suitable for applications like control system tuning or stability analysis. 
 For a deeper dive into the theoretical principles and implementation steps, consult the detailed 
-\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/estimate_frequency_response.md}{Estimate Frequency Response documentation}.
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/estimate_frequency_response.md}{Estimate Frequency Response documentation} \parencite{bf_estfreqresp}.
 
 \begin{figure}[htbp]
 	\centering
@@ -322,7 +322,7 @@ The interaction between the controller and the estimated transfer function of th
 By calculating the closed-loop transfer functions for both inner and outer loops, sensitivity, disturbance rejection, 
 and overall system stability can be evaluated. These calculations provide a clear view of the controller dynamics and their impact on the system response. 
 For details on the implementation, see the 
-\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/CalculateClosedLoop.md}{Calculate Closed Loop documentation}.
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/CalculateClosedLoop.md}{Calculate Closed Loop documentation}. \parencite{bf_closeloop}
 
 \begin{figure}[htbp]
 	\centering
