@@ -260,6 +260,7 @@ More details can be found in the
 In a Betaflight log, time is stored as a rising counter in microseconds, not as regular seconds.
 Due to hardware limits or system load, the spacing between time stamps is not always constant.
 This step converts the time data into a uniform time base so that all samples can be compared correctly in time.\par
+
 By checking the time differences between samples, logging issues such as dropped frames or small changes in the sampling rate can be detected.
 Correct time handling is essential for all later analysis steps, such as frequency calculations or controller tuning.
 More details are given in the
@@ -422,6 +423,12 @@ based on the approaches described in the documentation
 \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/CalculateClosedLoop.md}{Calculation Closed Loop}.
 In addition to the MATLAB code, we created a Simulink model to test the step response of our Betaflight control system simulation. 
 The simulated response closely matched the step response of the real drone, confirming that we had correctly modelled the controller order.
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=0.7\textwidth]{./Images/Simulink.png}
+	\caption{Simulink Simulation with Data Collection}
+	\label{fig:simulinksimulation}
+\end{figure}
 
 \subsubsection{Simulation PID Controller}
 To deepen our understanding of the different controller components, we created an additional MATLAB script. 
