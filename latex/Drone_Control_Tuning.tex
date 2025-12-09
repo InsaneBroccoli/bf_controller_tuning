@@ -361,54 +361,6 @@ Have a look at \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob
 to see how we added compensation to the calculation.
 
 \newpage
-\subsection{Evaluation}
-Evaluation is an essential part of understanding and improving the behaviour of the control system. 
-This section outlines the key analytical steps, 
-such as analysing time-domain responses and interpreting frequency-domain data to evaluate the system dynamics. 
-Detailed information on how to interpret the generated figures can be found in the 
-\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Descriptions_Figures}{Descriptions Figures}.
-
-\subsubsection{Step Response}
-The step response provides a direct view of how the system reacts to sudden changes in the input signal. 
-By transforming the closed-loop transfer function from the frequency domain into the time domain, 
-the dynamic behaviour of the control loop can be evaluated. 
-Key performance indicators such as rise time, overshoot, settling time, 
-and steady-state error can be determined to assess system stability and responsiveness. 
-The calculations use inverse Fourier transforms of frequency response data to reconstruct the system’s step response curve. 
-This curve can be used to identify underdamped or insufficiently tuned dynamics. More details can be found in the 
-\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/Step_response.md}{Step Response documentation}.
-
-\subsubsection{Spectra Analysis}
-Spectral analysis examines how the system responds to different input frequencies and provides valuable insight into its dynamic characteristics. 
-The method separates complex signals into their frequency components using algorithms such as Welch’s method. Overlapping signal segments, 
-combined with windowing techniques like the Hann window, yield smoother and statistically more reliable estimates of power spectra. 
-This frequency-domain perspective highlights resonances, noise characteristics, and the effectiveness of applied filters. 
-The steps of this process are described in detail in the 
-\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Spectrum_Spectogram/Spectra_Analysis.md}{Spectra Analysis documentation}.
-
-
-\subsubsection{Spectrum Analysis}
-Spectrum analysis builds on spectral analysis by providing a multi-dimensional view of the signal’s frequency content over time or, 
-in this case, thrust. By grouping FFT segments into bins along an additional axis, such as throttle or angle, 
-the power spectrum can be mapped as a function of both frequency and the selected variable. 
-This approach is particularly useful in applications that require an understanding of how system dynamics change during flight. 
-Relevant methodologies and results are described in the 
-\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Spectrum_Spectogram/Spectrum_Analysis.md}{Spectrum Analysis section}.
-
-\subsubsection{Gang of Four}
-The Gang of Four plots provide a compact overview of the closed-loop behaviour of the control system. 
-They show how the tuned controller influences stability, noise handling, and control authority. 
-The Bode Diagram illustrates the overall frequency response of the closed loop. 
-The Sensitivity curve indicates how well disturbances are rejected at different frequencies, 
-while the Controller Effort shows the control action required from the PID loop. 
-Finally, the Compliance plot reflects how external disturbances pass through the system. \par
-These diagrams form an essential basis for controller tuning, 
-as they allow a direct comparison between the measured system behaviour and the simulated response using the estimated transfer functions. 
-For a detailed explanation of the control relationships, 
-refer to the \href{https://github.com/InsaneBroccoli/bf_controller_tuning/tree/PA_final/markdown/Frequency_Response/Spectrum_Analysis.md}{Calculate Closed Loop} documentation. 
-Practical tuning guidance can be found in the section \href{https://github.com/InsaneBroccoli/bf_controller_tuning/tree/PA_final/markdown/Descriptions_Figures/Gang_of_Four.md}{Gang of Four Figures}.
-
-\newpage
 
 \section{Challenges and Methodological Approach}
 
@@ -552,6 +504,60 @@ Since none of our team members are professional pilots, we focused on achieving 
 This tuning approach is probably somewhere between what a racing pilot and a freestyle pilot would prefer. 
 Robustness in this context is important for practical scenarios, such as when a propeller is slightly bent, 
 the battery sits slightly off center or when an additional component like a camera is mounted on the drone.
+
+\subsection{Tuning the drone with our tool \colorbox{yellow}{wird zusammengefügt mit dem oben}}
+Evaluation is an essential part of understanding and improving the behaviour of the control system. 
+This section outlines the key analytical steps, 
+such as analysing time-domain responses and interpreting frequency-domain data to evaluate the system dynamics. 
+Detailed information on how to interpret the generated figures can be found in the 
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Descriptions_Figures}{Descriptions Figures}.
+
+\subsubsection{Step Response}
+The step response provides a direct view of how the system reacts to sudden changes in the input signal. 
+By transforming the closed-loop transfer function from the frequency domain into the time domain, 
+the dynamic behaviour of the control loop can be evaluated. 
+Key performance indicators such as rise time, overshoot, settling time, 
+and steady-state error can be determined to assess system stability and responsiveness. 
+The calculations use inverse Fourier transforms of frequency response data to reconstruct the system’s step response curve. 
+This curve can be used to identify underdamped or insufficiently tuned dynamics. More details can be found in the 
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/Step_response.md}{Step Response documentation}.
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=0.8\textwidth]{./Images/Tuning/Step_response_roll.jpg}
+	\caption{Step Response}
+	\label{fig:step_response}
+\end{figure}
+
+\subsubsection{Spectra Analysis}
+Spectral analysis examines how the system responds to different input frequencies and provides valuable insight into its dynamic characteristics. 
+The method separates complex signals into their frequency components using algorithms such as Welch’s method. Overlapping signal segments, 
+combined with windowing techniques like the Hann window, yield smoother and statistically more reliable estimates of power spectra. 
+This frequency-domain perspective highlights resonances, noise characteristics, and the effectiveness of applied filters. 
+The steps of this process are described in detail in the 
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Spectrum_Spectogram/Spectra_Analysis.md}{Spectra Analysis documentation}.
+
+
+\subsubsection{Spectrum Analysis}
+Spectrum analysis builds on spectral analysis by providing a multi-dimensional view of the signal’s frequency content over time or, 
+in this case, thrust. By grouping FFT segments into bins along an additional axis, such as throttle or angle, 
+the power spectrum can be mapped as a function of both frequency and the selected variable. 
+This approach is particularly useful in applications that require an understanding of how system dynamics change during flight. 
+Relevant methodologies and results are described in the 
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Spectrum_Spectogram/Spectrum_Analysis.md}{Spectrum Analysis section}.
+
+\subsubsection{Gang of Four}
+The Gang of Four plots provide a compact overview of the closed-loop behaviour of the control system. 
+They show how the tuned controller influences stability, noise handling, and control authority. 
+The Bode Diagram illustrates the overall frequency response of the closed loop. 
+The Sensitivity curve indicates how well disturbances are rejected at different frequencies, 
+while the Controller Effort shows the control action required from the PID loop. 
+Finally, the Compliance plot reflects how external disturbances pass through the system. \par
+These diagrams form an essential basis for controller tuning, 
+as they allow a direct comparison between the measured system behaviour and the simulated response using the estimated transfer functions. 
+For a detailed explanation of the control relationships, 
+refer to the \href{https://github.com/InsaneBroccoli/bf_controller_tuning/tree/PA_final/markdown/Frequency_Response/Spectrum_Analysis.md}{Calculate Closed Loop} documentation. 
+Practical tuning guidance can be found in the section \href{https://github.com/InsaneBroccoli/bf_controller_tuning/tree/PA_final/markdown/Descriptions_Figures/Gang_of_Four.md}{Gang of Four Figures}.
 
 \newpage
 
