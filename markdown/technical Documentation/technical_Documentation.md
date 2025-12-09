@@ -216,6 +216,10 @@ Spectral analysis examines how the system reacts to various input frequencies, p
 
 Spectrum analysis extends the ideas of spectral analysis by providing a richer, multi-dimensional understanding of the signal’s frequency content over time or in our case thrust. By grouping FFT segments into bins across an additional axis, such as throttle or angle, this technique maps the power spectrum as a function of both frequency and a chosen variable. This multi-dimensional approach is particularly useful in applications that require an understanding of how system dynamics evolve during flight. Relevant methodologies and results are documented in the [Spectrum Analysis section](https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Spectrum_Spectogram/Spectrum_Analysis.md).
 
+### Gang of Four Analysis
+
+The Gang of Four plots provide a compact overview of the closed-loop behaviour of the control system. The show how the tuned 
+
 # 4. Working steps and Problems
 
 ## 4.1 Simulations
@@ -233,6 +237,10 @@ In addition to the MATLAB code, we created a Simulink model, in which we tested 
 
 To deepen our understanding of the different controller components, we created an additional MATLAB script. It allowed us to combine different controller types with simple plant models. In the program you can switch between P, I, PI, PD and PID controllers, and between basic plant types. Through this, we were able to observe how each controller component influences the overall system behaviour.
 The script calculates the open and closed loop of the chosen settings and generates Bode plots, Nyquist diagrams and step responses. This helped us to understand and visualize the effect of each component. Trough that, our overall understanding of contoller behaviour significantly improved.
+
+
+Fore example, in the plot you see the frequency response of a PID controller. The value Kp lays at 100, if you transfer the 100 into dB you get 40dB. This is exactly the value you see in the bode plot at the middle frequencies of the plot. The Ki part is responsible for the slope of -20db/decade at low frequencies and the Kd part for the slope of +20db/decade at high frequencies. 
+
 
 ### 4.1.3 Simulation Frequency Response
 
