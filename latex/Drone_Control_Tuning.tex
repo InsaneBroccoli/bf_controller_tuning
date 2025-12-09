@@ -389,14 +389,45 @@ The simulated response closely matched the step response of the real drone, conf
 	\caption{Simulink Simulation with Data Collection}
 	\label{fig:simulinksimulation}
 \end{figure}
-
+\newpage
 \subsubsection{Simulation PID Controller}
-To deepen our understanding of the different controller components, we created an additional MATLAB script. 
-This script allowed us to combine various controller types with simple plant models. 
-The user can switch between P, I, PI, PD and PID controllers, as well as between basic plant types. 
-This enabled us to observe how each controller component influences the overall system behaviour.
-The script calculates the open-loop and closed-loop transfer functions for the chosen settings and generates Bode plots, Nyquist diagrams, and step responses. 
-This helped us understand and visualise the effect of each component, significantly improving our overall understanding of controller behaviour.
+To deepen our understanding of the individual controller components, we developed an additional MATLAB script that allows the combination of different controller types with simple plant models. The user can switch between P, I, PI, PD, and PID controllers as well as between basic plant types. This makes it possible to directly observe how each controller component influences the overall system behaviour. The script computes the open-loop and closed-loop transfer functions and generates Bode plots, Nyquist diagrams, and step responses. Figure 5 shows an example Bode plot obtained from this simulation.
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=1.0\textwidth]{./Images/Controller_Bode.png}
+	\caption{Bodeplot out of Controller Simulation}
+	\label{fig:simulinksimulation}
+\end{figure}
+
+The frequency response of the shown PID controller is based on the parameters 
+$K_p = 100$, $K_i = 10$ and $K_d = 10$. 
+The proportional gain defines the magnitude level in the mid-frequency range:
+\[
+20\log_{10}(K_p) = 20\log_{10}(100) = 40\,\text{dB}.
+\]
+
+The integral term causes the slope of $-20\,\text{dB/decade}$ at low frequencies with
+\[
+|C_I(j\omega)| = \frac{K_i}{\omega} = \frac{10}{\omega}.
+\]
+The corresponding lower corner frequency is
+\[
+\omega_{k,I} = \frac{K_i}{K_p} = \frac{10}{100} = 0.1\,\text{rad/s}.
+\]
+
+The derivative term causes the slope of $+20\,\text{dB/decade}$ at high frequencies with
+\[
+|C_D(j\omega)| = K_d\,\omega = 10\,\omega.
+\]
+The corresponding upper corner frequency is
+\[
+\omega_{k,D} = \frac{K_p}{K_d} = \frac{100}{10} = 10\,\text{rad/s}.
+\]
+
+This example also shows that changing the integral and derivative gains shifts the position of the slopes in the Bode plot. A larger integral gain moves the low-frequency slope towards higher frequencies, while a larger derivative gain moves the high-frequency slope towards lower frequencies. In this way, the shape of the frequency response can be adjusted to the desired system behaviour.
+
+
 
 \subsubsection{Simulation Frequency Response}
 To analyse the frequency response of a system based on input and output data, we created a dedicated simulation. 
@@ -414,16 +445,38 @@ For this part, we used the zero-phase filtering method apply\_rotfiltfilt, as de
 We then compared the original Bode plot to the processed one to evaluate how the rotation technique improves noise robustness.
 Overall, this script helped us understand how noise affects the estimated transfer function and how signal processing techniques can increase robustness.
 
+\newpage
+
 \subsubsection{Simulation Spectra}
-We developed a simulation to examine the different components used to create a meaningful spectrum, based on the system used in the existing code. 
-In this script, we generated a noisy sinusoidal input signal from which we created different spectra. 
-In one case, we applied a window function, while in the other we used no window at all. 
-By splitting the signal into several overlapping segments, 
-we observed how averaging across segments reduces noise and stabilises the resulting spectrum. 
-The implementation is described in detail in the document 
-\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Spectrum_Spectogram/Spectra_Analysis.md}{Spectra Analysis}.
-This exercise helped us understand how windowing, overlap, and segment length affect spectral estimation, 
-as well as how these methods can increase robustness and reduce spectral leakage.
+To better understand the different components use to create a meaningful spectrum, we developed a simulation based on the system used in the given code. In this script we generated a noisy sinusoidal input signal out of which we created different spectra. In one case we applied a window function and in the other we did not use any window as shown in Figure xx.
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=0.9\textwidth]{./Images/Spectra_input.png}
+	\caption{Comparison of Signal with and without windowing}
+	\label{fig:spectra_input}
+\end{figure}
+
+
+In the next step, we compared the frequency spectrum of the signal without and with the window. As shown in Figure~xx, the spectrum without windowing exhibits significant spectral leakage, which can be identified by the strong spreading of energy around the main frequency peak and the presence of multiple side peaks that distort the true frequency content of the signal. In contrast, the spectrum with the Hann window applied shows strongly reduced leakage, resulting in a clearer and more accurate representation of the signal’s frequency components.
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=0.9\textwidth]{./Images/Spectra_window.png}
+	\caption{Comparison of Spectra with and without windowing}
+	\label{fig:spectra_input}
+\end{figure}
+
+In the last step we split the signal into several overlapping segments, as described in the documentation \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Spectrum_Spectogram/Spectra_Analysis.md}{Spectra Analysis}.  By averaging across segments, we were able to observe how this method reduces noise and stabilises the resulting spectrum.
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=0.9\textwidth]{./Images/Spectra_segment.png}
+	\caption{Comparison of Spectra with and without windowing}
+	\label{fig:spectra_input}
+\end{figure}
+
+\newpage
 
 \subsubsection{Simulation Spectrogram}
 To analyse how the frequency content of the excitation signal changes with both time and thrust, 
@@ -920,31 +973,13 @@ This project schedule was created prior to the second milestone meeting and appr
 \end{figure}
 
 \subsubsection{Meeting Minutes}
-\includepdf[pages=1]{Images/Weekly Meeting/Weekly_Meeting2209.pdf}
-\includepdf[pages=1]{Images/Weekly Meeting/Weekly_Meeting2909.pdf}
-\includepdf[pages=1]{Images/Weekly Meeting/Weekly_Meeting0210.pdf}
-\includepdf[pages=1]{Images/Weekly Meeting/Weekly_Meeting1610.pdf}
-\includepdf[pages=1]{Images/Weekly Meeting/Milestone1610.pdf}
-\includepdf[pages=1]{Images/Weekly Meeting/Weekly_Meeting2810.pdf}
-\includepdf[pages=2]{Images/Weekly Meeting/Weekly_Meeting2810.pdf}
-\includepdf[pages=1]{Images/Weekly Meeting/Weekly_Meeting0311.pdf}
-\includepdf[pages=1]{Images/Weekly Meeting/Weekly_Meeting1011.pdf}
-\includepdf[pages=2]{Images/Weekly Meeting/Weekly_Meeting1011.pdf}
-\includepdf[pages=1]{Images/Weekly Meeting/Weekly_Meeting1711.pdf}
-\includepdf[pages=1]{Images/Weekly Meeting/Weekly_Meeting2411.pdf}
-\includepdf[pages=1]{Images/Weekly Meeting/Weekly_Meeting0112.pdf}
-\includepdf[pages=1]{Images/Weekly Meeting/Weekly_Meeting0812.pdf}
 
 \newpage
 
 
 \subsection{Additional Information}
 
-\includepdf[pages=-]{Images/Simulationen/Sim_Controller_Bode_step.pdf}
-\includepdf[pages=-]{Images/Simulationen/Simulation_Plant.pdf}
-\includepdf[pages=-]{Images/Simulationen/Simulation_Regler.pdf}
-\includepdf[pages=-]{Images/Simulationen/Simulation_Spectogram.pdf}
-\includepdf[pages=-]{Images/Simulationen/Simulation_Spectrum.pdf}
+
 
 \newpage
 Projektcode
