@@ -142,6 +142,129 @@
       \verb https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Data/Unscale_high_Resolution_Gain.md
       \endverb
     \endentry
+    \entry{bf_ApplyRot}{report}{}
+      \name{author}{3}{}{%
+        {{hash=4135e53aa8333d4fa5139382bb2b45df}{%
+           family={Dort},
+           familyi={D\bibinitperiod},
+           given={Janick},
+           giveni={J\bibinitperiod}}}%
+        {{hash=5b5a9f3516acfd091392baa7414db829}{%
+           family={Bianchi},
+           familyi={B\bibinitperiod},
+           given={Yuri},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=ba375b031b724e8e367aa837fe8f168b}{%
+           family={Jurietti},
+           familyi={J\bibinitperiod},
+           given={Dario},
+           giveni={D\bibinitperiod}}}%
+      }
+      \list{institution}{1}{%
+        {ZHAW - School of Engineering}%
+      }
+      \strng{namehash}{3269ef9f96789c448af457a9e27a1328}
+      \strng{fullhash}{3269ef9f96789c448af457a9e27a1328}
+      \strng{bibnamehash}{3269ef9f96789c448af457a9e27a1328}
+      \strng{authorbibnamehash}{3269ef9f96789c448af457a9e27a1328}
+      \strng{authornamehash}{3269ef9f96789c448af457a9e27a1328}
+      \strng{authorfullhash}{3269ef9f96789c448af457a9e27a1328}
+      \field{extraname}{4}
+      \field{sortinit}{5}
+      \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{langid}{Englisch}
+      \field{title}{Function apply\_rotfiltfilt}
+      \verb{urlraw}
+      \verb https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/ApplyRotfiltfilt.md#function-apply_rotfiltfilt
+      \endverb
+      \verb{url}
+      \verb https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/ApplyRotfiltfilt.md#function-apply_rotfiltfilt
+      \endverb
+    \endentry
+    \entry{bf_estfreqresp}{report}{}
+      \name{author}{3}{}{%
+        {{hash=4135e53aa8333d4fa5139382bb2b45df}{%
+           family={Dort},
+           familyi={D\bibinitperiod},
+           given={Janick},
+           giveni={J\bibinitperiod}}}%
+        {{hash=5b5a9f3516acfd091392baa7414db829}{%
+           family={Bianchi},
+           familyi={B\bibinitperiod},
+           given={Yuri},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=ba375b031b724e8e367aa837fe8f168b}{%
+           family={Jurietti},
+           familyi={J\bibinitperiod},
+           given={Dario},
+           giveni={D\bibinitperiod}}}%
+      }
+      \list{institution}{1}{%
+        {ZHAW - School of Engineering}%
+      }
+      \strng{namehash}{3269ef9f96789c448af457a9e27a1328}
+      \strng{fullhash}{3269ef9f96789c448af457a9e27a1328}
+      \strng{bibnamehash}{3269ef9f96789c448af457a9e27a1328}
+      \strng{authorbibnamehash}{3269ef9f96789c448af457a9e27a1328}
+      \strng{authornamehash}{3269ef9f96789c448af457a9e27a1328}
+      \strng{authorfullhash}{3269ef9f96789c448af457a9e27a1328}
+      \field{extraname}{5}
+      \field{sortinit}{6}
+      \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{langid}{Englisch}
+      \field{title}{Estimate Frequency Response}
+      \verb{urlraw}
+      \verb https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/estimate_frequency_response.md
+      \endverb
+      \verb{url}
+      \verb https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/estimate_frequency_response.md
+      \endverb
+    \endentry
+    \entry{bf_closeloop}{report}{}
+      \name{author}{3}{}{%
+        {{hash=4135e53aa8333d4fa5139382bb2b45df}{%
+           family={Dort},
+           familyi={D\bibinitperiod},
+           given={Janick},
+           giveni={J\bibinitperiod}}}%
+        {{hash=5b5a9f3516acfd091392baa7414db829}{%
+           family={Bianchi},
+           familyi={B\bibinitperiod},
+           given={Yuri},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=ba375b031b724e8e367aa837fe8f168b}{%
+           family={Jurietti},
+           familyi={J\bibinitperiod},
+           given={Dario},
+           giveni={D\bibinitperiod}}}%
+      }
+      \list{institution}{1}{%
+        {ZHAW - School of Engineering}%
+      }
+      \strng{namehash}{3269ef9f96789c448af457a9e27a1328}
+      \strng{fullhash}{3269ef9f96789c448af457a9e27a1328}
+      \strng{bibnamehash}{3269ef9f96789c448af457a9e27a1328}
+      \strng{authorbibnamehash}{3269ef9f96789c448af457a9e27a1328}
+      \strng{authornamehash}{3269ef9f96789c448af457a9e27a1328}
+      \strng{authorfullhash}{3269ef9f96789c448af457a9e27a1328}
+      \field{extraname}{6}
+      \field{sortinit}{7}
+      \field{sortinithash}{108d0be1b1bee9773a1173443802c0a3}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{langid}{Englisch}
+      \field{title}{Closed-Loop Analysis}
+      \verb{urlraw}
+      \verb https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/CalculateClosedLoop.md
+      \endverb
+      \verb{url}
+      \verb https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/CalculateClosedLoop.md
+      \endverb
+    \endentry
   \enddatalist
 \endrefsection
 \endinput
