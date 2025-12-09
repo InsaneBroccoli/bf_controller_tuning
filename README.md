@@ -121,7 +121,7 @@ You might wonder how we get our results an plots. We can totally understand your
 - [Frequency Response](https://github.com/InsaneBroccoli/bf_controller_tuning/tree/PA_final/markdown/Frequency_Response)
 - [Spectrum and Spectrogram](https://github.com/InsaneBroccoli/bf_controller_tuning/tree/PA_final/markdown/Spectrum_Spectogram)
 
-## Repository Structure (as of xx.xx.2025)
+## Repository Structure
 ```tree
 bf_controller_tuning/
 │
