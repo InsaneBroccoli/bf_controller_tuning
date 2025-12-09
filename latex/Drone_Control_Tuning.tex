@@ -161,7 +161,7 @@ Mathematically, a chirp signal can be represented as a sinusoidal wave with inst
 For more information about the mathematical background, please have a look in the document 
 \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Sinarg/Chirp.md}{Chirp Signal} \parencite{bf_chirp}.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 	\centering
 	\includegraphics[width=0.8\textwidth]{./Images/chirp_signal.jpg}
 	\caption{Chirp Signal example}
@@ -306,7 +306,7 @@ The resulting data is not only accurate but also robust, making it suitable for 
 For a deeper dive into the theoretical principles and implementation steps, consult the detailed 
 \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/estimate_frequency_response.md}{Estimate Frequency Response documentation} \parencite{bf_estfreqresp}.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 	\centering
 	\includegraphics[width=0.8\textwidth]{./Images/segmentation.jpg}
 	\caption{Segmentations of Data}
@@ -335,7 +335,7 @@ and overall system stability can be evaluated. These calculations provide a clea
 For details on the implementation, see the 
 \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/CalculateClosedLoop.md}{Calculate Closed Loop documentation}. \parencite{bf_closeloop}
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 	\centering
 	\includegraphics[width=0.6\textwidth]{./Images/Regelstrecke.png}
 	\caption{Gyro Control Loop}
@@ -383,7 +383,7 @@ based on the approaches described in the documentation
 \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/CalculateClosedLoop.md}{Calculation Closed Loop}.
 In addition to the MATLAB code, we created a Simulink model to test the step response of our Betaflight control system simulation. 
 The simulated response closely matched the step response of the real drone, confirming that we had correctly modelled the controller order.
-\begin{figure}[htbp]
+\begin{figure}[H]
 	\centering
 	\includegraphics[width=0.7\textwidth]{./Images/Simulink.png}
 	\caption{Simulink Simulation with Data Collection}
@@ -445,7 +445,7 @@ building a drone and set it up correctly bridges the gap between the digital dom
 where algorithms and simulations are developed and the physical reality of drone operation. 
 By getting in touch with the hardware, it is easier for us to understand what practical challenges exist for pilots and the community.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 	\centering
 	\includegraphics[width=0.6\textwidth]{./Images/OvershootExpress.jpg}
 	\caption{aosmini 3-inch build}
@@ -522,11 +522,11 @@ The calculations use inverse Fourier transforms of frequency response data to re
 This curve can be used to identify underdamped or insufficiently tuned dynamics. More details can be found in the 
 \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/Step_response.md}{Step Response documentation}.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 	\centering
-	\includegraphics[width=0.8\textwidth]{./Images/Tuning/Step_response_roll.jpg}
+	\includegraphics[width=0.8\textwidth]{./Images/Tuning_OvershootExpress/Step_response_roll.jpg}
 	\caption{Step Response}
-	\label{fig:step_response}
+	\label{fig:step_response_tuning}
 \end{figure}
 
 \subsubsection{Spectra Analysis}
@@ -537,6 +537,12 @@ This frequency-domain perspective highlights resonances, noise characteristics, 
 The steps of this process are described in detail in the 
 \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Spectrum_Spectogram/Spectra_Analysis.md}{Spectra Analysis documentation}.
 
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{./Images/Tuning_OvershootExpress/Spectra.jpg}
+	\caption{Spectra}
+	\label{fig:Spectra_tuning}
+\end{figure}
 
 \subsubsection{Spectrum Analysis}
 Spectrum analysis builds on spectral analysis by providing a multi-dimensional view of the signal’s frequency content over time or, 
@@ -545,6 +551,13 @@ the power spectrum can be mapped as a function of both frequency and the selecte
 This approach is particularly useful in applications that require an understanding of how system dynamics change during flight. 
 Relevant methodologies and results are described in the 
 \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Spectrum_Spectogram/Spectrum_Analysis.md}{Spectrum Analysis section}.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{./Images/Tuning_OvershootExpress/Spectrograms.jpg}
+	\caption{Spectrograms}
+	\label{fig:Spectrograms_tuning}
+\end{figure}
 
 \subsubsection{Gang of Four}
 The Gang of Four plots provide a compact overview of the closed-loop behaviour of the control system. 
@@ -558,6 +571,13 @@ as they allow a direct comparison between the measured system behaviour and the 
 For a detailed explanation of the control relationships, 
 refer to the \href{https://github.com/InsaneBroccoli/bf_controller_tuning/tree/PA_final/markdown/Frequency_Response/Spectrum_Analysis.md}{Calculate Closed Loop} documentation. 
 Practical tuning guidance can be found in the section \href{https://github.com/InsaneBroccoli/bf_controller_tuning/tree/PA_final/markdown/Descriptions_Figures/Gang_of_Four.md}{Gang of Four Figures}.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{./Images/Tuning_OvershootExpress/Gang_of_four_roll.jpg}
+	\caption{Gang of four}
+	\label{fig:gangoffour_tuning}
+\end{figure}
 
 \newpage
 
