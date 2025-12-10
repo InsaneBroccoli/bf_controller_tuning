@@ -430,20 +430,57 @@ This example also shows that changing the integral and derivative gains shifts t
 
 
 \subsubsection{Simulation Frequency Response}
-To analyse the frequency response of a system based on input and output data, we created a dedicated simulation. 
-In this simulation, we generated a chirp signal with added noise to replicate realistic measurement conditions. 
-Using these signals, we implemented different methods to estimate the system's transfer function.
-First, we calculated a basic frequency response using the plain \textbf{F}ast \textbf{F}ourier \textbf{T}ransformation (FFT), which served as a benchmark. 
-After that, we applied various signal processing methods. 
-We began with the Welch method to improve the estimation by averaging over overlapping segments. 
-The implementation of the Welch \textbf{F}requency \textbf{R}esponse \textbf{F}unction (FRF) follows the theory described in the documentation 
+
+To analyse the frequency response of a system based on input and output data, we created an additional simulation. In this simulation, we generated a chirp signal as the excitation. Just like in a real system, we added noise to the input and output in order to simulate realistic measurement conditions. From these noisy signals we tried to obtain an estimate of the original system transfer function. In Figure~xx, the corresponding control loop is shown.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.6\textwidth]{./Images/Controller_Bode.png}
+    \caption{Control loop of the simulation}
+    \label{fig:Freq_loop}
+\end{figure}
+
+Same as in the real system, we could not measure the plant without noise. Instead, we had to measure $u(t)$ and $y(t)$ and estimate the transfer function from these signals, and not $\tilde{u}(t)$ and $\tilde{y}(t)$, which would allow us to calculate the transfer function directly. The different signals are shown in Figure~xx.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{./Images/Freq_Input_Output.png}
+    \caption{Input and output signals with noise}
+    \label{fig:Freq_input}
+\end{figure}
+
+If we calculate the transfer function directly from the noisy signals using a plain FFT, we obtain a very poor estimate, as shown in Figure~xx. The noise distorts the frequency response significantly.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{./Images/Freq_Y_U.png}
+    \caption{Bode plot estimated with plain FFT}
+    \label{fig:Freq_FFT}
+\end{figure}
+
+To improve this poor estimate, we applied different signal processing methods. First, we used the Welch method to improve the estimation by averaging over overlapping segments. The implementation of the Welch frequency response function (FRF) follows the theory described in the documentation
 \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/estimate_frequency_response.md}{Estimate Frequency Response}.
-This allowed us to compare the plain FFT approach with the more robust Welch estimator.
-In the next step, we implemented a rotated-signal approach, where the chirp is demodulated to baseband before filtering. 
-For this part, we used the zero-phase filtering method apply\_rotfiltfilt, as described in the documentation 
+This allowed us to compare the plain FFT approach with the more robust Welch estimator. The result is shown in Figure~xx.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{./Images/Freq_Welch.png}
+    \caption{Bode plot estimated with Welch method}
+    \label{fig:Freq_Welch}
+\end{figure}
+
+In the next step, we additionally implemented a rotated-signal approach, where the chirp is demodulated to baseband before filtering. For this part we used the zero-phase filtering method \texttt{apply\_rotfiltfilt}, as described in the documentation
 \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/ApplyRotfiltfilt.md}{Apply Rotfiltfilt}.
-We then compared the original Bode plot to the processed one to evaluate how the rotation technique improves noise robustness.
-Overall, this script helped us understand how noise affects the estimated transfer function and how signal processing techniques can increase robustness.
+Finally, we compared the original Bode plot to the signal-processed one, as shown in Figure~xx, to assess how the rotation technique improves noise robustness.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{./Images/Freq_Rot.png}
+    \caption{Bode plot estimated with rotated Welch method}
+    \label{fig:Freq_Rot}
+\end{figure}
+
+\newpage
 
 \newpage
 
