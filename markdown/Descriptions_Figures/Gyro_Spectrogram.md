@@ -10,7 +10,7 @@ You should pay attention to:
 
 - **Where the noise band appear and how they move with throttle.** This will help you to identifiy the frequency ranges that filters must convert.
 - **At which frequencies the filtering becomes effective.** You can see whether the filters reduce the noice as expected.
-- **How strog the noise is across the throttle range.** This indicates if addtional filtering is needed.
+- **How strong the noise is across the throttle range.** This indicates if addtional filtering is needed.
 
 ## How the Spectograms Guide Filter Seeting
 
