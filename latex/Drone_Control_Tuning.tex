@@ -308,7 +308,7 @@ For a deeper dive into the theoretical principles and implementation steps, cons
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.8\textwidth]{./Images/segmentation.jpg}
+	\includegraphics[width=0.8\textwidth]{./Images/segmentation.png}
 	\caption{Segmentations of Data}
 	\label{fig:segmentation}
 \end{figure}
@@ -452,7 +452,7 @@ To better understand the different components use to create a meaningful spectru
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics[width=0.9\textwidth]{./Images/Spectra_input.png}
+	\includegraphics[width=0.85\textwidth]{./Images/Spectra_input_bea.png}
 	\caption{Comparison of Signal with and without windowing}
 	\label{fig:spectra_input}
 \end{figure}
@@ -462,7 +462,7 @@ In the next step, we compared the frequency spectrum of the signal without and w
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics[width=0.9\textwidth]{./Images/Spectra_window.png}
+	\includegraphics[width=0.85\textwidth]{./Images/Spectra_window_bea.png}
 	\caption{Comparison of Spectra with and without windowing}
 	\label{fig:spectra_input}
 \end{figure}
@@ -471,7 +471,7 @@ In the last step we split the signal into several overlapping segments, as descr
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics[width=0.9\textwidth]{./Images/Spectra_segment.png}
+	\includegraphics[width=0.85\textwidth]{./Images/Spectra_segment_bea.png}
 	\caption{Comparison of Spectra with and without windowing}
 	\label{fig:spectra_input}
 \end{figure}
@@ -479,16 +479,34 @@ In the last step we split the signal into several overlapping segments, as descr
 \newpage
 
 \subsubsection{Simulation Spectrogram}
-To analyse how the frequency content of the excitation signal changes with both time and thrust, 
-we developed an additional MATLAB simulation. In this script, we generated a noisy sinusoidal input signal and a slowly varying thrust signal. 
-The input signal was then divided into segments and windowed with a Hann window. 
-Each segment was transformed using the FFT to obtain a time-frequency representation.
-First, we arranged the segment spectra along the time axis, and in a second step, along the thrust levels. 
-This resulted in two spectrograms: one showing amplitude over frequency and time, 
-and the other showing amplitude over frequency and thrust. Through this visualisation, 
-we could identify the dominant frequency components as a function of thrust. 
-The underlying method is described in detail in the document 
-\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Spectrum_Spectogram/Spectogram_Analysis.md}{Spectrogram Analysis}.
+
+To analyse how the frequency content of an excitation signal changes with both time and thrust, we developed a MATLAB simulation. In this script, we generated a noisy sinusoidal input signal with a slowly varying instantaneous frequency, alongside a slowly varying thrust signal. The thrust is modelled as a sinusoid around a mean value of 2. To illustrate the effect of windowing, a Hann window was additionally applied to the full input signal, as shown in Figure~xx.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.75\textwidth]{./Images/Spectogram_overview.png}
+  \caption{Input signal, windowed input signal, and thrust over time.}
+  \label{fig:spectogram_input}
+\end{figure}
+
+In the next step, the input signal was segmented into short, non-overlapping time windows. For each segment, we computed the discrete Fourier transform (FFT) to obtain a local frequency spectrum. By arranging these spectra along the time axis, we obtained a time--frequency representation of the signal, as shown in Figure~xx.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.75\textwidth]{./Images/Spectogram_Time_Freq.png}
+  \caption{Spectrogram showing the amplitude over frequency and time.}
+  \label{fig:spectogram_time}
+\end{figure}
+
+To relate the spectral content to the thrust level, we assigned each segment the mean thrust value within its time interval. The corresponding spectra were then plotted over frequency and mean thrust, resulting in a spectrogram that shows how the frequency content varies with thrust for this example (Figure~xx).
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.75\textwidth]{./Images/Spectogram_Thrust_Freq.png}
+  \caption{Spectrogram showing the amplitude over frequency and thrust.}
+  \label{fig:spectogram_thrust}
+\end{figure}
+
 
 \newpage
 
