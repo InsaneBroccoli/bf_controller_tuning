@@ -1,6 +1,7 @@
 # Time Conversion and Sampling Intervals in Betaflight Blackbox Logs
 
-In Betaflight Blackbox logs, time is not stored in seconds but as a continuously increasing counter measured in microseconds. For any correct analysis of the log, these raw timestamps must first be converted into a usable time axis. At the same time, the actual sampling intervals between log entries must be determined, as they form the basis for all subsequent signal processing.
+Betaflight Blackbox logs don't store time in seconds. Instead, they use a continuously increasing counter in microseconds, which is more efficient for the flight controller hardware. For any correct analysis of the log, these raw timestamps must first be converted into a usable time axis.
+Also the actual time gaps between log entries need to be calculated, as they form the basis for all further signal processing.
 
 The log steps in a Betaflight Blackbox recording are not always the same size because the logger does not operate with a guaranteed constant sampling interval. This is due to several technical factors related to how Betaflight collects sensor data and writes to the SD card. Betaflight is not a hard real-time system — tasks such as gyro sampling, filtering, PID calculations, motor updates, telemetry, and OSD run with different priorities. The Blackbox logger has relatively low priority and may therefore be executed with slight delays. Additionally, SD card write operations introduce timing variations because their internal processes require different amounts of time.
 
@@ -21,3 +22,5 @@ Analyzing these sampling intervals enables several important evaluations:
   Accurate sampling intervals are essential for correct FFT calculations, filter design, frequency analysis, and controller evaluation. These methods rely on the true time base provided by the log.
 
 Together, these steps convert the raw Betaflight timestamp data into a physically correct time structure, enabling reliable and precise analysis of the recorded signals.
+
+# =====================

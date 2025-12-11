@@ -1,45 +1,39 @@
-# Loading and Header Parsing for Betaflight Blackbox Logs
+# Loading data and Parsing Header for Betaflight Blackbox Logs
 
-## Why Header Information Matters
+## Header Information
 
-A Betaflight Blackbox log consists of two logically separate sections:  
-the **header**, which contains configuration and system information, and the **data block**, which contains the actual recorded sensor values.  
-The measurement data alone are not sufficient for correct analysis — the header provides essential context that determines how the data must be interpreted. For this reason, both sections are read and processed systematically.
+A Betaflight Blackbox log consists of two logically separate sections: <br>
+The **header**, which contains configuration and system information, and the **data block**, with the actual recorded sensor values.
+
+The data block alone is useless without the header. It contains only raw numerical values with no context. The header describes how this data must be interpreted. It defines the meaning of each column, the units and scaling factors, the sample rate, and the system configuration. For this reason, both sections are read and processed systematically.
 
 ## Efficient Loading of Large Log Files in MATLAB
 
-The first part of the code focuses on loading the log file as efficiently as possible.  
-When the file is processed for the first time, the CSV data are fully read and then saved as a `.mat` file. For all subsequent analyses, this `.mat` version is loaded directly.  
-This avoids the time-consuming CSV parsing step and significantly speeds up the workflow, especially when working with large logs.
+To avoid repeated CSV parsing, the .csv file is converted to a `.mat` file on first load. Following runs load the binary `.mat` file directly, which is significantly faster for large logs.
+
+
+Parsing large CSV files can be slow, especially with logs containing millions of samples. To speed things up, the CSV is converted to a `.mat` file on first load. On following runs, MATLAB loads the binary `.mat` directly, which is significantly faster than the parsing from CSV.
 
 ## Extracting Parameter Data from the Blackbox Header
 
 The function `extract_header_information()` reads the textual header section of the log file.  
-This part of the log contains all relevant Betaflight parameters that were active during the flight — such as loop frequencies, filter configurations, logging settings, and other internal system values.
+This part of the log contains all relevant Betaflight parameters, such as loop frequencies, filter configurations, logging settings, etc.
 
-The extraction begins once the line containing `frameIntervalI` is found.  
-From this point onward, Betaflight lists its parameter lines sequentially.  
-All lines up to the line containing `loopIteration` are interpreted as parameters, parsed, and stored in the structure `para`. This creates a clean and structured collection of all metadata needed for downstream analysis.
+Extraction starts at the line containing `frameIntervalI` and ends at `loopIteration`. All lines in this range are parsed and stored in the struct `para`. This creates a clean and structured collection of all metadata needed for downstream analysis.
 
-## Reading the Names of the Measurement Signals
+## Building the Signal Index
 
-The line containing the keyword `loopIteration` marks both the end of the header and the beginning of the data section.  
-This line contains the complete list of all recorded measurement signals in the exact order they appear in the CSV data.
+The line containing `loopIteration` marks the end of the header and lists all recorded signals in column order, as they appear in the .csv file.
 
-The function processes this line and builds a structure `ind`, which assigns each signal name to its corresponding column index.  
-This makes later access to the data clearer and more robust, because signals can be referenced by name rather than by numeric column position.
+This line is parsed to build the index struct `ind`, mapping each signal name to its column index. This enables name-based access to the data matrix instead of hardcoded column numbers.
 
-## Reading the Measurement Data
+## Loading the Measurement Data
+ 
+Because the exact number of header lines (`Nheader`) has been determined, MATLAB can reliably read all measurement values by skipping the header and interpreting the following lines as a numerical matrix `data`. It contains one sample per row and one signal per column.
 
-Once both the parameters and the signal names have been identified, the actual measurement data can be loaded.  
-Because the exact number of header lines (`Nheader`) has been determined, MATLAB can reliably read all measurement values by skipping the header and interpreting the following lines as a numerical matrix.
-
-This matrix, stored in the variable `data`, contains one measurement per row and one signal per column.  
-The previously created index structure `ind` determines which column corresponds to which signal.  
-This allows for clear and direct access, for example:
+The previously created index struct `ind` determines which column corresponds to which signal.  
+This enables name based access, for example:
 
 - `data(:, ind.gyroADC(1))` – Gyro X  
 - `data(:, ind.setpoint(3))` – Yaw setpoint  
 - `data(:, ind.motor)` – Motor outputs  
-
-In this way, all recorded sensor data are available in a clean, structured form and can be used reliably in subsequent analysis steps.

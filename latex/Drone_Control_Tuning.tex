@@ -10,16 +10,17 @@
 % Seitenränder setzen
 \areaset{165mm}{275mm} % Breite und Höhe des Textbereichs
 
-\usepackage[ngerman]{babel}
+\usepackage[english]{babel}
 \usepackage{csquotes} % für Zitate
 \usepackage{labstyle} % lädt graphicx, xcolor etc.
 \usepackage{hyperref} % für Links im PDF
 
 \usepackage[
   backend=biber,
-  style=numeric,   % <-- statt authoryear
+  style=numeric,
   sorting=none     % Reihenfolge = Zitierreihenfolge im Text
 ]{biblatex}
+
 \addbibresource{Zotero_zitieren.bib}
 
 \usepackage{float}
@@ -78,7 +79,7 @@
 % ---------------------------------------------
 \begin{titlepage}
 
-\includepdf[pages=1]{Images/Titelblatt.pdf}
+\includepdf[pages=1]{pdf/Titelblatt.pdf}
 
 
 \end{titlepage}
@@ -161,7 +162,7 @@ Mathematically, a chirp signal can be represented as a sinusoidal wave with inst
 For more information about the mathematical background, please have a look in the document 
 \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Sinarg/Chirp.md}{Chirp Signal} \parencite{bf_chirp}.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 	\centering
 	\includegraphics[width=0.8\textwidth]{./Images/chirp_signal.jpg}
 	\caption{Chirp Signal example}
@@ -306,9 +307,9 @@ The resulting data is not only accurate but also robust, making it suitable for 
 For a deeper dive into the theoretical principles and implementation steps, consult the detailed 
 \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/estimate_frequency_response.md}{Estimate Frequency Response documentation} \parencite{bf_estfreqresp}.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 	\centering
-	\includegraphics[width=0.8\textwidth]{./Images/segmentation.jpg}
+	\includegraphics[width=0.8\textwidth]{./Images/segmentation.png}
 	\caption{Segmentations of Data}
 	\label{fig:segmentation}
 \end{figure}
@@ -335,7 +336,7 @@ and overall system stability can be evaluated. These calculations provide a clea
 For details on the implementation, see the 
 \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/CalculateClosedLoop.md}{Calculate Closed Loop documentation}. \parencite{bf_closeloop}
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 	\centering
 	\includegraphics[width=0.6\textwidth]{./Images/Regelstrecke.png}
 	\caption{Gyro Control Loop}
@@ -361,129 +362,202 @@ Have a look at \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob
 to see how we added compensation to the calculation.
 
 \newpage
-\subsection{Evaluation}
-Evaluation is an essential part of understanding and improving the behaviour of the control system. 
-This section outlines the key analytical steps, 
-such as analysing time-domain responses and interpreting frequency-domain data to evaluate the system dynamics. 
-Detailed information on how to interpret the generated figures can be found in the 
-\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Descriptions_Figures}{Descriptions Figures}.
-
-\subsubsection{Step Response}
-The step response provides a direct view of how the system reacts to sudden changes in the input signal. 
-By transforming the closed-loop transfer function from the frequency domain into the time domain, 
-the dynamic behaviour of the control loop can be evaluated. 
-Key performance indicators such as rise time, overshoot, settling time, 
-and steady-state error can be determined to assess system stability and responsiveness. 
-The calculations use inverse Fourier transforms of frequency response data to reconstruct the system’s step response curve. 
-This curve can be used to identify underdamped or insufficiently tuned dynamics. More details can be found in the 
-\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/Step_response.md}{Step Response documentation}.
-
-\subsubsection{Spectra Analysis}
-Spectral analysis examines how the system responds to different input frequencies and provides valuable insight into its dynamic characteristics. 
-The method separates complex signals into their frequency components using algorithms such as Welch’s method. Overlapping signal segments, 
-combined with windowing techniques like the Hann window, yield smoother and statistically more reliable estimates of power spectra. 
-This frequency-domain perspective highlights resonances, noise characteristics, and the effectiveness of applied filters. 
-The steps of this process are described in detail in the 
-\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Spectrum_Spectogram/Spectra_Analysis.md}{Spectra Analysis documentation}.
-
-
-\subsubsection{Spectrum Analysis}
-Spectrum analysis builds on spectral analysis by providing a multi-dimensional view of the signal’s frequency content over time or, 
-in this case, thrust. By grouping FFT segments into bins along an additional axis, such as throttle or angle, 
-the power spectrum can be mapped as a function of both frequency and the selected variable. 
-This approach is particularly useful in applications that require an understanding of how system dynamics change during flight. 
-Relevant methodologies and results are described in the 
-\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Spectrum_Spectogram/Spectrum_Analysis.md}{Spectrum Analysis section}.
-
-\subsubsection{Gang of Four}
-The Gang of Four plots provide a compact overview of the closed-loop behaviour of the control system. 
-They show how the tuned controller influences stability, noise handling, and control authority. 
-The Bode Diagram illustrates the overall frequency response of the closed loop. 
-The Sensitivity curve indicates how well disturbances are rejected at different frequencies, 
-while the Controller Effort shows the control action required from the PID loop. 
-Finally, the Compliance plot reflects how external disturbances pass through the system. \par
-These diagrams form an essential basis for controller tuning, 
-as they allow a direct comparison between the measured system behaviour and the simulated response using the estimated transfer functions. 
-For a detailed explanation of the control relationships, 
-refer to the \href{https://github.com/InsaneBroccoli/bf_controller_tuning/tree/PA_final/markdown/Frequency_Response/Spectrum_Analysis.md}{Calculate Closed Loop} documentation. 
-Practical tuning guidance can be found in the section \href{https://github.com/InsaneBroccoli/bf_controller_tuning/tree/PA_final/markdown/Descriptions_Figures/Gang_of_Four.md}{Gang of Four Figures}.
-
-\newpage
 
 \section{Challenges and Methodological Approach}
 
 \subsection{Simulations}
-At the beginning of our thesis, we started creating simulations. 
-We used these simulations to deepen our understanding of the existing code and the methods it employed. 
-Although the simulations were time-intensive, they proved crucial for our work. 
-They formed the basis for all subsequent analysis steps and helped us understand the existing functions before applying them further.
+At the beginning of our thesis, we developed several simulations to deepen our understanding of the existing code and the methods applied within it. Although creating these simulations was time-intensive, they proved essential for our work. They provided the foundation for all subsequent analysis steps and enabled us to fully understand the existing functions before applying them further.
 
 \subsubsection{Simulation of Betaflight Controller Order}
-To analyse and better understand the Betaflight control system, we recreated the complete control structure in MATLAB. 
-The corresponding script can be found in the attachments. In this simulation, 
-we attempted to reproduce the step response of the recorded data by using the same PID parameters and filter settings as in the real system.
-The different filters were created according to the documentation 
-\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/Filter_and_Controller.md}{Filter and Controller}.
-We implemented the filters both in continuous and discrete form, allowing us to compare the two approaches. 
-The PI and D controllers were built in the same way.
-For the plant transfer function, we used a low pass filter combined with dead time, 
-based on the approaches described in the documentation 
-\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/CalculateClosedLoop.md}{Calculation Closed Loop}.
-In addition to the MATLAB code, we created a Simulink model to test the step response of our Betaflight control system simulation. 
-The simulated response closely matched the step response of the real drone, confirming that we had correctly modelled the controller order.
-\begin{figure}[htbp]
+To gain a deeper understanding of the Betaflight control architecture and its internal components, we reconstructed the complete control structure in MATLAB. The objective was to simulate the system’s step response using the same PID parameters and filter settings as those used on the actual drone.
+\par
+In the first step, we implemented the various filters according to the documentation \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/Filter_and_Controller.md}{Filter and Controller}. For each filter type, we created continuous and discrete versions, allowing us to compare their behavior directly. An example of this comparison is illustrated in Figure \ref{fig:dis_cont}.
+\begin{figure}[H]
 	\centering
-	\includegraphics[width=0.7\textwidth]{./Images/Simulink.png}
-	\caption{Simulink Simulation with Data Collection}
+	\includegraphics[width=0.77\textwidth]{./Images/Dicrete_continuous.png}
+	\caption{Comparison of continuous and discrete filters}
+	\label{fig:dis_cont}
+\end{figure}
+
+Next, we implemented the PI and D controllers following the same principles. For the plant model, we used a simplified structure consisting of PT1 elements and a dead time, resulting in a transfer function that approximates the real system dynamics. The resulting simplified plant is shown in Figure \ref{fig:dis_plant_model}.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.77\textwidth]{./Images/plant_meas_sim.png}
+	\caption{Simplified plant model}
+	\label{fig:dis_plant_model}
+\end{figure}
+
+All components were then integrated into a complete Simulink model representing the Betaflight gyro control loop, as shown in Figure~\ref{fig:simulinksimulation}. Using this setup, we simulated the system’s step response. An additional objective of the simulation was to identify which signals in the Blackbox log correspond to the various states within the control loop.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.95\textwidth]{./Images/Simulink.png}
+	\caption{Simulink model of the Betaflight control system}
 	\label{fig:simulinksimulation}
 \end{figure}
 
+The simulated step response, shown in Figure~\ref{fig:step_resp_sim}, closely matched the response of the real drone. This result confirmed that our implementation captured both the structure and the dynamic behavior of the Betaflight control system sufficiently well. Working through this simulation allowed us to check whether we had understood the control loop correctly and gave us a reliable starting point for the later calculations.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.95\textwidth]{./Images/step_resp_simulink.png}
+	\caption{Simulated step response}
+	\label{fig:step_resp_sim}
+\end{figure}
+
+
+\newpage
 \subsubsection{Simulation PID Controller}
-To deepen our understanding of the different controller components, we created an additional MATLAB script. 
-This script allowed us to combine various controller types with simple plant models. 
-The user can switch between P, I, PI, PD and PID controllers, as well as between basic plant types. 
-This enabled us to observe how each controller component influences the overall system behaviour.
-The script calculates the open-loop and closed-loop transfer functions for the chosen settings and generates Bode plots, Nyquist diagrams, and step responses. 
-This helped us understand and visualise the effect of each component, significantly improving our overall understanding of controller behaviour.
+To get a better understanding of the individual controller components, we wrote an additional MATLAB script that lets us combine different controller types with simple plant models. The user can switch between P, I, PI, PD, and PID controllers, as well as between a few basic plant types. This makes it easier to see how each controller part affects the overall system behaviour. The script calculates the open-loop and closed-loop transfer functions and produces Bode plots, Nyquist diagrams, and step responses. Figure~\ref{fig:controllerbode} shows an example Bode plot from this simulation.
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=1.0\textwidth]{./Images/Controller_Bode.png}
+	\caption{Bodeplot out of Controller Simulation}
+	\label{fig:controllerbode}
+\end{figure}
+
+The frequency response of the shown PID controller is based on the parameters 
+$K_p = 100$, $K_i = 10$ and $K_d = 10$. 
+The proportional gain defines the magnitude level in the mid-frequency range:
+\[
+20\log_{10}(K_p) = 20\log_{10}(100) = 40\,\text{dB}.
+\]
+
+The integral term causes the slope of $-20\,\text{dB/decade}$ at low frequencies with
+\[
+|C_I(j\omega)| = \frac{K_i}{\omega} = \frac{10}{\omega}.
+\]
+The corresponding lower corner frequency is
+\[
+\omega_{k,I} = \frac{K_i}{K_p} = \frac{10}{100} = 0.1\,\text{rad/s}.
+\]
+
+The derivative term causes the slope of $+20\,\text{dB/decade}$ at high frequencies with
+\[
+|C_D(j\omega)| = K_d\,\omega = 10\,\omega.
+\]
+The corresponding upper corner frequency is
+\[
+\omega_{k,D} = \frac{K_p}{K_d} = \frac{100}{10} = 10\,\text{rad/s}.
+\]
+
+This example also shows that changing the integral and derivative gains shifts the position of the slopes in the Bode plot. A larger integral gain moves the low-frequency slope towards higher frequencies, while a larger derivative gain moves the high-frequency slope towards lower frequencies. In this way, the shape of the frequency response can be adjusted to the desired system behaviour.
+
+
 
 \subsubsection{Simulation Frequency Response}
-To analyse the frequency response of a system based on input and output data, we created a dedicated simulation. 
-In this simulation, we generated a chirp signal with added noise to replicate realistic measurement conditions. 
-Using these signals, we implemented different methods to estimate the system's transfer function.
-First, we calculated a basic frequency response using the plain \textbf{F}ast \textbf{F}ourier \textbf{T}ransformation (FFT), which served as a benchmark. 
-After that, we applied various signal processing methods. 
-We began with the Welch method to improve the estimation by averaging over overlapping segments. 
-The implementation of the Welch \textbf{F}requency \textbf{R}esponse \textbf{F}unction (FRF) follows the theory described in the documentation 
-\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/estimate_frequency_response.md}{Estimate Frequency Response}.
-This allowed us to compare the plain FFT approach with the more robust Welch estimator.
-In the next step, we implemented a rotated-signal approach, where the chirp is demodulated to baseband before filtering. 
-For this part, we used the zero-phase filtering method apply\_rotfiltfilt, as described in the documentation 
-\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/ApplyRotfiltfilt.md}{Apply Rotfiltfilt}.
-We then compared the original Bode plot to the processed one to evaluate how the rotation technique improves noise robustness.
-Overall, this script helped us understand how noise affects the estimated transfer function and how signal processing techniques can increase robustness.
+
+To analyse the frequency response of a system using input and output data, we created an additional simulation. In this setup, a chirp signal was used as the input signal. As in a real system, we added noise to both the input and the output to mimic realistic measurement conditions. From these noisy signals, we attempted to estimate the original system transfer function. The corresponding control loop is shown in Figure~\ref{fig:Freq_loop}.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.6\textwidth]{./Images/Freq_Blockschalt.png}
+    \caption{Control loop of the simulation}
+    \label{fig:Freq_loop}
+\end{figure}
+
+Same as in the real system, we could not measure the plant without noise. Instead, we had to measure $u(t)$ and $y(t)$ and estimate the transfer function from these signals, and not $\tilde{u}(t)$ and $\tilde{y}(t)$, which would allow us to calculate the transfer function directly. The different signals are shown in Figure \ref{fig:Freq_input}.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{./Images/Freq_Input_Output.png}
+    \caption{Input and output signals with noise}
+    \label{fig:Freq_input}
+\end{figure}
+
+If we calculate the transfer function directly from the noisy signals using a plain FFT, we obtain a very poor estimate, as shown in Figure~\ref{fig:Freq_FFT}. The noise distorts the frequency response significantly.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\textwidth]{./Images/Freq_Y_U.png}
+    \caption{Bode plot estimated with plain FFT}
+    \label{fig:Freq_FFT}
+\end{figure}
+
+To improve this poor estimate, we applied different signal-processing methods. First, we used the Welch method, which improves the estimation by averaging over overlapping segments. The implementation of the Welch frequency response function (FRF) follows the theory described in the documentation \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/estimate_frequency_response.md}{Estimate
+ Frequency Response}. This allowed us to compare the plain FFT approach with the more robust Welch estimator. The result is shown in Figure~\ref{fig:Freq_Welch}.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\textwidth]{./Images/Freq_Welch.png}
+    \caption{Bode plot estimated with Welch method}
+    \label{fig:Freq_Welch}
+\end{figure}
+
+In the next step, we also implemented a rotated-signal approach, where the chirp is demodulated to baseband before filtering. For this part, we used the zero-phase filtering method \texttt{apply\_rotfiltfilt}, as described in the documentation \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/ApplyRotfiltfilt.md}{Apply Rotfiltfilt}. Finally, we compared the original Bode plot to the signal-processed one, as shown in Figure~\ref{fig:Freq_Rot}, to assess how the rotation technique improves noise robustness.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\textwidth]{./Images/Freq_Rot.png}
+    \caption{Bode plot estimated with rotated Welch method}
+    \label{fig:Freq_Rot}
+\end{figure}
+
+\newpage
+
+\newpage
 
 \subsubsection{Simulation Spectra}
-We developed a simulation to examine the different components used to create a meaningful spectrum, based on the system used in the existing code. 
-In this script, we generated a noisy sinusoidal input signal from which we created different spectra. 
-In one case, we applied a window function, while in the other we used no window at all. 
-By splitting the signal into several overlapping segments, 
-we observed how averaging across segments reduces noise and stabilises the resulting spectrum. 
-The implementation is described in detail in the document 
-\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Spectrum_Spectogram/Spectra_Analysis.md}{Spectra Analysis}.
-This exercise helped us understand how windowing, overlap, and segment length affect spectral estimation, 
-as well as how these methods can increase robustness and reduce spectral leakage.
+To better understand the components required to generate a meaningful spectrum, we developed a simulation based on the system used in the provided code. In this script, we generated a noisy sinusoidal input signal and computed different spectra from it. In one case, a window function was applied, while in the other case no windowing was used, as illustrated in Figure~\ref{fig:spectra_input}.
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=0.85\textwidth]{./Images/Spectra_input_bea.png}
+	\caption{Spectrum with and without windowing}
+	\label{fig:spectra_input}
+\end{figure}
+
+In the next step, we compared the frequency spectrum of the signal with and without the window. As shown in Figure~\ref{fig:spectra_window}, the spectrum without windowing exhibits strong spectral leakage, which appears as energy spreading around the main frequency peak and as several side peaks that distort the actual frequency content. In contrast, the spectrum with the Hann window applied shows much less leakage, resulting in a clearer and more accurate representation of the signal’s frequency components.
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=0.85\textwidth]{./Images/Spectra_window_bea.png}
+	\caption{Comparison of Spectra with and without windowing}
+	\label{fig:spectra_window}
+\end{figure}
+
+In the last step, we split the signal into several overlapping segments, as described in the documentation \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Spectrum_Spectogram/Spectra_Analysis.md}{Spectra Analysis}. By averaging across these segments, we were able to observe how this method reduces noise and stabilises the resulting spectrum.
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=0.85\textwidth]{./Images/Spectra_segment_bea.png}
+	\caption{Spectrum with segment averaging}
+	\label{fig:spectra_seg}
+\end{figure}
+
+\newpage
 
 \subsubsection{Simulation Spectrogram}
-To analyse how the frequency content of the excitation signal changes with both time and thrust, 
-we developed an additional MATLAB simulation. In this script, we generated a noisy sinusoidal input signal and a slowly varying thrust signal. 
-The input signal was then divided into segments and windowed with a Hann window. 
-Each segment was transformed using the FFT to obtain a time-frequency representation.
-First, we arranged the segment spectra along the time axis, and in a second step, along the thrust levels. 
-This resulted in two spectrograms: one showing amplitude over frequency and time, 
-and the other showing amplitude over frequency and thrust. Through this visualisation, 
-we could identify the dominant frequency components as a function of thrust. 
-The underlying method is described in detail in the document 
-\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Spectrum_Spectogram/Spectogram_Analysis.md}{Spectrogram Analysis}.
+
+To analyse how the frequency content of an input signal changes with both time and thrust, we developed a MATLAB simulation. In this script, we generated a noisy sinusoidal input signal with a slowly varying instantaneous frequency, together with a slowly varying thrust signal. The thrust is modelled as a sinusoid around a mean value of 2. To illustrate the effect of windowing, a Hann window was also applied to the full input signal, as shown in Figure~\ref{fig:spectogram_input}.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.75\textwidth]{./Images/Spectogram_overview.png}
+  \caption{Input signal, windowed input signal, and thrust over time.}
+  \label{fig:spectogram_input}
+\end{figure}
+
+In the next step, the input signal was divided into short, non-overlapping time windows. For each segment, we computed the discrete Fourier transform (FFT) to obtain a local frequency spectrum. By arranging these spectra along the time axis, we created a time–frequency representation of the signal, as shown in Figure~\ref{fig:spectogram_time}.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.75\textwidth]{./Images/Spectogram_Time_Freq.png}
+  \caption{Spectrogram showing the amplitude over frequency and time.}
+  \label{fig:spectogram_time}
+\end{figure}
+
+To relate the spectral content to the thrust level, we assigned each segment the mean thrust value within its time interval. The corresponding spectra were then plotted over frequency and mean thrust, resulting in a spectrogram that shows how the frequency content varies with thrust for this example, as shown in Figure~\ref{fig:spectogram_thrust}.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.75\textwidth]{./Images/Spectogram_Thrust_Freq.png}
+  \caption{Spectrogram showing the amplitude over frequency and thrust.}
+  \label{fig:spectogram_thrust}
+\end{figure}
+
 
 \newpage
 
@@ -493,7 +567,7 @@ building a drone and set it up correctly bridges the gap between the digital dom
 where algorithms and simulations are developed and the physical reality of drone operation. 
 By getting in touch with the hardware, it is easier for us to understand what practical challenges exist for pilots and the community.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 	\centering
 	\includegraphics[width=0.6\textwidth]{./Images/OvershootExpress.jpg}
 	\caption{aosmini 3-inch build}
@@ -521,37 +595,141 @@ which was a problem. In the first test flight we had the issue, that in the firs
 Due to this problem, we designed some 3D printed stands for the frame, that the logger is not being crushed anymore on landings.
 
 \subsection{Tuning an FPV drone}
-As part of understanding the workflow we tuned an FPV drone by ourselves. 
-The goal was to adjust the PID parameters so that we achieve a fast rising step response without overshoot, 
-a lower compliance than before and a rounded shaped Sensitivity. Also to mention is, 
-that the axes roll and pitch should be tuned as similar to each other as possible. 
-This is because you want the drone to maintain a consistent and predictable response, 
-so roll and pitch behave similarly for smoother control and a balanced flight experience.
+As part of understanding the workflow we tuned an FPV drone by ourselves. The goal was to adjust the PID parameters so that we achieve a fast rising step response without overshoot, a lower compliance than before and a rounded shaped Sensitivity. Also to mention is, that the axes roll and pitch should be tuned as similar to each other as possible. This is because you want the drone to maintain a consistent and predictable response, so roll and pitch behave similarly for smoother control and a balanced flight experience.
 
-Initially, we deliberately applied a poor tuning configuration to observe its effects. 
-During the first field test with this setup, it quickly became apparent that the tuning was excessively poor. 
-The drone began oscillating aggressively and climbed rapidly. As the drone was out of control, the kill switch had to be activated, 
-resulting in a crash that broke one of the four arms. Fortunately, the damage was minor and repaired quickly.
+Initially, we deliberately applied a poor tuning configuration to observe its effects. During the first field test with this setup, it quickly became apparent that the tuning was excessively poor. The drone began oscillating aggressively and climbed rapidly. As the drone was out of control, the kill switch had to be activated, resulting in a crash that broke one of the four arms. Fortunately, the damage was minor and repaired quickly.
 
-After this incident, we decided not to repeat flights with intentionally bad tuning. 
-Instead, we continued using the default Betaflight parameters as a baseline. With these the drone flies quite good.
-However, during demanding manoeuvres such as flips or propwash manoeuvres, 
-it becomes evident that there is room for improvement in terms of stability and responsiveness.
+After this incident, we decided not to repeat flights with intentionally bad tuning. Instead, we continued using the default Betaflight parameters as a baseline. With these the drone flies quite good. However, during demanding manoeuvres such as flips or propwash manoeuvres, it becomes evident that there is room for improvement in terms of stability and responsiveness.
 
-The tuning process was carried out on a larger 6-inch FPV drone provided by one of the team members. 
-The drone was freshly flashed with Betaflight v12, meaning all filters and settings were at factory defaults. 
-Achieving an optimal tune required several attempts due to challenges with filter adjustments and occasional logging issues. 
-Nevertheless, the drone was successfully tuned, and the improvement was noticeable. 
-During propwash manoeuvres, the drone remained significantly more stable, and flips were executed with greater precision at the stop.
+The tuning process was carried out on a larger 6-inch FPV drone provided by one of the team members. The drone was freshly flashed with Betaflight \colorbox{yellow}{v12}, meaning all filters and settings were at factory defaults. Achieving an optimal tune required several attempts due to challenges with filter adjustments and occasional logging issues. Nevertheless, the drone was successfully tuned, and the improvement was noticeable. During propwash manoeuvres, the drone remained significantly more stable, and flips were executed with greater precision at the stop.
 
-Our tuning objective was to achieve a fast step response without overshoot, while maintaining good compliance and sensitivity. 
-It is important to note that there is no universally “perfect” tune. Settings depend heavily on pilot preferences. 
-Racing pilots, for example, may want more responsiveness for competitive performance, whereas freestyle pilots want smoothness and flight feel. 
+Our tuning objective was to achieve a fast step response without overshoot, while maintaining good compliance and sensitivity. It is important to note that there is no universally “perfect” tune. Settings depend heavily on pilot preferences. Racing pilots, for example, may want more responsiveness for competitive performance, whereas freestyle pilots want smoothness and flight feel. 
 
-Since none of our team members are professional pilots, we focused on achieving robustness and a step response without overshoot. 
-This tuning approach is probably somewhere between what a racing pilot and a freestyle pilot would prefer. 
-Robustness in this context is important for practical scenarios, such as when a propeller is slightly bent, 
-the battery sits slightly off center or when an additional component like a camera is mounted on the drone.
+Since none of our team members are professional pilots, we focused on achieving robustness and a step response without overshoot. This tuning approach is probably somewhere between what a racing pilot and a freestyle pilot would prefer. Robustness in this context is important for practical scenarios, such as when a propeller is slightly bent, the battery sits slightly off center or when an additional component like a camera is mounted on the drone.
+
+\subsection{The tuning process using our tool
+
+\colorbox{yellow}{overview plots}
+
+Detailed information on how to interpret the generated figures by our tool can be found 
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Descriptions_Figures}{here}.
+
+\subsubsection{filter tuning}
+Before starting to tune the PID controllers, we want good filtering, that we have clean signals to work with. In general, we want to achieve as less filtering as possible, because too much filtering causes delay in the system. However no quadrocopter build is perfect, so at least some filtering is always necessary in order to get a good tuned system.
+
+To do this we started to look at the spectrograms and the spectra figures first, after the import of a log file into MATLAB. By comparing the filtered and unfiltered plots, you can see how well the current settings filter out unwanted vibrations.
+
+Further Information about Spectra and Spectrograms can be found 
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Spectrum_Spectogram}{here}.
+
+The \textbf{spectra} in Figure~\ref{fig:Spectra_tuning} shows the frequency composition of the gyro signals. 
+Peaks in this plot point to vibration sources at specific frequencies.
+When we analyze this plot, we look for three main things: 
+\begin{itemize} 
+  \item \textbf{Resonance Peaks:} If all three axes show a peak at the same frequency, it usually means there is a resonance in the frame or because of a poorly fixed component. This can be fixed with a specific notch filter.
+	\item \textbf{Noise:} A high noise level indicates general vibration issues. Clean lines in the plot show, that the filtering is working well. 
+	\item \textbf{Axis Sum:} The axis-sum shows the overall vibration level across all gyro axes. A properly filtered signal drops quickly after the motor frequencies (around \colorbox{yellow}{xx} Hz) and remains low, indicating effective suppression of high-frequency noise and resonances.
+\end{itemize} 
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{./Images/Tuning_OvershootExpress/Spectra.jpg}
+  \caption{Spectra}
+  \label{fig:Spectra_tuning}
+\end{figure}
+
+The vibrations are also visible in the \textbf{spectrogram} plots in Figure~\ref{fig:Spectrograms_tuning}. 
+Here frequencies are plotted against thrust level and the color show the signal intensity. Red equals high energy and blue low energy.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{./Images/Tuning_OvershootExpress/Spectrograms.jpg}
+  \caption{Spectrograms}
+  \label{fig:Spectrograms_tuning}
+\end{figure}
+
+\textbf{Vertical lines} in the spectrogram indicate vibrations at fixed frequencies that do not change with thrust. These usuallly come from frame resonances or loose components. Such resonances can be removed with static notch filters, but because they sit only on a single frequency, they must be used carefully. For more robust suppression, especially when frequencies shift due to bent props or changing load conditions, a dynamic notch filter is usually the better choice.
+
+\textbf{Diagonal lines} show vibrations that change with motor speed, such as propeller noise. Using the \textbf{RPM Filter}, these propeller vibrations can be filtered out quite well. This filter uses real time RPM telemetry data to place notch filters exactly on fundamental and harmonic frequencies of each motor. As propeller vibrations are directly proportional to motor RPM, this approach eliminates noise at its source instead of relying on fixed or dynamic estimation. We kept the RPM filter with the default settings. We use three-bladed propellers, so three setting the filter to three harmonics should be fine.
+
+\textbf{Aliasing}\\
+As we use a 2kHz logging frequency, we have set a PT1 lowpassfilter to avoid aliasing. This can be seen in the Spectrogram as a diagonal lines going down, as you move to higher frequencies. The cutoff frequency should not be larger than the sampling frequency divided by two. To be on the safe side we set it to 800Hz.
+
+\textbf{Dynamic notch filter}\\
+The dynamic notch filter automatically finds and removes mechanical motor noise with the highest amplitude for each axis. The standard setting here is 2 notches from 100 to 600 Hz. As it is seen in Figure~\ref{fig:Spectrograms_tuning}, the filtered plots still have rather high oscillation amplitudes. To filter these out we increased the Notch count from two to three.
+
+\textbf{D term lowpass filter}\\
+The D-term in a PID controller amplifies high frequency gyro noise. So this filter controls, how much noise is fed back into the control loop. If too much noise passes through, the D-term causes rapid micro-oscillations in the motors, leading to overheating and potential hardware failure.
+For our initial flight, we configured a PT3 (3rd Order) filter with a cutoff of 100 Hz. This because PT3 has a much steeper slope than a standard 1st or 2nd order filter. This allows us to aggressively suppress high-frequency noise while minimizing delay in the lower frequencies, where the actual flight control happens. The 100 Hz cutoff served as a conservative starting point. In further tuning, this value can be increased again to improve responsiveness but keep the motors cool.
+
+\textbf{Yaw lowpass filter}\\
+The Yaw Low Pass Filter smooths the gyroscope signal by ignoring high-frequency noise. Since the yaw axis typically experiences less mechanical vibration than roll and pitch, the filter can often be configured less aggressively without compromising signal quality.
+For our setup, we retained the default Betaflight settings, as they provided good noise suppression without creating unnecessary delay.
+
+Consider looking at the \href{https://www.betaflight.com/docs/wiki/configurator/pid-tuning-tab}{Betaflight wiki page} for more information about Betaflight filters.
+
+\subsubsection{PID tuning}
+After our filter settings were set, we could move on to the PID tuning.
+
+The tool calculates the Plant and Controller Bode plots to build a mathematical model of the drone, 
+but we did not use them directly for tuning. For a pilot, these are less intuitive. 
+Instead, we focused on the Step Response and the Gang of Four, as these directly show flight performance and stability.
+Detailed description about the figures can be found 
+\href{URL}{\colorbox{yellow}{here}}.
+
+First of all, we used the \textbf{step response} figure to determine the "feel" of the drone. 
+The Step Response translates the complex frequency math into a simple time-domain graph. 
+It shows exactly what happens when the pilot moves the stick rapidly. 
+\begin{itemize} \item Tracking (Top Plot): This shows how the drone follows a command. 
+	We looked for a line that rises quickly (responsiveness) but does not overshoot. 
+	If the line rose too slowly, we increased P. 
+	If it overshot or wobbled at the top, we increased D. 
+	\item Compliance (Bottom Plot): This shows how the drone reacts to external hits, like wind. 
+	We aimed to keep this curve as low and flat as possible, which means the drone resists external forces well. 
+\end{itemize} 
+More details can be found in the 
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/Step_response.md}{Step Response documentation}.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=1.0\textwidth]{./Images/Tuning_OvershootExpress/Step_response_pitch_tuned.jpg}
+	\caption{Step Response}
+	\label{fig:step_response_tuning}
+\end{figure}
+
+
+\subsubsection{Gang of Four}
+The \textbf{Gang of Four} 
+While the Step Response showed us performance, we used the Gang of Four to ensure safety and stability. 
+These plots break down the closed-loop behavior into four critical aspects.
+
+During our tuning, we paid specific attention to the three sub-plots: 
+\begin{enumerate} 
+	\item Sensitivity (S): 
+	This indicates how close the drone is to becoming unstable. 
+	We ensured that the peak in this graph stayed below 6 dB. 
+	A higher peak means the drone is on the edge of oscillating. 
+	\item Controller Effort (SC): 
+	This shows how hard the motors have to work to follow the PID commands. 
+	We checked the high frequencies in this plot. 
+	If the curve is too high here, it means the D-term is reacting too strongly to noise, which leads to hot motors.
+	\item Compliance (SP):
+	It is showing ...
+\end{enumerate}
+
+By balancing these plots, 
+we found a tune that was responsive (good Step Response) but still safe for the motors (good Controller Effort).
+
+For a detailed explanation of the control relationships, 
+refer to the \href{https://github.com/InsaneBroccoli/bf_controller_tuning/tree/PA_final/markdown/Frequency_Response/Spectrum_Analysis.md}{Calculate Closed Loop} documentation. 
+Practical tuning guidance can be found in the section \href{https://github.com/InsaneBroccoli/bf_controller_tuning/tree/PA_final/markdown/Descriptions_Figures/Gang_of_Four.md}{Gang of Four Figures}.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=1.0\textwidth]{./Images/Tuning_OvershootExpress/gang_of_four_pitch_tuned.jpg}
+	\caption{Gang of four}
+	\label{fig:gangoffour_tuning}
+\end{figure}
 
 \newpage
 
@@ -574,7 +752,6 @@ A more significant problem is the presence of numerical differences in the decod
 When comparing logs decoded with blackbox\_decode to those processed with Betaflight Explorer, the resulting datasets differ structurally and semantically in several critical ways.
 Specifically, the blackbox\_decode stores the vehicle attitude as Euler angles in degrees, whereas the Explorer provides quaternion-like components. 
 With priority set on other tasks, we decided to set aside the integration of blackbox\_decode for now.
- 
 
 \newpage
 
@@ -872,14 +1049,14 @@ Throughout the project, we gained a deep understanding of the Betaflight control
 % Seite 1 direkt unter dem Titel
 \begin{figure}[H]
   \centering
-  \includegraphics[page=1,width=\textwidth]{Images/aufgabenstellung.pdf}
+  \includegraphics[page=1,width=\textwidth]{pdf/aufgabenstellung.pdf}
   \caption{Project Assignment}
   \label{fig:project_assignment_1}
 \end{figure}
 
 % Seite 2 und 3 als reine PDFs
-\includepdf[pages=2]{Images/aufgabenstellung.pdf}
-\includepdf[pages=3]{Images/aufgabenstellung.pdf}
+\includepdf[pages=2]{pdf/aufgabenstellung.pdf}
+\includepdf[pages=3]{pdf/aufgabenstellung.pdf}
 
 
 \subsubsection{Project Schedule – Version 0}
@@ -914,31 +1091,13 @@ This project schedule was created prior to the second milestone meeting and appr
 \end{figure}
 
 \subsubsection{Meeting Minutes}
-\includepdf[pages=1]{Images/Weekly Meeting/Weekly_Meeting2209.pdf}
-\includepdf[pages=1]{Images/Weekly Meeting/Weekly_Meeting2909.pdf}
-\includepdf[pages=1]{Images/Weekly Meeting/Weekly_Meeting0210.pdf}
-\includepdf[pages=1]{Images/Weekly Meeting/Weekly_Meeting1610.pdf}
-\includepdf[pages=1]{Images/Weekly Meeting/Milestone1610.pdf}
-\includepdf[pages=1]{Images/Weekly Meeting/Weekly_Meeting2810.pdf}
-\includepdf[pages=2]{Images/Weekly Meeting/Weekly_Meeting2810.pdf}
-\includepdf[pages=1]{Images/Weekly Meeting/Weekly_Meeting0311.pdf}
-\includepdf[pages=1]{Images/Weekly Meeting/Weekly_Meeting1011.pdf}
-\includepdf[pages=2]{Images/Weekly Meeting/Weekly_Meeting1011.pdf}
-\includepdf[pages=1]{Images/Weekly Meeting/Weekly_Meeting1711.pdf}
-\includepdf[pages=1]{Images/Weekly Meeting/Weekly_Meeting2411.pdf}
-\includepdf[pages=1]{Images/Weekly Meeting/Weekly_Meeting0112.pdf}
-\includepdf[pages=1]{Images/Weekly Meeting/Weekly_Meeting0812.pdf}
 
 \newpage
 
 
 \subsection{Additional Information}
 
-\includepdf[pages=-]{Images/Simulationen/Sim_Controller_Bode_step.pdf}
-\includepdf[pages=-]{Images/Simulationen/Simulation_Plant.pdf}
-\includepdf[pages=-]{Images/Simulationen/Simulation_Regler.pdf}
-\includepdf[pages=-]{Images/Simulationen/Simulation_Spectogram.pdf}
-\includepdf[pages=-]{Images/Simulationen/Simulation_Spectrum.pdf}
+
 
 \newpage
 Projektcode
