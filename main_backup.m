@@ -17,15 +17,15 @@ addpath class/
 %  Axis Selection: 1: roll, 2: pitch, 3: yaw
 % =========================================================================
 
-ind_ax = 3;     % keep it now until plot_utils is finished
+ind_ax = 1;     % keep it now until plot_utils is finished
 
 % =========================================================================
 %  First flight: Define path to *.bbl.csv file for the 
 % =========================================================================
 
-log_folder1 = '';
-flight_folder1 = '20251104';
-log_name1 = 'LOG000.TXT.csv';
+log_folder1 = 'logs';
+flight_folder1 = '20251211';
+log_name1 = '03_20251211_OvershootExpress.TXT.csv';
 % flight_folder1 = '20250908';
 % log_name1 = '20250908_flipmini_00.bbl.csv';
 
