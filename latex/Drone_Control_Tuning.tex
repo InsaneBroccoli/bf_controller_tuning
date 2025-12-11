@@ -10,7 +10,7 @@
 % Seitenränder setzen
 \areaset{165mm}{275mm} % Breite und Höhe des Textbereichs
 
-\usepackage[ngerman]{babel}
+\usepackage[english]{babel}
 \usepackage{csquotes} % für Zitate
 \usepackage{labstyle} % lädt graphicx, xcolor etc.
 \usepackage{hyperref} % für Links im PDF
@@ -365,39 +365,56 @@ to see how we added compensation to the calculation.
 \section{Challenges and Methodological Approach}
 
 \subsection{Simulations}
-At the beginning of our thesis, we started creating simulations. 
-We used these simulations to deepen our understanding of the existing code and the methods it employed. 
-Although the simulations were time-intensive, they proved crucial for our work. 
-They formed the basis for all subsequent analysis steps and helped us understand the existing functions before applying them further.
+At the beginning of our thesis, we developed several simulations to deepen our understanding of the existing code and the methods applied within it. Although creating these simulations was time-intensive, they proved essential for our work. They provided the foundation for all subsequent analysis steps and enabled us to fully understand the existing functions before applying them further.
 
 \subsubsection{Simulation of Betaflight Controller Order}
-To analyse and better understand the Betaflight control system, we recreated the complete control structure in MATLAB. 
-The corresponding script can be found in the attachments. In this simulation, 
-we attempted to reproduce the step response of the recorded data by using the same PID parameters and filter settings as in the real system.
-The different filters were created according to the documentation 
-\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/Filter_and_Controller.md}{Filter and Controller}.
-We implemented the filters both in continuous and discrete form, allowing us to compare the two approaches. 
-The PI and D controllers were built in the same way.
-For the plant transfer function, we used a low pass filter combined with dead time, 
-based on the approaches described in the documentation 
-\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/CalculateClosedLoop.md}{Calculation Closed Loop}.
-In addition to the MATLAB code, we created a Simulink model to test the step response of our Betaflight control system simulation. 
-The simulated response closely matched the step response of the real drone, confirming that we had correctly modelled the controller order.
+To gain a deeper understanding of the Betaflight control architecture and its internal components, we reconstructed the complete control structure in MATLAB. The objective was to simulate the system’s step response using the same PID parameters and filter settings as those used on the actual drone.
+\par
+In the first step, we implemented the various filters according to the documentation \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/Filter_and_Controller.md}{Filter and Controller}. For each filter type, we created continuous and discrete versions, allowing us to compare their behavior directly. An example of this comparison is illustrated in Figure \ref{fig:dis_cont}.
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.7\textwidth]{./Images/Simulink.png}
-	\caption{Simulink Simulation with Data Collection}
+	\includegraphics[width=0.77\textwidth]{./Images/Dicrete_continuous.png}
+	\caption{Comparison of continuous and discrete filters}
+	\label{fig:dis_cont}
+\end{figure}
+
+Next, we implemented the PI and D controllers following the same principles. For the plant model, we used a simplified structure consisting of PT1 elements and a dead time, resulting in a transfer function that approximates the real system dynamics. The resulting simplified plant is shown in Figure \ref{fig:dis_plant_model}.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.77\textwidth]{./Images/plant_meas_sim.png}
+	\caption{Simplified plant model}
+	\label{fig:dis_plant_model}
+\end{figure}
+
+All components were then integrated into a complete Simulink model representing the Betaflight gyro control loop, as shown in Figure~\ref{fig:simulinksimulation}. Using this setup, we simulated the system’s step response. An additional objective of the simulation was to identify which signals in the Blackbox log correspond to the various states within the control loop.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.95\textwidth]{./Images/Simulink.png}
+	\caption{Simulink model of the Betaflight control system}
 	\label{fig:simulinksimulation}
 \end{figure}
+
+The simulated step response, shown in Figure~\ref{fig:step_resp_sim}, closely matched the response of the real drone. This result confirmed that our implementation captured both the structure and the dynamic behavior of the Betaflight control system sufficiently well. Working through this simulation allowed us to check whether we had understood the control loop correctly and gave us a reliable starting point for the later calculations.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.95\textwidth]{./Images/step_resp_simulink.png}
+	\caption{Simulated step response}
+	\label{fig:step_resp_sim}
+\end{figure}
+
+
 \newpage
 \subsubsection{Simulation PID Controller}
-To deepen our understanding of the individual controller components, we developed an additional MATLAB script that allows the combination of different controller types with simple plant models. The user can switch between P, I, PI, PD, and PID controllers as well as between basic plant types. This makes it possible to directly observe how each controller component influences the overall system behaviour. The script computes the open-loop and closed-loop transfer functions and generates Bode plots, Nyquist diagrams, and step responses. Figure 5 shows an example Bode plot obtained from this simulation.
+To get a better understanding of the individual controller components, we wrote an additional MATLAB script that lets us combine different controller types with simple plant models. The user can switch between P, I, PI, PD, and PID controllers, as well as between a few basic plant types. This makes it easier to see how each controller part affects the overall system behaviour. The script calculates the open-loop and closed-loop transfer functions and produces Bode plots, Nyquist diagrams, and step responses. Figure~\ref{fig:controllerbode} shows an example Bode plot from this simulation.
 
 \begin{figure}[htbp]
 	\centering
 	\includegraphics[width=1.0\textwidth]{./Images/Controller_Bode.png}
 	\caption{Bodeplot out of Controller Simulation}
-	\label{fig:simulinksimulation}
+	\label{fig:controllerbode}
 \end{figure}
 
 The frequency response of the shown PID controller is based on the parameters 
@@ -431,7 +448,7 @@ This example also shows that changing the integral and derivative gains shifts t
 
 \subsubsection{Simulation Frequency Response}
 
-To analyse the frequency response of a system based on input and output data, we created an additional simulation. In this simulation, we generated a chirp signal as the excitation. Just like in a real system, we added noise to the input and output in order to simulate realistic measurement conditions. From these noisy signals we tried to obtain an estimate of the original system transfer function. In Figure~xx, the corresponding control loop is shown.
+To analyse the frequency response of a system using input and output data, we created an additional simulation. In this setup, a chirp signal was used as the input signal. As in a real system, we added noise to both the input and the output to mimic realistic measurement conditions. From these noisy signals, we attempted to estimate the original system transfer function. The corresponding control loop is shown in Figure~\ref{fig:Freq_loop}.
 
 \begin{figure}[htbp]
     \centering
@@ -440,7 +457,7 @@ To analyse the frequency response of a system based on input and output data, we
     \label{fig:Freq_loop}
 \end{figure}
 
-Same as in the real system, we could not measure the plant without noise. Instead, we had to measure $u(t)$ and $y(t)$ and estimate the transfer function from these signals, and not $\tilde{u}(t)$ and $\tilde{y}(t)$, which would allow us to calculate the transfer function directly. The different signals are shown in Figure~xx.
+Same as in the real system, we could not measure the plant without noise. Instead, we had to measure $u(t)$ and $y(t)$ and estimate the transfer function from these signals, and not $\tilde{u}(t)$ and $\tilde{y}(t)$, which would allow us to calculate the transfer function directly. The different signals are shown in Figure \ref{fig:Freq_input}.
 
 \begin{figure}[htbp]
     \centering
@@ -449,7 +466,7 @@ Same as in the real system, we could not measure the plant without noise. Instea
     \label{fig:Freq_input}
 \end{figure}
 
-If we calculate the transfer function directly from the noisy signals using a plain FFT, we obtain a very poor estimate, as shown in Figure~xx. The noise distorts the frequency response significantly.
+If we calculate the transfer function directly from the noisy signals using a plain FFT, we obtain a very poor estimate, as shown in Figure~\ref{fig:Freq_FFT}. The noise distorts the frequency response significantly.
 
 \begin{figure}[htbp]
     \centering
@@ -458,9 +475,8 @@ If we calculate the transfer function directly from the noisy signals using a pl
     \label{fig:Freq_FFT}
 \end{figure}
 
-To improve this poor estimate, we applied different signal processing methods. First, we used the Welch method to improve the estimation by averaging over overlapping segments. The implementation of the Welch frequency response function (FRF) follows the theory described in the documentation
-\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/estimate_frequency_response.md}{Estimate Frequency Response}.
-This allowed us to compare the plain FFT approach with the more robust Welch estimator. The result is shown in Figure~xx.
+To improve this poor estimate, we applied different signal-processing methods. First, we used the Welch method, which improves the estimation by averaging over overlapping segments. The implementation of the Welch frequency response function (FRF) follows the theory described in the documentation \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/estimate_frequency_response.md}{Estimate
+ Frequency Response}. This allowed us to compare the plain FFT approach with the more robust Welch estimator. The result is shown in Figure~\ref{fig:Freq_Welch}.
 
 \begin{figure}[htbp]
     \centering
@@ -469,9 +485,7 @@ This allowed us to compare the plain FFT approach with the more robust Welch est
     \label{fig:Freq_Welch}
 \end{figure}
 
-In the next step, we additionally implemented a rotated-signal approach, where the chirp is demodulated to baseband before filtering. For this part we used the zero-phase filtering method \texttt{apply\_rotfiltfilt}, as described in the documentation
-\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/ApplyRotfiltfilt.md}{Apply Rotfiltfilt}.
-Finally, we compared the original Bode plot to the signal-processed one, as shown in Figure~xx, to assess how the rotation technique improves noise robustness.
+In the next step, we also implemented a rotated-signal approach, where the chirp is demodulated to baseband before filtering. For this part, we used the zero-phase filtering method \texttt{apply\_rotfiltfilt}, as described in the documentation \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/ApplyRotfiltfilt.md}{Apply Rotfiltfilt}. Finally, we compared the original Bode plot to the signal-processed one, as shown in Figure~\ref{fig:Freq_Rot}, to assess how the rotation technique improves noise robustness.
 
 \begin{figure}[htbp]
     \centering
@@ -485,39 +499,38 @@ Finally, we compared the original Bode plot to the signal-processed one, as show
 \newpage
 
 \subsubsection{Simulation Spectra}
-To better understand the different components use to create a meaningful spectrum, we developed a simulation based on the system used in the given code. In this script we generated a noisy sinusoidal input signal out of which we created different spectra. In one case we applied a window function and in the other we did not use any window as shown in Figure xx.
+To better understand the components required to generate a meaningful spectrum, we developed a simulation based on the system used in the provided code. In this script, we generated a noisy sinusoidal input signal and computed different spectra from it. In one case, a window function was applied, while in the other case no windowing was used, as illustrated in Figure~\ref{fig:spectra_input}.
 
 \begin{figure}[htbp]
 	\centering
 	\includegraphics[width=0.85\textwidth]{./Images/Spectra_input_bea.png}
-	\caption{Comparison of Signal with and without windowing}
+	\caption{Spectrum with and without windowing}
 	\label{fig:spectra_input}
 \end{figure}
 
-
-In the next step, we compared the frequency spectrum of the signal without and with the window. As shown in Figure~xx, the spectrum without windowing exhibits significant spectral leakage, which can be identified by the strong spreading of energy around the main frequency peak and the presence of multiple side peaks that distort the true frequency content of the signal. In contrast, the spectrum with the Hann window applied shows strongly reduced leakage, resulting in a clearer and more accurate representation of the signal’s frequency components.
+In the next step, we compared the frequency spectrum of the signal with and without the window. As shown in Figure~\ref{fig:spectra_window}, the spectrum without windowing exhibits strong spectral leakage, which appears as energy spreading around the main frequency peak and as several side peaks that distort the actual frequency content. In contrast, the spectrum with the Hann window applied shows much less leakage, resulting in a clearer and more accurate representation of the signal’s frequency components.
 
 \begin{figure}[htbp]
 	\centering
 	\includegraphics[width=0.85\textwidth]{./Images/Spectra_window_bea.png}
 	\caption{Comparison of Spectra with and without windowing}
-	\label{fig:spectra_input}
+	\label{fig:spectra_window}
 \end{figure}
 
-In the last step we split the signal into several overlapping segments, as described in the documentation \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Spectrum_Spectogram/Spectra_Analysis.md}{Spectra Analysis}.  By averaging across segments, we were able to observe how this method reduces noise and stabilises the resulting spectrum.
+In the last step, we split the signal into several overlapping segments, as described in the documentation \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Spectrum_Spectogram/Spectra_Analysis.md}{Spectra Analysis}. By averaging across these segments, we were able to observe how this method reduces noise and stabilises the resulting spectrum.
 
 \begin{figure}[htbp]
 	\centering
 	\includegraphics[width=0.85\textwidth]{./Images/Spectra_segment_bea.png}
-	\caption{Comparison of Spectra with and without windowing}
-	\label{fig:spectra_input}
+	\caption{Spectrum with segment averaging}
+	\label{fig:spectra_seg}
 \end{figure}
 
 \newpage
 
 \subsubsection{Simulation Spectrogram}
 
-To analyse how the frequency content of an excitation signal changes with both time and thrust, we developed a MATLAB simulation. In this script, we generated a noisy sinusoidal input signal with a slowly varying instantaneous frequency, alongside a slowly varying thrust signal. The thrust is modelled as a sinusoid around a mean value of 2. To illustrate the effect of windowing, a Hann window was additionally applied to the full input signal, as shown in Figure~xx.
+To analyse how the frequency content of an input signal changes with both time and thrust, we developed a MATLAB simulation. In this script, we generated a noisy sinusoidal input signal with a slowly varying instantaneous frequency, together with a slowly varying thrust signal. The thrust is modelled as a sinusoid around a mean value of 2. To illustrate the effect of windowing, a Hann window was also applied to the full input signal, as shown in Figure~\ref{fig:spectogram_input}.
 
 \begin{figure}[htbp]
   \centering
@@ -526,7 +539,7 @@ To analyse how the frequency content of an excitation signal changes with both t
   \label{fig:spectogram_input}
 \end{figure}
 
-In the next step, the input signal was segmented into short, non-overlapping time windows. For each segment, we computed the discrete Fourier transform (FFT) to obtain a local frequency spectrum. By arranging these spectra along the time axis, we obtained a time--frequency representation of the signal, as shown in Figure~xx.
+In the next step, the input signal was divided into short, non-overlapping time windows. For each segment, we computed the discrete Fourier transform (FFT) to obtain a local frequency spectrum. By arranging these spectra along the time axis, we created a time–frequency representation of the signal, as shown in Figure~\ref{fig:spectogram_time}.
 
 \begin{figure}[htbp]
   \centering
@@ -535,7 +548,7 @@ In the next step, the input signal was segmented into short, non-overlapping tim
   \label{fig:spectogram_time}
 \end{figure}
 
-To relate the spectral content to the thrust level, we assigned each segment the mean thrust value within its time interval. The corresponding spectra were then plotted over frequency and mean thrust, resulting in a spectrogram that shows how the frequency content varies with thrust for this example (Figure~xx).
+To relate the spectral content to the thrust level, we assigned each segment the mean thrust value within its time interval. The corresponding spectra were then plotted over frequency and mean thrust, resulting in a spectrogram that shows how the frequency content varies with thrust for this example, as shown in Figure~\ref{fig:spectogram_thrust}.
 
 \begin{figure}[htbp]
   \centering
