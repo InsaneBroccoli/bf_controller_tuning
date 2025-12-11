@@ -367,7 +367,7 @@ classdef plot_utils
             ax(1) = subplot(2,1,1);
             plot(ax(1), td.step_time, td.step_resp_tra), grid on, ylabel('Gyro (deg/sec)')
             if do_insert_legends, legend('actual calculated', ...
-                    'new calculated', 'measurd', 'location', 'best'), end
+                    'new calculated', 'measured', 'location', 'best'), end
             ylim(ax(1), 'auto');
             title(['Tracking T - ', obj.axis_names{td.ind_ax}]);
             
