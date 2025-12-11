@@ -26,8 +26,8 @@ do_insert_legends = true;
 % =========================================================================
 
 log_folder = 'logs';
-flight_folder = '20251211';
-log_name = '03_20251211_OvershootExpress.TXT.csv';
+flight_folder = '20251208';
+log_name = '01_20251208_OvershootExpress.TXT.csv';
 file_path = fullfile(log_folder, flight_folder, log_name);
 
 data_flight = flight_data(file_path);
@@ -62,7 +62,7 @@ analysis_flight = analysis_flight.calculate_spectogram(resolution_factor_spectog
 %  Axis Selection: 1: roll, 2: pitch, 3: yaw
 % =========================================================================
 
-ind_ax = 2;     % keep it now until plot_utils is finished
+ind_ax = 1;     % keep it now until plot_utils is finished
 
 % I-term Relax on/off
 do_compensate_iterm = true;
@@ -112,17 +112,17 @@ para_new.yaw_lpf_hz          = 200;     % frequency of yaw lpf (pt1)
 
 switch ind_ax
     case 1 % Roll PID values [default: 45, 80, 30]
-        P_new       = 38;
-        I_new       = 80;
-        D_new       = 27;
+        P_new       = 34; % 31
+        I_new       = 72; % 64
+        D_new       = 28; % 23
     case 2 % Pitch PID values [default: 47, 84, 34]
         P_new       = 49;
         I_new       = 96;
         D_new       = 35;
-    case 3 % Yaw PID values [default: 45, 80, 0]
-        P_new       = 45;
-        I_new       = 86;
-        D_new       = 1;
+    case 3 % Yaw PID values [default:]
+        P_new       = 35;
+        I_new       = 70;
+        D_new       = 3;
 end
 
 gyro_tuning = gyro_tuning.calculate_new_controller(ind_ax, P_new, I_new, D_new, ...
