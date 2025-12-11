@@ -1,6 +1,6 @@
 # Gang of four
 
-The four Plots together describse actually the hole behavior of the control system of the drone. The plots will help you to evaluate stability, tracking performance, disturbance rejection and controller workload. Each plot highlights a different aspect of the system, so it is strongly recommended to work with all of them.
+The four Plots together describes actually the whole behavior of the control system of the drone. The plots will help you to evaluate stability, tracking performance, disturbance rejection and controller workload. Each plot highlights a different aspect of the system, so it is strongly recommended to work with all of them.
 
 ## Bode Diagram (T) Tracking / Closed Loop Response
 
