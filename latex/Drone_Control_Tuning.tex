@@ -558,7 +558,6 @@ To relate the spectral content to the thrust level, we assigned each segment the
   \label{fig:spectogram_thrust}
 \end{figure}
 
-
 \newpage
 
 \subsection{Building an FPV drone}
@@ -571,7 +570,7 @@ By getting in touch with the hardware, it is easier for us to understand what pr
 	\centering
 	\includegraphics[width=0.6\textwidth]{./Images/OvershootExpress.jpg}
 	\caption{aosmini 3-inch build}
-	\label{fig:aosmini}
+	\label{fig:OvershootExpress}
 \end{figure}
 
 Therefore a three inch FPV drone was built from the ground up. 
@@ -585,37 +584,31 @@ This work included:
 	\item testfly the drone
 \end{itemize}
 
-The flightcontroller just fitted into this frame. The GPS mount had to be trimmed off a little bit, that we could mount the all in one stack. 
-Also the video system was mounted super close to the stack. Due to a connector between these two parts, we had to lift the videosystem up with some spacers.
-This resulted in not enough space on top of the videosystem for the screws, which attaches the component to the frame. 
-The videosystem then had to be mounted with just two screws instead of four. In the first testflights, we couldn't see any too hard vibrations from this,
-so it's probably mounted good enough. As we need to be able to get the microSD card out of the the logger, the little pcp has to be mounted somewhere outside the drone. 
-We designed a little 3D printed surface, where the logger could be mounted with some doublesided tape. This component then was the lowest part of the drone, 
-which was a problem. In the first test flight we had the issue, that in the first landing, the microSD card hold openend and we lost the card. 
-Due to this problem, we designed some 3D printed stands for the frame, that the logger is not being crushed anymore on landings.
+The flightcontroller just fitted into this frame. The GPS mount had to be trimmed off a little bit, that we could mount the all in one stack. Also the video system was mounted super close to the stack. Due to a connector between these two parts, we had to lift the videosystem up with some spacers. This resulted in not enough space on top of the videosystem for the screws, which attaches the component to the frame. The videosystem then had to be mounted with just two screws instead of four. In the first testflights, no unusual vibrations were observed, so it's probably mounted good enough. As we need to be able to get the microSD card out of the logger, the little pcp has to be mounted somewhere outside the drone. We designed a little 3D printed surface, where the logger could be mounted with some doublesided tape. This component then was the lowest part of the drone, which was a problem. In one of the first flights, the microSD card hold openend and we lost the card on landing. 
 
-\subsection{Tuning an FPV drone}
+To prevent this from happanign again, we need to place the logger somewhere else or we design some stands for the drone. This is being done in a later step, as it is not fundamental for the tuning process.
+
+\subsection{The tuning process using our tool}
 As part of understanding the workflow we tuned an FPV drone by ourselves. The goal was to adjust the PID parameters so that we achieve a fast rising step response without overshoot, a lower compliance than before and a rounded shaped Sensitivity. Also to mention is, that the axes roll and pitch should be tuned as similar to each other as possible. This is because you want the drone to maintain a consistent and predictable response, so roll and pitch behave similarly for smoother control and a balanced flight experience.
 
-Initially, we deliberately applied a poor tuning configuration to observe its effects. During the first field test with this setup, it quickly became apparent that the tuning was excessively poor. The drone began oscillating aggressively and climbed rapidly. As the drone was out of control, the kill switch had to be activated, resulting in a crash that broke one of the four arms. Fortunately, the damage was minor and repaired quickly.
+Initially, we deliberately applied a poor tuning configuration to observe its effects. During the first field test with this setup, it quickly became clear that the tuning was excessively poor. The drone began oscillating aggressively and climbed rapidly. As the drone was out of control, the kill switch had to be activated, resulting in a crash that broke one of the four arms. Fortunately, the damage was minor and repaired quickly.
 
 After this incident, we decided not to repeat flights with intentionally bad tuning. Instead, we continued using the default Betaflight parameters as a baseline. With these the drone flies quite good. However, during demanding manoeuvres such as flips or propwash manoeuvres, it becomes evident that there is room for improvement in terms of stability and responsiveness.
 
-The tuning process was carried out on a larger 6-inch FPV drone provided by one of the team members. The drone was freshly flashed with Betaflight \colorbox{yellow}{v12}, meaning all filters and settings were at factory defaults. Achieving an optimal tune required several attempts due to challenges with filter adjustments and occasional logging issues. Nevertheless, the drone was successfully tuned, and the improvement was noticeable. During propwash manoeuvres, the drone remained significantly more stable, and flips were executed with greater precision at the stop.
+The tuning process was carried out on a larger 6-inch FPV drone provided by one of the team members and on the 3-inch drone we have built (See Figure~\ref{fig:OvershootExpress}). In this documentation we only focus on the tuning process for the 3-inch build. The flight controller was freshly flashed with Betaflight \colorbox{yellow}{v12??}, meaning all filters and settings were at factory defaults. 
 
-Our tuning objective was to achieve a fast step response without overshoot, while maintaining good compliance and sensitivity. It is important to note that there is no universally “perfect” tune. Settings depend heavily on pilot preferences. Racing pilots, for example, may want more responsiveness for competitive performance, whereas freestyle pilots want smoothness and flight feel. 
+As our supervisor has the exact same drone, as the one we built, we alredy deactivated some filters, to speed up the process a little bit.
 
-Since none of our team members are professional pilots, we focused on achieving robustness and a step response without overshoot. This tuning approach is probably somewhere between what a racing pilot and a freestyle pilot would prefer. Robustness in this context is important for practical scenarios, such as when a propeller is slightly bent, the battery sits slightly off center or when an additional component like a camera is mounted on the drone.
-
-\subsection{The tuning process using our tool
-
-\colorbox{yellow}{overview plots}
-
+Our tool generates different figures, wich help to tune a drone or analize data.
 Detailed information on how to interpret the generated figures by our tool can be found 
 \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Descriptions_Figures}{here}.
 
+The first figures show.... but are not directly necessary for the tuning process. Also a non engineer probably wouldn't take much information out of these plots.
+
+\colorbox{yellow}{overview plots}
+
 \subsubsection{filter tuning}
-Before starting to tune the PID controllers, we want good filtering, that we have clean signals to work with. In general, we want to achieve as less filtering as possible, because too much filtering causes delay in the system. However no quadrocopter build is perfect, so at least some filtering is always necessary in order to get a good tuned system.
+Before we start tuning the PID controllers, we need good filtering, to have clean signals to work with. The general aim here is to use as little filtering as possible, because too much filtering causes delay in the system. However no quadrocopter build is perfect, so at least some filtering is always necessary in order to get a good tuned system.
 
 To do this we started to look at the spectrograms and the spectra figures first, after the import of a log file into MATLAB. By comparing the filtered and unfiltered plots, you can see how well the current settings filter out unwanted vibrations.
 
@@ -650,7 +643,7 @@ Here frequencies are plotted against thrust level and the color show the signal 
 
 \textbf{Vertical lines} in the spectrogram indicate vibrations at fixed frequencies that do not change with thrust. These usuallly come from frame resonances or loose components. Such resonances can be removed with static notch filters, but because they sit only on a single frequency, they must be used carefully. For more robust suppression, especially when frequencies shift due to bent props or changing load conditions, a dynamic notch filter is usually the better choice.
 
-\textbf{Diagonal lines} show vibrations that change with motor speed, such as propeller noise. Using the \textbf{RPM Filter}, these propeller vibrations can be filtered out quite well. This filter uses real time RPM telemetry data to place notch filters exactly on fundamental and harmonic frequencies of each motor. As propeller vibrations are directly proportional to motor RPM, this approach eliminates noise at its source instead of relying on fixed or dynamic estimation. We kept the RPM filter with the default settings. We use three-bladed propellers, so three setting the filter to three harmonics should be fine.
+\textbf{Diagonal lines} show vibrations that change with motor speed, such as propeller noise. Using the RPM Filter, these propeller vibrations can be filtered out quite well. This filter uses real time RPM telemetry data to place notch filters exactly on fundamental and harmonic frequencies of each motor. As propeller vibrations are directly proportional to motor RPM, this approach eliminates noise at its source instead of relying on fixed or dynamic estimation. We kept the RPM filter with the default settings. We use three-bladed propellers, so three setting the filter to three harmonics should be fine.
 
 \textbf{Aliasing}\\
 As we use a 2kHz logging frequency, we have set a PT1 lowpassfilter to avoid aliasing. This can be seen in the Spectrogram as a diagonal lines going down, as you move to higher frequencies. The cutoff frequency should not be larger than the sampling frequency divided by two. To be on the safe side we set it to 800Hz.
@@ -669,26 +662,11 @@ For our setup, we retained the default Betaflight settings, as they provided goo
 Consider looking at the \href{https://www.betaflight.com/docs/wiki/configurator/pid-tuning-tab}{Betaflight wiki page} for more information about Betaflight filters.
 
 \subsubsection{PID tuning}
-After our filter settings were set, we could move on to the PID tuning.
+After the filter settings were set, we could move on to the PID tuning.
 
-The tool calculates the Plant and Controller Bode plots to build a mathematical model of the drone, 
-but we did not use them directly for tuning. For a pilot, these are less intuitive. 
-Instead, we focused on the Step Response and the Gang of Four, as these directly show flight performance and stability.
-Detailed description about the figures can be found 
-\href{URL}{\colorbox{yellow}{here}}.
+The tool calculates the Plant and Controller Bode plots to build a mathematical model of the drone. These are exciting for an engineer, but not necessarily useful for a user in the community, as they are less intuitive. We mainly focused on the Step Response and the Gang of Four, where you can see flight performance and stability directly.
 
-First of all, we used the \textbf{step response} figure to determine the "feel" of the drone. 
-The Step Response translates the complex frequency math into a simple time-domain graph. 
-It shows exactly what happens when the pilot moves the stick rapidly. 
-\begin{itemize} \item Tracking (Top Plot): This shows how the drone follows a command. 
-	We looked for a line that rises quickly (responsiveness) but does not overshoot. 
-	If the line rose too slowly, we increased P. 
-	If it overshot or wobbled at the top, we increased D. 
-	\item Compliance (Bottom Plot): This shows how the drone reacts to external hits, like wind. 
-	We aimed to keep this curve as low and flat as possible, which means the drone resists external forces well. 
-\end{itemize} 
-More details can be found in the 
-\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/Step_response.md}{Step Response documentation}.
+The \textbf{step response} plot shows exactly what happens when the pilot moves the stick rapidly. You can see how fast the drone reacts to the command, if it overshoots the target value, and how quickly it settles to a steady state.
 
 \begin{figure}[H]
 	\centering
@@ -697,32 +675,23 @@ More details can be found in the
 	\label{fig:step_response_tuning}
 \end{figure}
 
+\begin{itemize} 
+  \item Tracking (Top Plot): It shows how the drone follows a command
+	\item Compliance (Bottom Plot): This shows how the drone reacts to external hits, like wind
+\end{itemize}
 
-\subsubsection{Gang of Four}
-The \textbf{Gang of Four} 
-While the Step Response showed us performance, we used the Gang of Four to ensure safety and stability. 
-These plots break down the closed-loop behavior into four critical aspects.
+\textbf{Gang of Four}\\
+The Gang of Four is a standard set of four transfer functions that together fully characterize a feedback control system. These four plots show the Sensitivity (S), Complementary Sensitivity (T, Bode plot), Controller Effort (SC), and Compliance (SP). By looking at these plots, we can see if the drone is stable, how well it follows commands, how it handles wind, and whether the motors are working too hard—all in one view.
 
-During our tuning, we paid specific attention to the three sub-plots: 
+During our tuning, we paid specific attention to three of these plots: 
 \begin{enumerate} 
 	\item Sensitivity (S): 
-	This indicates how close the drone is to becoming unstable. 
-	We ensured that the peak in this graph stayed below 6 dB. 
-	A higher peak means the drone is on the edge of oscillating. 
+  It shows how the system responds to noise and reference commands. The peak value tells us how stable the system is. For a well-damped system, the peak should be below 6 dB, because higher values mean the drone could start oscillating or become unstable.
 	\item Controller Effort (SC): 
-	This shows how hard the motors have to work to follow the PID commands. 
-	We checked the high frequencies in this plot. 
-	If the curve is too high here, it means the D-term is reacting too strongly to noise, which leads to hot motors.
+  Indicates how hard the controller is working. If the effort is too high at high frequencies, the system is reacting to sensor noise rather than real disturbances. This causes unnecessary motor activity, leading to heating and wear.
 	\item Compliance (SP):
-	It is showing ...
+	Shows how much external disturbances (like wind gusts) affect the drone's motion. A lower compliance is better, it means the drone resists disturbances more effectively.
 \end{enumerate}
-
-By balancing these plots, 
-we found a tune that was responsive (good Step Response) but still safe for the motors (good Controller Effort).
-
-For a detailed explanation of the control relationships, 
-refer to the \href{https://github.com/InsaneBroccoli/bf_controller_tuning/tree/PA_final/markdown/Frequency_Response/Spectrum_Analysis.md}{Calculate Closed Loop} documentation. 
-Practical tuning guidance can be found in the section \href{https://github.com/InsaneBroccoli/bf_controller_tuning/tree/PA_final/markdown/Descriptions_Figures/Gang_of_Four.md}{Gang of Four Figures}.
 
 \begin{figure}[H]
 	\centering
@@ -730,6 +699,18 @@ Practical tuning guidance can be found in the section \href{https://github.com/I
 	\caption{Gang of four}
 	\label{fig:gangoffour_tuning}
 \end{figure}
+
+\textbf{PID tuning summary}
+Our tuning objective was to achieve a fast step response without overshoot while maintaining good disturbance rejection and stability margins. It is important to note that there is no universally perfect tune—settings depend heavily on pilot preferences. Racing pilots typically prefer aggressive, responsive tuning for competitive performance, while freestyle pilots prioritize smoothness and flight feel. Since none of our team members is a professional pilot, we focused on achieving robustness and a step response without overshoot. This tuning approach is probably somewhere between of what a racing pilot would want and a freestyle pilot. Robustness in this case is practical, because scenarios like slightly bent propellers, a battery positioned off-center, or additional components such as cameras mounted on the drone can be handled.
+
+The tuning process involved iteratively adjusting PID gains while monitoring both the step response and Gang of Four plots side by side. We found and used an online \href{https://www.luisllamas.es/en/pid-controller-simulator/}{PID simulator} as a guidance tool to build intuition for how P, I, and D values affect system behavior. 
+For the step response, we aimed for a fast rise time with minimal or no overshoot and a smooth curve without oscillations. On the Gang of Four side, we wanted the sensitivity peak to stay below 6 dB for good stability margins, low compliance across the control bandwidth for effective disturbance rejection, and reasonable controller effort to avoid amplifying sensor noise. All transfer functions should show smooth, rounded shapes without sharp resonances that indicate problematic dynamics.
+
+Achieving an optimal tune required several iterations due to challenges with filter adjustments and occasional logging issues. Nevertheless, the drone was successfully tuned, and the improvement was immediately noticeable. During propwash maneuvers, the drone remained significantly more stable, and flips were executed with greater precision at the stop point.
+
+\textbf{Additional Resources}\\
+For in-depth technical background on transfer functions and control theory, see our \href{https://github.com/InsaneBroccoli/bf_controller_tuning/tree/PA_final/markdown/Frequency_Response}{Frequency Response documentation}. 
+Detailed explanations of all generated plots and their interpretation can be found in the \href{https://github.com/InsaneBroccoli/bf_controller_tuning/tree/PA_final/markdown/Descriptions_Figures}{Figure Documentation}.
 
 \newpage
 
