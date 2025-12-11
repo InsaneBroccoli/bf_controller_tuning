@@ -51,7 +51,7 @@ This plot shows how much corol activity the PI and D loop generates. Large value
 
 **Goal**
 
-- Controller effort stays within a moderate level **(±0–3 dB)** in the useful frequency rang
+- Controller effort stays within a moderate level **(±0–3 dB)** in the useful frequency range
 - Mid-frequency rise remains below **~6 dB** to prevent hot motors and excessive D-term activity.
 - High-frequency controller effort drops to below **–20 dB** for effective noise suppression.
 
