@@ -85,7 +85,7 @@ default_parameters = false;
 %   1: BIQUAD (Second order)
 %   2: PT2 (Second order lowpass) 
 %   3: PT3 (Third order lowpass)
-para_new.gyro_lpf            = 0;       % dono what this is
+para_new.gyro_lpf            = 0;       % if lpf is static
 para_new.gyro_lowpass_hz     = 0;       % frequency of gyro lpf 1
 para_new.gyro_soft_type      = 0;       % type of gyro lpf 1
 para_new.gyro_lowpass_dyn_hz = [0, 0];  % dyn gyro lpf overwrites gyro_lowpass_hz

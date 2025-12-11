@@ -1,4 +1,4 @@
-# PID Controller Scaling and Construction
+# PID Controller Construction
 
 Before performing control-theoretic analysis on Betaflight PID loops, the PID gains must be converted from their Betaflight-specific representation into physically meaningful controller gains. Betaflight applies internal scaling factors to its P, I, and D terms, so the raw values shown in the configurator or CLI are not the actual gains used inside the control loop.
 
@@ -56,10 +56,3 @@ The output of the implementation is:
 - **Cd** — discrete derivative controller
 
 With these newly computed controllers, it becomes possible to predict how the system will respond when operated under the updated control gains.
-
----
-
-## References
-
-[1] R. Pintelon, J. Schoukens, *System Identification: A Frequency Domain Approach*, 2nd ed., IEEE Press, 2012.  
-[2] M. H. Hayes, *Statistical Digital Signal Processing and Modeling*, John Wiley & Sons, 1996.

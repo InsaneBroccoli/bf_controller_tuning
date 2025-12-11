@@ -63,6 +63,8 @@ confirming that the frequency response estimation is reliable [1, pp. 128–131]
 If the coherence is close to zero, it indicates a very weak or non-existent relationship between the signals.  
 Therefore, it serves as an indicator of an **inaccurate or noise-dominated frequency response estimate** at that frequency.
 
+---
+
 ## References
 
 [1] R. Pintelon, J. Schoukens, *System Identification: A Frequency Domain Approach*, 2nd ed., IEEE Press, 2012, **pp. 45–60**.  
