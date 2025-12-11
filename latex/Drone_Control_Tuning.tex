@@ -322,11 +322,44 @@ In this section, we analyse the individual components of the controller,
 examine their influence on the system behaviour and outline the methods used for tuning in order to improve performance and responsiveness.
 
 \subsubsection{Transfer Function Estimation}
-To analyse how the system reacts to control inputs, the transfer function of the plant is estimated directly from closed-loop flight data. 
-This makes it possible to characterise the system dynamics without opening the control loop 
-and to determine how input signals are transformed into outputs. 
-The resulting model forms the basis for matching the controller parameters to the real system. More details can be found in the 
-\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/Estimate_Transferfunction_Plant.md}{Estimate Transfer Function documentation}.
+
+
+In a closed loop control system, the plant is the physical system that we want to control, for example the movement of a drone.  
+To tune a controller, we need to understand how the plant behaves. However, when the system is running in closed loop, this becomes difficult.  
+The output is fed back through the controller and continuously changes the input signal. Because of this, the input is no longer an independent excitation, but already contains the controller reactions and disturbance effects.
+
+If we try to measure the transfer function directly from input to output in this situation, the result will not represent the true behaviour of the plant.  
+Instead, it will show a combination of the plant dynamics, the controller dynamics and the feedback loop.  
+Figure~\ref{fig:closedloop} shows a simplified closed loop structure.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{Images/Control_Loop_easy.png}
+    \caption{Simplified closed loop system}
+    \label{fig:closedloop}
+\end{figure}
+
+To overcome this problem, we use the known relationships between the different transfer functions in the closed loop.  
+From the measurement data we compute
+
+\begin{equation}
+    G_{yr}(\omega) = \frac{\mathrm{FFT}(y)}{\mathrm{FFT}(r)} 
+    = \frac{C(\omega)\,P(\omega)}{1 + C(\omega)\,P(\omega)},
+\end{equation}
+
+\begin{equation}
+    G_{ur}(\omega) = \frac{\mathrm{FFT}(u)}{\mathrm{FFT}(r)} 
+    = \frac{C(\omega)}{1 + C(\omega)\,P(\omega)}.
+\end{equation}
+
+By dividing the two expressions, the controller cancels out and we obtain an estimate of the plant transfer function:
+
+\begin{equation}
+    P(\omega) = \frac{G_{yr}(\omega)}{G_{ur}(\omega)}.
+\end{equation}
+
+This allows us to reconstruct the plant transfer function \(P(\omega)\) from closed loop measurement data without opening the control loop during the experiment.  
+More details about this procedure can be found in the document \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/Estimate_Transferfunction_Plant.md}{Estimate Transfer Function documentation}.
 
 
 \subsubsection{Closed Loop Calculation}

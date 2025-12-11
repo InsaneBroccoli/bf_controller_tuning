@@ -26,8 +26,8 @@ do_insert_legends = true;
 % =========================================================================
 
 log_folder = 'logs';
-flight_folder = '20251208';
-log_name = '01_20251208_OvershootExpress.csv';
+flight_folder = '20251211';
+log_name = '03_20251211_OvershootExpress.TXT.csv';
 file_path = fullfile(log_folder, flight_folder, log_name);
 
 data_flight = flight_data(file_path);
@@ -62,7 +62,7 @@ analysis_flight = analysis_flight.calculate_spectogram(resolution_factor_spectog
 %  Axis Selection: 1: roll, 2: pitch, 3: yaw
 % =========================================================================
 
-ind_ax = 1;     % keep it now until plot_utils is finished
+ind_ax = 2;     % keep it now until plot_utils is finished
 
 % I-term Relax on/off
 do_compensate_iterm = true;
@@ -85,44 +85,44 @@ default_parameters = false;
 %   1: BIQUAD (Second order)
 %   2: PT2 (Second order lowpass) 
 %   3: PT3 (Third order lowpass)
-para_new.gyro_lpf            = 0;       % dono what this is
+para_new.gyro_lpf            = 0;       % if lpf is static
 para_new.gyro_lowpass_hz     = 0;       % frequency of gyro lpf 1
 para_new.gyro_soft_type      = 0;       % type of gyro lpf 1
 para_new.gyro_lowpass_dyn_hz = [0, 0];  % dyn gyro lpf overwrites gyro_lowpass_hz
 para_new.gyro_lowpass2_hz    = 800;     % frequency of gyro lpf 2
 para_new.gyro_soft2_type     = 0;       % type of gyro lpf 2
-para_new.gyro_notch_hz       = [0, 520];  % frequency of gyro notch 1 and 2
-para_new.gyro_notch_cutoff   = [0, 448] % % Cutoff frequency gyro notch 1 and 2
+para_new.gyro_notch_hz       = [0, 0];  % frequency of gyro notch 1 and 2
+para_new.gyro_notch_cutoff   = [0, 0] % % Cutoff frequency gyro notch 1 and 2
 para_new.dterm_lpf_hz        = 0;       % frequency of dterm lpf 1
 para_new.dterm_filter_type   = 0;       % type of dterm lpf 1
 para_new.dterm_lpf_dyn_hz    = [0, 0];  % dyn dterm lpf overwrites dterm_lpf_hz
-para_new.dterm_lpf2_hz       = 130;     % frequency of dterm lpf 2
+para_new.dterm_lpf2_hz       = 100;     % frequency of dterm lpf 2
 para_new.dterm_filter2_type  = 3;       % type of dterm lpf 2
-para_new.dterm_notch_hz      = 235;       % frequency of dterm notch
-para_new.dterm_notch_cutoff  = 202;     % Cutoff frequency dterm notch
+para_new.dterm_notch_hz      = 0;       % frequency of dterm notch
+para_new.dterm_notch_cutoff  = 0;     % Cutoff frequency dterm notch
 para_new.yaw_lpf_hz          = 200;     % frequency of yaw lpf (pt1)
 
 %--------------------------------------------------------------------------
 %  tune your PIDs here
 %--------------------------------------------------------------------------
-% Adjust multipliers (1.0 *) to tune the response
+% Adjust multipliers PID values to tune the response
 % Higher P: more immediate response but possible oscillations
 % Higher I: better steady-state tracking but slower response
 % Higher D: better damping but noise sensitive
 
 switch ind_ax
-    case 1 % Roll PID values
-        P_new       = 1.0 * 46;
-        I_new       = 1.0 * 74;
-        D_new       = 1.0 * 30;
-    case 2 % Pitch PID values
-        P_new       = 1.0 * 50;
-        I_new       = 1.0 * 88;
-        D_new       = 1.0 * 43;
-    case 3 % Yaw PID values
-        P_new       = 1.0 * 35;
-        I_new       = 1.0 * 70;
-        D_new       = 1.0 * 3;
+    case 1 % Roll PID values [default: 45, 80, 30]
+        P_new       = 38;
+        I_new       = 80;
+        D_new       = 27;
+    case 2 % Pitch PID values [default: 47, 84, 34]
+        P_new       = 49;
+        I_new       = 96;
+        D_new       = 35;
+    case 3 % Yaw PID values [default: 45, 80, 0]
+        P_new       = 45;
+        I_new       = 86;
+        D_new       = 1;
 end
 
 gyro_tuning = gyro_tuning.calculate_new_controller(ind_ax, P_new, I_new, D_new, ...
@@ -141,7 +141,7 @@ plotter.plot_Gyro_spectra(do_insert_legends);
 plotter.plot_Spectogram(3);
 
 %% Plot Tuning Data
-plotter.plot_Bode_Plant(ind_ax);
-plotter.plot_Bode_Contr(ind_ax, do_insert_legends);
+%plotter.plot_Bode_Plant(ind_ax);
+%plotter.plot_Bode_Contr(ind_ax, do_insert_legends);
 plotter.plot_Gang_of_Four(do_insert_legends);
 plotter.plot_Step_Response(do_insert_legends);
