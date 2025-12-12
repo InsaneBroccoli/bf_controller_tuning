@@ -151,20 +151,39 @@ In addition, the tool will be accompanied by comprehensive Markdown documentatio
 
 \newpage
 
-\section{Preparation}
+\section{Theory}
 
-\subsection{Chirp}
+\subsection{Control System and Signal Processing}
+This section provides an overview of the key concepts and methods used for the analysis and tuning of the Betaflight flight controller. It introduces the essential aspects of signal processing, control system identification, and evaluation techniques that form the basis for optimizing controller performance. For a more detailed discussion of the theoretical background and mathematical derivations, the reader is referred to the comprehensive \href{https://github.com/InsaneBroccoli/bf_controller_tuning/tree/PA_final/markdown}{documentationl} available in the GitHub repository.
+
+\subsubsection{Betaflight Gyro Control System}
+
+Based on the Betaflight source code, the gyro control system was reconstructed to obtain a detailed internal representation of the controller structure. This reconstruction forms the basis for the analysis, as it allows a clear understanding of how measured signals propagate through the control loops and how individual controller components influence the system dynamics.
+
+For clarity, the control architecture is illustrated in a simplified form in Figure~xx. The actual implementation includes additional signal paths, filters, and controller elements that are not explicitly shown. Nevertheless, the simplified representation captures the essential structure required for analysis.
+
+The control system consists of two nested loops: an inner loop responsible for angular rate control based on gyroscope feedback, and an outer loop performing angle control based on pilot stick inputs. Both loops incorporate filtering and control elements that directly affect the frequency response and stability characteristics of the system.
+
+By explicitly modeling this structure, measured input and output signals can be assigned to the correct locations within the control system. This is a prerequisite for meaningful frequency response estimation, controller tuning, and the correct interpretation of experimental flight data.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1.0\textwidth]{./Images/Regelstrecke.png}
+    \caption{Simplified representation of the Betaflight gyro control system}
+    \label{fig:bf_gyro_control}
+\end{figure}
+
+\newpage
+
 \subsubsection{Chirp Concept}
 A chirp is an input signal that sweeps continuously over a defined range (e.g. from a low frequency to a high frequency).
 This signal excites the system on multiple frequencies in one run and thus lets you observe the frequency response and step response,
 the foundation of controller tuning.
-Mathematically, a chirp signal can be represented as a sinusoidal wave with instantaneous frequency that varies linearly or exponential with time.
-For more information about the mathematical background, please have a look in the document 
-\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Sinarg/Chirp.md}{Chirp Signal} \parencite{bf_chirp}.
+Mathematically, a chirp signal can be represented as a sinusoidal wave with instantaneous frequency that varies linearly or exponential with time. \parencite{bf_chirp}.
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.8\textwidth]{./Images/chirp_signal.jpg}
+	\includegraphics[width=1.0\textwidth]{./Images/chirp_signal.jpg}
 	\caption{Chirp Signal example}
 	\label{fig:chirp}
 \end{figure}
@@ -187,142 +206,57 @@ The process involves these steps:
 The recorded log file, containing the input chirp and the corresponding gyroscope output,
 is then used for offline analysis to determine the frequency response of the system.
 
-\subsubsection{Chirp programming}
-The implementation of the chirp signal in Betaflight is straightforward. You call the function chirpInit() and pass:
-\begin{itemize}
-	\item a struct of type chirp\_t defined in chirp.h
-	\item starting frequency
-	\item end frequency
-	\item signal length
-	\item loop-time in microseconds
-\end{itemize}
-\vspace{1em}
 
-This initialises the values in the data struct and:
-\begin{itemize}
-	\item converts loop period from microseconds to seconds
-	\item calculates the number of samples in the signal duration
-	\item calculates the exponential growth factor
-	\item precomputes the constants used to get the phase from the frequency evolution
-	\item calls chirpReset() function
-\end{itemize}
-\vspace{1em}
+\subsubsection{Data Import and Preprocessing}
+To analyze Betaflight Blackbox logs effectively, the recorded data must first be imported and preprocessed. This process ensures that the raw flight data is correctly scaled, structured, and suitable for further analysis. Each log consists of a header containing essential metadata, such as filter settings and PID values, and a data block with the recorded signals. Both components are required to correctly interpret the flight data.
 
-The chirpReset() function sets:
-\begin{itemize}
-	\item internal counter to 0
-	\item bool isFinished to false
-\end{itemize}
+To reduce computational effort, the raw CSV log files are converted into the faster \texttt{.mat} format, allowing for significantly shorter loading times. During this step, signal names are automatically mapped to their corresponding data columns, which simplifies the identification and use of individual signals in subsequent analyses. Betaflight’s High Resolution Mode scales selected signals by a factor of ten to optimize storage and reduce numerical rounding errors. These signals are therefore rescaled to their original values during preprocessing to ensure accurate results.
 
-and then calls the function chirpResetSignals() to set signal-related fields to 0.
-\\
-Once the chirp is initialised use the chirpUpdate() function once per loop iteration. 
-\\
-This function checks:
-\begin{itemize}
-	\item if bool isFinished is true -> return false
-	\item else if internal counter is equal to the number of samples inside the chirps period
-	      \\-> set bool isFinished true, call chirpResetSignals(), return false
-\end{itemize}
+Finally, the time information, originally stored as a microsecond counter, is converted into a uniform time base. This step includes checking for irregular sampling intervals caused by dropped frames or variations in the effective sampling rate. Proper handling of the time data is essential for reliable frequency analysis and controller tuning.
 
-if none of the above is true the ...
-
-\newpage
-
-\section{Theory}
-
-\subsection{Signal Processing}
-Signal processing converts raw Betaflight Blackbox flight data into useful information for analysis.
-These logs contain data such as stick movements, gyro signals and PID responses.
-Although the data may seem complex at first, tools like our analysis software and the
-\href{https://blackbox.betaflight.com/}{Betaflight
- Blackbox Explorer}
-help to make it easier to understand through clear visualisations for troubleshooting and tuning.\par
-
-Preparing the data is a key step in the workflow. Before analysis, the signals are cleaned and brought into a consistent form, usually by filtering to reduce noise without changing the real flight behaviour.
-Based on the processed signals, the frequency response of the control system can be estimated to describe how it reacts to different inputs.
-This improves data quality and leads to more reliable results.
-
-\subsubsection{Data Import}
-The first step of any analysis is to load the measurement data correctly.
-A Betaflight Blackbox log has two main parts: the header and the data block.
-The header contains important information about the recording conditions, such as loop rates, logging settings, filter setup and PID values.
-Without this information, correct calculations are not possible and the data loses its value for analysis.\par
-
-Importing the data is very computationally demanding. To save time, the logs are converted from raw CSV files into the faster .mat format.
-This avoids reprocessing the large files every time. The signal names (for example gyro and motor outputs) are also assigned automatically to the correct data columns.
-More details can be found in the
-\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Data/Dataimport.md/}{Dataimport
- Documentation} \parencite{bf_LoadData}.
-
-\subsubsection{Handle High-Resolution Data}
-Betaflight offers an optional High Resolution Mode for logging, where selected signals are multiplied by ten before being saved.
-Since the data is stored as integers, this reduces the need for decimal values and limits rounding errors.
-During analysis, these signals must be scaled back to their original units; otherwise, frequency plots, tuning results and general interpretation will be incorrect.
-Key signals such as gyro data and control inputs are affected by this process.
-More details can be found in the
-\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Data/Unscale_high_Resolution_Gain.md}{Unscale
- high Resolution Gain documentation} \parencite{bf_UnshigRes}.
-
-
-\subsubsection{Time Conversion and Sampling Rate Verification}
-In a Betaflight log, time is stored as a rising counter in microseconds, not as regular seconds.
-Due to hardware limits or system load, the spacing between time stamps is not always constant.
-This step converts the time data into a uniform time base so that all samples can be compared correctly in time.\par
 
 By checking the time differences between samples, logging issues such as dropped frames or small changes in the sampling rate can be detected.
-Correct time handling is essential for all later analysis steps, such as frequency calculations or controller tuning.
-More details are given in the
-\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Data/Convert_and_evolution_Time.md}{Convert
- and evolution Time documentation}.
-For drone tuning, see also the
-\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Descriptions_Figures/Evolution_Time_Flight.md}{Evolution
- Time Flight description} \parencite{bf_UnshigRes}.
+Correct time handling is essential for all later analysis steps, such as frequency calculations or controller tuning. \parencite{bf_UnshigRes}.
 
-\subsubsection{Application of Rotational Filtering (Apply Rotfiltfilt)}
-Filtering is a fundamental step in preparing the data for analysis, 
-as it removes unwanted noise while preserving the original characteristics of the signals. 
-The function \texttt{Apply Rotfiltfilt} operation applies a zero-phase filter, 
-ensuring that the data’s phase relationships remain intact while suppressing selected frequency components such as low-frequency drifts or high-frequency noise. \par
-This step applies a forward-backward filtering technique, 
-which processes the data in both forward and reverse directions and effectively cancels out phase distortions. 
-This method is particularly useful when working with chirp signals, 
-as it enables precise filtering without introducing phase shifts that could alter the signal’s characteristics. \par
+\subsubsection{Estimation of Frequency Response Including Rotational Filtering}
 
-Proper application of this technique ensures that the data is clean and reliable for subsequent analysis steps. 
-For more insights on how this method works, refer to the full description in the 
-\href{https://github.com/InsaneBroccoli/bf_controller_tuning/markdown/Frequency_Response/ApplyRotfiltfilt.md}{Apply Rotfiltfilt documentation} \parencite{bf_ApplyRot}.
+To estimate the frequency response of a system from measured input and output signals, the data must first be transformed into the frequency domain. This is achieved using the Fast Fourier Transform (FFT). The frequency response is then obtained by dividing the Fourier transform of the output signal by that of the input signal:
 
-\subsubsection{Estimation of Frequency Response}
-The \texttt{Estimate Frequency Response} function uses advanced techniques to measure 
-and analyze the relationship between a system’s input and output signals in the frequency domain. 
-This makes it possible to determine how different frequencies are amplified or attenuated by the system, 
-providing valuable information about its dynamic behavior. \par
-This technique is based on the Welch Method, which divides the signal into overlapping segments. 
-By applying a Hann window to each segment and performing spectral averaging, the influence of noise is reduced 
-and a smoother estimate of the frequency response is obtained. 
-The result is a single-sided, amplitude-calibrated response curve that shows how individual frequencies are amplified or attenuated, 
-as well as how phase shifts occur across the spectrum. \par
-The resulting data is not only accurate but also robust, making it suitable for applications like control system tuning or stability analysis. 
-For a deeper dive into the theoretical principles and implementation steps, consult the detailed 
-\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/estimate_frequency_response.md}{Estimate Frequency Response documentation} \parencite{bf_estfreqresp}.
+\begin{equation}
+G_{xy}(\omega) = \frac{\mathrm{FFT}(y)}{\mathrm{FFT}(x)} .
+\end{equation}
 
-\begin{figure}[H]
-	\centering
-	\includegraphics[width=0.8\textwidth]{./Images/segmentation.png}
-	\caption{Segmentations of Data}
-	\label{fig:segmentation}
+In practical applications, measurement data is often contaminated by noise, which can significantly distort the frequency response estimation. As illustrated in Figure~xx, noise is added to the system between the input signal \(u(t)\) and the output signal \(y(t)\). This noise may originate from sensor inaccuracies, environmental disturbances, or electronic interference. If not properly handled, it can lead to unreliable or misleading results. To mitigate this effect, the program applies a dedicated filtering routine, implemented in the function \texttt{apply\_rotfiltfilt}.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.7\textwidth]{Images/Freq_Blockschalt.png}
+\caption{System model including measurement noise}
+\label{fig:system_noise}
+\end{figure}
+
+To improve the robustness of the frequency response estimation, a rotational filtering approach is used. In this method, the output signal is shifted to the baseband, filtered, and then shifted back to its original frequency range. The frequency shift is achieved by multiplying the signal with a complex exponential corresponding to the instantaneous chirp frequency:
+
+\begin{equation}
+y_{\mathrm{rot}}(t) = y(t) \cdot e^{-j 2 \pi f_{\mathrm{chirp}}(t) t} .
+\end{equation}
+
+After shifting the signal to baseband, a zero-phase filter is applied to remove unwanted frequency components while preserving the phase information of the signal. This step is essential for reducing noise without distorting the underlying system dynamics. The filtered signal is then shifted back to its original frequency range.
+
+Subsequently, the frequency response is estimated using the filtered output signal within the function \texttt{Estimate Frequency Response}. The signal is divided into overlapping segments, as illustrated in Figure~xx. A Hann window is applied to each segment to reduce spectral leakage. The FFT is computed for each windowed segment, and the resulting spectra are averaged to obtain a smooth and reliable estimate of the frequency response.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=1.0\textwidth]{Images/segmentation.png}
+\caption{Segmentation of a signal into overlapping windows}
+\label{fig:segmentation}
 \end{figure}
 
 
+
 \newpage
-\subsection{Control System}
-The control system determines the dynamic response of a drone and is therefore central to flight stability and precise maneuvering. 
-In this section, we analyse the individual components of the controller, 
-examine their influence on the system behaviour and outline the methods used for tuning in order to improve performance and responsiveness.
 
 \subsubsection{Transfer Function Estimation}
-
 
 In a closed loop control system, the plant is the physical system that we want to control, for example the movement of a drone.  
 To tune a controller, we need to understand how the plant behaves. However, when the system is running in closed loop, this becomes difficult.  
@@ -334,7 +268,7 @@ Figure~\ref{fig:closedloop} shows a simplified closed loop structure.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\textwidth]{Images/Control_Loop_easy.png}
+    \includegraphics[width=0.9\textwidth]{Images/Control_Loop_easy.png}
     \caption{Simplified closed loop system}
     \label{fig:closedloop}
 \end{figure}
@@ -359,40 +293,76 @@ By dividing the two expressions, the controller cancels out and we obtain an est
 \end{equation}
 
 This allows us to reconstruct the plant transfer function \(P(\omega)\) from closed loop measurement data without opening the control loop during the experiment.  
-More details about this procedure can be found in the document \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/Estimate_Transferfunction_Plant.md}{Estimate Transfer Function documentation}.
 
 
-\subsubsection{Closed Loop Calculation}
-The interaction between the controller and the estimated transfer function of the plant determines the stability and robustness of the closed-loop system. 
-By calculating the closed-loop transfer functions for both inner and outer loops, sensitivity, disturbance rejection, 
-and overall system stability can be evaluated. These calculations provide a clear view of the controller dynamics and their impact on the system response. 
-For details on the implementation, see the 
-\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/CalculateClosedLoop.md}{Calculate Closed Loop documentation}. \parencite{bf_closeloop}
+\subsubsection{Closed-Loop Calculation}
 
-\begin{figure}[H]
-	\centering
-	\includegraphics[width=0.6\textwidth]{./Images/Regelstrecke.png}
-	\caption{Gyro Control Loop}
-	\label{fig:Gyro_Control_Loop}
+After determining the plant transfer function, the next step is to analyze the behavior of the overall system when a controller is applied. This is achieved by evaluating the closed-loop transfer functions, which describe the system response, disturbance sensitivity, disturbance rejection capability, and the required controller effort. These measures provide valuable insight into the stability, robustness, and performance of the controlled system.
+
+As an example, the closed-loop configuration shown in Figure~xx is analyzed.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Images/Control_Loop_easy.png}
+    \caption{Simplified closed loop system}
+    \label{fig:closed_loop}
 \end{figure}
 
-\subsubsection{Filters and Controllers}
-Filters and controllers form the foundation of the control loop. 
-Filters remove unwanted noise from sensor data or motor outputs, 
-while controllers ensure that the flight system remains stable and tracks the desired setpoints accurately. 
-The system makes use of various low-pass, notch, and dynamic filters that are designed to optimize the control process. 
-The controllers, such as the PI and D components, are then tuned to achieve the desired balance between reactivity and stability. 
-For further insights, see the 
-\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/Filter_and_Controller.md}{Filters and Controllers documentation}.
+The closed-loop transfer function from the reference input to the output is given by
+\begin{equation}
+G_{yr}(\omega) = \frac{C(\omega) P(\omega)}{1 + C(\omega) P(\omega)} .
+\end{equation}
+
+The sensitivity function, which describes how sensitive the system output is to disturbances and model uncertainties, is defined as
+\begin{equation}
+S(\omega) = \frac{1}{1 + C(\omega) P(\omega)} .
+\end{equation}
+
+The compliance function, representing the system response to disturbances acting on the plant, is given by
+\begin{equation}
+CC(\omega) = P(\omega) \cdot S(\omega) .
+\end{equation}
+
+Finally, the controller effort describes the influence of the reference input on the controller output and is defined as
+\begin{equation}
+SC(\omega) = C(\omega) \cdot S(\omega) .
+\end{equation}
+
+
+\newpage
 
 \subsubsection{Compensation of the I-Term} 
-The integral term in a PID controller addresses long-term errors, ensuring steady corrections over time. 
-However, it can become problematic during quick stick movements, where it may overcorrect and destabilize the system. 
-To avoid this, compensation methods adjust the influence of the I-term based on the situation, 
-suppressing it during rapid changes while allowing it to integrate errors during slower movements. 
-This approach helps maintain both precision and responsiveness. 
-Have a look at \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/Compensate_Iterm.md}{Compensate I-Term documentation} 
-to see how we added compensation to the calculation.
+The integral term of a PID controller is used to compensate for steady-state errors by integrating the control error over time. In flight control systems, this helps to counteract constant disturbances such as motor imbalances or aerodynamic effects. During fast stick movements or aggressive maneuvers, however, the integral term can accumulate too much error.
+
+In these situations, the accumulated I-term no longer represents a disturbance but instead opposes the intended motion. When the maneuver ends, this can lead to overshoot, bounce-back effects, or slow settling of the system.
+
+To reduce these effects, Betaflight uses a feature called I-Term Relax. This mechanism temporarily limits the integration of the I-term when rapid changes are detected. Depending on the configuration, these changes are identified either from the control setpoint or from the measured gyroscope signal. When the detected change exceeds a defined threshold, the I-term integration is reduced or paused.
+
+This allows the controller to respond quickly to fast pilot inputs while preventing excessive buildup of the integral term. During slower movements and steady operation, normal integration is restored. As a result, I-Term Relax improves flight behavior by reducing overshoot and bounce-back while maintaining good disturbance rejection.
+
+For analysis and controller tuning, the effect of I-Term Relax must be considered, as it modifies the controller behavior depending on the current flight conditions.
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.6\textwidth]{Images/Control_Loop_Iterm.png}
+\caption{Segmentation of a signal into overlapping windows}
+\label{fig:segmentation}
+\end{figure}
+
+In the implemented analysis framework, the I-Term Relax algorithm itself is not explicitly reconstructed. Instead, its overall effect is captured by comparing the analytically modeled controller transfer function with the controller transfer function estimated from measurement data.
+
+To this end, a compensation factor is defined as the ratio between the measured PI controller transfer function and its analytical counterpart:
+\begin{equation}
+C_{\mathrm{PI,com}}(\omega) = \frac{C_{\mathrm{PI}}(\omega)}{C_{\mathrm{PI,ana}}(\omega)} .
+\end{equation}
+
+This frequency-dependent compensation factor represents the combined influence of effects that are not explicitly modeled, including the impact of I-Term Relax. The factor is subsequently applied to both the original analytical PI controller and the newly designed PI controller:
+\begin{align}
+C_{\mathrm{PI,ana,new}}(\omega) &= C_{\mathrm{PI,ana}}(\omega) \cdot C_{\mathrm{PI,com}}(\omega) , \\
+C_{\mathrm{PI,new,new}}(\omega) &= C_{\mathrm{PI,new}}(\omega) \cdot C_{\mathrm{PI,com}}(\omega) .
+\end{align}
+
+The resulting compensated controller transfer functions are then reinserted into the closed-loop system for further analysis and evaluation.
+
 
 \newpage
 
@@ -636,7 +606,7 @@ Our tool generates different figures, wich help to tune a drone or analize data.
 Detailed information on how to interpret the generated figures by our tool can be found 
 \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Descriptions_Figures}{here}.
 
-The first figures show.... but are not directly necessary for the tuning process. Also a non engineer probably wouldn't take much information out of these plots.
+\subsection{The tuning process using our tool}
 
 \colorbox{yellow}{overview plots}
 
