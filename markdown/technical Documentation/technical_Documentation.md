@@ -173,6 +173,16 @@ In a Betaflight log, time is stored as a growing microsecond counter, not as reg
 
 By checking the time steps between samples, you can find logging errors like dropped frames or slight changes in the real sampling rate. Correctly handling the time information is very important for further analysis, like frequency calculations or tuning the controller. For a clearer explanation, see the [Convert_and_evolution_Time documentation](https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Data/Convert_and_evolution_Time.md).
 
+### Spectrum and Spectrogram
+
+Spectrum and spectrogram analysis are powerful tools for understanding how a system behaves across different frequencies. The spectrum breaks down a signal into its frequency components, showing which frequencies are strong or weak. This helps identify resonances, noise, and how well filters work. 
+Our data logs delivers two types of signals. On the one hand, we recive the signal `gyroADC`on the other hand we also recive the `unfiltert_gyroADC`. The difference between these two signals is that the `gyroADC` signal has already passed through the Betaflight internal filters, while the `unfiltert_gyroADC` signal is the raw data directly from the gyroscope sensor without any filtering applied as you see in figure xx.
+
+figure xx: Filtered vs Unfiltered Gyro Signal
+
+If you transform both signals into the frequency domain, you can see how the internal filters affect the signal. The filtered signal will show reduced noise and attenuated frequencies where the filters are active, while the unfiltered signal will have more high-frequency noise and resonances.
+The spectrogram goes a step further by showing how the frequency content of a signal changes over thrust. By grouping FFT segments into bins based on throttle or angle, you can see how the system's dynamics evolve during flight. This is especially useful for understanding how different flight conditions affect performance.
+
 ---
 
 ### Estimation of Frequency Response including Rotational Filtering
@@ -319,6 +329,15 @@ C_{PI,ana,new} = C_{PI,ana} \cdot C_{Pi,com} \qquad
 C_{PI,new,new} = C_{PI,new} \cdot C_{Pi,com}
 $$
 These newly calculated controllers must then be included again in the closed-loop system.
+
+### Step Response
+
+The step response provides a direct view of how the system reacts to sudden changes in the input signal. Other then the transferfunction, the step response is in the time domain instead of the frequency domain. Therefore, we have to transform the new calculated closed-loop transfer function back into the time domain. For that, we use the inverse Fourier transformation.
+
+$y(t) = \mathcal{F}^{-1} \{ Y(ω) \} = \mathcal{F}^{-1} \{ G_{yr}(ω) \cdot R(ω) \}$
+
+
+
 
 ## 3.3 Evaluation
 
