@@ -208,15 +208,29 @@ is then used for offline analysis to determine the frequency response of the sys
 
 
 \subsubsection{Data Import and Preprocessing}
-To analyze Betaflight Blackbox logs effectively, the recorded data must first be imported and preprocessed. This process ensures that the raw flight data is correctly scaled, structured, and suitable for further analysis. Each log consists of a header containing essential metadata, such as filter settings and PID values, and a data block with the recorded signals. Both components are required to correctly interpret the flight data.
+To analyze Betaflight Blackbox logs effectively, the recorded data must first be imported and preprocessed to ensure correct scaling, structure, and suitability for further analysis. Each log consists of a header containing essential metadata, such as filter settings and PID values, and a data block with the recorded signals. Both components are required for correct interpretation of the flight data.
 
-To reduce computational effort, the raw CSV log files are converted into the faster \texttt{.mat} format, allowing for significantly shorter loading times. During this step, signal names are automatically mapped to their corresponding data columns, which simplifies the identification and use of individual signals in subsequent analyses. Betaflight’s High Resolution Mode scales selected signals by a factor of ten to optimize storage and reduce numerical rounding errors. These signals are therefore rescaled to their original values during preprocessing to ensure accurate results.
+To reduce computational effort, the raw CSV log files are converted into the faster \texttt{.mat} format, significantly decreasing loading times. During this process, signal names are automatically mapped to their corresponding data columns, simplifying access to individual signals in subsequent analyses. Signals recorded in Betaflight’s High Resolution Mode are scaled by a factor of ten and are therefore rescaled to their original values during preprocessing.
 
-Finally, the time information, originally stored as a microsecond counter, is converted into a uniform time base. This step includes checking for irregular sampling intervals caused by dropped frames or variations in the effective sampling rate. Proper handling of the time data is essential for reliable frequency analysis and controller tuning.
+Finally, the time information, originally stored as a microsecond counter, is converted into a uniform time base. By evaluating the time differences between samples, irregular sampling caused by dropped frames or variations in the effective sampling rate can be detected. Proper handling of the time data is essential for reliable frequency analysis and controller tuning \parencite{bf_UnshigRes}.
 
+\subsubsection{Spectrum and Spectrogram Analysis}
 
-By checking the time differences between samples, logging issues such as dropped frames or small changes in the sampling rate can be detected.
-Correct time handling is essential for all later analysis steps, such as frequency calculations or controller tuning. \parencite{bf_UnshigRes}.
+Spectrum and spectrogram analysis are powerful tools for understanding how a system behaves across different frequencies. The spectrum decomposes a signal into its frequency components, indicating which frequencies are dominant and which are attenuated. This allows resonances, noise contributions, and the effectiveness of filtering stages to be identified.
+
+The recorded data logs provide two types of gyroscope signals. On the one hand, the signal \texttt{gyroADC} is available; on the other hand, the signal \texttt{unfiltered\_gyroADC} is recorded. The difference between these two signals is that the \texttt{gyroADC} signal has already passed through the internal Betaflight filtering stages, whereas the \texttt{unfiltered\_gyroADC} signal represents the raw data directly measured by the gyroscope sensor without any filtering applied, as illustrated in Figure~\ref{fig:gyro_filtered_vs_unfiltered}.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\linewidth]{Images/Control_Gyro.png}
+    \caption{Filtered versus unfiltered gyroscope signal}
+    \label{fig:gyro_filtered_vs_unfiltered}
+\end{figure}
+
+Transforming both signals into the frequency domain reveals how the internal filters affect the signal content. The filtered signal exhibits reduced high-frequency noise and attenuated frequency components in the ranges where the filters are active, while the unfiltered signal contains stronger high-frequency noise and structural resonances.
+
+The spectrogram extends this analysis by illustrating how the frequency content of a signal evolves with thrust. By grouping FFT segments into bins based on throttle or attitude angle, it becomes possible to observe how the system dynamics change under different flight conditions. This representation is particularly useful for analyzing operating-point-dependent behavior and assessing system performance throughout the flight envelope.
+
 
 \subsubsection{Estimation of Frequency Response Including Rotational Filtering}
 
@@ -230,7 +244,7 @@ In practical applications, measurement data is often contaminated by noise, whic
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.7\textwidth]{Images/Freq_Blockschalt.png}
+\includegraphics[width=0.5\textwidth]{Images/Freq_Blockschalt.png}
 \caption{System model including measurement noise}
 \label{fig:system_noise}
 \end{figure}
@@ -247,7 +261,7 @@ Subsequently, the frequency response is estimated using the filtered output sign
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=1.0\textwidth]{Images/segmentation.png}
+\includegraphics[width=0.65\textwidth]{Images/segmentation.png}
 \caption{Segmentation of a signal into overlapping windows}
 \label{fig:segmentation}
 \end{figure}
@@ -362,6 +376,23 @@ C_{\mathrm{PI,new,new}}(\omega) &= C_{\mathrm{PI,new}}(\omega) \cdot C_{\mathrm{
 \end{align}
 
 The resulting compensated controller transfer functions are then reinserted into the closed-loop system for further analysis and evaluation.
+
+\subsubsection{Step Response}
+The step response provides a direct view of how the system reacts to sudden changes in the input signal. Unlike the transfer function, which describes the system behavior in the frequency domain, the step response is defined in the time domain and therefore offers intuitive insight into the transient behavior of the system.
+
+To obtain the step response, the closed-loop transfer function must be transformed back into the time domain. This is achieved by applying the inverse Fourier transformation to the output spectrum
+\begin{equation}
+y(t) = \mathcal{F}^{-1}\{Y(\omega)\}
+     = \mathcal{F}^{-1}\{G_{yr}(\omega)\cdot R(\omega)\}.
+\end{equation}
+
+Using the convolution theorem, this expression can be interpreted in the time domain as a convolution of the system’s impulse response $g_{yr}(t)$ with the input signal $r(t)$:
+\begin{equation}
+y(t) = (g_{yr} * r)(t)
+     = \int_{0}^{t} g_{yr}(\tau)\, r(t-\tau)\, d\tau.
+\end{equation}
+
+For a step input, this convolution illustrates how the system accumulates the effect of its impulse response over time, leading to the characteristic shape of the step response.
 
 
 \newpage
