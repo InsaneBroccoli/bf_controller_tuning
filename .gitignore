@@ -38,7 +38,7 @@ latex/*.bbl
 *.dvi
 *.ps
 
-# Final PDF (Optional: uncomment the line below if you DON'T want to commit PDFs)
+# Final PDF
 latex/*.pdf
 
 # Glossaries
