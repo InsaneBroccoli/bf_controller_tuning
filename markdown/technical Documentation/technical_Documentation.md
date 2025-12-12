@@ -118,6 +118,37 @@ if none of the above is true the ...
 
 # 3. Theory
 
+## 3.1 Control System and Signal Processing
+
+This section provides an overview of the key concepts and methods used in the analysis and tuning of the Betaflight flight controller. It covers the essential aspects of signal processing, control system identification, and evaluation techniques that form the basis for optimizing controller performance. However, for a deeper understanding of the theoretical background and mathematical derivations, please refer to the detailed documentation available in the GitHub repository.
+
+## Betaflight Gyro Control System
+
+Corrosponding to the Betaflight source code, we rebuilt the control system structure in our code, as shown i a simplified way in Figure xx. This was necessary to calculate the signal back a
+
+<p align="center">
+  <img src="../Frequency_Response/Images/Regelstrecke.png"
+     alt="Regelstrecke"
+     width="800"
+     style="float:center; margin-left:20px; margin-right:20px;
+     margin-top:20px;">
+     Figure xx: Betaflight Gyro Control System
+
+## 3.1.1 Chirp Signal
+
+
+## 3.1.2 Chirp Signal on Drone
+
+
+## Data Import and Preprocessing
+
+To analyze Betaflight Blackbox logs effectively, the data must first be imported and preprocessed. This involves several key steps to ensure that the raw flight data is clean, correctly scaled, and formatted for further analysis. Each log consists of a header with metadata, such as filtersettigs and PID values, and a data block containing the recorded signals. Both parts are essential for understanding the context of the flight data.
+
+To reduce computational effort, the raw CSV log files are converted into a `.mat` format. This allows for faster loading times during analysis. Additionally, signal names are automatically mapped to their corresponding data columns, simplifying the identification and usage of specific signals later in the process. Betaflight's High Resolution Mode multiplies certain signals by 10 to optimize storage and minimize numerical errors during recording. During preprocessing, these signals must be rescaled to their original values to ensure accurate analysis.
+
+Finally, the time data, originally stored as a microsecond counter, is converted into a consistent format. This step also involves checking for irregularities in sampling intervals, such as dropped frames or variations in the effective sampling rate. Proper handling of time information is crucial for accurate frequency analysis and controller tuning.
+
+
 ## 3.1 signal processing
 
 Signal processing in Betaflight Blackbox logs is the process of turning raw flight data into clear, usable information for in-depth analysis. These logs capture detailed data about a flight controller's performance, including stick inputs, gyro data, PID responses, and motor outputs. While the logs themselves can seem complex, tools like the [Betaflight Blackbox Explorer](https://blackbox.betaflight.com/) simplify the data, providing visualizations and insights that make troubleshooting, tuning, and system performance evaluation more accessible.
@@ -143,6 +174,26 @@ In a Betaflight log, time is stored as a growing microsecond counter, not as reg
 By checking the time steps between samples, you can find logging errors like dropped frames or slight changes in the real sampling rate. Correctly handling the time information is very important for further analysis, like frequency calculations or tuning the controller. For a clearer explanation, see the [Convert_and_evolution_Time documentation](https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Data/Convert_and_evolution_Time.md).
 
 ---
+
+### Estimation of Frequency Response including Rotational Filtering
+
+To get the frequency response of a system from input and output data, you need transform the signals into the frequency domain. This is done using the Fast Fourier Transformation (FFT). After that, you can calculate the frequency response by dividing the output FFT by the input FFT.
+
+$G_{xy}(ω) = \frac{FFT(y)}{FFT(x)}
+
+However, real-world data often contains noise that can disorting the frequency response estimation. As you see in figure xx, after u(t) and before y(t), noice is added to the system. This noise can come from various sources, such as sensor inaccuracies, environmental disturbances, or electronic interference. If not properly handled, this noise can lead to misleading results in the frequency response. In the program, we use the function'apply_rotfiltfilt' to reduce the impact of noise on the estimation.
+
+Figure xx: System with noise
+
+To improve the robustness of the frequency response estimation against noise, advanced signal processing techniques are applied. One effective method is the use of rotational filtering, in which the output signal is shifted to the baseband where it gets filtered before being shifted back to its original frequency range. The shifting is done by multiplying the signal with a complex exponential function that corresponds to the chirp frequency at each time point.
+
+$y_{rot}(t) = y(t) \cdot e^{-j2\pi f_{chirp}(t)t}
+
+After shifting to baseband, a zero-phase filter is applied to remove unwanted frequency components. This filtering step is crucial for eliminating noise while preserving the integrity of the signal. Once filtered, the signal is shifted back to its original frequency.
+
+After that, in the function 'Estimate Frequency Response', the frequency response is calculated using the filtered output signal. First the signal get split into overlapping segments, as shown in figure xx , then a window function (Hann) is applied to each segment to reduce spectral leakage.  The FFT is computed for each segment, and the results are averaged to obtain a smooth and reliable estimate of the frequency response.
+
+Figure xx: Segmentation of a Signal
 
 ### Application of Rotational Filtering (Apply Rotfiltfilt)
 
@@ -171,13 +222,57 @@ The resulting data is not only accurate but also robust, making it suitable for 
 </p>
 
 
+
 ## 3.2 control system
 
 The control system is a vital component of any flight controller, ensuring stability and precision in drone operation. This section focuses on the steps required to understand, analyze, and tune the controller's behavior. Each part of this process is designed to help refine the system, improving its overall performance and responsiveness.
 
+
+### Estimating Transfer Function
+
+In a closed loop control system, the plant is the physical system that we want to control, for example the movement of a drone. To tune a controller, we need to understand how the plant behaves.
+When the system is running in closed loop, this becomes difficult. The output is fed back through the controller and changes the input signal all the time. Because of this, the input is no longer independent and already contains the controller reactions.
+
+If we try to measure the transfer function directly from input to output in this situation, the result will not show the real behaviour of the plant. Instead, it will show a mix of the plant, the controller and the feedback.
+Figure xx shows a simplified closed loop structure.
+
+Figure xx: Closed loop system
+
+To solve this problem, we need to use the relationships between the different transfer functions in the control loop. Therefore, we have to calculate:
+
+$G_{yr}(ω) = \frac{FFT(y)}{FFT(r)} = \frac{CP}{1+CP}$ $\qquad$ $G_{ur}(ω) = \frac{FFT(u)}{FFT(r)}= \frac{C}{1+CP}$
+$⇒ P(ω) = \frac{G_{yr}(ω)}{G_{ur}(ω)} $
+ 
+So we can reconstruct the plant transfer function \( P(\omega) \) from closed-loop measurement data without opening the control loop during the experiment. If you want to learn more about this process, please have a look in the document [Estimate Transfer Function documentation]()
+
+
 ### Estimating the Transfer Function
 
 To understand how the system reacts to different inputs, the transfer function of the plant must be estimated. This process allows the behavior of the system to be reconstructed from closed-loop data. Without needing to open the control loop, it becomes possible to identify how the system transforms input signals into outputs. This insight is critical for identifying system dynamics and ensuring that the controller parameters match actual system behavior. More details can be explored in the [Estimate Transfer Function documentation](https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/Estimate_Transferfunction_Plant.md).
+
+### Calculating Closed Loop
+
+With the calculation of the plant transfer function, the next step is to determine how the the system behaves as a whole when a new controller is applied. This involves calculating the closed-loop transfer functions, how sensitive the system is to disturbances, how well it rejects disturbances and how strong the controller efforts are. These calculations provide insight into the overall system stability and performance. As a example, we caculate this parameters for the closed loop shown in Figure xx.
+
+Figure xx: Closed loop system
+
+To get the closed-loop transfer functions, we use the following formulas:
+
+$G_{yr}(ω) = \frac{CP}{1+CP}$
+
+The sensitivity function:
+
+$S(ω) = \frac{1}{1+CP}$
+
+The compliance:
+
+$CC(ω) = P(ω) \cdot S(ω)$
+
+The controller effort:
+
+$SC(ω) = C(ω) \cdot S(ω)$
+
+
 
 ### Calculating the Closed Loop
 
@@ -198,7 +293,32 @@ Filters and controllers form the foundation of a control loop. Filters are respo
 
 ### Compensating the I-Term
 
-The integral term in a PID controller addresses long-term errors, ensuring steady corrections over time. However, it can become problematic during quick stick movements, where it may overcorrect and destabilize the system. To avoid this, compensation methods adjust the influence of the I-term based on the situation, suppressing it during rapid changes while allowing it to integrate errors during slower movements. This approach helps maintain both precision and responsiveness. Have a look at [Compensate I-Term documentation](https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/Compensate_Iterm.md) to see how we added compensation to the calculation.
+### Compensation of the I-Term
+
+The integral term of a PID controller is used to compensate for steady-state errors by integrating the control error over time. In flight control systems, this helps to counteract constant disturbances such as motor imbalances or aerodynamic effects. During fast stick movements or aggressive maneuvers, however, the integral term can accumulate too much error.
+
+In these situations, the accumulated I-term no longer represents a disturbance but instead opposes the intended motion. When the maneuver ends, this can lead to overshoot, bounce-back effects, or slow settling of the system.
+
+To reduce these effects, Betaflight uses a feature called **I-Term Relax**. This mechanism temporarily limits the integration of the I-term when rapid changes are detected. Depending on the configuration, these changes are identified either from the control setpoint or from the measured gyroscope signal. When the detected change exceeds a defined threshold, the I-term integration is reduced or paused.
+
+This allows the controller to respond quickly to fast pilot inputs while preventing excessive buildup of the integral term. During slower movements and steady operation, normal integration is restored. As a result, I-Term Relax improves flight behavior by reducing overshoot and bounce-back while maintaining good disturbance rejection.
+
+For analysis and controller tuning, the effect of I-Term Relax must be considered, as it modifies the controller behavior depending on the current flight conditions.
+
+![Simplified control loop including I-Term Relax](Images/Control_Loop_Iterm.png)
+
+In our programm however, we do not recreate the I-Term Relax algorithm. Instead, we compare the estimated transfer function of the controller to the measured transfer function of the controller. 
+
+$$
+C_{PI,com} = \frac{C_{PI}}{C_{PI,ana}}
+$$
+
+This factor is then applied to both the original analytical PI controller and the new PI controller design.
+$$
+C_{PI,ana,new} = C_{PI,ana} \cdot C_{Pi,com} \qquad
+C_{PI,new,new} = C_{PI,new} \cdot C_{Pi,com}
+$$
+These newly calculated controllers must then be included again in the closed-loop system.
 
 ## 3.3 Evaluation
 
@@ -233,13 +353,30 @@ The different filter where created according to the documentation [Filter and Co
 For the transfer function of the plant we used a simplified version out of PT `??` elements and dead time, based on the approaches form the documentation [Calculation Closed Loop](../Frequency_Response/CalculateClosedLoop.md).
 In addition to the MATLAB code, we created a Simulink model, in which we tested the step response of our simulation of the Betaflight control system. The simulated answer got close to the step response of the real drone. For us, this was the confirmation, that we got the controller order correct.
 
+### Simulation of Betaflight Controller Order
+To better understand the Betaflight control architecture and its internal components, we reconstructed the complete control structure in MATLAB. The objective was to simulate the step response of the system using the same PID parameters and filter settings as on the actual drone.
+
+In the first step, we implemented the various filters according to the official documentation Filter and Controller (../Frequency_Response/Filter_and_Controller.md). For each filter type, we created continuous and discrete versions, allowing us to compare their behavior directly. This comparison is illustrated in Figure xx.
+
+Figure xx: Comparison of continuous and discrete filters
+
+Next, we implemented the PI and D controllers following the same principles. For the plant model, we used a simplified structure composed of PT1 elements and a dead time, resulting in a transfer function that approximates the real system dynamics. The resulting simplified plant is shown in Figure xx.
+
+Figure xx: Simplified plant model
+
+All components were then integrated into a complete Simulink model of the Betaflight control loop, shown in Figure xx. With this setup, we simulated the system’s step response. An additional goal of this simulation was to understand which signals in the Blackbox log correspond to specific states within the control loop. 
+
+Figure xx: Simulink model of the Betaflight control system
+
+The simulated step response, shown in Figure xx, closely matched the response of the real drone. This confirmed that our implementation accurately captured both the structure and the dynamic behavior of the Betaflight control system. The exercise therefore served as an important validation of our understanding and provides a solid foundation for further analysis, such as controller tuning, filter evaluation, and frequency response studies.
+
+Figure xx: Simulated step response
+
+
 ### 4.1.2 Simulation PID Controller
 
 To deepen our understanding of the different controller components, we created an additional MATLAB script. It allowed us to combine different controller types with simple plant models. In the program you can switch between P, I, PI, PD and PID controllers, and between basic plant types. Through this, we were able to observe how each controller component influences the overall system behaviour.
 The script calculates the open and closed loop of the chosen settings and generates Bode plots, Nyquist diagrams and step responses. This helped us to understand and visualize the effect of each component. Trough that, our overall understanding of contoller behaviour significantly improved.
-
-
-Fore example, in the plot you see the frequency response of a PID controller. The value Kp lays at 100, if you transfer the 100 into dB you get 40dB. This is exactly the value you see in the bode plot at the middle frequencies of the plot. The Ki part is responsible for the slope of -20db/decade at low frequencies and the Kd part for the slope of +20db/decade at high frequencies. 
 
 
 ### 4.1.3 Simulation Frequency Response
@@ -249,15 +386,76 @@ First, we calculated a basic frequency response using the plain Fast Fourier Tra
 In the next step we implemented a rotated-signal approach, where the chirp is demodulated to baseband before filtering. For this part we used the zero-phase filtering method apply_rotfiltfilt, as described in the documentation [Apply Rotfiltfilt](../Frequency_Response/ApplyRotfiltfilt.md). After that we compared the orignal bode plot to the signal processed one `??`, to see how the rotation technique improves the noise robustness.
 Overall, this script helped us understand how noise affects the estimated transfer function and how we can increase the robustness of the signals.
 
+### 4.1.3 Simulation Frequency Response
+
+To analyse the frequency response of a system based on input and output data, we created an additional simulation. In this simulation, we generated a chirp signal. Just like in a real system, we added noise to the system at the input and output to simulate realistic measurement conditions. Out of these signals we tried to get as close to the original system transfer function as possible. In Figure xx, you can see the control loop.
+
+Figure xx: Control loop of the simulation
+
+Same as in the real system, we could not directly measure we could not measure the plant without the noise. So we had to measure u(t) and y(t) and estimate the transfer function from these signals and not u_tilde(t) and y_tilde(t) which would allow us to calculate the transfer function directly. The different signals are shown in Figure xx.
+
+Figure xx: Input and output signals with noise
+
+If we would calculate the transfer function directly from the noisy signals using a plain FFT, we would get a very poor estimation as shown in Figure xx. The noise distorts the frequency response significantly.
+
+Figure xx: Bode plot estimated with plain FFT
+
+To improve this poor estimation, we applied different signal processing methods. First, we used the Welch method to improve the estimation by averaging over overlapping segments. The implementation of the Welch Frequency Response Function (FRF) follows the theory described in the documentation [Estimate Frequency Response](../Frequency_Response/estimate_frequency_response.md). This allowed us to compare the plain FFT approach with the more robust Welch estimator. The result is shown in Figure xx.
+
+Figure xx: Bode plot estimated with Welch method
+
+In the next step we implemented additionally a rotated-signal approach, where the chirp is demodulated to baseband before filtering. For this part we used the zero-phase filtering method apply_rotfiltfilt, as described in the documentation [Apply Rotfiltfilt](../Frequency_Response/ApplyRotfiltfilt.md). After that we compared the original bode plot to the signal processed one, as shown in Figure xx, to see how the rotation technique improves the noise robustness.
+
+Figure xx: Bode plot estimated with rotated Welch method
+
+### 4.1.3 Simulation Spectra
+
+To better understand the different components use to create a meaningful spectrum, we developed a simulation based on the system used in the given code. In this script we generated a noisy sinusoidal input signal out of which we created different spectra. In one case we applied a window function and in the other we did not use any window as shown in Figure xx.
+
+Figure xx: Spectrum with and without windowing
+
+In the next step, we compared the frequency spectrum of the signal without and with the window. As shown in Figure~xx, the spectrum without windowing exhibits significant spectral leakage, which can be identified by the strong spreading of energy around the main frequency peak and the presence of multiple side peaks that distort the true frequency content of the signal. In contrast, the spectrum with the Hann window applied shows strongly reduced leakage, resulting in a clearer and more accurate representation of the signal’s frequency components.
+
+Figure xx: Comparison of spectra with and without windowing
+
+In the last step we split the signal into several overlapping segments, as described in the documentation [Spectra Analysis](../Spectrum_Spectogram/Spectra_Analysis.md). By averaging across segments, we were able to observe how this method reduces noise and stabilises the resulting spectrum. The implementation is described in detail in the document [Spectra Analysis](../Spectrum_Spectogram/Spectra_Analysis.md).
+
+Figure xx: Spectrum with segment averaging
+
+
 ### 4.1.4 Simulation Spectra
 
-To better understand the different components use to create a meaningful spectrum, we developed a simulation based on the system used in the given code. In this script we generated a noisy sinusoidal input signal out of which we created different spectra. In one case we applied a window function and in the other we did not use any window. By splitting the signal into several overlapping segments, we were able to observe how averaging across segments reduces noise and stabilises the resulting spectrum. The implementation is described in detail in the document [Spectra Analysis](../Spectrum_Spectogram/Spectra_Analysis.md).
-Overall, this exercise helped us understand how windowing, overlap and segment length affect the spectral estimation. Also how these methods can increase robustness and reduce spectral leakage.
+We developed a simulation to examine the different components used to create a meaningful spectrum, based on the system used in the existing code. 
+In this script, we generated a noisy sinusoidal input signal from which we created different spectra. 
+In one case, we applied a window function, while in the other we used no window at all. 
+By splitting the signal into several overlapping segments, 
+we observed how averaging across segments reduces noise and stabilises the resulting spectrum. 
+The implementation is described in detail in the document 
+\href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Spectrum_Spectogram/Spectra_Analysis.md}{Spectra Analysis}.
+This exercise helped us understand how windowing, overlap, and segment length affect spectral estimation, 
+as well as how these methods can increase robustness and reduce spectral leakage.
 
 ### 4.1.5 Simulation Spectogram
 
 For better understandig of the analysis how the frequency content of the excitation signal changes with both time and thrust, we developed an further MATLAB simulation. In this script, we generated a noisy sinusoidal input signal and a slowly varying thrust signal. The input signal is then split up in different segments and windowed with a Hann window. After this the signal is transformad using the FFT in order to obtain a time-frequency representation.
 At first, we arranged the segment spectra along the time axis and in e second step, along the thrust levels. So we got two spectrograms, one is showing the amplitude over frequency and time, and the other one is showing us the amplitude over frequency and thrust. Through this visualisation, we can identify the dominant frequency components depending on thrust. The underlying method is described in detail in the document [Spectrogram Analysis](../Spectrum_Spectogram/Spectogram_Analysis.md).
+
+
+### 4.1.5 Simulation Spectrogram
+
+To better understand how the frequency content of an excitation signal changes with both time and thrust, we developed a MATLAB simulation. In this script, we generated a noisy sinusoidal input signal alongside a slowly varying thrust signal. To reduce spectral leakage, a Hann window was applied to on the input signal. All this different signals are shown in the Figure xx.
+
+Figure xx: Input Signal
+
+In the next step, we segmented the input signal and transformed it using the FFT to obtain a time-frequency representation. We arranged the segment spectra along the time axis and, in a second step, along the thrust levels. This resulted in two spectrograms: one showing amplitude over frequency and time, and the other showing amplitude over frequency and thrust, as shown in Figure xx.
+
+Figure xx: Spectrograms over time 
+
+To recreate the spectrogram over thrust, we binned the segments based on their corresponding thrust values. By averaging the spectra within each bin, we obtained a clear representation of how frequency content varies with thrust. This method is detailed in the document [Spectrogram Analysis](../Spectrum_Spectogram/Spectogram_Analysis.md). The spectogram of this example is shown in Figure xx.
+
+Figure xx: Spectrogram over thrust
+
+
 
 ## 4.2 Building an FPV drone
 Besides the understanding of the code and further developing the proof of concept, building a drone and set it up correctly bridges the gap between the digital domain, where algorithms and simulations are developed and the physical reality of drone operation. By getting in touch with the hardware, it is easier for us to understand what practical challenges exist for pilots and the community.
