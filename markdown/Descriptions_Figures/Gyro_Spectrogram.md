@@ -1,32 +1,56 @@
-# Gyro Spectogram
+# Gyro Spectrogram
 
-The spectrograms show how the gyro noise is applyed over frequency and throttle for all three axes, once without and once with filtering. This makes the plots very useful to understand how the drone behaves over the whole throttle range and how effective the filters are.
-Spectrograms are useful because they show how noise develops across throttle and frequency. In the unfiltered data, the characteristic noise patterns become visible, including the areas where motor harmonics and other disturbances dominate. These regions are important to identify because they represent the frequencies that can interfere with the PID controller and therefore need to be handled by the filters.
-After filtering, spectrograms make it easy to see how effectively the filter configuration suppresses these noise regions. They help determine whether the filters are strong enough to reduce high-frequency disturbances while still preserving the lower-frequency components that contain the meaningful control information. This makes spectrograms an important tool for checking filter settings and ensuring a good balance between noise reduction and control responsiveness.
+Spectrograms provide a powerful visualization of how gyro noise changes across both frequency and throttle. They display frequency on the horizontal axis, throttle percentage on the vertical axis, and use color intensity to show the strength of vibrations at each point.  This three-dimensional view makes it easy to identify noise patterns, understand how they evolve with motor speed, and evaluate filter effectiveness. 
 
-## What You Should Look For
+By comparing unfiltered and filtered spectrograms, you can see exactly which frequencies are problematic and how well your filter configuration addresses them. This makes spectrograms one of the most valuable tools for optimizing filter settings and achieving clean, responsive flight performance.
 
-You should pay attention to:
+---
 
-- **Where the noise band appear and how they move with throttle.** This will help you to identifiy the frequency ranges that filters must convert.
-- **At which frequencies the filtering becomes effective.** You can see whether the filters reduce the noice as expected.
-- **How strong the noise is across the throttle range.** This indicates if addtional filtering is needed.
-
-## How the Spectograms Guide Filter Seeting
-
-These plot will help you to decide:
-
-- **IWhether an RPM filter is needed:** If you see motor-related harmonics — smooth, upward-moving, parallel lines that shift with throttle, you should enable an RPM filter.
-- **How wide the dynamic notch filter should be** since the spectrogram shows how far the noise band moves under load.
-- **Whether a fixed gyro notch is useful or not** if a strong noise band stays at the same frequency regardless of throttle.
-
-## Why This Plot is Relevant
-
-Spectograms give the user a full overview of how the drone behaves at different frequency and different thrust. This helps to ensure that filters are set when need, but not to over filtering the system. This lead to a smoother flight, cooler motors and more responsive control.
+## Understanding Spectrogram Patterns
 
 <p align="center">
   <img src="./Images/Gyro_Spectograms.jpg"
-     alt="Original noisy signals"
+     alt="Gyro spectrograms showing noise patterns across frequency and throttle"
      width="1000"
      style="float:center; margin-left:10px; margin-right:10px;">
 </p>
+
+
+The color shows the signal intensity:
+- **Red** indicates high noise levels
+- **Dark blue** indicates low noise levels
+
+### Vertical Lines (Resonances of the frame)
+Vertical lines that remain at a constant frequency across all throttle levels typically indicate **frame resonances** or vibrations from loose components. These are mechanical issues where the frame, arms, or mounting hardware vibrate at their natural resonant frequency regardless of motor speed.
+
+**What to do:** Consider using a **static gyro notch filter** at the resonant frequency, or address the mechanical issue by tightening screws, adding dampening material, or reinforcing weak points in the frame.
+
+### Diagonal Lines Moving Upward (Motor Harmonics)
+Smooth diagonal lines that move upward with increasing throttle represent **motor frequencies and their harmonics**. As throttle increases, motor RPM increases, causing these noise bands to shift to higher frequencies. Multiple parallel diagonal lines show the fundamental motor frequency and its multiples (2x, 3x, 4x, etc.).
+
+**What to do:** The most effective way to filter this, is with the **RPM filter**. To enable this you need bidirectional DSHOT. The RPM filter uses real time RPM data to track motor frequencies and removes them precisely across the entire throttle range.
+
+
+### Diagonal Lines Moving Downward (Aliasing)
+When sampling a signal that contains frequencies higher than half your sampling rate, aliasing can occur. This causes high-frequency content to appear as lower frequencies, corrupting the measurement data.
+
+**What to do:** Use a static lowpass filter. The cutoff frequency should not be higher than half the sampling frequency. 
+For example, if your logging frequency is 2 kHz, the cutoff frequency should be less than 1 kHz. To be safe, set it, for example, to 800 Hz.
+
+
+
+After filtering, you want to see mostly darkblue colors except at very low frequencies where real control inputs occur. (See filtered plots in the figure above)
+
+## Why Spectrograms Are Essential
+
+Spectrograms provide a complete overview of how the drone behaves across different frequencies and throttle levels. This ensures that filters are applied where needed without over-filtering the system, leading to:
+
+- Smoother flight with reduced oscillations
+- Cooler motors and improved efficiency
+- More responsive control without noise-induced instability
+- Longer motor and component lifespan
+
+
+## Sources
+
+[Betaflight Wiki - Power and Spectral Density charts](https://www.betaflight.com/docs/wiki/guides/current/BBE-Power-Spectral-Density-charts)
