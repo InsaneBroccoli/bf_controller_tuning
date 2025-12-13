@@ -16,6 +16,13 @@ Recommended filters:
 The gyro spectra are very important because they show how much noise and vibration the drone produces at different frequencies. This helps you understand which parts of the signal are useful for control and which parts need to be filtered out. By looking at the spectra, you can clearly see the motor harmonics, frame vibrations, and other noise peaks that could disturb the PID controller.
 When analysing the spectra, you should pay attention to:
 
+<p align="center">
+  <img src="./Images/Gyro_Spectra.jpg"
+     alt="Original noisy signals"
+     width="1000"
+     style="float:center; margin-left:10px; margin-right:10px;">
+</p>
+
 - **Resonance peaks:** If all three gyro axes show a peak at the same frequency, it often means a frame or propeller resonance. In this case, a fixed notch filter can be very helpful.
 - **Noise floor:** A high noise floor means a lot of general vibration or bad filtering. A clean noise floor indicates that the filters are working well.
 - **Axis differences:** If one axis is much noisier than the others, it may indicate mechanical issues like a bent motor shaft, unbalanced prop, or loose screws.
@@ -24,11 +31,23 @@ By combining the spectra with the filter settings, you can choose filters that k
 
 ## Axis Sum Spectra
 
-A well-filtered axis-sum should drop below 1 shortly after the motor frequency range and stay there. This shows that the drone is running smoothly and that vibrations and noise are well under control. You should also look for any strong peaks or a raised noise floor, as these can indicate resonances, unbalanced motors, or general issues with vibrations. A clean axis-sum means the system is stable and the filters are working correctly.
+The Axis Sum spectra display, for each frequency, the **summed PID controller outputs for each axis (Roll, Pitch, Yaw)**. In Blackbox log analysis, the Axis Sum is **not** a direct recording from the flight controller, but a computed field created by adding all relevant control terms associated with each axis. Specifically, for each axis, the following terms are summed:
 
-<p align="center">
-  <img src="./Images/Gyro_Spectra.jpg"
-     alt="Original noisy signals"
-     width="1000"
-     style="float:center; margin-left:10px; margin-right:10px;">
-</p>
+- Proportional (P)
+- Integral (I)
+- Derivative (D)
+- Feedforward (F)
+- Setpoint weighting or smoothing (S, if present)
+
+The Axis Sum represents the total control effort the flight controller applies to each axis (Roll, Pitch, Yaw) at any moment. Looking at the spectra, these traces show how much the controller needs to correct for vibrations, oscillations, or aggressive maneuvers. Low values mean the drone is running smoothly with little intervention, while high values at certain frequencies highlight issues where the controller is fighting disturbances or instability.
+
+The formula used by Blackbox log viewers is:
+```
+axisSum[axis] = axisP[axis] + axisI[axis] + axisD[axis] + axisF[axis] + axisS[axis]
+```
+For a well-tuned drone, Axis Sum amplitudes should be low across all frequencies except near the motor bands, where more control output is naturally needed. Spikes or an elevated noise floor in the Axis Sum indicate that the flight controller is working unusually hard—this can point to tuning problems, mechanical issues, or poor filtering.
+
+## Source 
+The calculation and field logic for Axis Sum are implemented in the Betaflight Blackbox Log Viewer project, specifically in the [`injectComputedFields()`](https://github.com/betaflight/blackbox-log-viewer/blob/7de89d7f92904b3aab8d20a47f432c30e2871ea9/src/flightlog.js#L859-L889) function:
+> axisSum[axis] = axisP[axis] + axisI[axis] + axisD[axis] + axisF[axis] + axisS[axis]  
+> (with a PID sum limit if defined; computed per axis for every log entry)
