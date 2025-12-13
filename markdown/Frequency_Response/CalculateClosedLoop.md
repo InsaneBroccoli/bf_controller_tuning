@@ -1,8 +1,7 @@
 # Closed-Loop Analysis
 
 The goal of the function `calculate_closed_loop` is to calculate the differnt parts of the complete closed-loop control system, including its transfer functions, sensitivity functions, compliance and controller effort. This allows us to analyze the different parts of the control system and understand how they interact to shape the overall system behavior.  
-This structure separates the control actions into an **inner loop**  and an **outer loop**
-
+This structure separates the control actions into an **inner loop** and an **outer loop**
 
 ---
 
@@ -14,7 +13,7 @@ First wie have to calculate the transferfunction of the inner loop (path from `u
 
 $L_{in}(j\omega) = P(j\omega) \cdot G_{f}(j\omega)$ $\qquad$ $G_{yu}(j\omega) = \frac{L_{in}(j\omega)}{1+L_{in}(j\omega) \cdot G_{fD}(j\omega) \cdot C_{D}(j\omega)}$
 
-With this Information we are able to calculate the hole closed loop system. 
+With this Information we are able to calculate the hole closed loop system.
 
 $L_{out}(j\omega) = G_{yu}(j\omega) \cdot C_{PI}(j\omega)$ $\qquad$ $G_{yw}(j\omega) = \frac{L_{out}(j\omega)}{1+L_{out}(j\omega)}$
 
@@ -30,7 +29,7 @@ $L_{out}(j\omega) = G_{yu}(j\omega) \cdot C_{PI}(j\omega)$ $\qquad$ $G_{yw}(j\om
 
 ## Sensitivity
 
-The sensitivity describes how the closed-loop system reacts to disturbances and noise. To achieve good disturbance rejection and accurate reference tracking, the sensitivity should be low at low frequencies, while higher sensitivity at high frequencies helps to avoid noise amplification and maintain robustness [1, pp. 35–39][2, pp. 192–196].
+The sensitivity describes how the closed-loop system reacts to disturbances and noise. To achieve good disturbance rejection and accurate reference tracking, the sensitivity should be low at low frequencies, while higher sensitivity at high frequencies helps to avoid noise amplification and maintain robustness [1][2].
 
 To calculate the sensitivity functions of the inner and outer loop, we use the following formulas:
 
@@ -40,26 +39,25 @@ $S_{in}(j\omega) = \frac{1}{1+L_{in}(j\omega)}$ $\qquad$ $S_{out}(j\omega) = \fr
 
 ## Controller Effort
 
-The controller effort indicates how much effort the controller has to exert to maintain the desired system performance. It is important to monitor this value to ensure that the controller does not exceed its physical limits, which could lead to instability or damage to the system. [1, pp. 150–160][2, pp. 250–260].
+The controller effort indicates how much effort the controller has to exert to maintain the desired system performance. It is important to monitor this value to ensure that the controller does not exceed its physical limits, which could lead to instability or damage to the system [1][2].
 
 The controller effort can be calculated using the following formula:
 
 $SC(j\omega) = C_{PI}(j\omega) \cdot S_{out}(j\omega)$
 
-
 ---
 
 ## Compliance
 
-The compliance describes how the system responds to external disturbances or changes in the reference input. A high compliance indicates that the system is able to adapt quickly to changes, while a low compliance indicates that the system is more rigid and less responsive. [1, pp. 170–180][2, pp. 270–280].
+The compliance describes how the system responds to external disturbances or changes in the reference input. A high compliance indicates that the system is able to adapt quickly to changes, while a low compliance indicates that the system is more rigid and less responsive [1][2].
 
 The compliance can be calculated using the following formula:
 
-$CC(j\omega) = G_{yu}(j\omega) \cdot S_{out}(j\omega)$
+$SP(j\omega) = G_{yu}(j\omega) \cdot S_{out}(j\omega)$
 
 ---
 
-**References**
+## References
 
-[1] Pintelon, R., & Schoukens, J. (2012). *System Identification: A Frequency Domain Approach* (2nd ed.). Wiley-IEEE Press.  
-[2] Hayes, M. H. (1996). *Statistical Digital Signal Processing and Modeling*. Wiley.
+[1] R. Pintelon, J. Schoukens, *System Identification: A Frequency Domain Approach*, 2nd ed., Wiley-IEEE Press, 2012, **pp. 35–39, 150–180.**  
+[2] M. H. Hayes, *Statistical Digital Signal Processing and Modeling*, Wiley, 1996, **pp. 192–196, 250–280.**
