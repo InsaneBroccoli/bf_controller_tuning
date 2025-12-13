@@ -26,8 +26,8 @@ do_insert_legends = true;
 % =========================================================================
 
 log_folder = 'logs';
-flight_folder = '20251212';
-log_name = '06_20251212_OvershootExpress.TXT.csv';
+flight_folder = '20251208';
+log_name = '01_20251208_OvershootExpress.csv';
 file_path = fullfile(log_folder, flight_folder, log_name);
 
 data_flight = flight_data(file_path);
@@ -91,14 +91,21 @@ para_new.gyro_soft_type      = 0;       % type of gyro lpf 1
 para_new.gyro_lowpass_dyn_hz = [0, 0];  % dyn gyro lpf overwrites gyro_lowpass_hz
 para_new.gyro_lowpass2_hz    = 800;     % frequency of gyro lpf 2
 para_new.gyro_soft2_type     = 0;       % type of gyro lpf 2
-para_new.gyro_notch_hz       = [0, 0];  % frequency of gyro notch 1 and 2
-para_new.gyro_notch_cutoff   = [0, 0] % % Cutoff frequency gyro notch 1 and 2
+para_new.gyro_notch_hz       = [200, 0];  % frequency of gyro notch 1 and 2
+
+% Gyro notch cutoff:either computed from D and center frequency or set manually
+para_new.gyro_notch_cutoff   = get_fcut_from_D_and_fcenter([1.0, 0.00], para_new.gyro_notch_hz); % damping of gyro notch 1 and 
+% para_new.gyro_notch_cutoff   = [0, 0] % % Cutoff frequency gyro notch 1 and 2
+
 para_new.dterm_lpf_hz        = 0;       % frequency of dterm lpf 1
 para_new.dterm_filter_type   = 0;       % type of dterm lpf 1
 para_new.dterm_lpf_dyn_hz    = [0, 0];  % dyn dterm lpf overwrites dterm_lpf_hz
 para_new.dterm_lpf2_hz       = 100;     % frequency of dterm lpf 2
 para_new.dterm_filter2_type  = 3;       % type of dterm lpf 2
 para_new.dterm_notch_hz      = 0;       % frequency of dterm notch
+
+% D Term notch cutoff:either computed from D and center frequency or set manually
+% para_new.dterm_notch_cutoff  = get_fcut_from_D_and_fcenter(0.00, para_new.dterm_notch_hz); % damping of dterm notch
 para_new.dterm_notch_cutoff  = 0;     % Cutoff frequency dterm notch
 para_new.yaw_lpf_hz          = 200;     % frequency of yaw lpf (pt1)
 
@@ -142,6 +149,6 @@ plotter.plot_Spectogram(3);
 
 %% Plot Tuning Data
 %plotter.plot_Bode_Plant(ind_ax);
-%plotter.plot_Bode_Contr(ind_ax, do_insert_legends);
+% plotter.plot_Bode_Contr(ind_ax, do_insert_legends);
 plotter.plot_Gang_of_Four(do_insert_legends);
 plotter.plot_Step_Response(do_insert_legends);
