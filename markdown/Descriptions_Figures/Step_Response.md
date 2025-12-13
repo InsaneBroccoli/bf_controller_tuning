@@ -2,25 +2,26 @@
 
 ## Tracking T - Interpretation & Tuning Relevance
 
-The Tracking response show how quickly and accurately the drone follows the step command. A good tracking curve rises stepply, reaches the target without excessive overshoot, and then holds stable.
+
+The tracking response shows how quickly and accurately the drone follows the step command. A good tracking curve rises steeply, reaches the target without excessive overshoot, and then holds stable.
 
 **What matters for tuning**
 
-- **Fast rise time:**  Too slow $\rightarrow$ P or I to low
-- **Minimal overshoot:** Overshoot to high $\rightarrow$ Reduce P or increase D
+- **Fast rise time:**  Too slow $\rightarrow$ P or I too low
+- **Minimal overshoot:** Overshoot too high $\rightarrow$ Reduce P or increase D
 
-If the measured and the actual calculated does not tally, check if `do_compensate_iterm` is activated in main.
+If the measured and the actual calculated values do not match, check if `do_compensate_iterm` is activated in main.
 
 ## Compliance SP – Interpretation & Tuning Relevance
 
-The Compliance response describes how the system reacts to a disturbance step rather than a command step.
-It shows how effectively the controller rejects external disturbances.
+
+The compliance response describes how the system reacts to a disturbance step rather than a command step. It shows how effectively the controller rejects external disturbances.
 
 **What matters for tuning**
 
-- **Low peak amplitudes:** If peak is over 0.75 $\rightarrow$ P too low ord D not high enough
-- **Slow decrease:** If decrase is to slower than 0.3s $\rightarrow$ increase D-Term
-- **Unsteady course** If oscillations appear $\rightarrow$ D too low or P too high
+- **Low peak amplitudes:** If peak is over 0.75 $\rightarrow$ P too low or D not high enough
+- **Slow decrease:** If decrease is slower than 0.3s $\rightarrow$ increase D-Term
+- **Unsteady course:** If oscillations appear $\rightarrow$ D too low or P too high
 
 <p align="center">
   <img src="./Images/Step_response.jpg"
