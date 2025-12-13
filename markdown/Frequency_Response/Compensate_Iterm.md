@@ -1,23 +1,43 @@
-# Compensate Iterm
+## Compensation of the I-Term
 
-## Iterm Relax in Betaflight
+The integral term of a PID controller is used to compensate for steady-state errors by integrating the control error over time [1]. In flight control systems, this allows constant disturbances such as motor imbalances, sensor offsets, or aerodynamic effects to be counteracted. Under steady operating conditions, the I-term converges to a value that compensates these disturbances and supports accurate tracking of the commanded motion.
 
-The I-term in a PID controller is responsible for compensating long-term deviations. For example, if the drone slightly drifts away from its target angle or if an axis does not reach the desired position due to external influences, the I-term accumulates these errors and ensures that the drone eventually moves into this position.
-Iterm Relax, on the other hand, ensures that the I-term is weakened during rapid changes. During fast stick movements, large deviations occur between the stick and the gyro. However, these are completely normal and often intended by the pilot. In such cases, the I-term integrates this intentional error and overloads itself. This causes the drone to overshoot the target value.
-Iterm Relax prevents this by suppressing the I-term during fast changes, but allowing it again during slow changes. This way, the drone can perform quick angle changes, while still correcting static errors during slower adjustments.
+During fast stick movements or aggressive maneuvers, however, the control error can change rapidly and reach large magnitudes over short time intervals. If the integral term is allowed to integrate this transient error without limitation, excessive accumulation can occur. In this case, the accumulated I-term no longer represents a disturbance compensation but instead opposes the intended pilot input.
 
-## Compensate Iterm in Controller Tuning
+When the maneuver ends and the setpoint returns to a steady value, the stored integral action remains present in the controller output. This can lead to overshoot, bounce-back effects, oscillatory behavior, or a slow settling of the system. These effects are particularly noticeable in highly dynamic flight regimes [2].
 
-The I-term Relax in Betaflight is quite complex and not easy to understand just by looking at the settings. To get a simpler but still accurate idea of how it works, we first calculated the analytical PI controller response based on the original PID values. Then we compared this analytical response with the measured frequency response to see how the I-term Relax changes it.
-By comparing the two responses, we were able to determine factors at all frequencies that represent the influence of the I-term Relax. This allows us to describe the effect of the I-term Relax without needing to explicitly recreate its internal implementation.
+To reduce these effects, Betaflight uses a feature referred to as **I-Term Relax** [3]. This mechanism temporarily limits the integration of the I-term when rapid changes in the system are detected. Depending on the selected configuration, these changes are identified either from the control setpoint or from the measured gyroscope signal. When the detected change exceeds a defined threshold, the I-term integration is reduced or paused.
 
-$$
-C_{PI,com} = \frac{C_{PI}}{C_{PI,ana}}
-$$
+This approach allows the controller to respond quickly to fast pilot inputs while preventing excessive buildup of the integral term. During slower movements and steady operation, normal integration of the I-term is gradually restored. As a result, I-Term Relax improves flight behavior by reducing overshoot and bounce-back effects while maintaining good disturbance rejection in steady-state conditions.
 
-This factor is then applied to both the original analytical PI controller and the new PI controller design.
-$$
-C_{PI,ana,new} = C_{PI,ana} \cdot C_{Pi,com} \qquad
-C_{PI,new,new} = C_{PI,new} \cdot C_{Pi,com}
-$$
-These newly calculated controllers must then be included again in the closed-loop system. This is done as described in the document [Calculate Closed Loop](/CalculateClosedLoop.md).
+For analysis and controller tuning, the effect of I-Term Relax must be considered, as it introduces a condition-dependent modification of the controller behavior. Since the integration of the I-term is adjusted dynamically, the effective controller differs from an ideal linear PI controller, particularly in transient operating regions.
+
+<p align="center">
+  <img src="./Images/Control_Loop_Iterm.png"
+       alt="Compensation factor"
+       width="600">
+  <br>
+  <em>Figure: Control loop with I-Term Relax</em>
+</p>
+
+ 
+The measured controller transfer function is therefore compared with an analytically derived PI controller transfer function. The effect of the I-Term Relax algorithm, as well as other unmodeled dynamics, is implicitly included in the measurement-based result. To quantify this deviation, a frequency-dependent compensation factor is defined as the ratio between the measured PI controller transfer function `C_PI(ω)` and its analytical counterpart `C_PI,ana(ω)`:
+
+$
+C_{PI,com}(ω) = C_{PI}(ω) / C_{PI,ana}(ω)
+$
+
+This compensation factor represents the combined influence of dynamics that are not explicitly modeled, including the impact of I-Term Relax. The factor is subsequently applied to both the original analytical PI controller and the newly designed PI controller, resulting in the compensated controller transfer functions:
+
+$
+C_{PI,ana,new}(ω) = C_{PI,ana}(ω) · C_{PI,com}(ω)
+$
+
+---
+## References
+
+[1] K. J. Åström, R. M. Murray, *Feedback Systems: An Introduction for Scientists and Engineers*, Princeton University Press, 2008, **pp. 85–110.**  
+[2] G. F. Franklin, J. D. Powell, A. Emami-Naeini, *Feedback Control of Dynamic Systems*, 7th ed., Pearson, 2015, **pp. 320–350.**  
+[3] Betaflight Development Team, *I-Term Relax*, Betaflight Wiki,  
+https://github.com/betaflight/betaflight/wiki/I-Term-Relax  
+
