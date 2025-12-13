@@ -1,6 +1,6 @@
 # Function `apply_rotfiltfilt`
 
-Signals are often contaminated with noise and unwanted high-frequency components that can obscure the essential information they carry. The `apply_rotfiltfilt` function is designed to address this challenge by effectively filtering such signals while preserving their phase integrity.
+Signals are often contaminated with noise and unwanted high-frequency components that can obscure the essential information they carry. The `apply_rotfiltfilt` function is designed to address this challenge by effectively filtering such signals while preserving their phase integrity [4][5].
 
 As an example, we consider a sine wave corrupted by noise which we will filter with the `apply_rotfiltfilt`.
 
@@ -15,18 +15,18 @@ As an example, we consider a sine wave corrupted by noise which we will filter w
 
 ## 1) Frequency Shifting to Baseband
 
-`apply_rotfiltfilt` uses a mathematical technique that allows us to shift the frequency content of a signal to a baseband (around 0 Hz), apply a low-pass filter, and then shift it back to its original frequency range. This process effectively removes high-frequency noise while maintaining the phase characteristics of the original signal.
+`apply_rotfiltfilt` uses a mathematical technique that allows us to shift the frequency content of a signal to a baseband (around 0 Hz), apply a low-pass filter, and then shift it back to its original frequency range. This process effectively removes high-frequency noise while maintaining the phase characteristics of the original signal [1].
 
-So, first we define follow the principles of the Fourier shift theorem.
+So, first we define follow the principles of the Fourier shift theorem [1].
 
 \[
 e^{i2\pi\xi_0 t}\,f(t) \;\xleftrightarrow{\mathcal{F}}\; \hat{f}(\xi - \xi_0).
 \]
 
 In our case, however, the frequency shift \(\xi_0\) is **not constant** and it changes **over time** [2][3]. This comes from the fact that we are dealing with a chirp signal, whose frequency varies continuously.  
-This means that the instantaneous frequency of the chirp is dynamically shifted to the baseband at every moment. So we have to use a **time-dependent phasor** \(p(t) = e^{i\,\text{sinarg}(t)}\), where `sinarg` represents the **phase progression** of the carrier signal. More to this you can find in [Chirp Signal](../Sinarg/Chirp.md) documentation.
+This means that the instantaneous frequency of the chirp is dynamically shifted to the baseband at every moment. So we have to use a **time-dependent phasor** \(p(t) = e^{i\,\text{sinarg}(t)}\), where `sinarg` represents the **phase progression** of the carrier signal. More to this you can find in [Chirp Signal](../Sinarg/Chirp.md) documentation [2][3].
 
-By multiplying the input signal \(x(t)\) with this phasor \(p(t)\) or its complex conjugate \(p^*(t)\), the signal shifts the negative and positive frequency components towards 0 Hz.
+By multiplying the input signal \(x(t)\) with this phasor \(p(t)\) or its complex conjugate \(p^*(t)\), the signal shifts the negative and positive frequency components towards 0 Hz [1].
 
 \[
 y_R(t) = x(t)\,p(t), \qquad y_Q(t) = x(t)\,p^*(t),
@@ -46,7 +46,7 @@ As you can see in the following spectrum plot, after this rotation step, the sig
 ## 2) Baseband Filtering and Inverse Rotation
 
 Once the signal resides in the baseband, a **zero-phase low-pass filter** can be applied without distorting its timing or phase relationships [4][5].  
-First we have to create a suitable low-pass filter which lays within a small frequency range around 0 Hz. The newly created filter is then applied to both rotated signals \(y_R(t)\) and \(y_Q(t)\) using the `filtfilt` function in MATLAB, which performs forward and backward filtering to ensure zero-phase distortion.
+First we have to create a suitable low-pass filter which lays within a small frequency range around 0 Hz. The newly created filter is then applied to both rotated signals \(y_R(t)\) and \(y_Q(t)\) using the `filtfilt` function in MATLAB, which performs forward and backward filtering to ensure zero-phase distortion [4].
 
 As you can see in the following spectrum plot, after filtering, the high-frequency noise components have been effectively removed, leaving a clean signal centered around 0 Hz.
 
@@ -61,14 +61,14 @@ As you can see in the following spectrum plot, after filtering, the high-frequen
 
 ## 3) Inverse Frequency Shift
 
-After the filtering in the baseband, the signal is **rotated back** to its original frequency range.  
+After the filtering in the baseband, the signal is **rotated back** to its original frequency range [1][3].  
 This is done by multiplying the filtered signals \(y_R(t)\) and \(y_Q(t)\) with their respective inverse phasors and then combining them back into a **real signal**:
 
 \[
 x_f(t) = \text{Re}\left\{\frac{1}{2}\big( y_R(t)\,p^*(t) + y_Q(t)\,p(t) \big)\right\}
 \]
 
-The result is a filtered version of the original signal \(x(t)\), with high-frequency noise effectively removed while preserving the phase characteristics.
+The result is a filtered version of the original signal \(x(t)\), with high-frequency noise effectively removed while preserving the phase characteristics [4][5].
 
 <p align="center">
   <img src="./Images/filtert_signal.jpg"
@@ -80,6 +80,7 @@ The result is a filtered version of the original signal \(x(t)\), with high-freq
 ---
 
 ## References
+
 [1] R. Pintelon, J. Schoukens, *System Identification: A Frequency Domain Approach*, 2nd ed., IEEE Press, 2012, **pp. 45–60.**  
 [2] P. M. Djuric, S. M. Kay, *Statistical Digital Signal Processing and Modeling*, Prentice Hall, 1993, **pp. 25–35.**  
 [3] R. Pintelon, J. Schoukens, *System Identification: A Frequency Domain Approach*, **pp. 110–130.**  

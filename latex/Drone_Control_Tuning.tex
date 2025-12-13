@@ -71,6 +71,7 @@
 
 \usepackage{pdfpages}
 \usepackage{listings}
+\setcounter{tocdepth}{2}
 
 \begin{document}
 
@@ -143,6 +144,7 @@ Besides software development, the project involves also building an FPV drone an
 The open-source firmware Betaflight is the most widely used platform for FPV racing drones and is continuously developed by a large community. The quality of the rate control is crucial for flight performance, as it enables stability, agility, and effective suppression of disturbances such as prop wash.\par
 Today, tuning of controller parameters is still largely performed by trial-and-error adjustments, a method that is time-consuming and often challenging for less experienced pilots. A proof of concept (developed by Michael Peter) already exists, which enables offline tuning of rate controllers using flight measurement data obtained from chirp signal excitation. However, the current implementation is based on MATLAB, which is not widely used within the FPV community and therefore limits accessibility. In addition, the proof-of-concept requires a certain level of technical knowledge to operate, which further complicates its practical use for many pilots. \par
 As a result, the potential of data-driven controller tuning remains largely unused in everyday FPV practice. This creates a gap between academically established system identification and control design methods on the one hand, and the predominantly experience-based tuning approaches used by pilots on the other. Bridging this gap represents a key motivation for the further development of the existing proof of concept.
+\newpage
 
 \subsection{Task and Objective}
 The aim of this project is to further develop the existing proof of concept into an accessible and practical tool for tuning rate controllers on Betaflight-based FPV drones. The focus lies on transforming the prototype from a research-oriented MATLAB implementation into a solution that can be used by the wider community with minimal technical barriers. This includes designing a clean and modular software architecture, improving usability, and integrating functions for importing, processing, and analysing flight data.
@@ -166,7 +168,7 @@ The control system consists of two loops: an inner loop responsible for angular 
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=1.0\textwidth]{./Images/Regelstrecke.png}
+    \includegraphics[width=1.0\textwidth]{./Images/Theory/Regelstrecke.png}
     \caption{Simplified representation of the Betaflight gyro control system}
     \label{fig:bf_gyro_control}
 \end{figure}
@@ -181,7 +183,7 @@ Mathematically, a chirp signal can be represented as a sinusoidal wave with inst
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=1.0\textwidth]{./Images/chirp_signal.jpg}
+	\includegraphics[width=1.0\textwidth]{./Images/Theory/chirp_signal.jpg}
 	\caption{Chirp Signal example}
 	\label{fig:chirp}
 \end{figure}
@@ -220,7 +222,7 @@ The recorded data logs provide two types of gyroscope signals. On the one hand, 
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.6\linewidth]{Images/Control_Gyro.png}
+    \includegraphics[width=0.6\linewidth]{Images/Theory/Control_Gyro.png}
     \caption{Filtered versus unfiltered gyroscope signal}
     \label{fig:gyro_filtered_vs_unfiltered}
 \end{figure}
@@ -244,7 +246,7 @@ In practical applications, measurement data is often contaminated by noise, whic
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.5\textwidth]{Images/Freq_Blockschalt.png}
+\includegraphics[width=0.5\textwidth]{Images/Theory/Freq_Blockschalt.png}
 \caption{System model including measurement noise}
 \label{fig:system_noise}
 \end{figure}
@@ -261,7 +263,7 @@ Subsequently, the frequency response is estimated using the filtered output sign
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.6\textwidth]{Images/segmentation.png}
+\includegraphics[width=0.6\textwidth]{Images/Theory/segmentation.png}
 \caption{Segmentation of a signal into overlapping windows}
 \label{fig:segmentation}
 \end{figure}
@@ -280,7 +282,7 @@ Figure~\ref{fig:closedloop} shows a simplified closed loop structure.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\textwidth]{Images/Control_Loop_easy.png}
+    \includegraphics[width=0.9\textwidth]{Images/Theory/Control_Loop_easy.png}
     \caption{Simplified closed loop system}
     \label{fig:closedloop}
 \end{figure}
@@ -315,7 +317,7 @@ As an example, the closed-loop configuration shown in Figure \ref{fig:closed_loo
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.9\textwidth]{Images/Control_Loop_easy.png}
+    \includegraphics[width=0.9\textwidth]{Images/Theory/Control_Loop_easy.png}
     \caption{Simplified closed loop system}
     \label{fig:closed_loop}
 \end{figure}
@@ -355,7 +357,7 @@ This allows the controller to respond quickly to fast pilot inputs while prevent
 For analysis and controller tuning, the effect of I-Term Relax must be considered, as it modifies the controller behavior depending on the current flight conditions.
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.6\textwidth]{Images/Control_Loop_Iterm.png}
+\includegraphics[width=0.6\textwidth]{Images/Theory/Control_Loop_Iterm.png}
 \caption{Segmentation of a signal into overlapping windows}
 \label{fig:segmentation}
 \end{figure}
@@ -405,7 +407,7 @@ To gain a deeper understanding of the Betaflight control architecture and its in
 In the first step, we implemented the various filters according to the documentation \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/Filter_and_Controller.md}{Filter and Controller}. For each filter type, we created continuous and discrete versions, allowing us to compare their behavior directly. An example of this comparison is illustrated in Figure \ref{fig:dis_cont}.
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.77\textwidth]{./Images/Dicrete_continuous.png}
+	\includegraphics[width=0.77\textwidth]{./Images/Simulations/Dicrete_continuous.png}
 	\caption{Comparison of continuous and discrete filters}
 	\label{fig:dis_cont}
 \end{figure}
@@ -414,7 +416,7 @@ Next, we implemented the PI and D controllers following the same principles. For
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.77\textwidth]{./Images/plant_meas_sim.png}
+	\includegraphics[width=0.77\textwidth]{./Images/Simulations/plant_meas_sim.png}
 	\caption{Simplified plant model}
 	\label{fig:dis_plant_model}
 \end{figure}
@@ -423,7 +425,7 @@ All components were then integrated into a complete Simulink model representing 
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.95\textwidth]{./Images/Simulink.png}
+	\includegraphics[width=0.95\textwidth]{./Images/Simulations/Simulink.png}
 	\caption{Simulink model of the Betaflight control system}
 	\label{fig:simulinksimulation}
 \end{figure}
@@ -432,7 +434,7 @@ The simulated step response, shown in Figure~\ref{fig:step_resp_sim}, closely ma
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.95\textwidth]{./Images/step_resp_simulink.png}
+	\includegraphics[width=0.95\textwidth]{./Images/Simulations/step_resp_simulink.png}
 	\caption{Simulated step response}
 	\label{fig:step_resp_sim}
 \end{figure}
@@ -444,7 +446,7 @@ To get a better understanding of the individual controller components, we wrote 
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics[width=1.0\textwidth]{./Images/Controller_Bode.png}
+	\includegraphics[width=1.0\textwidth]{./Images/Simulations/Controller_Bode.png}
 	\caption{Bodeplot out of Controller Simulation}
 	\label{fig:controllerbode}
 \end{figure}
@@ -476,15 +478,13 @@ The corresponding upper corner frequency is
 
 This example also shows that changing the integral and derivative gains shifts the position of the slopes in the Bode plot. A larger integral gain moves the low-frequency slope towards higher frequencies, while a larger derivative gain moves the high-frequency slope towards lower frequencies. In this way, the shape of the frequency response can be adjusted to the desired system behaviour.
 
-
-
 \subsubsection{Simulation Frequency Response}
 
 To analyse the frequency response of a system using input and output data, we created an additional simulation. In this setup, a chirp signal was used as the input signal. As in a real system, we added noise to both the input and the output to mimic realistic measurement conditions. From these noisy signals, we attempted to estimate the original system transfer function. The corresponding control loop is shown in Figure~\ref{fig:Freq_loop}.
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.6\textwidth]{./Images/Freq_Blockschalt.png}
+    \includegraphics[width=0.6\textwidth]{./Images/Simulations/Freq_Blockschalt.png}
     \caption{Control loop of the simulation}
     \label{fig:Freq_loop}
 \end{figure}
@@ -493,7 +493,7 @@ Same as in the real system, we could not measure the plant without noise. Instea
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.85\textwidth]{./Images/Freq_Input_Output.png}
+    \includegraphics[width=0.85\textwidth]{./Images/Simulations/Freq_Input_Output.png}
     \caption{Input and output signals with noise}
     \label{fig:Freq_input}
 \end{figure}
@@ -502,7 +502,7 @@ If we calculate the transfer function directly from the noisy signals using a pl
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.9\textwidth]{./Images/Freq_Y_U.png}
+    \includegraphics[width=0.9\textwidth]{./Images/Simulations/Freq_Y_U.png}
     \caption{Bode plot estimated with plain FFT}
     \label{fig:Freq_FFT}
 \end{figure}
@@ -512,7 +512,7 @@ To improve this poor estimate, we applied different signal-processing methods. F
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.9\textwidth]{./Images/Freq_Welch.png}
+    \includegraphics[width=0.9\textwidth]{./Images/Simulations/Freq_Welch.png}
     \caption{Bode plot estimated with Welch method}
     \label{fig:Freq_Welch}
 \end{figure}
@@ -521,21 +521,20 @@ In the next step, we also implemented a rotated-signal approach, where the chirp
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.9\textwidth]{./Images/Freq_Rot.png}
+    \includegraphics[width=0.9\textwidth]{./Images/Simulations/Freq_Rot.png}
     \caption{Bode plot estimated with rotated Welch method}
     \label{fig:Freq_Rot}
 \end{figure}
 
 \newpage
 
-\newpage
 
 \subsubsection{Simulation Spectra}
 To better understand the components required to generate a meaningful spectrum, we developed a simulation based on the system used in the provided code. In this script, we generated a noisy sinusoidal input signal and computed different spectra from it. In one case, a window function was applied, while in the other case no windowing was used, as illustrated in Figure~\ref{fig:spectra_input}.
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics[width=0.85\textwidth]{./Images/Spectra_input_bea.png}
+	\includegraphics[width=0.85\textwidth]{./Images/Simulations/Spectra_input.png}
 	\caption{Spectrum with and without windowing}
 	\label{fig:spectra_input}
 \end{figure}
@@ -544,7 +543,7 @@ In the next step, we compared the frequency spectrum of the signal with and with
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics[width=0.85\textwidth]{./Images/Spectra_window_bea.png}
+	\includegraphics[width=0.85\textwidth]{./Images/Simulations/Spectra_window.png}
 	\caption{Comparison of Spectra with and without windowing}
 	\label{fig:spectra_window}
 \end{figure}
@@ -553,7 +552,7 @@ In the last step, we split the signal into several overlapping segments, as desc
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics[width=0.85\textwidth]{./Images/Spectra_segment_bea.png}
+	\includegraphics[width=0.85\textwidth]{./Images/Simulations/Spectra_segment.png}
 	\caption{Spectrum with segment averaging}
 	\label{fig:spectra_seg}
 \end{figure}
@@ -566,7 +565,7 @@ To analyse how the frequency content of an input signal changes with both time a
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.75\textwidth]{./Images/Spectogram_overview.png}
+  \includegraphics[width=0.75\textwidth]{./Images/Simulations/Spectogram_overview.png}
   \caption{Input signal, windowed input signal, and thrust over time.}
   \label{fig:spectogram_input}
 \end{figure}
@@ -575,7 +574,7 @@ In the next step, the input signal was divided into short, non-overlapping time 
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.75\textwidth]{./Images/Spectogram_Time_Freq.png}
+  \includegraphics[width=0.75\textwidth]{./Images/Simulations/Spectogram_Time_Freq.png}
   \caption{Spectrogram showing the amplitude over frequency and time.}
   \label{fig:spectogram_time}
 \end{figure}
@@ -584,7 +583,7 @@ To relate the spectral content to the thrust level, we assigned each segment the
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.75\textwidth]{./Images/Spectogram_Thrust_Freq.png}
+  \includegraphics[width=0.75\textwidth]{./Images/Simulations/Spectogram_Thrust_Freq.png}
   \caption{Spectrogram showing the amplitude over frequency and thrust.}
   \label{fig:spectogram_thrust}
 \end{figure}
@@ -1021,6 +1020,8 @@ Additionally to this, we deepened our understanding how advanced signal-processi
 This project is being continued and further developed as part of a bachelor’s thesis. In this context, we plan to extend the existing codebase with new features such as offline tuning for position and altitude hold. These additions will provide deeper insight into the behaviour of the corresponding control loops and allow their optimisation. \par
 Furthermore, a full transfer of the implementation from MATLAB to Python is planned. This will make the tool more accessible to the FPV community, as Python is open source, widely used and free of charge. Our long-term goal is to enable seamless integration of the tool into existing Betaflight utilities, so that pilots can use it for offline tuning of their drones. \par
 Finally, we intend to validate the analysis results through additional flight tests. By comparing the outcomes of the offline analysis with real flight behaviour, we aim to ensure that the methods are accurate and reliable. This will help us further refine the tool and increase its practical value for the FPV community.
+
+\newpage
 
 \subsection{Conclusion}
 Throughout the project, we gained a deep understanding of the Betaflight control system, learned how its filter and controller structures interact, and applied advanced signal-processing techniques for frequency-domain analysis, step-response evaluation and flight-data preparation. Simulations allowed us to connect theoretical models with observed flight behaviour, while building and test-flying an FPV drone helped us translate analytical findings into practical insights. On the software side, we restructured the existing prototype into a modular codebase and began transferring key functions from MATLAB to Python, enabling future extensions and wider accessibility. Although the fully automated extraction of flight data from Blackbox logs could not be completed, the knowledge gained provides an important basis for further investigation. Overall, the results show that offline analysis and tuning of Betaflight FPV drones offers a robust, objective, and data-driven approach to optimize flight performance. The implemented methods enable reconstruction of control-loop dynamics from flight measurements, allowing detailed understanding of system behaviour and the impact of different controller settings. The work carried out so far lays a solid foundation for further development and refinement of the tool in our bachelor’s thesis, where we will add new tuning capabilities, complete the Python migration, and validate through additional flight tests.
