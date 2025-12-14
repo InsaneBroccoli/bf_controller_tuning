@@ -15,7 +15,7 @@ $$L_{in}(\omega) = P(\omega) \cdot G_{f}(\omega)$$ $$\qquad G_{yu}(\omega) = \fr
 
 With this Information we are able to calculate the hole closed loop system.
 
-$$L_{out}(omega) = G_{yu}(omega) \cdot C_{PI}(omega)$$ $$\qquad G_{yw}(omega) = \frac{L_{out}(omega)}{1+L_{out}(omega)}$$
+$$L_{out}(\omega) = G_{yu}(omega) \cdot C_{PI}(\omega)$$ $$\qquad G_{yw}(\omega) = \frac{L_{out}(\omega)}{1+L_{out}(\omega)}$$
 
 <p align="center">
   <img src="./Images/Regelstrecke.png"
@@ -33,7 +33,7 @@ The sensitivity describes how the closed-loop system reacts to disturbances and 
 
 To calculate the sensitivity functions of the inner and outer loop, we use the following formulas:
 
-$$S_{in}(omega) = \frac{1}{1+L_{in}(omega)}$$ $$\qquad$$ $$S_{out}(\omega) = \frac{1}{1+L_{out}(\omega)}$$
+$$S_{in}\(omega) = \frac{1}{1+L_{in}(\omega)}$$ $$\qquad$$ $$S_{out}(\omega) = \frac{1}{1+L_{out}(\omega)}$$
 
 ---
 
