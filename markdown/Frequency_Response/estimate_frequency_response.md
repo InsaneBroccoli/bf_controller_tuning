@@ -27,8 +27,8 @@ This ratio describes how each frequency component of the input is scaled and pha
 In practice, however, direct division of $Y(j\omega)$ and $U(j\omega)$ is sensitive to noise.  
 To obtain a more reliable estimate, we use averaged spectral quantities [1][2]:
 
-$$S_{yu}(j\omega) = E\{Y(j\omega)U^*(j\omega)\}$$
-$$S_{uu}(j\omega) = E\{|U(j\omega)|^2\}$$
+$S_{yu}(j\omega) = E\{Y(j\omega)U^*(j\omega)\}$
+$S_{uu}(j\omega) = E\{|U(j\omega)|^2\}$
 
 which leads to the practical and statistically robust estimator
 
@@ -62,9 +62,9 @@ The function implements the **Welch averaging method** [1], which provides a smo
 4. **Power spectra formation:**  
    For each segment:
    
-   $$S_{uu,k}(j\omega) = U_k(j\omega)U_k^*(j\omega)$$
-   $$S_{yu,k}(j\omega) = Y_k(j\omega)U_k^*(j\omega)$$
-   $$S_{yy,k}(j\omega) = Y_k(j\omega)Y_k^*(j\omega)$$
+   $S_{uu,k}(j\omega) = U_k(j\omega)U_k^*(j\omega)$
+   $S_{yu,k}(j\omega) = Y_k(j\omega)U_k^*(j\omega)$
+   $S_{yy,k}(j\omega) = Y_k(j\omega)Y_k^*(j\omega)$
    
    The spectra are then converted to **one-sided** form by doubling all interior bins and dividing the DC and Nyquist bins by 4 [1].
 
@@ -84,7 +84,7 @@ The function implements the **Welch averaging method** [1], which provides a smo
 
 To avoid division by near-zero values of $S_{uu}(j\omega)$, a small positive constant `delta` is added:
 
-$$G(j\omega) = \frac{S_{yu}(j\omega)}{S_{uu}(j\omega) + \delta}$$
+$G(j\omega) = \frac{S_{yu}(j\omega)}{S_{uu}(j\omega) + \delta}$
 
 This **regularized spectral inversion** improves numerical stability [2].
 
