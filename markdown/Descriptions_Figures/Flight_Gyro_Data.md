@@ -1,12 +1,12 @@
-# Figure Flight Gyro Data
+# Flight Gyro Data
 
+This plot gives an overview of the recorded gyro signals for the three axes, roll, pitch, and yaw during your flight. You can see the controller setpoints, as well as the unfiltered and filtered gyro signals. This visualizes the differences between the commanded values and the actual sensor data. 
 
-This plot shows the recorded gyro signals for the roll, pitch, and yaw axes. The plot also displays the controller setpoints, as well as the unfiltered and filtered gyro signals. This makes it possible to see any differences between the commanded values and the actual sensor data. In general, the plot mainly serves as an overview.
-
-The chirp signals are also clearly visible (see [Chirp Signal](../Sinarg/Chirp.md) for more details). These chirp signals are used to excite the drone across a wide frequency range, showing how the system responds to different frequencies.
 <p align="center">
-  <img src="./Images/Flight_Gyro_Data.jpg"
+  <img src="./Images/flight_gyro_data.jpg"
      alt="Original noisy signals"
      width="1000"
      style="float:center; margin-left:10px; margin-right:10px;">
 </p>
+
+By looking at the plot, you can, for example, clearly see the [Chirp Signals](../Sinarg/Chirp.md) in the three axes (frequency sweeps). With this log file, you can later tune your drone's PID controllers.
