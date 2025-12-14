@@ -60,7 +60,8 @@ As you can see in the following spectrum plot, after filtering, the high-frequen
 After the filtering in the baseband, the signal is **rotated back** to its original frequency range [1][3].  
 This is done by multiplying the filtered signals $y_R(t)$ and $y_Q(t)$ with their respective inverse phasors and then combining them back into a **real signal**:
 
-$x_f(t) = \text{Re}\left\{\frac{1}{2}\left( y_R(t)p^*(t) + y_Q(t)p(t) \right)\right\}$
+$x_f(t)=\operatorname{Re}\{\tfrac12\,(y_R(t)p^*(t)+y_Q(t)p(t))\}$
+
 
 The result is a filtered version of the original signal $x(t)$, with high-frequency noise effectively removed while preserving the phase characteristics [4][5].
 
