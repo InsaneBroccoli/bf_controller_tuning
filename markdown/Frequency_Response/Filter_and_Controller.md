@@ -1,44 +1,66 @@
-# Filter and Controller Structure
+# PID Controller Construction
 
-The functions `get_filter` and `calculate_transfer_functions` together form the basis for constructing the controller and filter structure in the closed control loop.  
-Both follow the filter and controller architecture used in **Betaflight**.
+Before performing control-theoretic analysis on Betaflight PID loops, the PID gains must be converted from their Betaflight-specific representation into physically meaningful controller gains. Betaflight applies internal scaling factors to its P, I, and D terms, so the raw values shown in the configurator or CLI are not the actual gains used inside the control loop [1].
 
----
-
-## Function `get_filter`
-
-This function generates a **discrete filter** section of a specified type and returns it as both a state-space model and a transfer function. The filters are implemented according to the Betaflight filter architecture and frequency characteristics.
-
-According to **Betaflight**, the user can choose which of these different filter types to apply depending on the axis and signal path.
-- **PT1, PT2, PT3:** Low-pass filters with Butterworth (3dB point is the same for all PT's ) correction.  
-  They attenuate high-frequency noise while maintaining a smooth phase response.  
-  Higher-order variants (pt2, pt3) provide steeper roll-off at the cutoff frequency.
-
-- **Biquad:** 2nd-order low-pass filter with $Q = \frac{1}{\sqrt{2}}$ (Butterworth characteristic).  
-  Offers a clean –12 dB/octave slope and minimal overshoot in the time domain.
-
-- **Notch:** Band-stop (notch) filter with quality factor $Q$ computed by `get_notch_Q`.  
-  Used to suppress narrow-band resonances such as frame vibrations or motor noise.
-
-- **Lead / Lag :** Phase compensation or lead–lag network.  
-  These filters modify the phase response (lead or lag) to improve control stability or compensate for sensor delay.
-
-All filters are discretized with the sample time $T_s$.  The function `get_filter` is called internally by `calculate_transfer_functions` to build the gyro, D-term, and P-term filter paths.
+To obtain correct controller behavior in simulations, frequency-domain models, or closed-loop analysis, these gains have to be rescaled and then used to construct discrete-time PI and D controllers.
 
 ---
 
-## Function `calculate_transfer_functions`
+## 1. Betaflight PID Gain Scaling
 
-This function constructs the **filter chains and controllers** for a selected axis.  
-It creates three filter paths:
+Betaflight internally scales its PID gains using fixed numerical factors defined in the firmware implementation [1].  
+These scaling factors are applied internally before the PID terms act on the control error.
 
-1. **Gyro path $G_f$:** Low-pass filters, dynamic low-pass filters, notch filters, optional phase compensation  
-2. **D-term path $G_d$:** Filter chain for the derivative path, cascaded with $C_D$  
-3. **P-term path $G_{f_p}$:** Optional path with phase compensation or yaw low-pass
+To convert Betaflight PID values into physically meaningful controller gains, the corresponding scale factors must therefore be applied explicitly when constructing analytical or simulation models.
 
-From the axis parameters, the discrete **PI** and **D** controllers are built as:
+This scaling is derived directly from Betaflight’s internal controller implementation and ensures that the converted PID values correspond to the effective gains used in the control loop [1].
 
-$$C_{PI}(z) = K_p\,G_{f_p} + K_i\,T_s\frac{z}{z-1}$$
-$$C_D(z) = \frac{K_d}{T_s}\frac{1 - z^{-1}}{z^{-1}} \cdot G_d$$
+---
 
-The function returns the state-space models $C_{PI}$, $C_D$, $G_f$, and the effective PID gain vector.  
+## 2. Scaling of New PID Gains
+
+Given the original PID gain vector as configured in Betaflight,
+
+\[
+PID = [K_p,\; K_i,\; K_d],
+\]
+
+the scaled PID values are obtained by applying the corresponding Betaflight scaling factors [1].
+
+This step converts the user-facing Betaflight PID parameters into controller gains that are suitable for control-theoretic analysis and model-based evaluation.
+
+---
+
+## 3. Construction of PI and D Controllers
+
+Using the scaled gains, the discrete-time controllers are constructed with the sample time \( T_s \) according to standard discrete control formulations [2].
+
+### PI Controller
+
+\[
+C_{PI}(z) = K_p + K_i\,T_s \frac{1}{1 - z^{-1}}
+\]  
+[2]
+
+### D Controller
+
+\[
+C_D(z) = \frac{K_d}{T_s} (1 - z^{-1})
+\]  
+[2]
+
+The resulting controllers are implemented as:
+
+- **\(C_{PI}\)** — proportional–integral controller  
+- **\(C_D\)** — discrete derivative controller  
+
+With these newly computed controllers, it becomes possible to accurately predict the closed-loop behavior of the system under updated Betaflight PID gains using analytical, simulation, or frequency-domain methods.
+
+---
+
+## References
+
+[1] Betaflight Development Team, *Betaflight Flight Controller Firmware – PID Controller Implementation*,  
+GitHub Repository, https://github.com/betaflight/betaflight (accessed: 2025-12-14).
+
+[2] H. Lutz, *Taschenbuch der Regelungstechnik*, Springer Vieweg, aktuelle Auflage.
