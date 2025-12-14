@@ -1,10 +1,10 @@
+import pickle
+import time
+
 import numpy as np
 import pandas as pd
 import control as ct
-import pickle
-import time
 import scipy.signal as signal
-
 import py_lib.pidtuninglib as tlib
 
 from matplotlib import pyplot as plt
@@ -91,8 +91,12 @@ def test_output(
     """Validate Python results against MATLAB reference output."""
     data_out = loadmat(output_data)
 
-    np.testing.assert_allclose(time_step, data_out["t_step"].squeeze(), atol=1e-9)
-    np.testing.assert_allclose(step_resp, data_out["step_resp"].squeeze(), atol=1e-9)
+    np.testing.assert_allclose(
+        time_step, data_out["t_step"].squeeze(), rtol=1e-9, atol=1e-9
+    )
+    np.testing.assert_allclose(
+        step_resp, data_out["step_resp"].squeeze(), rtol=1e-9, atol=1e-9
+    )
 
     print("Python output matches MATLAB output")
 
