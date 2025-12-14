@@ -19,7 +19,7 @@ As an example, we consider a sine wave corrupted by noise which we will filter w
 
 So, first we define follow the principles of the Fourier shift theorem [1].
 
-$$e^{i2\pi\xi_0 t}\,f(t) \;\xleftrightarrow{\mathcal{F}}\; \hat{f}(\xi - \xi_0)$$
+$$e^{i2\pi\xi_0 t}\cdot f(t) \;\xleftrightarrow{\mathcal{F}}\; \hat{f}(\xi - \xi_0)$$
 
 In our case, however, the frequency shift $xi_0$ is **not constant** and it changes **over time** [2][3]. This comes from the fact that we are dealing with a chirp signal, whose frequency varies continuously.  
 This means that the instantaneous frequency of the chirp is dynamically shifted to the baseband at every moment. So we have to use a **time-dependent phasor** $p(t) = e^{i\,\text{sinarg}(t)}$, where `sinarg` represents the **phase progression** of the carrier signal. More to this you can find in [Chirp Signal](../Sinarg/Chirp.md) documentation [2][3].
