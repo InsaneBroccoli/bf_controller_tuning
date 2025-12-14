@@ -12,15 +12,38 @@ Through the calculations in the previous steps, the complete **closed-loop trans
 Based on this transfer function, it is now possible to determine the **step response**, which describes how the system reacts to a sudden change in the input signal.  
 
 To compute this response, the transfer function is transformed from the **frequency domain** back into the **time domain** using the **inverse Fourier transform**.  
-This transformation yields the system’s **impulse response** $g(t)$, which characterizes how the system reacts to an instantaneous impulse.  
-Since the step input $x(t)$ represents a unit step (Heaviside function), two of the three signals in the convolution relationship are known.  
-By convolving the known step input with the impulse response, the output $y(t)$ — i.e., the step response — can be obtained:  
+This transformation yields a discrete-time representation corresponding to the system’s impulse response \( g[k] \), which characterizes how the system reacts to an instantaneous excitation.  
 
-$$y(t) = \int x(t)\,g(t)\,dt$$
+Since the step input represents a discrete unit step, the step response can be obtained by **accumulating the impulse response samples in time**.  
+Accordingly, the step response \( y[k] \) is calculated as the cumulative sum of the impulse response:
+
+\[
+y[k] = \sum_{i=0}^{k} g[i]
+\]
 
 In this form, the step response reflects the combined effects of all filters, delays, and feedback mechanisms within the control loop.  
 A well-damped and smooth curve indicates a stable and responsive system,  
 whereas oscillations or overshoot reveal underdamped or poorly tuned controller dynamics [1, pp. 118–121][2, pp. 455–457].
+
+---
+
+### Normalization of the Step Response
+
+To simplify the analysis of the transient behavior, the computed step response is **normalized using its steady-state value**.  
+The steady-state value is estimated as the **mean value in a time window after the transient has settled**, which provides a robust reference.
+
+The normalization is performed by dividing the entire step response by this steady-state value:
+
+\[
+y_\text{norm}[k] = \frac{y[k]}{\bar{y}_\text{ss}}
+\]
+
+After normalization, the step response **approaches 1 in steady state**, representing a unit step response.  
+This removes the influence of the absolute system gain and makes it easier to compare **rise time**, **overshoot**, and **settling behavior** between different controller settings.
+
+The focus is therefore on the **dynamic behavior of the closed-loop system**, rather than on absolute amplitudes. [3, pp. 43–45].
+
+---
 
 ## Compliance
 
