@@ -69,7 +69,7 @@ The function implements the **Welch averaging method** [1], which provides a smo
    The spectra are then converted to **one-sided** form by doubling all interior bins and dividing the DC and Nyquist bins by 4 [1].
 
 5. **Averaging:**  
-   The spectra from all segments are averaged to yield $\overline{S}_{uu}, \overline{S}_{yu}, \overline{S}_{yy}$.
+   The spectra from all segments are averaged to yield ${S}_{uu}, {S}_{yu}, {S}_{yy}$.
 
 <p align="center">
   <img src="./Images/bode_welch.jpg"
