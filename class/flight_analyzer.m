@@ -5,6 +5,7 @@
 % Purpose: Get Spectra and Spectogram out of Data
 %
 % Author: [Janick Dort, Yuri Bianchi, Dario Jurietti]
+% Supervisor: [Michael Peter]
 % Date: [25.11.2025]
 %==========================================================================
 
