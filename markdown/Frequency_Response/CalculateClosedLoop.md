@@ -11,11 +11,11 @@ The transfer functions describe how a signal is transformed as it passes through
 To calculate the transferfunction of the system, we have to split the control loop into an **inner** and an **outer** loop.
 First wie have to calculate the transferfunction of the inner loop (path from `u` to `y`).
 
-$$L_{in}(j\omega) = P(j\omega) \cdot G_{f}(j\omega)$$ $$\qquad$ $G_{yu}(j\omega) = \frac{L_{in}(j\omega)}{1+L_{in}(j\omega) \cdot G_{fD}(j\omega) \cdot C_{D}(j\omega)}$$
+$$L_{in}(\omega) = P(\omega) \cdot G_{f}(\omega)$$ $$\qquad$ $G_{yu}(\omega) = \frac{L_{in}(\omega)}{1+L_{in}(\omega) \cdot G_{fD}(\omega) \cdot C_{D}(\omega)}$$
 
 With this Information we are able to calculate the hole closed loop system.
 
-$$L_{out}(j\omega) = G_{yu}(j\omega) \cdot C_{PI}(j\omega)$$ $$\qquad$ $G_{yw}(j\omega) = \frac{L_{out}(j\omega)}{1+L_{out}(j\omega)}$$
+$$L_{out}(j\omega) = G_{yu}(j\omega) \cdot C_{PI}(j\omega)$$ $$\qquad G_{yw}(j\omega) = \frac{L_{out}(j\omega)}{1+L_{out}(j\omega)}$$
 
 <p align="center">
   <img src="./Images/Regelstrecke.png"
