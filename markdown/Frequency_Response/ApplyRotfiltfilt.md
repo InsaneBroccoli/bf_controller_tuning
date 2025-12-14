@@ -19,18 +19,14 @@ As an example, we consider a sine wave corrupted by noise which we will filter w
 
 So, first we define follow the principles of the Fourier shift theorem [1].
 
-\[
-e^{i2\pi\xi_0 t}\,f(t) \;\xleftrightarrow{\mathcal{F}}\; \hat{f}(\xi - \xi_0).
-\]
+$e^{i2\pi\xi_0 t}\,f(t) \;\xleftrightarrow{\mathcal{F}}\; \hat{f}(\xi - \xi_0)$
 
-In our case, however, the frequency shift \(\xi_0\) is **not constant** and it changes **over time** [2][3]. This comes from the fact that we are dealing with a chirp signal, whose frequency varies continuously.  
-This means that the instantaneous frequency of the chirp is dynamically shifted to the baseband at every moment. So we have to use a **time-dependent phasor** \(p(t) = e^{i\,\text{sinarg}(t)}\), where `sinarg` represents the **phase progression** of the carrier signal. More to this you can find in [Chirp Signal](../Sinarg/Chirp.md) documentation [2][3].
+In our case, however, the frequency shift $xi_0$ is **not constant** and it changes **over time** [2][3]. This comes from the fact that we are dealing with a chirp signal, whose frequency varies continuously.  
+This means that the instantaneous frequency of the chirp is dynamically shifted to the baseband at every moment. So we have to use a **time-dependent phasor** $p(t) = e^{i\,\text{sinarg}(t)}$, where `sinarg` represents the **phase progression** of the carrier signal. More to this you can find in [Chirp Signal](../Sinarg/Chirp.md) documentation [2][3].
 
-By multiplying the input signal \(x(t)\) with this phasor \(p(t)\) or its complex conjugate \(p^*(t)\), the signal shifts the negative and positive frequency components towards 0 Hz [1].
+By multiplying the input signal $x(t)$ with this phasor $p(t)$ or its complex conjugate $p^*(t)$, the signal shifts the negative and positive frequency components towards 0 Hz [1].
 
-\[
-y_R(t) = x(t)\,p(t), \qquad y_Q(t) = x(t)\,p^*(t),
-\]
+$y_R(t) = x(t)\,p(t), \qquad y_Q(t) = x(t)\,p^*(t)$
 
 As you can see in the following spectrum plot, after this rotation step, the signal's frequency content is now centered around 0 Hz, making it suitable for low-pass filtering.
 
@@ -46,7 +42,7 @@ As you can see in the following spectrum plot, after this rotation step, the sig
 ## 2) Baseband Filtering and Inverse Rotation
 
 Once the signal resides in the baseband, a **zero-phase low-pass filter** can be applied without distorting its timing or phase relationships [4][5].  
-First we have to create a suitable low-pass filter which lays within a small frequency range around 0 Hz. The newly created filter is then applied to both rotated signals \(y_R(t)\) and \(y_Q(t)\) using the `filtfilt` function in MATLAB, which performs forward and backward filtering to ensure zero-phase distortion [4].
+First we have to create a suitable low-pass filter which lays within a small frequency range around 0 Hz. The newly created filter is then applied to both rotated signals $y_R(t)$ and $y_Q(t)$ using the `filtfilt` function in MATLAB, which performs forward and backward filtering to ensure zero-phase distortion [4].
 
 As you can see in the following spectrum plot, after filtering, the high-frequency noise components have been effectively removed, leaving a clean signal centered around 0 Hz.
 
@@ -62,13 +58,11 @@ As you can see in the following spectrum plot, after filtering, the high-frequen
 ## 3) Inverse Frequency Shift
 
 After the filtering in the baseband, the signal is **rotated back** to its original frequency range [1][3].  
-This is done by multiplying the filtered signals \(y_R(t)\) and \(y_Q(t)\) with their respective inverse phasors and then combining them back into a **real signal**:
+This is done by multiplying the filtered signals $y_R(t)$ and $y_Q(t)$ with their respective inverse phasors and then combining them back into a **real signal**:
 
-\[
-x_f(t) = \text{Re}\left\{\frac{1}{2}\big( y_R(t)\,p^*(t) + y_Q(t)\,p(t) \big)\right\}
-\]
+$x_f(t)=\mathrm{Re}\{(\tfrac12\ \cdot(y_R(t)p^*(t)+y_Q(t)p(t)))\}$
 
-The result is a filtered version of the original signal \(x(t)\), with high-frequency noise effectively removed while preserving the phase characteristics [4][5].
+The result is a filtered version of the original signal $x(t)$, with high-frequency noise effectively removed while preserving the phase characteristics [4][5].
 
 <p align="center">
   <img src="./Images/filtert_signal.jpg"
