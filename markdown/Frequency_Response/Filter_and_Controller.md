@@ -51,7 +51,7 @@ It creates the following filter paths:
 From the axis parameters, the discrete **PI** and **D** controllers are constructed as  
 standard discrete-time control elements [2]:
 
-$C_{PI}(z) = K_p + K_i\,T_s \frac{z}{z-1}$
+$C_{PI}(z) = K_p + K_i \cdot T_s \frac{z}{z-1}$
 
 $C_D(z) = \frac{K_d}{T_s} \frac{1 - z^{-1}}{z^{-1}}$
 
