@@ -658,7 +658,7 @@ Our tool generates more plots than essentially needed for tuning. While some pro
     \end{minipage}
 \end{figure}
 
-\subsubsection*{filter tuning}
+\subsubsection*{Filter Tuning}
 Before we start tuning the PID controllers, we need good filtering, to have clean signals to work with. The general aim here is to use as little filtering as possible, because too much filtering causes delay in the system. However, no quadrocopter build is perfect, so at least some filtering is necessary in order to achieve a good tuned system.
 
 To do this we started to look at the spectrograms and the spectra figures first, after the import of a log file into MATLAB. After running the program in MATLAB, you can see in the command window, which filter- and PID settings were used in this log file. Our tool, in it's current state, doesn't copy these values to the code automatically. So the first step there, was to copy the settings from the command window at the correct position to the code. By then comparing the filtered and unfiltered plots, you can see how well the current settings filter out unwanted vibrations. Note that dynamic filters can't be calculated offline, because their cutoff frequencies change continuously based on real-time throttle input, so changing the dynamic filter settings in the code will not show up in the plots. In order to see the made changes, you need another flight.
@@ -1028,6 +1028,7 @@ Throughout the project, we gained a deep understanding of the Betaflight control
 
 \newpage
 \printbibliography[title={References}]
+
 \newpage
 
 
