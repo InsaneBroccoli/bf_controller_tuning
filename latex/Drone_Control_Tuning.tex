@@ -176,36 +176,46 @@ The control system consists of two loops: an inner loop responsible for angular 
 \newpage
 
 \subsubsection*{Chirp Concept}
-A chirp is an input signal that sweeps continuously over a defined range (e.g. from a low frequency to a high frequency).
-This signal excites the system on multiple frequencies in one run and thus lets you observe the frequency response and step response,
-the foundation of controller tuning.
-Mathematically, a chirp signal can be represented as a sinusoidal wave with instantaneous frequency that varies linearly or exponential with time. \parencite{bf_chirp}.
+A chirp is an input signal that sweeps continuously over a defined frequency range (e.g., from low to high frequency).
+This signal excites the system at multiple frequencies in one run, thus allowing observation of the frequency response and step response,
+which form the foundation of controller tuning.
+Mathematically, a chirp signal can be represented as a sinusoidal wave with instantaneous frequency that varies linearly or exponentially with time \parencite{bf_chirp}.
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=1.0\textwidth]{./Images/Theory/chirp_signal.jpg}
-	\caption{Chirp Signal example}
+	\caption{Chirp signal example}
 	\label{fig:chirp}
 \end{figure}
 
-\subsubsection*{Chirp on a drone}
-In the context of tuning a drone's flight controller, an exponential sweep is used.
-This is due to the dominant low-frequency dynamics, where low frequencies exhibit more predictable responses,
-allowing the sweep to allocate more time to higher frequencies for better resolution of system behavior. Additionally,
-multirotor vibration resonances are typically spaced logarithmically,
-making exponential sweeps more suited for efficient excitation across the frequency range.
+\subsubsection*{Chirp Implementation in Betaflight}
+For drone flight controller tuning, an exponential frequency sweep is employed.
+This choice is motivated by the dominant low-frequency dynamics of multirotor systems, where low frequencies exhibit more predictable responses.
+The exponential sweep allocates proportionally more time to higher frequencies, providing better resolution of system behavior in that range.
+Additionally, multirotor vibration resonances are typically spaced logarithmically,
+making exponential sweeps particularly suited for efficient excitation across the frequency range.
 
-The process involves these steps:
+The measurement process involves three main steps:
 \begin{enumerate}
-	\item Signal Injection: The chirp signal is added to the pilot's stick input. This composite signal becomes the setpoint for the PID controller.
-	\item System Response: The drone attempts to follow this rapidly changing setpoint. The motors react, and the drone will oscillate at varying frequencies corresponding to the chirp signal.
-	\item Data Logging: While the chirp is active, high-resolution data from the gyroscope and the motor outputs are recorded using Betaflight's Blackbox feature. This data captures how the drone responds to the control inputs at different frequencies.
+	\item \textbf{Signal injection:} The chirp signal is added to the pilot's stick input, forming the composite setpoint for the PID controller.
+	\item \textbf{System response:} The drone attempts to track this rapidly varying setpoint. The motors react, causing the drone to oscillate at frequencies corresponding to the instantaneous chirp frequency.
+	\item \textbf{Data logging:} Betaflight's Blackbox feature records high-resolution data from the gyroscope and motor outputs throughout the chirp excitation. This data captures the system response to control inputs across the entire frequency range.
 \end{enumerate}
 \vspace{1em}
 
-The recorded log file, containing the input chirp and the corresponding gyroscope output,
+The recorded log file, containing both the input chirp and the corresponding gyroscope response,
 is then used for offline analysis to determine the frequency response of the system.
+However, to ensure reliable frequency response estimation, the chirp signal must first be properly conditioned before injection into the control loop.
 
+\subsubsection*{Lead-Lag Filter for Chirp Signal Shaping}
+
+Before the chirp signal is injected into the control loop, it is shaped by a lead-lag filter to ensure uniform excitation across the frequency range of interest. This preprocessing step is essential because the closed-loop rate control system exhibits differentiating behavior at low frequencies, which would otherwise lead to negligible motor response at the start of the chirp and potential saturation at higher frequencies.
+
+The lead-lag filter is configured with a pole at 3 Hz and a zero at 30 Hz. This configuration pre-emphasizes low-frequency components while maintaining unity gain at higher frequencies. The frequency response exhibits three distinct characteristics. Below 3 Hz, the filter amplifies the signal to compensate for the system's low-frequency attenuation. Between 3 Hz and 30 Hz, the filter provides a relatively flat response with phase lead. Above 30 Hz, the filter approaches unity gain as the system no longer requires compensation.
+
+The Betaflight rate control loop behaves approximately as a differentiator below 30 Hz when viewed from setpoint input to motor output. Without the lead-lag filter, a chirp starting at 0.2 Hz would produce almost no motor response initially, followed by rapidly increasing amplitude that could saturate the motors. The lead-lag filter compensates for this behavior by shaping the chirp signal such that, when combined with the system's inherent dynamics, a uniform excitation amplitude is achieved across the entire frequency sweep. This ensures sufficient excitation at low frequencies for accurate system identification, prevents motor saturation at higher frequencies, and maintains consistent signal-to-noise ratio throughout the measurement.
+
+The specific corner frequencies of 3 Hz and 30 Hz are configured to match the typical dynamics of FPV racing drones and ensure robust excitation without causing instability or excessive motor stress. In the Betaflight implementation, the filtered chirp signal is added to the pilot's stick input before entering the PID controller, allowing the system to be excited while maintaining manual control authority during flight.
 
 \subsubsection*{Data Import and Preprocessing}
 To analyze Betaflight Blackbox logs effectively, the recorded data must first be imported and preprocessed to ensure correct scaling, structure, and suitability for further analysis. Each log consists of a header containing essential metadata, such as filter settings and PID values, and a data block with the recorded signals. Both components are required for correct interpretation of the flight data. 
