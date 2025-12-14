@@ -5,6 +5,7 @@
 % Purpose: Read Data for further calculations
 %
 % Author: [Janick Dort, Yuri Bianchi, Dario Jurietti]
+% Supervisor: [Michael Peter]
 % Date: [25.11.2025]
 %==========================================================================
 

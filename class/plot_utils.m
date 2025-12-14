@@ -2,10 +2,11 @@
 % PLOT_UTILS - Betaflight Controller Analysis Visualization Class
 %==========================================================================
 % Purpose: 
-%     This class provides visualization methods for analyzing quadcopter 
-%     flight controller performance and tuning data.
+% This class provides visualization methods for analyzing quadcopter 
+% flight controller performance and tuning data.
 %
 % Author: [Janick Dort, Yuri Bianchi, Dario Jurietti]
+% Supervisor: [Michael Peter]
 % Date: [25.11.2025]
 %==========================================================================
 
