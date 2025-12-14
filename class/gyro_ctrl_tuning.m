@@ -5,8 +5,26 @@
 % Purpose: Calculation for Gyro Tuning
 %
 % Author: [Janick Dort, Yuri Bianchi, Dario Jurietti]
+% Supervisor: [Michael Peter]
 % Date: [25.11.2025]
+
 %==========================================================================
+%  ADDITIONAL INFORMATION
+% =============================================================
+% Estimates and calculates frequency responses for system identification
+% and controller analysis.
+%
+% Key components analyzed:
+% - T  (Complementary Sensitivity): Response from reference to output
+% - P  (Plant): Response from control input to output
+% - Cpi (PI Controller): Response from error to control input
+% - Cd (D Controller): Response from derivative to control input
+%
+% Signal definitions:
+% w: reference input (setpoint)
+% y: system output (gyro measurements)
+% u: control input (total PID output)
+% v: PI controller output
 
 classdef gyro_ctrl_tuning
     properties       
@@ -63,26 +81,7 @@ classdef gyro_ctrl_tuning
 
         end
         function obj = calculate_transfer_func(obj, Nestfatra, koverlaptra)
-             % =============================================================
-            %  Frequency response estimation and calculation
-            % =============================================================
-            % Estimates and calculates frequency responses for system identification
-            % and controller analysis.
-            %
-            % Key components analyzed:
-            % - T  (Complementary Sensitivity): Response from reference to output
-            % - P  (Plant): Response from control input to output
-            % - Cpi (PI Controller): Response from error to control input
-            % - Cd (D Controller): Response from derivative to control input
-            %
-            % Signal definitions:
-            % w: reference input (setpoint)
-            % y: system output (gyro measurements)
-            % u: control input (total PID output)
-            % v: PI controller output
-            
-            % Get evaluation index where Chirp was active
-            
+
             % Analysis window parameters
             obj.Nest     = round(Nestfatra / obj.Ts_log);    % Window length in samples
             Noverlap = floor(koverlaptra * obj.Nest);        % Overlap between windows
@@ -151,7 +150,6 @@ classdef gyro_ctrl_tuning
                 % P  , Gyu: u -> y
                 P_gef_ax = T_ax / Guw_ax;
                 
-                               
                 % Calculate controller frequency responses
                 % Split into PI and D components for analysis
                 Cpi_ax = Gvw_ax / (1 - T_ax);

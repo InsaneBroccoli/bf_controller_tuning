@@ -158,7 +158,7 @@ In addition, the tool will be accompanied by comprehensive Markdown documentatio
 \subsection{Control System and Signal Processing}
 This section provides an overview of the key concepts and methods used for the analysis and tuning of the Betaflight flight controller. It introduces the essential aspects of signal processing, control system identification, and evaluation techniques that form the basis for optimizing controller performance. A more detailed description of the underlying theory and mathematical formulation is available in the project documentation on \href{https://github.com/InsaneBroccoli/bf_controller_tuning/tree/PA_final/markdown}{GitHub}.
 
-\subsubsection{Betaflight Gyro Control System}
+\subsubsection*{Betaflight Gyro Control System}
 
 Based on the Betaflight source code, the gyro control system was reconstructed to obtain a detailed internal representation of the controller structure. This reconstruction forms the basis for the analysis, as it allows a clear understanding of how measured signals are transmitted through the control loops and how individual controller components influence the system dynamics.
 
@@ -175,7 +175,7 @@ The control system consists of two loops: an inner loop responsible for angular 
 
 \newpage
 
-\subsubsection{Chirp Concept}
+\subsubsection*{Chirp Concept}
 A chirp is an input signal that sweeps continuously over a defined range (e.g. from a low frequency to a high frequency).
 This signal excites the system on multiple frequencies in one run and thus lets you observe the frequency response and step response,
 the foundation of controller tuning.
@@ -188,7 +188,7 @@ Mathematically, a chirp signal can be represented as a sinusoidal wave with inst
 	\label{fig:chirp}
 \end{figure}
 
-\subsubsection{Chirp on a drone}
+\subsubsection*{Chirp on a drone}
 In the context of tuning a drone's flight controller, an exponential sweep is used.
 This is due to the dominant low-frequency dynamics, where low frequencies exhibit more predictable responses,
 allowing the sweep to allocate more time to higher frequencies for better resolution of system behavior. Additionally,
@@ -207,14 +207,14 @@ The recorded log file, containing the input chirp and the corresponding gyroscop
 is then used for offline analysis to determine the frequency response of the system.
 
 
-\subsubsection{Data Import and Preprocessing}
+\subsubsection*{Data Import and Preprocessing}
 To analyze Betaflight Blackbox logs effectively, the recorded data must first be imported and preprocessed to ensure correct scaling, structure, and suitability for further analysis. Each log consists of a header containing essential metadata, such as filter settings and PID values, and a data block with the recorded signals. Both components are required for correct interpretation of the flight data. 
 
 To reduce computational effort, the raw CSV log files are converted into the faster MATLAB \texttt{.mat} format, allowing for significantly shorter loading times. During this step, signal names are automatically mapped to their corresponding data columns, which simplifies the identification and use of individual signals in future analyses \parencite{bf_LoadData}. Betaflight’s High Resolution Mode scales selected signals by a factor of ten to optimize storage and reduce numerical rounding errors. These signals are therefore rescaled to their original values during preprocessing to ensure accurate results \parencite{bf_UnshigRes}.
 
 Finally, the time information, originally stored as a microsecond counter, is converted into a uniform time base. By evaluating the time differences between samples, irregular sampling caused by dropped frames or variations in the effective sampling rate can be detected. Proper handling of the time data is essential for reliable frequency analysis and controller tuning \parencite{bf_TimeConv}.
 
-\subsubsection{Spectrum and Spectrogram Analysis}
+\subsubsection*{Spectrum and Spectrogram Analysis}
 
 Spectrum and spectrogram analysis are powerful tools for understanding how a system behaves across different frequencies. The spectrum decomposes a signal into its frequency components, indicating which frequencies are dominant and which are attenuated. This allows resonances, noise contributions, and the effectiveness of filtering stages to be identified.
 
@@ -234,7 +234,7 @@ The spectrogram extends this analysis by showing how the frequency content of th
 This representation helps to understand how resonances, noise levels, and dominant frequency components change with throttle, giving insight into the system dynamics under different flight conditions.
 
 
-\subsubsection{Estimation of Frequency Response Including Rotational Filtering}
+\subsubsection*{Estimation of Frequency Response Including Rotational Filtering}
 
 To estimate the frequency response of a system from measured input and output signals, the data must first be transformed into the frequency domain. This is achieved using the Fast Fourier Transform (FFT). The frequency response is then obtained by dividing the Fourier transform of the output signal by that of the input signal:
 
@@ -270,7 +270,7 @@ Subsequently, the frequency response is estimated using the filtered output sign
 
 \newpage
 
-\subsubsection{Transfer Function Estimation}
+\subsubsection*{Transfer Function Estimation}
 
 In a closed loop control system, the plant is the physical system that we want to control, for example the movement of a drone.  
 To tune a controller, we need to understand how the plant behaves. However, when the system is running in closed loop, this becomes difficult.  
@@ -309,7 +309,7 @@ By dividing the two expressions, the controller cancels out and we obtain an est
 This allows us to reconstruct the plant transfer function \(P(\omega)\) from closed loop measurement data without opening the control loop during the experiment \parencite{bf_Transfun}.
 
 
-\subsubsection{Closed-Loop Calculation}
+\subsubsection*{Closed-Loop Calculation}
 
 After determining the plant transfer function, the next step is to analyze the behavior of the overall system when a controller is applied. This is achieved by evaluating the closed-loop transfer functions, which describe the system response, disturbance sensitivity, disturbance rejection capability, and the required controller effort. These measures provide valuable insight into the stability, robustness, and performance of the controlled system.
 
@@ -345,7 +345,7 @@ SC(\omega) = C(\omega) \cdot S(\omega) .
 
 \newpage
 
-\subsubsection{Compensation of the I-Term} 
+\subsubsection*{Compensation of the I-Term} 
 The integral term of a PID controller is used to compensate for steady-state errors by integrating the control error over time. In flight control systems, this helps to counteract constant disturbances such as motor imbalances or aerodynamic effects. During fast stick movements or aggressive maneuvers, however, the integral term can accumulate too much error.
 
 In these situations, the accumulated I-term no longer represents a disturbance but instead opposes the intended motion. When the maneuver ends, this can lead to overshoot, bounce-back effects, or slow settling of the system.
@@ -377,7 +377,7 @@ C_{\mathrm{PI,new,new}}(\omega) &= C_{\mathrm{PI,new}}(\omega) \cdot C_{\mathrm{
 
 The resulting compensated controller transfer functions are then reinserted into the closed-loop system for further analysis and evaluation \parencite{bf_compITerm}.
 
-\subsubsection{Step Response}
+\subsubsection*{Step Response}
 The step response provides a direct view of how the system reacts to sudden changes in the input signal. Unlike the transfer function, which describes the system behavior in the frequency domain, the step response is defined in the time domain and therefore offers intuitive insight into the transient behavior of the system.
 
 To obtain the step response, the closed-loop transfer function must be transformed back into the time domain. This is achieved by applying the inverse Fourier transformation to the output spectrum
@@ -401,7 +401,7 @@ For a step input, this convolution illustrates how the system accumulates the ef
 \subsection{Simulations}
 At the beginning of our thesis, we developed several simulations to deepen our understanding of the existing code and the methods applied within it. Although creating these simulations was time-intensive, they proved essential for our work. They provided the foundation for all subsequent analysis steps and enabled us to fully understand the existing functions before applying them further.
 
-\subsubsection{Simulation of Betaflight Controller Order}
+\subsubsection*{Simulation of Betaflight Controller Order}
 To gain a deeper understanding of the Betaflight control architecture and its internal components, we reconstructed the complete control structure in MATLAB. The objective was to simulate the system’s step response using the same PID parameters and filter settings as those used on the actual drone.
 \par
 In the first step, we implemented the various filters according to the documentation \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/Filter_and_Controller.md}{Filter and Controller}. For each filter type, we created continuous and discrete versions, allowing us to compare their behavior directly. An example of this comparison is illustrated in Figure \ref{fig:dis_cont}.
@@ -441,7 +441,7 @@ The simulated step response, shown in Figure~\ref{fig:step_resp_sim}, closely ma
 
 
 \newpage
-\subsubsection{Simulation PID Controller}
+\subsubsection*{Simulation PID Controller}
 To get a better understanding of the individual controller components, we wrote an additional MATLAB script that lets us combine different controller types with simple plant models. The user can switch between P, I, PI, PD, and PID controllers, as well as between a few basic plant types. This makes it easier to see how each controller part affects the overall system behaviour. The script calculates the open-loop and closed-loop transfer functions and produces Bode plots, Nyquist diagrams, and step responses. Figure~\ref{fig:controllerbode} shows an example Bode plot from this simulation.
 
 \begin{figure}[htbp]
@@ -478,7 +478,7 @@ The corresponding upper corner frequency is
 
 This example also shows that changing the integral and derivative gains shifts the position of the slopes in the Bode plot. A larger integral gain moves the low-frequency slope towards higher frequencies, while a larger derivative gain moves the high-frequency slope towards lower frequencies. In this way, the shape of the frequency response can be adjusted to the desired system behaviour.
 
-\subsubsection{Simulation Frequency Response}
+\subsubsection*{Simulation Frequency Response}
 
 To analyse the frequency response of a system using input and output data, we created an additional simulation. In this setup, a chirp signal was used as the input signal. As in a real system, we added noise to both the input and the output to mimic realistic measurement conditions. From these noisy signals, we attempted to estimate the original system transfer function. The corresponding control loop is shown in Figure~\ref{fig:Freq_loop}.
 
@@ -529,7 +529,7 @@ In the next step, we also implemented a rotated-signal approach, where the chirp
 \newpage
 
 
-\subsubsection{Simulation Spectra}
+\subsubsection*{Simulation Spectra}
 To better understand the components required to generate a meaningful spectrum, we developed a simulation based on the system used in the provided code. In this script, we generated a noisy sinusoidal input signal and computed different spectra from it. In one case, a window function was applied, while in the other case no windowing was used, as illustrated in Figure~\ref{fig:spectra_input}.
 
 \begin{figure}[htbp]
@@ -559,7 +559,7 @@ In the last step, we split the signal into several overlapping segments, as desc
 
 \newpage
 
-\subsubsection{Simulation Spectrogram}
+\subsubsection*{Simulation Spectrogram}
 
 To analyse how the frequency content of an input signal changes with both time and thrust, we developed a MATLAB simulation. In this script, we generated a noisy sinusoidal input signal with a slowly varying instantaneous frequency, together with a slowly varying thrust signal. The thrust is modelled as a sinusoid around a mean value of 2. To illustrate the effect of windowing, a Hann window was also applied to the full input signal, as shown in Figure~\ref{fig:spectogram_input}.
 
@@ -630,7 +630,7 @@ After this incident, we decided not to repeat flights with intentionally bad tun
 The tuning process was carried out on a larger 6-inch FPV drone provided by one of the team members and on the 3-inch drone we built (See Section \ref{subsec:BuildingFPVdrone}). In this documentation we focus on the tuning process for the 3-inch build. 
 To enable the chirp flight mode, the flight controller was freshly flashed with Betaflight version \colorbox{yellow}{2025.12.0-RC1}, meaning all filters and settings were at factory defaults. Before the first flight, we alredy enabled the RPM filter and changed the Motor poles from fourteen to twelve, because this filter is much more efficient to filter out motor noise.
 
-\subsubsection{The tuning process using our tool}
+\subsubsection*{The tuning process using our tool}
 
 Our tool generates more plots than essentially needed for tuning. While some provide useful diagnostic information, they are not directly used in the tuning process itself. Figure~\ref{fig:evaluationTime_tuning} shows how stable and consistent the flight controller loop time was during flight. Figure~\ref{fig:flightoverview_tuning} gives a broad summary of gyro rates, motor outputs, and throttle. This plot is important for verifying that the motor outputs don't drop to minimum throttle during the chirp measurement. This would interrupt the system response and invalidate the frequency data. Figure~\ref{fig:flightgyrodata_tuning} shows how well the drone tracks commanded inputs on each axis, providing a visual overview of the setpoint tracking performance.
 
@@ -658,7 +658,7 @@ Our tool generates more plots than essentially needed for tuning. While some pro
     \end{minipage}
 \end{figure}
 
-\subsubsection{filter tuning}
+\subsubsection*{filter tuning}
 Before we start tuning the PID controllers, we need good filtering, to have clean signals to work with. The general aim here is to use as little filtering as possible, because too much filtering causes delay in the system. However, no quadrocopter build is perfect, so at least some filtering is necessary in order to achieve a good tuned system.
 
 To do this we started to look at the spectrograms and the spectra figures first, after the import of a log file into MATLAB. After running the program in MATLAB, you can see in the command window, which filter- and PID settings were used in this log file. Our tool, in it's current state, doesn't copy these values to the code automatically. So the first step there, was to copy the settings from the command window at the correct position to the code. By then comparing the filtered and unfiltered plots, you can see how well the current settings filter out unwanted vibrations. Note that dynamic filters can't be calculated offline, because their cutoff frequencies change continuously based on real-time throttle input, so changing the dynamic filter settings in the code will not show up in the plots. In order to see the made changes, you need another flight.
@@ -712,7 +712,7 @@ For our setup, we retained the default Betaflight settings, as they provided goo
 
 Further Information about Spectra and Spectrograms can be found \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Spectrum_Spectogram}{here}. Also consider looking at the \href{https://www.betaflight.com/docs/wiki/configurator/pid-tuning-tab}{Betaflight wiki page} for more information about Betaflight filters.
 
-\subsubsection{PID tuning}
+\subsubsection*{PID tuning}
 After the filter settings were set, we could move on to the PID tuning.
 
 The tool calculates the Plant and Controller Bode plots to build a mathematical model of the drone. These are exciting for an engineer, but not necessarily useful for a user in the community, as they are less intuitive. We mainly focused on the Step Response and the Gang of Four, where you can see flight performance and stability directly.
@@ -784,24 +784,24 @@ Detailed explanations of all generated plots and their interpretation can be fou
 \newpage
 
 \subsection{Decoding Betaflight Blackbox Logs}
-\subsubsection{Purpose}
+\subsubsection*{Purpose}
 Currently to obtain a useable Blackbox log from Betaflight, pilots rely on the Betaflight Explorer. 
 Wich is a reliable tool, but lacks comfort if the tuning tool is used iteratively since you have to visit the Explorer every time you want to download a new log.
-To improve this workflow, we tried to make use of the existing open-source blackbox\_decode tool.
+To improve this workflow, we tried to make use of the existing open-source blackbox decode tool.
 
-\subsubsection{\href{https://github.com/betaflight/blackbox-tools/}{blackbox\_decode tool}}
-The blackbox\_decode tool is a C-based command-line utility designed to convert Betaflight Blackbox log files from their proprietary binary format into more accessible formats such as CSV.
+\subsubsection*{\href{https://github.com/betaflight/blackbox-tools/}{Blackbox Decode Tool}}
+The blackbox decode tool is a C-based command-line utility designed to convert Betaflight Blackbox log files from their proprietary binary format into more accessible formats such as CSV.
 It offers similar core functionality to the Betaflight Blackbox Explorer but is intended for users who prefer command-line tools or need to automate log processing tasks.\par
 
-However, integrating blackbox\_decode into our project presented several challenges.
+However, integrating blackbox decode into our project presented several challenges.
 The most obvious issue is the absence of header information by default. 
 While this can be addressed by using the --save-headers flag, the format of these headers differs from that used by the Betaflight Explorer. 
 This discrepancy is manageable, as we could adapt our data import functions to handle both formats.\par
 
 A more significant problem is the presence of numerical differences in the decoded data.
-When comparing logs decoded with blackbox\_decode to those processed with Betaflight Explorer, the resulting datasets differ structurally and semantically in several critical ways.
-Specifically, the blackbox\_decode stores the vehicle attitude as Euler angles in degrees, whereas the Explorer provides quaternion-like components. 
-With priority set on other tasks, we decided to set aside the integration of blackbox\_decode for now.
+When comparing logs decoded with blackbox decode to those processed with Betaflight Explorer, the resulting datasets differ structurally and semantically in several critical ways.
+Specifically, the blackbox decode stores the vehicle attitude as Euler angles in degrees, whereas the Explorer provides quaternion-like components. 
+With priority set on other tasks, we decided to set aside the integration of blackbox decode for now.
 
 \newpage
 
@@ -849,7 +849,7 @@ This draft was never intended to be final. Rather, it served as an initial attem
 
 \newpage
 
-\subsubsection{OOP vs. Functional Approach}
+\subsubsection*{OOP vs. Functional Approach}
 At this stage, we discussed whether to implement the entire project using object-oriented programming (OOP) or stick to a modular, 
 function-based approach. Initially, we considered OOP as a challenge, since most of us were not very experienced with it. 
 We started writing some components as classes, but quickly realized that only one team member was really comfortable with OOP,
@@ -904,7 +904,7 @@ if someone wanted to use the tool only for plotting spectrograms without any dro
 Also the program was slow. All calculations were made, every time the user changed something. 
 We wanted to improve the speed in only doing these calculations again, which are relevant on that specific user input change. 
 
-\subsubsection{Final Structure Concept}
+\subsubsection*{Final Structure Concept}
 Out of this, we decided to split up this god class into three classes.
 The \texttt{flight\_analyzer} class handles frequency domain analysis and vibration characterization.
 Its core responsibility is performing spectral analysis on flight log data to identify resonance frequencies and assess filter effectiveness.
@@ -1032,7 +1032,7 @@ Throughout the project, we gained a deep understanding of the Betaflight control
 \newpage
 
 
-\subsubsection{Overview of Generative AI Systems}
+\subsubsection*{Overview of Generative AI Systems}
 
 \paragraph{OpenAI (2025) – ChatGPT 5.1}
 \begin{itemize}
@@ -1096,7 +1096,7 @@ Throughout the project, we gained a deep understanding of the Betaflight control
 
 \section{Appendix}
 \subsection{Project Management}
-\subsubsection{Project Assignment}
+\subsubsection*{Project Assignment}
 
 % Seite 1 direkt unter dem Titel
 \begin{figure}[H]
@@ -1111,7 +1111,7 @@ Throughout the project, we gained a deep understanding of the Betaflight control
 \includepdf[pages=3]{pdf/aufgabenstellung.pdf}
 
 
-\subsubsection{Project Schedule – Version 0}
+\subsubsection*{Project Schedule – Version 0}
 
 This project schedule was created at the beginning of the project.
 
@@ -1122,7 +1122,7 @@ This project schedule was created at the beginning of the project.
 	\label{fig:Project Schedule – Version 0}
 \end{figure}
 
-\subsubsection{Project Schedule – Version 1}
+\subsubsection*{Project Schedule – Version 1}
 This project schedule was created prior to the first milestone meeting and approved during the meeting.
 
 \begin{figure}[htbp]
@@ -1133,7 +1133,7 @@ This project schedule was created prior to the first milestone meeting and appro
 \end{figure}
 \newpage
 
-\subsubsection{Project Schedule – Version 2}
+\subsubsection*{Project Schedule – Version 2}
 This project schedule was created prior to the second milestone meeting and approved during the meeting.
 \begin{figure}[htbp]
 	\centering
@@ -1142,7 +1142,7 @@ This project schedule was created prior to the second milestone meeting and appr
 	\label{fig:Project Schedule – Version 2}
 \end{figure}
 
-\subsubsection{Meeting Minutes}
+\subsubsection*{Meeting Minutes}
 
 \newpage
 

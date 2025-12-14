@@ -20,21 +20,20 @@ This function creates a **logical mask (`ind_eval`)** that specifies the time po
 
 2. **Signal dynamics:**  
    Within these intervals, the **variance** of the measured response signal  
-   (e.g., the gyro signal) is computed.  
+   (e.g., the gyro signal) is computed. Higher variance indicates that the system is responding dynamically to the input excitation.  
    Only windows whose variance exceeds a defined threshold are considered  
    valid excitation phases [2, pp. 455–457].
 
-The function then returns the **index mask** corresponding to these active segments,  which is later used to remove all non-active data points from the main analysis.
+The function then returns the **index mask** corresponding to these active segments, which is later used to remove all non-active data points from the main analysis.
 
 ---
 
 ## Purpose of This Function
 
-The purpose of this preprocessing step is to limit the analysis to those time segments in which the system was **actively excited by the chirp signal** and exhibited a measurable dynamic response.  
+The purpose of this preprocessing step is to limit the analysis to those time intervals in which the system was **actively excited by the chirp signal** and exhibited a measurable dynamic response.  
 Without this selection, time periods without excitation would also be included in the estimation, leading to distorted or noisy transfer function results.  
 
-By filtering the data in this way, the method improves the **signal-to-noise ratio (SNR)** and ensures a **stable, reproducible, and accurate** identification of the system dynamics.  
-[1, pp. 84–86][2, pp. 455–457][3, pp. 384–386].
+By filtering the data in this way, the method improves the **signal-to-noise ratio (SNR)** and ensures a **stable, reproducible, and accurate** identification of the system dynamics [1, pp. 84–86] [2, pp. 455–457] [3, pp. 384–386].
 
 ---
 
