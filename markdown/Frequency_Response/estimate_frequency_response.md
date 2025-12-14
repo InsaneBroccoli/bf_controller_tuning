@@ -63,7 +63,9 @@ The function implements the **Welch averaging method** [1], which provides a smo
    For each segment:
    
    $$S_{uu,k}(j\omega) = U_k(j\omega)U_k^*(j\omega)$$
-   $$S_{yu,k}(j\omega) = Y_k(j\omega)U_k^*(j\omega)$$ 
+
+   $$S_{yu,k}(j\omega) = Y_k(j\omega)U_k^*(j\omega)$$
+
    $$S_{yy,k}(j\omega) = Y_k(j\omega)Y_k^*(j\omega)$$
    
    The spectra are then converted to **one-sided** form by doubling all interior bins and dividing the DC and Nyquist bins by 4 [1].
