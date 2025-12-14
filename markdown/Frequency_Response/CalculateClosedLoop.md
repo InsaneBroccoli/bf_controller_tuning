@@ -11,11 +11,11 @@ The transfer functions describe how a signal is transformed as it passes through
 To calculate the transferfunction of the system, we have to split the control loop into an **inner** and an **outer** loop.
 First wie have to calculate the transferfunction of the inner loop (path from `u` to `y`).
 
-$L_{in}(j\omega) = P(j\omega) \cdot G_{f}(j\omega)$ $\qquad$ $G_{yu}(j\omega) = \frac{L_{in}(j\omega)}{1+L_{in}(j\omega) \cdot G_{fD}(j\omega) \cdot C_{D}(j\omega)}$
+$$L_{in}(j\omega) = P(j\omega) \cdot G_{f}(j\omega)$$ $$\qquad$ $G_{yu}(j\omega) = \frac{L_{in}(j\omega)}{1+L_{in}(j\omega) \cdot G_{fD}(j\omega) \cdot C_{D}(j\omega)}$$
 
 With this Information we are able to calculate the hole closed loop system.
 
-$L_{out}(j\omega) = G_{yu}(j\omega) \cdot C_{PI}(j\omega)$ $\qquad$ $G_{yw}(j\omega) = \frac{L_{out}(j\omega)}{1+L_{out}(j\omega)}$
+$$L_{out}(j\omega) = G_{yu}(j\omega) \cdot C_{PI}(j\omega)$$ $$\qquad$ $G_{yw}(j\omega) = \frac{L_{out}(j\omega)}{1+L_{out}(j\omega)}$$
 
 <p align="center">
   <img src="./Images/Regelstrecke.png"
@@ -33,7 +33,7 @@ The sensitivity describes how the closed-loop system reacts to disturbances and 
 
 To calculate the sensitivity functions of the inner and outer loop, we use the following formulas:
 
-$S_{in}(j\omega) = \frac{1}{1+L_{in}(j\omega)}$ $\qquad$ $S_{out}(j\omega) = \frac{1}{1+L_{out}(j\omega)}$
+$$S_{in}(j\omega) = \frac{1}{1+L_{in}(j\omega)}$$ $$\qquad$$ $$S_{out}(j\omega) = \frac{1}{1+L_{out}(j\omega)}$$
 
 ---
 
@@ -43,7 +43,7 @@ The controller effort indicates how much effort the controller has to exert to m
 
 The controller effort can be calculated using the following formula:
 
-$SC(j\omega) = C_{PI}(j\omega) \cdot S_{out}(j\omega)$
+$$SC(j\omega) = C_{PI}(j\omega) \cdot S_{out}(j\omega)$$
 
 ---
 
@@ -53,7 +53,7 @@ The compliance describes how the system responds to external disturbances or cha
 
 The compliance can be calculated using the following formula:
 
-$SP(j\omega) = G_{yu}(j\omega) \cdot S_{out}(j\omega)$
+$$SP(j\omega) = G_{yu}(j\omega) \cdot S_{out}(j\omega)$$
 
 ---
 
