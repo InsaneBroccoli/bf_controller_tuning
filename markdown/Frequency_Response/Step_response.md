@@ -17,8 +17,7 @@ This transformation yields a discrete-time representation corresponding to the s
 Since the step input represents a discrete unit step, the step response can be obtained by **accumulating the impulse response samples in time**.  
 Accordingly, the step response $y[k]$ is calculated as the cumulative sum of the impulse response:
 
-
-$y[k] = \sum_{i=0}^{k} g[i]$
+$$y[k] = \sum_{i=0}^{k} g[i]$$
 
 In this form, the step response reflects the combined effects of all filters, delays, and feedback mechanisms within the control loop.  
 A well-damped and smooth curve indicates a stable and responsive system,  
@@ -33,7 +32,7 @@ The steady-state value is estimated as the **mean value in a time window after t
 
 The normalization is performed by dividing the entire step response by this steady-state value:
 
-$y_\text{norm}[k] = \frac{y[k]}{\bar{y}_\text{ss}}$
+$$y_\text{norm}[k] = \frac{y[k]}{\bar{y}_\text{ss}}$$
 
 After normalization, the step response **approaches 1 in steady state**, representing a unit step response.  
 This removes the influence of the absolute system gain and makes it easier to compare **rise time**, **overshoot**, and **settling behavior** between different controller settings.
