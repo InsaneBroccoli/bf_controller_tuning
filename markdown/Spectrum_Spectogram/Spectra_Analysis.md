@@ -8,11 +8,11 @@ The function processes each signal column independently and performs the followi
 
 ### 1. Mean Removal
 
-A global mean is removed from every signal. Additionally, each segment undergoes per-segment mean removal, which suppresses low-frequency drift and numerical bias.(DC components are therefore intentionally attenuated.)
+A global mean is removed from every signal. Additionally, each segment undergoes per-segment mean removal, which suppresses low-frequency drift and numerical bias. (DC components are therefore intentionally attenuated).
 
-### 2) Windowing of Each Segment
+### 2. Windowing of Each Segment
 
-Before the FFT is computed, each data segment is multiplied by the chosen analysis window (e.g., a periodic Hann window). The window reduces unwanted frequency spreading by making the signal smoothly fade in and out at the edges of each segment. Without this tapering, sudden jumps at the segment boundaries would create artificial frequency components that do not actually exist in the original signal.
+Before the FFT is computed, each data segment is multiplied by the chosen analysis window (for example a periodic Hann window). The window reduces unwanted frequency spreading by making the signal smoothly fade in and out at the edges of each segment. Without this tapering, sudden jumps at the segment boundaries would create artificial frequency components that do not exist in the original signal.
 
 $$x_{\mathrm{win}}(n) = x(n) \cdot w(n), \qquad n = 0, \ldots, \text{Nest}-1$$
 
@@ -26,12 +26,13 @@ After windowing, the segment is ready for amplitude-correct spectral estimation.
 
 ### 3. Segmentation with Overlap
 
-The function divides the input signal into multiple analysis windows (segments) of length  \( \text{Nest} \). These segments can overlap to a configurable degree.  By default, a **90% overlap** is used to ensure smooth and consistent spectral estimates. 
-The number of overlapping samples is defined as \( \text{N}_{\text{Overlap}} \).  Accordingly, the shift between two consecutive segments is:
+
+The function divides the input signal into multiple analysis windows (segments) of length  \($\text{Nest}$\). These segments can overlap to a configurable degree. By default, a **90% overlap** is used to ensure smooth and consistent spectral estimates. 
+The number of overlapping samples is defined as \($\text{N}_{\text{Overlap}}$\). Accordingly, the shift between two consecutive segments is:
 
 $$\text{N}_{\text{Shift}} = \text{Nest} - \text{N}_{\text{Overlap}}$$
 
-Overlaps in the range of **50–90%** yield smoother and statistically more stable spectra,  which aligns with standard recommendations for Welch averaging [2, pp. 455–457].
+Overlaps in the range of **50–90%** yield smoother and statistically more stable spectra, which aligns with standard recommendations for Welch averaging [2, pp. 455–457].
 
 ### 4. Windowing and Amplitude-Correct FFT Scaling
 
@@ -43,7 +44,7 @@ The FFT output is then scaled by:
 
 $$\frac{1}{Nest \cdot W}$$
 
-This scaling intentionally pre-doubles all bins so that interior bins already contain the correct single-sided amplitude representation.  
+This scaling intentionally pre-doubles all bins so that interior bins already contain the correct single-sided amplitude representation.
 However, the **DC** and **Nyquist** bins must not be doubled and are therefore corrected:
 
 $$P_{\mathrm{DC}} = \frac{P_{\mathrm{DC}}}{4}$$
