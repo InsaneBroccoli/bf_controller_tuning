@@ -21,7 +21,7 @@ This scaling is derived directly from Betaflight’s internal controller impleme
 
 Given the original PID gain vector as configured in Betaflight,
 
-$PID = [K_p,\; K_i,\; K_d],$
+$PID = [K_p, K_i, K_d],$
 
 the scaled PID values are obtained by applying the corresponding Betaflight scaling factors [1].
 
@@ -43,8 +43,8 @@ $C_D(z) = \frac{K_d}{T_s} (1 - z^{-1})$   [2]
 
 The resulting controllers are implemented as:
 
-- **\(C_{PI}\)** — proportional–integral controller  
-- **\(C_D\)** — discrete derivative controller  
+- **$C_{PI}$** — proportional–integral controller  
+- **$C_D$** — discrete derivative controller  
 
 With these newly computed controllers, it becomes possible to accurately predict the closed-loop behavior of the system under updated Betaflight PID gains using analytical, simulation, or frequency-domain methods.
 
