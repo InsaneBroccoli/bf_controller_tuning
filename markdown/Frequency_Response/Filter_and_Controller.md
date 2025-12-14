@@ -51,9 +51,9 @@ It creates the following filter paths:
 From the axis parameters, the discrete **PI** and **D** controllers are constructed as  
 standard discrete-time control elements [2]:
 
-$C_{PI}(z) = K_p + K_i \cdot T_s \frac{z}{z-1}$
+$$C_{PI}(z) = K_p + K_i \cdot T_s \frac{z}{z-1}$$
 
-$C_D(z) = \frac{K_d}{T_s} \frac{1 - z^{-1}}{z^{-1}}$
+$$C_D(z) = \frac{K_d}{T_s} \frac{1 - z^{-1}}{z^{-1}}$$
 
 The function returns the state-space models $C_{PI}$, $C_D$, and $G_f$,  
 as well as the effective PID gain vector.
