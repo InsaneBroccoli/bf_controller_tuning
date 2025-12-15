@@ -1,6 +1,6 @@
 # Flight Overview - Gyro Data
 
-This figure provides an overview of the most important signals recorded during the flight.
+This figure provides an overview of some important signals recorded during the flight.
 
 ### Top subplot (Gyro)
 
@@ -8,7 +8,11 @@ The angular rates for roll, pitch, and yaw are shown. You can clearly see the ch
 
 ### Second subplot (AxisSum)
 
-The AxisSum plot shows the sum of the absolute gyro rates for roll, pitch, and yaw. It provides a single value representing the total rotational activity of the drone. This plot is useful for detecting phases with high overall motion, vibration, or control effort, for example during aggressive inputs or unstable flight conditions. Larger values indicate higher total gyro activity. AxisSum does not provide information about axis coupling or interactions between axes, such effects must be evaluated by comparing the individual roll, pitch, and yaw gyro signals. Overall, AxisSum is an indicator of total rotational intensity, not a measure of axis independence or control quality.
+The AxisSum plot gives you an overview of the output of the rate PID controller for roll, pitch, and yaw. Each signal represents the total control command generated for one axis by summing all active controller terms (P, I, D, and feedforward, if enabled). This signal is later mixed to the individual motors.
+
+AxisSum describes controller effort, not measured motion. Low amplitudes indicate that the aircraft is tracking the setpoint with little correction, while higher amplitudes mean the controller must apply stronger corrective action to compensate for disturbances, tracking errors, or aggressive inputs.
+
+Increases in AxisSum can be observed during fast maneuvers, during excitation sequences, or when vibrations and resonances are present. In such cases, the controller injects more energy into the system in an attempt to maintain stability. Persistent high levels or strong high-frequency content in AxisSum may indicate overly aggressive gains, insufficient filtering, or mechanical issues. 
 
 ### Third subplot (Motors):
 

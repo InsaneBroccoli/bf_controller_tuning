@@ -3,8 +3,6 @@
 The function `estimate_spectrogram` extends the spectral estimation as described in [Spectra Analysis](./Spectra_Analysis.md) by computing a **single-sided, amplitude-correct spectrogram** over an additional coordinate $y$.  
 This allows the frequency content of a signal to be analyzed not only over time, but also along another dimension such as height, position, angle, or system state.
 
-
-
 Instead of forming a single averaged spectrum, the algorithm groups all FFT segments into $N_{\text{res}}$ bins along the thrust-axis and computes one spectrum per bin.  
 The amplitude calibration, FFT scaling, and DC/Nyquist correction follow the same method as in `estimate_spectra`.
 
@@ -74,13 +72,12 @@ The smoothed spectrogram is obtained as:
 
 $$P_{\mathrm{smooth}} = \frac{P_{\mathrm{avg}} * K_\text{norm}}{\mathbf{1} * K_\text{norm}}$$
 
----
 
 ## Outputs
 
-- **Pavg** — the averaged single-sided power spectrogram  
-- **freq** — corresponding frequency axis (0 … $\frac{f_s}{2}$)  
-- **y_axis** — center coordinates of the $y$-bins  
+- **$P_{avg}$** — the averaged single-sided power spectrogram  
+- **$freq$** — corresponding frequency axis ($0 … \frac{f_s}{2}$)  
+- **$y_{axis}$** — center coordinates of the $y$-bins  
 
 Amplitude spectrograms can be obtained via:
 
