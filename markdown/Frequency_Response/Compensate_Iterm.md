@@ -23,15 +23,11 @@ For analysis and controller tuning, the effect of I-Term Relax must be considere
  
 The measured controller transfer function is therefore compared with an analytically derived PI controller transfer function. The effect of the I-Term Relax algorithm, as well as other unmodeled dynamics, is implicitly included in the measurement-based result. To quantify this deviation, a frequency-dependent compensation factor is defined as the ratio between the measured PI controller transfer function `C_PI(ω)` and its analytical counterpart `C_PI,ana(ω)`:
 
-$
-C_{PI,com}(ω) = C_{PI}(ω) / C_{PI,ana}(ω)
-$
+$$C_{PI,com}(ω) = C_{PI}(ω) / C_{PI,ana}(ω)$$
 
 This compensation factor represents the combined influence of dynamics that are not explicitly modeled, including the impact of I-Term Relax. The factor is subsequently applied to both the original analytical PI controller and the newly designed PI controller, resulting in the compensated controller transfer functions:
 
-$
-C_{PI,ana,new}(ω) = C_{PI,ana}(ω) · C_{PI,com}(ω)
-$
+$$C_{PI,ana,new}(ω) = C_{PI,ana}(ω) · C_{PI,com}(ω)$$
 
 ---
 ## References
