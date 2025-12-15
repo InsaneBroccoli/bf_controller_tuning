@@ -5,6 +5,7 @@
 % Purpose: Analyzes flight logs and tunes PID controllers for a quadcopter
 %
 % Author: [Janick Dort, Yuri Bianchi, Dario Jurietti]
+% Supervisor: [Michael Peter]
 % Date: [25.11.2025]
 %==========================================================================
 

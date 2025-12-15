@@ -11,7 +11,6 @@ To obtain correct controller behavior in simulations, frequency-domain models, o
 Betaflight internally scales its PID gains using fixed numerical factors [1].  
 To convert Betaflight PID values into physically meaningful controller gains, the following scale factors are applied:
 
-
 This scaling comes **directly from Betaflight’s internal controller implementation** and ensures that the converted PID values correspond to real control gains [1].
 
 ---
@@ -20,10 +19,9 @@ This scaling comes **directly from Betaflight’s internal controller implementa
 
 Given the original PID vector:
 
-$$PID = [K_p,\; K_i,\; K_d]$$
+$$PID = [K_p, K_i, K_d]$$
 
 the scaled PID values are obtained as:
-
 
 This step converts user-facing Betaflight PID values into controller gains suitable for analysis.
 
@@ -34,10 +32,12 @@ This step converts user-facing Betaflight PID values into controller gains suita
 The discrete-time controllers (with sample time $T_s$) are constructed as:
 
 ### PI Controller
-$C_{PI} = K_p\,G_f + K_i\,T_s \cdot \frac{1}{1 - z^{-1}}$  [2]
+
+$$C_{PI} = K_p\ \cdot G_f + K_i \cdot T_s \cdot \frac{1}{1-z^{-1}}$$  [2]
 
 ### D Controller
-$C_D = \frac{K_d}{T_s}(1 - z^{-1})$  [2]
+
+$$C_D = \frac{K_d}{T_s}(1 - z^{-1})$$  [2]
 
 The output of the implementation is:
 
