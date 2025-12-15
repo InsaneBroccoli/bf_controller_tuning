@@ -26,8 +26,8 @@ do_insert_legends = true;
 % =========================================================================
 
 log_folder = 'logs';
-flight_folder = '20251208';
-log_name = '01_20251208_OvershootExpress.csv';
+flight_folder = '20251212';
+log_name = '06_20251212_OvershootExpress.TXT.csv';
 file_path = fullfile(log_folder, flight_folder, log_name);
 
 data_flight = flight_data(file_path);
@@ -91,10 +91,10 @@ para_new.gyro_soft_type      = 0;       % type of gyro lpf 1
 para_new.gyro_lowpass_dyn_hz = [0, 0];  % dyn gyro lpf overwrites gyro_lowpass_hz
 para_new.gyro_lowpass2_hz    = 800;     % frequency of gyro lpf 2
 para_new.gyro_soft2_type     = 0;       % type of gyro lpf 2
-para_new.gyro_notch_hz       = [200, 0];  % frequency of gyro notch 1 and 2
+para_new.gyro_notch_hz       = [0, 0];  % frequency of gyro notch 1 and 2
 
 % Gyro notch cutoff:either computed from D and center frequency or set manually
-para_new.gyro_notch_cutoff   = get_fcut_from_D_and_fcenter([1.0, 0.00], para_new.gyro_notch_hz); % damping of gyro notch 1 and 
+para_new.gyro_notch_cutoff   = get_fcut_from_D_and_fcenter([0.0, 0.00], para_new.gyro_notch_hz); % damping of gyro notch 1 and 
 % para_new.gyro_notch_cutoff   = [0, 0] % % Cutoff frequency gyro notch 1 and 2
 
 para_new.dterm_lpf_hz        = 0;       % frequency of dterm lpf 1
@@ -123,9 +123,9 @@ switch ind_ax
         I_new       = 80;
         D_new       = 27;
     case 2 % Pitch PID values [default: 47, 84, 34]
-        P_new       = 49;
-        I_new       = 96;
-        D_new       = 35;
+        P_new       = 20; % 49
+        I_new       = 96; % 96
+        D_new       = 35; % 35
     case 3 % Yaw PID values [default: 45, 80, 0]
         P_new       = 45;
         I_new       = 86;
@@ -148,7 +148,7 @@ plotter.plot_Gyro_spectra(do_insert_legends);
 plotter.plot_Spectogram(3);
 
 %% Plot Tuning Data
-%plotter.plot_Bode_Plant(ind_ax);
+% plotter.plot_Bode_Plant(ind_ax);
 % plotter.plot_Bode_Contr(ind_ax, do_insert_legends);
 plotter.plot_Gang_of_Four(do_insert_legends);
-plotter.plot_Step_Response(do_insert_legends);
+% plotter.plot_Step_Response(do_insert_legends);
