@@ -70,6 +70,7 @@ Therefore, it serves as an indicator of an **inaccurate or noise-dominated frequ
 
 [1] M. H. Hayes, Statistical Digital Signal Processing and Modeling, 1st ed., John Wiley & Sons, New York, 1996, 12–14, 330–340.
 
-[2] H. Lutz and W. Wendt, Taschenbuch der Regelungstechnik, Springer Vieweg, Berlin, Heidelberg, pp. 183–186.
+[2] H. Lutz and W. Wendt, Taschenbuch der Regelungstechnik, 6th ed., Springer Vieweg, Berlin, Heidelberg, pp. 183–186.
+
 
 [3] R. Pintelon and J. Schoukens, System Identification: A Frequency Domain Approach, 2nd ed., IEEE Press, 2012, pp. 53–54.
