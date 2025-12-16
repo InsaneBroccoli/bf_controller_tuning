@@ -1,7 +1,7 @@
 # Chirp-Signal and `sinarg`
 
 A **chirp signal** is a sinusoidal signal whose **frequency varies continuously over time**.  
-It is widely used in **system identification** to excite a broad range of frequencies in a single measurement, making it possible to estimate the frequency response $G(j\omega)$ efficiently [1, pp. 84–86].
+It is widely used in **system identification** to excite a broad range of frequencies in a single measurement, making it possible to estimate the frequency response $G(j\omega)$ efficiently [1].
 
 ---
 
@@ -19,7 +19,7 @@ $x(t) = \sin(\text{arg}(t)),$ where the phase argument $\text{arg}(t) = 2\pi \in
 
 In practical implementations such as **Betaflight**, the phase $\text{arg}(t)$ is wrapped using the modulo operation  
 $\text{arg}(t) \bmod 2\pi$, so that it resets to 0 whenever a full $2\pi$ rotation is reached.  
-This keeps the numerical values bounded and results in the **sawtooth-shaped** `sinarg` signal often seen in practice.
+This keeps the numerical values bounded and results in the **sawtooth-shaped** `sinarg` signal often seen in practice [1].
 
 ---
 
@@ -44,7 +44,7 @@ This keeps the numerical values bounded and results in the **sawtooth-shaped** `
   $$f(t) = f_0 \left(\frac{f_1}{f_0}\right)^{t/T}$$
   $$\text{arg}(t) = \frac{2\pi T f_0}{\ln(f_1/f_0)}\left[\left(\frac{f_1}{f_0}\right)^{t/T}-1\right]$$
 
-These functions define the **phase trajectory** `arg(t)` used in simulations and in the `apply_rotfiltfilt` method for time-dependent frequency shifting of chirp signals [1, pp. 85–86].
+These functions define the **phase trajectory** `arg(t)` used in simulations and in the `apply_rotfiltfilt` method for time-dependent frequency shifting of chirp signals[1].
 
  <p align="center">
   <img src="./Images/exp_chirp.jpg"
@@ -59,11 +59,11 @@ These functions define the **phase trajectory** `arg(t)` used in simulations and
 
 In frequency-domain system identification, chirp signals provide an **energy-efficient broadband excitation**.  
 The measured input and output signals can be used to estimate the system's transfer function over a continuous frequency range.  
-Compared to step or random excitation, chirps allow faster and more phase-consistent measurements of linear system dynamics [1, pp. 84–86].
+Compared to step or random excitation, chirps allow faster and more phase-consistent measurements of linear system dynamics [1].
 
 ---
 
 ## References
 
-[1] R. Pintelon, J. Schoukens, *System Identification: A Frequency Domain Approach*, 2nd ed., IEEE Press, 2012, **pp. 84–86.**  
-[2] M. H. Hayes, *Statistical Digital Signal Processing and Modeling*, John Wiley & Sons, 1996, **pp. 51–52.**
+[1] MathWorks, “chirp,” MATLAB Signal Processing Toolbox Documentation.
+    Available: https://ch.mathworks.com/help/signal/ref/chirp.html
