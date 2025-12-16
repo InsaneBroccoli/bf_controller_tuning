@@ -65,4 +65,5 @@ as well as the effective PID gain vector.
 [1] Betaflight Development Team, *Betaflight Flight Controller Firmware*,  
 GitHub Repository, https://github.com/betaflight/betaflight (accessed: 2025-12-2025).
 
-[2] H. Lutz and W. Wendt, Taschenbuch der Regelungstechnik, Springer Vieweg, p. 580.
+[2] H. Lutz and W. Wendt, Taschenbuch der Regelungstechnik, 6th ed., Springer Vieweg, Berlin, Heidelberg, pp. 183–186.
+
