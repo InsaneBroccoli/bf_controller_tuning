@@ -94,8 +94,7 @@ This **regularized spectral inversion** improves numerical stability [2].
 
 ## References
 
-[1] R. Pintelon and J. Schoukens, System Identification: A Frequency Domain
-    Approach, 2nd ed., IEEE Press, 2012, pp. 52–55.
-[2] M. H. Hayes, Statistical Digital Signal Processing and Modeling,
-    John Wiley & Sons, 1996, pp. 395-415.
+[1] R. Pintelon and J. Schoukens, System Identification: A Frequency Domain Approach, 2nd ed., IEEE Press, 2012, pp. 52–55.
+    
+[2] M. H. Hayes, Statistical Digital Signal Processing and Modeling, 1st ed., John Wiley & Sons, New York, 1996, pp. 395-415.
 
