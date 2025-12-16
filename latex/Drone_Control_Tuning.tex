@@ -960,9 +960,15 @@ The core functionality of the Drone Tuning Tool resides in its library functions
 To ensure that the Python implementation is both reliable and consistent with the original MATLAB code, we systematically transferred each library function from MATLAB to Python.
 For functions with simple numerical outputs, we used \texttt{np.testing.assert\_allclose} with appropriate absolute and relative tolerances, saving the function inputs and outputs from MATLAB and comparing them with the Python implementation.
 For more complex functions, such as those involving state-space outputs, we developed dedicated test scripts to compare the behavior of the MATLAB and Python versions across a range of scenarios.
-This rigorous testing approach helped us validate the correctness and consistency of the ported library functions.
-Automated testing and comparison between MATLAB and Python outputs were essential to ensure that the new implementation maintained the expected performance and accuracy.
-This systematic transfer and validation process significantly reduced the risk of introducing errors during migration and increased confidence in the reliability of the Python-based tool.
+
+The initial validation process was conducted using flight data from a single test flight.
+While several core functions successfully passed the comparison tests with the MATLAB reference implementation, some functions still require further refinement.
+Specifically, the functions \texttt{apply\_rotfiltfilt} and \texttt{downsample\_frd} exhibit deviations that exceed the specified tolerance thresholds when compared to their MATLAB counterparts.
+Additionally, the \texttt{calculate\_transferfunction} requires revision in the dynamic gyro lowpass filter configuration, as the current implementation produces runtime errors under certain conditions.
+
+For the ongoing development, a comprehensive testing framework is planned that will validate all library functions against flight data from multiple test flights.
+This extended validation will provide a more robust assessment of the Python implementation's reliability and help identify edge cases that may not have been apparent in single-flight testing.
+The systematic transfer and validation process established so far provides a solid foundation for completing the migration and ensuring consistency between the MATLAB and Python implementations in future work.
 
 \newpage
 
