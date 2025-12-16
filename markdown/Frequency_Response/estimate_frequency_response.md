@@ -1,6 +1,6 @@
 # Estimate Frequency Response
 
-The `estimate_frequency_response` function estimates the **frequency response** and **coherence** between a measured input and output signal using the **Welch method** for spectral averaging [1][2].  
+The `estimate_frequency_response` function estimates the **frequency response** and **coherence** between a measured input and output signal using the **Welch method** for spectral averaging.  
 It returns an amplitude-calibrated, single-sided frequency response with correct phase and energy scaling.
 
 As an example, consider a system excited by a random or chirp signal, where both input and output are measured to identify its linear dynamics.
@@ -34,7 +34,7 @@ which leads to the practical and statistically robust estimator
 
 $$G(\omega) = \frac{S_{yu}(\omega)}{S_{uu}(\omega)}.$$
 
-This formulation provides a consistent estimate of the system’s amplitude and phase response across all frequencies [1][2].
+This formulation provides a consistent estimate of the system’s amplitude and phase response across all frequencies [1].
 
 <p align="center">
   <img src="./Images/bode_Syu_Suu.jpg"
@@ -94,5 +94,8 @@ This **regularized spectral inversion** improves numerical stability [2].
 
 ## References
 
-[1] P. M. Djuric, S. M. Kay, *Statistical Digital Signal Processing and Modeling*, Prentice Hall, 1993, **pp. 356–375.**  
-[2] R. Pintelon, J. Schoukens, *System Identification: A Frequency Domain Approach*, 2nd ed., IEEE Press, 2012, **pp. 57–63, 205–212.**
+[1] R. Pintelon and J. Schoukens, System Identification: A Frequency Domain
+    Approach, 2nd ed., IEEE Press, 2012, pp. 52–55.
+[2] M. H. Hayes, Statistical Digital Signal Processing and Modeling,
+    John Wiley & Sons, 1996, pp. 395-415.
+
