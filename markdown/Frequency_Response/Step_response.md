@@ -2,7 +2,7 @@
 
 The function `calculate_step_response_from_frd` approximates the **time-domain step response** of the newly calculated transfer function in [Closed-Loop Analysis](./CalculateClosedLoop.md).  
 The **step response** illustrates how the system reacts to a sudden change during a unit step and therefore provides a direct view of the **transient behavior** of the control loop. From this response, key performance indicators such as **rise time**, **overshoot**, **settling time**, and **steady-state error** can be observed.  
-A smooth and fast rise indicates a well-tuned controller, whereas overshoot or oscillations reveal underdamped dynamics or insufficient phase margin [1, pp. 118–121][2, pp. 455–457].
+A smooth and fast rise indicates a well-tuned controller, whereas overshoot or oscillations reveal underdamped dynamics or insufficient phase margin [1].
 
 ---
 
@@ -21,7 +21,7 @@ $$y[k] = \sum_{i=0}^{k} g[i]$$
 
 In this form, the step response reflects the combined effects of all filters, delays, and feedback mechanisms within the control loop.  
 A well-damped and smooth curve indicates a stable and responsive system,  
-whereas oscillations or overshoot reveal underdamped or poorly tuned controller dynamics [1, pp. 118–121][2, pp. 455–457].
+whereas oscillations or overshoot reveal underdamped or poorly tuned controller dynamics [2].
 
 ---
 
@@ -37,7 +37,7 @@ $$y_\text{norm}[k] = \frac{y[k]}{\bar{y}_\text{ss}}$$
 After normalization, the step response **approaches 1 in steady state**, representing a unit step response.  
 This removes the influence of the absolute system gain and makes it easier to compare **rise time**, **overshoot**, and **settling behavior** between different controller settings.
 
-The focus is therefore on the **dynamic behavior of the closed-loop system**, rather than on absolute amplitudes. [3, pp. 43–45].
+The focus is therefore on the **dynamic behavior of the closed-loop system**, rather than on absolute amplitudes.
 
 ---
 
@@ -53,12 +53,14 @@ In control theory, compliance represents the **transfer function from an externa
 
 
 A **low compliance** indicates a **stiff and disturbance-resistant system**, effectively rejecting external forces such as wind or vibration. However, such systems may be more prone to oscillations if the controller bandwidth is too high. A **high compliance**, on the other hand, corresponds to a **soft or flexible system** that responds more smoothly but is less capable of rejecting disturbances.
-In the context of closed-loop control, analyzing compliance helps to balance **disturbance rejection**, **stability**, and **responsiveness** key objectives when tuning and validating feedback systems [1, pp. 133–135][2, pp. 455–457][3, pp. 43–45].
+In the context of closed-loop control, analyzing compliance helps to balance **disturbance rejection**, **stability**, and **responsiveness** key objectives when tuning and validating feedback systems. [3]
 
 ---
 
 **References**
 
-[1] Pintelon, R., & Schoukens, J. (2012). *System Identification: A Frequency Domain Approach* (2nd ed.). Wiley-IEEE Press, pp. 133–135.  
-[2] Hayes, M. H. (1996). *Statistical Digital Signal Processing and Modeling*. Wiley, pp. 455–457.  
-[3] Lutz, H., Wendt, T., & Hering, W. (2022). *Taschenbuch der Regelungstechnik* (10th ed.). Springer Vieweg, pp. 43–45.
+[1] H. Lutz and W. Wendt, Taschenbuch der Regelungstechnik, 6th ed., Springer Vieweg, Berlin, Heidelberg, pp. 60.
+
+[2]  H. Lutz and W. Wendt, Taschenbuch der Regelungstechnik, 6th ed., Springer Vieweg, Berlin, Heidelberg, pp. 98.
+
+[3] K. J. Åström and R. M. Murray, Feedback Systems: An Introduction for Scientists and Engineers, Princeton University Press, 2008, ch. 12, sec. 12.1, p. 403 (PDF). Available: https://fbsbook.org
