@@ -59,8 +59,8 @@ In the context of closed-loop control, analyzing compliance helps to balance **d
 
 **References**
 
-[1] Lutz, H., Wendt, T., & Hering, W. (2022). *Taschenbuch der Regelungstechnik* (10th ed.). Springer Vieweg, pp. 60.
+[1] H. Lutz and W. Wendt, Taschenbuch der Regelungstechnik, 6th ed., Springer Vieweg, Berlin, Heidelberg, pp. 60.
 
-[2] Lutz, H., Wendt, T., & Hering, W. (2022). *Taschenbuch der Regelungstechnik* (10th ed.). Springer Vieweg, pp. 98.
+[2]  H. Lutz and W. Wendt, Taschenbuch der Regelungstechnik, 6th ed., Springer Vieweg, Berlin, Heidelberg, pp. 98.
 
 [3] K. J. Åström and R. M. Murray, Feedback Systems: An Introduction for Scientists and Engineers, Princeton University Press, 2008, ch. 12, sec. 12.1, p. 403 (PDF). Available: https://fbsbook.org
