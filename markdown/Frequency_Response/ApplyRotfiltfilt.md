@@ -75,7 +75,7 @@ The result is a filtered version of the original signal $x(t)$, with high-freque
 
 ## References
 
-[1] M. H. Hayes, Statistical Digital Signal Processing and Modeling, John Wiley & Sons, New York, 1996, pp. 14. 
+[1] M. H. Hayes, Statistical Digital Signal Processing and Modeling, 1st ed., John Wiley & Sons, New York, 1996, p. 14.
 
 [2] MathWorks, “chirp”, MATLAB Signal Processing Toolbox Documentation.
 Available: https://ch.mathworks.com/help/signal/ref/chirp.html
