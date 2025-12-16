@@ -54,6 +54,7 @@ In control theory, compliance represents the **transfer function from an externa
 
 A **low compliance** indicates a **stiff and disturbance-resistant system**, effectively rejecting external forces such as wind or vibration. However, such systems may be more prone to oscillations if the controller bandwidth is too high. A **high compliance**, on the other hand, corresponds to a **soft or flexible system** that responds more smoothly but is less capable of rejecting disturbances.
 In the context of closed-loop control, analyzing compliance helps to balance **disturbance rejection**, **stability**, and **responsiveness** key objectives when tuning and validating feedback systems. [3]
+
 ---
 
 **References**
