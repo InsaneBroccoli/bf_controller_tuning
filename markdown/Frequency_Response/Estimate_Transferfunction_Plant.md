@@ -2,7 +2,7 @@
 
 For the calculation of the transfer functions, corresponding input and output signals were selected from the measurement data.  
 To reduce the influence of noise and disturbances, the functions [`apply_rotfiltfilt`](./ApplyRotRotfilt.md) and [`estimate_frequency_response`](./estimate_frequency_response.md) were used. (More information in [Function apply_rotfilfil](./ApplyRotfiltfilt.md) and [Function estimate_frequency_response](./estimate_frequency_response.md))
-The first function shifts the signal to the baseband and applies zero-phase filtering to suppress unwanted components, while the second performs the frequency response estimation using the Welch method with amplitude-correct scaling [1][2].  
+The first function shifts the signal to the baseband and applies zero-phase filtering to suppress unwanted components, while the second performs the frequency response estimation using the Welch method with amplitude-correct scaling [1].  
 
 Additionally, care was taken to use as few signals as possible from the closed loop, since noise in those signals is fed back and can therefore be amplified.  
 With these measures, a robust and noise-resistant estimation of the transfer functions could be achieved.
@@ -24,7 +24,7 @@ $$G_{uw}(\omega) = \frac{C_{PI}(\omega)}{1 + G_{yu}(\omega)\,C_{PI}(\omega)}$$
 
 $$\Rightarrow P(\omega) = \frac{T(\omega)}{G_{wu}(\omega)}$$
 
-These relationships make it possible to **reconstruct the plant transfer function \( P(j\omega) \) from closed-loop measurement data** without opening the control loop during the experiment.
+These relationships make it possible to **reconstruct the plant transfer function \( P(j\omega) \) from closed-loop measurement data** without opening the control loop during the experiment. [2]
 <p align="center">
   <img src="./Images/Regelstrecke.png"
      alt="ZHAW Logo"
@@ -44,7 +44,7 @@ $P(\omega) = P_\text{real}(\omega) \cdot G_f(\omega)$ where $G_f(\omega)$ denote
 To obtain the **true plant**, the known filter model $G_{f}(\omega)$ is divided out:
 $P_\text{real}(\omega) = \frac{P(\omega)}{G_{f}(\omega)}.$
 
-This step restores the unfiltered system dynamics of the motor and frame, while maintaining consistency with the measured closed-loop responses.
+This step restores the unfiltered system dynamics of the motor and frame, while maintaining consistency with the measured closed-loop responses. [2]
 
 ---
 
@@ -60,13 +60,17 @@ $$S_{YY}(\omega) = Y(\omega) \cdot \overline{Y(\omega)}$$
 Using these spectra, the **magnitude-squared coherence** is obtained as $\gamma^2(f) = \frac{|S_{YU}(f)|^2}{S_{YY}(f)\,S_{UU}(f)}$.
 
 A high coherence $\gamma^2(f) \approx 1$ indicates a strong linear relationship between the input and output signals,  
-confirming that the frequency response estimation is reliable [1, pp. 128–131].  
+confirming that the frequency response estimation is reliable.  
 If the coherence is close to zero, it indicates a very weak or non-existent relationship between the signals.  
-Therefore, it serves as an indicator of an **inaccurate or noise-dominated frequency response estimate** at that frequency.
+Therefore, it serves as an indicator of an **inaccurate or noise-dominated frequency response estimate** at that frequency. [3]
 
 ---
 
 ## References
 
-[1] R. Pintelon, J. Schoukens, *System Identification: A Frequency Domain Approach*, 2nd ed., IEEE Press, 2012, **pp. 45–60**.  
-[2] P. M. Djuric, S. M. Kay, *Statistical Digital Signal Processing and Modeling*, Prentice Hall, 1993, **pp. 25–35**.
+[1] M. H. Hayes, Statistical Digital Signal Processing and Modeling, 1st ed., John Wiley & Sons, New York, 1996, 12–14, 330–340.
+
+[2] H. Lutz and W. Wendt, Taschenbuch der Regelungstechnik, 6th ed., Springer Vieweg, Berlin, Heidelberg, pp. 183–186.
+
+
+[3] R. Pintelon and J. Schoukens, System Identification: A Frequency Domain Approach, 2nd ed., IEEE Press, 2012, pp. 53–54.

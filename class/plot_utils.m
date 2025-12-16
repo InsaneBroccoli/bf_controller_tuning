@@ -116,7 +116,7 @@ classdef plot_utils
         
             % ---------- Setpoint Data ----------
             ax(4) = subplot(4,1,4);
-            plot(ax(4), df.time, df.data(:, df.ind.setpoint(1:4)));
+            plot(ax(4), df.time, df.data(:, df.ind.setpoint(4)));
             ylabel(ax(4),'Throttle'); xlabel(ax(4),'Time (sec)');
             grid(ax ,'on');
             
@@ -139,11 +139,11 @@ classdef plot_utils
             set(gcf, 'Name', 'Evaluation Time Flight');
             delta_time_mus = diff(df.time)* 1.0e6;
             plot(df.time(1:end-1), delta_time_mus), grid on
-            title(sprintf('Mean: %0.2f mus, Median: %0.2f mus, Std: %0.2f mus\n', ...
+            title(sprintf('Mean: %0.2f us, Median: %0.2f us, Std: %0.2f us\n', ...
                   mean(delta_time_mus), ...
                   median(delta_time_mus), ...
                   std(delta_time_mus)))
-            xlabel('Time (sec)'), ylabel('Ts log (mus)')
+            xlabel('Time (sec)'), ylabel('Ts log (us)')
             xlim([0, df.time(end)])
             set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)            
         end

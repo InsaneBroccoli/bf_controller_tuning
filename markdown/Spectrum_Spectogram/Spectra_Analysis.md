@@ -76,8 +76,8 @@ $$P_{\text{avg}}(f) = \frac{1}{N_{\text{segments}}}\sum P_{\text{seg}}(f)$$
 
 The output is:
 
-- **Pavg**: one-sided power spectrum  
-- **freq**: matching frequency vector  
+- **$P_{avg}$**: one-sided power spectrum  
+- **$freq$**: matching frequency vector  
 
 To obtain single-sided amplitude spectra:
 
