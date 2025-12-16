@@ -1,77 +1,28 @@
-\documentclass[a4paper,11pt,headheight=200pt]{scrartcl}
+\documentclass[a4paper,11pt]{scrartcl}
 
-% Seitenränder und Kopf-/Fußzeilen anpassen
-\KOMAoptions{
-  parskip=half,     % halber Zeilenabstand zwischen Absätzen
-  headings=small,   % kleinere Überschriften
-  headinclude=true, % Kopfzeile einbeziehen
-  footinclude=true  % Fußzeile einbeziehen
-}
-% Seitenränder setzen
-\areaset{165mm}{275mm} % Breite und Höhe des Textbereichs
-
+% Language and citation support
 \usepackage[english]{babel}
-\usepackage{csquotes} % für Zitate
-\usepackage{labstyle} % lädt graphicx, xcolor etc.
-\usepackage{hyperref} % für Links im PDF
+\usepackage{csquotes}
 
+% Load consolidated formatting from labstyle
+\usepackage{labstyle}
+
+% Bibliography setup
 \usepackage[
   backend=biber,
   style=numeric,
-  sorting=none     % Reihenfolge = Zitierreihenfolge im Text
+  sorting=none
 ]{biblatex}
-
 \addbibresource{Zotero_zitieren.bib}
 
-\usepackage{float}
-\lstset{
-  basicstyle=\ttfamily\small, % Schriftart und -grösse
-  frame=none, % kein Rahmen
-  breaklines=true, % Zeilen umbrechen
-  literate={│}{{\textbar}}1 {├}{{$\vdash$}}1 {└}{{$\llcorner$}}1 {─}{{-}}1 % für dirtree
-}
-\usepackage{dirtree} % für Verzeichnisbäume
+% PDF inclusion (for title page)
+\usepackage{pdfpages}
 
-% Abstände vor und nach Überschriften anpassen
-\RedeclareSectionCommand[
-  beforeskip=1.5em,   % Abstand vor der Überschrift
-  afterskip=0.75em    % Abstand nach der Überschrift
-]{section}
-
-\RedeclareSectionCommand[
-  beforeskip=1.25em,
-  afterskip=0.1em
-]{subsection}
-
-\RedeclareSectionCommand[
-  beforeskip=1em,
-  afterskip=0.1em
-]{subsubsection}
-
-% Überschriftengrössen anpassen
-\setkomafont{section}{\Large\bfseries}      % \section
-\setkomafont{subsection}{\large\bfseries}   % \subsection
-\setkomafont{subsubsection}{\normalsize\bfseries} % \subsubsection
-
-% SI-Einheiten definieren
-\DeclareSIUnit{\rpm}{rpm}
-\DeclareSIUnit{\newtonmeter}{\newton\metre}
-
-% labstyle-Metadaten
+% Document metadata
 \renewcommand{\labtitle}{Drone Control Tuning}
 \renewcommand{\labsubtitle}{Development of an Offline Betaflight Drone Control Tuning tool}
-\renewcommand{\labauthor}{ Yuri Bianchi, Dario Jurietti and Janick Dort}
+\renewcommand{\labauthor}{Yuri Bianchi, Dario Jurietti and Janick Dort}
 \renewcommand{\labdate}{\today}
-
-% Header/Fußzeile aus labstyle nach Bedarf anpassen
-% (labheader steht aktuell in labstyle.sty auf "Drone Control Tuning")
-% \renewcommand{\labheader}{PA Drone Control Tuning}
-% \renewcommand{\labfooter}{ZHAW/IMS}
-% \renewcommand{\lablogo}{}  % Logo oben rechts deaktivieren, falls nicht vorhanden
-
-\usepackage{pdfpages}
-\usepackage{listings}
-\setcounter{tocdepth}{2}
 
 \begin{document}
 
@@ -80,7 +31,7 @@
 % ---------------------------------------------
 \begin{titlepage}
 
-\includepdf[pages=1]{pdf/Titelblatt.pdf}
+	\includepdf[pages=1]{pdf/Titelblatt.pdf}
 
 
 \end{titlepage}
@@ -167,10 +118,10 @@ For clarity, the control architecture is illustrated in a simplified form in Fig
 The control system consists of two loops: an inner loop responsible for angular rate control based on gyroscope feedback, and an outer loop performing angle control based on pilot stick inputs. Both loops incorporate filtering and control elements that directly affect the frequency response and stability characteristics of the system.
 
 \begin{figure}[h]
-    \centering
-    \includegraphics[width=1.0\textwidth]{./Images/Theory/Regelstrecke.png}
-    \caption{Simplified representation of the Betaflight gyro control system}
-    \label{fig:bf_gyro_control}
+	\centering
+	\includegraphics[width=1.0\textwidth]{./Images/Theory/Regelstrecke.png}
+	\caption{Simplified representation of the Betaflight gyro control system}
+	\label{fig:bf_gyro_control}
 \end{figure}
 
 \newpage
@@ -218,7 +169,7 @@ The Betaflight rate control loop behaves approximately as a differentiator below
 The specific corner frequencies of 3 Hz and 30 Hz are configured to match the typical dynamics of FPV racing drones and ensure robust excitation without causing instability or excessive motor stress. In the Betaflight implementation, the filtered chirp signal is added to the pilot's stick input before entering the PID controller, allowing the system to be excited while maintaining manual control authority during flight.
 
 \subsubsection*{Data Import and Preprocessing}
-To analyze Betaflight Blackbox logs effectively, the recorded data must first be imported and preprocessed to ensure correct scaling, structure, and suitability for further analysis. Each log consists of a header containing essential metadata, such as filter settings and PID values, and a data block with the recorded signals. Both components are required for correct interpretation of the flight data. 
+To analyze Betaflight Blackbox logs effectively, the recorded data must first be imported and preprocessed to ensure correct scaling, structure, and suitability for further analysis. Each log consists of a header containing essential metadata, such as filter settings and PID values, and a data block with the recorded signals. Both components are required for correct interpretation of the flight data.
 
 To reduce computational effort, the raw CSV log files are converted into the faster MATLAB \texttt{.mat} format, allowing for significantly shorter loading times. During this step, signal names are automatically mapped to their corresponding data columns, which simplifies the identification and use of individual signals in future analyses \parencite{bf_LoadData}. Betaflight’s High Resolution Mode scales selected signals by a factor of ten to optimize storage and reduce numerical rounding errors. These signals are therefore rescaled to their original values during preprocessing to ensure accurate results \parencite{bf_UnshigRes}.
 
@@ -231,10 +182,10 @@ Spectrum and spectrogram analysis are powerful tools for understanding how a sys
 The recorded data logs provide two types of gyroscope signals. On the one hand, the signal \texttt{gyroADC} is available; on the other hand, the signal \texttt{gyroUnfilt} is recorded. The difference between these two signals is that the \texttt{gyroADC} signal has already passed through the internal Betaflight filtering stages, whereas the \texttt{gyroUnfilt} signal represents the raw data directly measured by the gyroscope sensor without any filtering applied, as illustrated in Figure~\ref{fig:gyro_filtered_vs_unfiltered}.
 
 \begin{figure}[h]
-    \centering
-    \includegraphics[width=0.9\linewidth]{Images/Theory/Control_Gyro.png}
-    \caption{Filtered versus unfiltered gyroscope signal}
-    \label{fig:gyro_filtered_vs_unfiltered}
+	\centering
+	\includegraphics[width=0.9\linewidth]{Images/Theory/Control_Gyro.png}
+	\caption{Filtered versus unfiltered gyroscope signal}
+	\label{fig:gyro_filtered_vs_unfiltered}
 \end{figure}
 
 Transforming both signals into the frequency domain reveals the effect of the internal filters on the signal content. The filtered signal shows reduced high-frequency noise and attenuated frequency components, while the unfiltered signal contains stronger high-frequency noise and structural resonances.\parencite{bf_Spectra}
@@ -249,22 +200,22 @@ This representation helps to understand how resonances, noise levels, and domina
 To estimate the frequency response of a system from measured input and output signals, the data must first be transformed into the frequency domain. This is achieved using the Fast Fourier Transform (FFT). The frequency response is then obtained by dividing the Fourier transform of the output signal by that of the input signal:
 
 \begin{equation}
-G_{xy}(\omega) = \frac{\mathrm{FFT}(y)}{\mathrm{FFT}(x)} .
+	G_{xy}(\omega) = \frac{\mathrm{FFT}(y)}{\mathrm{FFT}(x)} .
 \end{equation}
 
 In practical applications, measurement data is often contaminated by noise, which can significantly distort the frequency response estimation. As illustrated in Figure \ref{fig:system_noise}, noise is added to the system between the input signal \(u(t)\) and the output signal \(y(t)\). This noise may originate from sensor inaccuracies, environmental disturbances, or electronic interference. If not properly handled, it can lead to unreliable or misleading results. To mitigate this effect, the program applies a dedicated filtering routine, implemented in the function \texttt{apply\_rotfiltfilt}.
 
 \begin{figure}[h]
-\centering
-\includegraphics[width=0.9\textwidth]{Images/Theory/Freq_Blockschalt.png}
-\caption{System model including measurement noise}
-\label{fig:system_noise}
+	\centering
+	\includegraphics[width=0.9\textwidth]{Images/Theory/Freq_Blockschalt.png}
+	\caption{System model including measurement noise}
+	\label{fig:system_noise}
 \end{figure}
 
 To improve the robustness of the frequency response estimation, a rotational filtering approach is used. In this method, the output signal is shifted to the baseband, filtered, and then shifted back to its original frequency range. The frequency shift is achieved by multiplying the signal with a complex exponential corresponding to the instantaneous chirp frequency:
 
 \begin{equation}
-y_{\mathrm{rot}}(t) = y(t) \cdot e^{-j 2 \pi f_{\mathrm{chirp}}(t) t} .
+	y_{\mathrm{rot}}(t) = y(t) \cdot e^{-j 2 \pi f_{\mathrm{chirp}}(t) t} .
 \end{equation}
 
 After shifting the signal to baseband, a zero-phase filter is applied to remove unwanted frequency components while preserving the phase information of the signal. This step is essential for reducing noise without distorting the underlying system dynamics. The filtered signal is then shifted back to its original frequency range \parencite{bf_ApplyRot}.
@@ -272,48 +223,48 @@ After shifting the signal to baseband, a zero-phase filter is applied to remove 
 Subsequently, the frequency response is estimated using the filtered output signal within the function \texttt{Estimate Frequency Response}. The signal is divided into overlapping segments, as illustrated in Figure \ref{fig:segmentation}. The FFT is computed for each segment, and the resulting spectra are averaged to obtain a smooth and reliable estimate of the frequency response \parencite{bf_estfreqresp}.
 
 \begin{figure}[h]
-\centering
-\includegraphics[width=1.0\textwidth]{Images/Theory/segmentation.png}
-\caption{Segmentation of a signal into overlapping windows}
-\label{fig:segmentation}
+	\centering
+	\includegraphics[width=1.0\textwidth]{Images/Theory/segmentation.png}
+	\caption{Segmentation of a signal into overlapping windows}
+	\label{fig:segmentation}
 \end{figure}
 
 \newpage
 
 \subsubsection*{Transfer Function Estimation}
 
-In a closed loop control system, the plant is the physical system that we want to control, for example the movement of a drone.  
-To tune a controller, we need to understand how the plant behaves. However, when the system is running in closed loop, this becomes difficult.  
+In a closed loop control system, the plant is the physical system that we want to control, for example the movement of a drone.
+To tune a controller, we need to understand how the plant behaves. However, when the system is running in closed loop, this becomes difficult.
 The output is fed back through the controller and continuously changes the input signal. Because of this, the input is no longer an independent excitation, but already contains the controller reactions and disturbance effects.
 
-If we try to measure the transfer function directly from input to output in this situation, the result will not represent the true behaviour of the plant.  
-Instead, it will show a combination of the plant dynamics, the controller dynamics and the feedback loop.  
+If we try to measure the transfer function directly from input to output in this situation, the result will not represent the true behaviour of the plant.
+Instead, it will show a combination of the plant dynamics, the controller dynamics and the feedback loop.
 Figure~\ref{fig:closedloop} shows a simplified closed loop structure.
 
 \begin{figure}[H]
-    \centering
-    \includegraphics[width=0.9\textwidth]{Images/Theory/Control_Loop_easy.png}
-    \caption{Simplified closed loop system}
-    \label{fig:closedloop}
+	\centering
+	\includegraphics[width=0.9\textwidth]{Images/Theory/Control_Loop_easy.png}
+	\caption{Simplified closed loop system}
+	\label{fig:closedloop}
 \end{figure}
 
-To overcome this problem, we use the known relationships between the different transfer functions in the closed loop.  
+To overcome this problem, we use the known relationships between the different transfer functions in the closed loop.
 From the measurement data we compute
 
 \begin{equation}
-    G_{yr}(\omega) = \frac{\mathrm{FFT}(y)}{\mathrm{FFT}(r)} 
-    = \frac{C(\omega)\,P(\omega)}{1 + C(\omega)\,P(\omega)},
+	G_{yr}(\omega) = \frac{\mathrm{FFT}(y)}{\mathrm{FFT}(r)}
+	= \frac{C(\omega)\,P(\omega)}{1 + C(\omega)\,P(\omega)},
 \end{equation}
 
 \begin{equation}
-    G_{ur}(\omega) = \frac{\mathrm{FFT}(u)}{\mathrm{FFT}(r)} 
-    = \frac{C(\omega)}{1 + C(\omega)\,P(\omega)}.
+	G_{ur}(\omega) = \frac{\mathrm{FFT}(u)}{\mathrm{FFT}(r)}
+	= \frac{C(\omega)}{1 + C(\omega)\,P(\omega)}.
 \end{equation}
 
 By dividing the two expressions, the controller cancels out and we obtain an estimate of the plant transfer function:
 
 \begin{equation}
-    P(\omega) = \frac{G_{yr}(\omega)}{G_{ur}(\omega)}.
+	P(\omega) = \frac{G_{yr}(\omega)}{G_{ur}(\omega)}.
 \end{equation}
 
 This allows us to reconstruct the plant transfer function \(P(\omega)\) from closed loop measurement data without opening the control loop during the experiment \parencite{bf_Transfun}.
@@ -326,36 +277,36 @@ After determining the plant transfer function, the next step is to analyze the b
 As an example, the closed-loop configuration shown in Figure \ref{fig:closed_loop} is analyzed.
 
 \begin{figure}[h]
-    \centering
-    \includegraphics[width=0.9\textwidth]{Images/Theory/Control_Loop_easy.png}
-    \caption{Simplified closed loop system}
-    \label{fig:closed_loop}
+	\centering
+	\includegraphics[width=0.9\textwidth]{Images/Theory/Control_Loop_easy.png}
+	\caption{Simplified closed loop system}
+	\label{fig:closed_loop}
 \end{figure}
 
 The closed-loop transfer function from the reference input to the output is given by
 \begin{equation}
-G_{yr}(\omega) = \frac{C(\omega) P(\omega)}{1 + C(\omega) P(\omega)} .
+	G_{yr}(\omega) = \frac{C(\omega) P(\omega)}{1 + C(\omega) P(\omega)} .
 \end{equation}
 
 The sensitivity function, which describes how sensitive the system output is to disturbances and model uncertainties, is defined as
 \begin{equation}
-S(\omega) = \frac{1}{1 + C(\omega) P(\omega)} .
+	S(\omega) = \frac{1}{1 + C(\omega) P(\omega)} .
 \end{equation}
 
 The compliance function, representing the system response to disturbances acting on the plant, is given by
 \begin{equation}
-CC(\omega) = P(\omega) \cdot S(\omega) .
+	CC(\omega) = P(\omega) \cdot S(\omega) .
 \end{equation}
 
 Finally, the controller effort describes the influence of the reference input on the controller output and is defined as \parencite{bf_closeloop}
 \begin{equation}
-SC(\omega) = C(\omega) \cdot S(\omega) .
+	SC(\omega) = C(\omega) \cdot S(\omega) .
 \end{equation}
 
 
 \newpage
 
-\subsubsection*{Compensation of the I-Term} 
+\subsubsection*{Compensation of the I-Term}
 The integral term of a PID controller is used to compensate for steady-state errors by integrating the control error over time. In flight control systems, this helps to counteract constant disturbances such as motor imbalances or aerodynamic effects. During fast stick movements or aggressive maneuvers, however, the integral term can accumulate too much error.
 
 In these situations, the accumulated I-term no longer represents a disturbance but instead opposes the intended motion. When the maneuver ends, this can lead to overshoot, bounce-back effects, or slow settling of the system.
@@ -366,23 +317,23 @@ This allows the controller to respond quickly to fast pilot inputs while prevent
 
 For analysis and controller tuning, the effect of I-Term Relax must be considered, as it modifies the controller behavior depending on the current flight conditions.
 \begin{figure}[h]
-\centering
-\includegraphics[width=0.6\textwidth]{Images/Theory/Control_Loop_Iterm.png}
-\caption{Segmentation of a signal into overlapping windows}
-\label{fig:I_term}
+	\centering
+	\includegraphics[width=0.6\textwidth]{Images/Theory/Control_Loop_Iterm.png}
+	\caption{Segmentation of a signal into overlapping windows}
+	\label{fig:I_term}
 \end{figure}
 
 The measured controller transfer function is compared with an analytically derived controller transfer function. The effect of the I-Term Relax algorithm is therefore included implicitly in the measurement-based result.
 
 To this end, a compensation factor is defined as the ratio between the measured PI controller transfer function and its analytical counterpart:
 \begin{equation}
-C_{\mathrm{PI,com}}(\omega) = \frac{C_{\mathrm{PI}}(\omega)}{C_{\mathrm{PI,ana}}(\omega)} .
+	C_{\mathrm{PI,com}}(\omega) = \frac{C_{\mathrm{PI}}(\omega)}{C_{\mathrm{PI,ana}}(\omega)} .
 \end{equation}
 
 This frequency-dependent compensation factor represents the combined influence of effects that are not explicitly modeled, including the impact of I-Term Relax. The factor is subsequently applied to both the original analytical PI controller and the newly designed PI controller:
 \begin{align}
-C_{\mathrm{PI,ana,new}}(\omega) &= C_{\mathrm{PI,ana}}(\omega) \cdot C_{\mathrm{PI,com}}(\omega) , \\
-C_{\mathrm{PI,new,new}}(\omega) &= C_{\mathrm{PI,new}}(\omega) \cdot C_{\mathrm{PI,com}}(\omega) .
+	C_{\mathrm{PI,ana,new}}(\omega) & = C_{\mathrm{PI,ana}}(\omega) \cdot C_{\mathrm{PI,com}}(\omega) , \\
+	C_{\mathrm{PI,new,new}}(\omega) & = C_{\mathrm{PI,new}}(\omega) \cdot C_{\mathrm{PI,com}}(\omega) .
 \end{align}
 
 The resulting compensated controller transfer functions are then reinserted into the closed-loop system for further analysis and evaluation \parencite{bf_compITerm}.
@@ -392,14 +343,14 @@ The step response provides a direct view of how the system reacts to sudden chan
 
 To obtain the step response, the closed-loop transfer function must be transformed back into the time domain. This is achieved by applying the inverse Fourier transformation to the output spectrum
 \begin{equation}
-y(t) = \mathcal{F}^{-1}\{Y(\omega)\}
-     = \mathcal{F}^{-1}\{G_{yr}(\omega)\cdot R(\omega)\}.
+	y(t) = \mathcal{F}^{-1}\{Y(\omega)\}
+	= \mathcal{F}^{-1}\{G_{yr}(\omega)\cdot R(\omega)\}.
 \end{equation}
 
 Using the convolution theorem, this expression can be interpreted in the time domain as a convolution of the system’s impulse response $g_{yr}(t)$ with the input signal $r(t)$:
 \begin{equation}
-y(t) = (g_{yr} * r)(t)
-     = \int_{0}^{t} g_{yr}(\tau)\, r(t-\tau)\, d\tau.
+	y(t) = (g_{yr} * r)(t)
+	= \int_{0}^{t} g_{yr}(\tau)\, r(t-\tau)\, d\tau.
 \end{equation}
 
 For a step input, this convolution illustrates how the system accumulates the effect of its impulse response over time, leading to the characteristic shape of the step response \parencite{bf_stepresp}.
@@ -461,31 +412,31 @@ To get a better understanding of the individual controller components, we wrote 
 	\label{fig:controllerbode}
 \end{figure}
 
-The frequency response of the shown PID controller is based on the parameters 
-$K_p = 100$, $K_i = 10$ and $K_d = 10$. 
+The frequency response of the shown PID controller is based on the parameters
+$K_p = 100$, $K_i = 10$ and $K_d = 10$.
 The proportional gain defines the magnitude level in the mid-frequency range:
 \begin{equation}
-20\log_{10}(K_p) = 20\log_{10}(100) = 40\,\text{dB}.
+	20\log_{10}(K_p) = 20\log_{10}(100) = 40\,\text{dB}.
 \end{equation}
 
 The integral term causes the slope of $-20\,\text{dB/decade}$ at low frequencies with
 \begin{equation}
-|C_I(j\omega)| = \frac{K_i}{\omega} = \frac{10}{\omega}.
+	|C_I(j\omega)| = \frac{K_i}{\omega} = \frac{10}{\omega}.
 \end{equation}
 
 The corresponding lower corner frequency is
 \begin{equation}
-\omega_{k,I} = \frac{K_i}{K_p} = \frac{10}{100} = 0.1\,\text{rad/s}.
+	\omega_{k,I} = \frac{K_i}{K_p} = \frac{10}{100} = 0.1\,\text{rad/s}.
 \end{equation}
 
 The derivative term causes the slope of $+20\,\text{dB/decade}$ at high frequencies with
 \begin{equation}
-|C_D(j\omega)| = K_d\,\omega = 10\,\omega.
+	|C_D(j\omega)| = K_d\,\omega = 10\,\omega.
 \end{equation}
 
 The corresponding upper corner frequency is
 \begin{equation}
-\omega_{k,D} = \frac{K_p}{K_d} = \frac{100}{10} = 10\,\text{rad/s}.
+	\omega_{k,D} = \frac{K_p}{K_d} = \frac{100}{10} = 10\,\text{rad/s}.
 \end{equation}
 
 This example also shows that changing the integral and derivative gains shifts the position of the slopes in the Bode plot. A larger integral gain moves the low-frequency slope towards higher frequencies, while a larger derivative gain moves the high-frequency slope towards lower frequencies. In this way, the shape of the frequency response can be adjusted to the desired system behaviour.
@@ -495,47 +446,47 @@ This example also shows that changing the integral and derivative gains shifts t
 To analyse the frequency response of a system using input and output data, we created an additional simulation. In this setup, a chirp signal was used as the input signal. As in a real system, we added noise to both the input and the output to mimic realistic measurement conditions. From these noisy signals, we attempted to estimate the original system transfer function. The corresponding control loop is shown in Figure~\ref{fig:Freq_loop}.
 
 \begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.6\textwidth]{./Images/Simulations/Freq_Blockschalt.png}
-    \caption{Control loop of the simulation}
-    \label{fig:Freq_loop}
+	\centering
+	\includegraphics[width=0.6\textwidth]{./Images/Simulations/Freq_Blockschalt.png}
+	\caption{Control loop of the simulation}
+	\label{fig:Freq_loop}
 \end{figure}
 
 Same as in the real system, we could not measure the plant without noise. Instead, we had to measure $u(t)$ and $y(t)$ and estimate the transfer function from these signals, and not $\tilde{u}(t)$ and $\tilde{y}(t)$, which would allow us to calculate the transfer function directly. The different signals are shown in Figure \ref{fig:Freq_input}.
 
 \begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.85\textwidth]{./Images/Simulations/Freq_Input_Output.png}
-    \caption{Input and output signals with noise}
-    \label{fig:Freq_input}
+	\centering
+	\includegraphics[width=0.85\textwidth]{./Images/Simulations/Freq_Input_Output.png}
+	\caption{Input and output signals with noise}
+	\label{fig:Freq_input}
 \end{figure}
 
 If we calculate the transfer function directly from the noisy signals using a plain FFT, we obtain a very poor estimate, as shown in Figure~\ref{fig:Freq_FFT}. The noise distorts the frequency response significantly.
 
 \begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.9\textwidth]{./Images/Simulations/Freq_Y_U.png}
-    \caption{Bode plot estimated with plain FFT}
-    \label{fig:Freq_FFT}
+	\centering
+	\includegraphics[width=0.9\textwidth]{./Images/Simulations/Freq_Y_U.png}
+	\caption{Bode plot estimated with plain FFT}
+	\label{fig:Freq_FFT}
 \end{figure}
 
 To improve this poor estimate, we applied different signal-processing methods. First, we used the Welch method, which improves the estimation by averaging over overlapping segments. The implementation of the Welch frequency response function (FRF) follows the theory described in the documentation \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/estimate_frequency_response.md}{Estimate
- Frequency Response}. This allowed us to compare the plain FFT approach with the more robust Welch estimator. The result is shown in Figure~\ref{fig:Freq_Welch}.
+	Frequency Response}. This allowed us to compare the plain FFT approach with the more robust Welch estimator. The result is shown in Figure~\ref{fig:Freq_Welch}.
 
 \begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.9\textwidth]{./Images/Simulations/Freq_Welch.png}
-    \caption{Bode plot estimated with Welch method}
-    \label{fig:Freq_Welch}
+	\centering
+	\includegraphics[width=0.9\textwidth]{./Images/Simulations/Freq_Welch.png}
+	\caption{Bode plot estimated with Welch method}
+	\label{fig:Freq_Welch}
 \end{figure}
 
 In the next step, we also implemented a rotated-signal approach, where the chirp is demodulated to baseband before filtering. For this part, we used the zero-phase filtering method \texttt{apply\_rotfiltfilt}, as described in the documentation \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/ApplyRotfiltfilt.md}{Apply Rotfiltfilt}. Finally, we compared the original Bode plot to the signal-processed one, as shown in Figure~\ref{fig:Freq_Rot}, to assess how the rotation technique improves noise robustness.
 
 \begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.9\textwidth]{./Images/Simulations/Freq_Rot.png}
-    \caption{Bode plot estimated with rotated Welch method}
-    \label{fig:Freq_Rot}
+	\centering
+	\includegraphics[width=0.9\textwidth]{./Images/Simulations/Freq_Rot.png}
+	\caption{Bode plot estimated with rotated Welch method}
+	\label{fig:Freq_Rot}
 \end{figure}
 
 \newpage
@@ -576,37 +527,37 @@ In the last step, we split the signal into several overlapping segments, as desc
 To analyse how the frequency content of an input signal changes with both time and thrust, we developed a MATLAB simulation. In this script, we generated a noisy sinusoidal input signal with a slowly varying instantaneous frequency, together with a slowly varying thrust signal. The thrust is modelled as a sinusoid around a mean value of 2. To illustrate the effect of windowing, a Hann window was also applied to the full input signal, as shown in Figure~\ref{fig:spectogram_input}.
 
 \begin{figure}[htbp]
-  \centering
-  \includegraphics[width=0.75\textwidth]{./Images/Simulations/Spectogram_overview.png}
-  \caption{Input signal, windowed input signal, and thrust over time.}
-  \label{fig:spectogram_input}
+	\centering
+	\includegraphics[width=0.75\textwidth]{./Images/Simulations/Spectogram_overview.png}
+	\caption{Input signal, windowed input signal, and thrust over time.}
+	\label{fig:spectogram_input}
 \end{figure}
 
 In the next step, the input signal was divided into short, non-overlapping time windows. For each segment, we computed the discrete Fourier transform (FFT) to obtain a local frequency spectrum. By arranging these spectra along the time axis, we created a time–frequency representation of the signal, as shown in Figure~\ref{fig:spectogram_time}.
 
 \begin{figure}[htbp]
-  \centering
-  \includegraphics[width=0.75\textwidth]{./Images/Simulations/Spectogram_Time_Freq.png}
-  \caption{Spectrogram showing the amplitude over frequency and time.}
-  \label{fig:spectogram_time}
+	\centering
+	\includegraphics[width=0.75\textwidth]{./Images/Simulations/Spectogram_Time_Freq.png}
+	\caption{Spectrogram showing the amplitude over frequency and time.}
+	\label{fig:spectogram_time}
 \end{figure}
 
 To relate the spectral content to the thrust level, we assigned each segment the mean thrust value within its time interval. The corresponding spectra were then plotted over frequency and mean thrust, resulting in a spectrogram that shows how the frequency content varies with thrust for this example, as shown in Figure~\ref{fig:spectogram_thrust}.
 
 \begin{figure}[htbp]
-  \centering
-  \includegraphics[width=0.75\textwidth]{./Images/Simulations/Spectogram_Thrust_Freq.png}
-  \caption{Spectrogram showing the amplitude over frequency and thrust.}
-  \label{fig:spectogram_thrust}
+	\centering
+	\includegraphics[width=0.75\textwidth]{./Images/Simulations/Spectogram_Thrust_Freq.png}
+	\caption{Spectrogram showing the amplitude over frequency and thrust.}
+	\label{fig:spectogram_thrust}
 \end{figure}
 
 \newpage
 
 \subsection{Building an FPV drone}
 \label{subsec:BuildingFPVdrone}
-Besides the understanding of the code and further developing the proof of concept, 
-building a drone and set it up correctly bridges the gap between the digital domain, 
-where algorithms and simulations are developed and the physical reality of drone operation. 
+Besides the understanding of the code and further developing the proof of concept,
+building a drone and set it up correctly bridges the gap between the digital domain,
+where algorithms and simulations are developed and the physical reality of drone operation.
 By getting in touch with the hardware, it is easier for us to understand what practical challenges exist for pilots and the community.
 
 \begin{figure}[H]
@@ -616,7 +567,7 @@ By getting in touch with the hardware, it is easier for us to understand what pr
 	\label{fig:OvershootExpress}
 \end{figure}
 
-Therefore a three inch FPV drone was built from the ground up. 
+Therefore a three inch FPV drone was built from the ground up.
 This work included:
 \begin{itemize}
 	\item creating schemes to see which connections were required
@@ -628,7 +579,7 @@ This work included:
 	\item drone tuning
 \end{itemize}
 
-The flightcontroller just fitted into this frame. The GPS mount had to be trimmed off a little bit, that we could mount the all in one stack. Also the video system was mounted super close to the stack. Due to a connector between these two parts, we had to lift the videosystem up with some spacers. This resulted in not enough space on top of the videosystem for the screws, which attaches the component to the frame. The videosystem then had to be mounted with just two screws instead of four. In the first testflights, no unusual vibrations were observed, so it's probably mounted good enough. As we need to be able to get the microSD card out of the logger, the little pcp has to be mounted somewhere outside the drone. We designed a little 3D printed surface, where the logger could be mounted with some doublesided tape. This component then was the lowest part of the drone, which was a problem. In one of the first flights, the microSD card hold openend and we lost the card on landing. 
+The flightcontroller just fitted into this frame. The GPS mount had to be trimmed off a little bit, that we could mount the all in one stack. Also the video system was mounted super close to the stack. Due to a connector between these two parts, we had to lift the videosystem up with some spacers. This resulted in not enough space on top of the videosystem for the screws, which attaches the component to the frame. The videosystem then had to be mounted with just two screws instead of four. In the first testflights, no unusual vibrations were observed, so it's probably mounted good enough. As we need to be able to get the microSD card out of the logger, the little pcp has to be mounted somewhere outside the drone. We designed a little 3D printed surface, where the logger could be mounted with some doublesided tape. This component then was the lowest part of the drone, which was a problem. In one of the first flights, the microSD card hold openend and we lost the card on landing.
 
 \colorbox{yellow}{===}\\
 To prevent this from happanign again, we need to place the logger somewhere else or we design some stands for the drone. This is being done in a later step, as it is not fundamental for the tuning process.\\
@@ -639,7 +590,7 @@ As part of understanding the workflow we tuned an FPV drone by ourselves. Initia
 
 After this incident, we decided not to repeat flights with intentionally bad tuning again. Instead, we continued using the default Betaflight parameters as a baseline. With these, the drone flies quite good. However, during manoeuvres such as flips or propwash manoeuvres, it becomes evident that there is room for improvement in terms of stability and responsiveness.
 
-The tuning process was carried out on a larger 6-inch FPV drone provided by one of the team members and on the 3-inch drone we built (See Section \ref{subsec:BuildingFPVdrone}). In this documentation we focus on the tuning process for the 3-inch build. 
+The tuning process was carried out on a larger 6-inch FPV drone provided by one of the team members and on the 3-inch drone we built (See Section \ref{subsec:BuildingFPVdrone}). In this documentation we focus on the tuning process for the 3-inch build.
 To enable the chirp flight mode, the flight controller was freshly flashed with Betaflight version \colorbox{yellow}{2025.12.0-RC1}, meaning all filters and settings were at factory defaults. Before the first flight, we alredy enabled the RPM filter and changed the Motor poles from fourteen to twelve, because this filter is much more efficient to filter out motor noise.
 
 \subsubsection*{The tuning process using our tool}
@@ -647,27 +598,27 @@ To enable the chirp flight mode, the flight controller was freshly flashed with 
 Our tool generates more plots than essentially needed for tuning. While some provide useful diagnostic information, they are not directly used in the tuning process itself. Figure~\ref{fig:evaluationTime_tuning} shows how stable and consistent the flight controller loop time was during flight. Figure~\ref{fig:flightoverview_tuning} gives a broad summary of gyro rates, motor outputs, and throttle. This plot is important for verifying that the motor outputs don't drop to minimum throttle during the chirp measurement. This would interrupt the system response and invalidate the frequency data. Figure~\ref{fig:flightgyrodata_tuning} shows how well the drone tracks commanded inputs on each axis, providing a visual overview of the setpoint tracking performance.
 
 \begin{figure}[H]
-    \centering
-    \begin{minipage}{0.32\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{./Images/Tuning_OvershootExpress/evaluation_time.jpg}
-        \caption{Flight controller loop time}
-        \label{fig:evaluationTime_tuning}
-    \end{minipage}
-    \hfill
-    \begin{minipage}{0.32\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{./Images/Tuning_OvershootExpress/flight_overview.jpg}
-        \caption{Flight overview}
-        \label{fig:flightoverview_tuning}
-    \end{minipage}
-    \hfill
-    \begin{minipage}{0.32\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{./Images/Tuning_OvershootExpress/flight_gyro_data.jpg}
-        \caption{Gyro setpoint tracking}
-        \label{fig:flightgyrodata_tuning}
-    \end{minipage}
+	\centering
+	\begin{minipage}{0.32\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{./Images/Tuning_OvershootExpress/evaluation_time.jpg}
+		\caption{Flight controller loop time}
+		\label{fig:evaluationTime_tuning}
+	\end{minipage}
+	\hfill
+	\begin{minipage}{0.32\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{./Images/Tuning_OvershootExpress/flight_overview.jpg}
+		\caption{Flight overview}
+		\label{fig:flightoverview_tuning}
+	\end{minipage}
+	\hfill
+	\begin{minipage}{0.32\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{./Images/Tuning_OvershootExpress/flight_gyro_data.jpg}
+		\caption{Gyro setpoint tracking}
+		\label{fig:flightgyrodata_tuning}
+	\end{minipage}
 \end{figure}
 
 \subsubsection*{Filter Tuning}
@@ -675,32 +626,32 @@ Before we start tuning the PID controllers, we need good filtering, to have clea
 
 To do this we started to look at the spectrograms and the spectra figures first, after the import of a log file into MATLAB. After running the program in MATLAB, you can see in the command window, which filter- and PID settings were used in this log file. Our tool, in it's current state, doesn't copy these values to the code automatically. So the first step there, was to copy the settings from the command window at the correct position to the code. By then comparing the filtered and unfiltered plots, you can see how well the current settings filter out unwanted vibrations. Note that dynamic filters can't be calculated offline, because their cutoff frequencies change continuously based on real-time throttle input, so changing the dynamic filter settings in the code will not show up in the plots. In order to see the made changes, you need another flight.
 
-The \textbf{spectra} in Figure~\ref{fig:Spectra_tuning} shows the frequency composition of the gyro signals. 
+The \textbf{spectra} in Figure~\ref{fig:Spectra_tuning} shows the frequency composition of the gyro signals.
 Peaks in this plot point to vibration sources at specific frequencies.
-When we analyze this plot, we look for three main things: 
-\begin{itemize} 
-  \item \textbf{Resonance Peaks:} If all three axes show a peak at the same frequency, it usually means there is a resonance in the frame or because of a poorly fixed component. This can be fixed with a specific notch filter.
-	\item \textbf{Noise:} A high noise level indicates general vibration issues. Clean lines in the plot show, that the filtering is working well. 
+When we analyze this plot, we look for three main things:
+\begin{itemize}
+	\item \textbf{Resonance Peaks:} If all three axes show a peak at the same frequency, it usually means there is a resonance in the frame or because of a poorly fixed component. This can be fixed with a specific notch filter.
+	\item \textbf{Noise:} A high noise level indicates general vibration issues. Clean lines in the plot show, that the filtering is working well.
 	\item \textbf{Axis Sum:} The axis-sum shows the overall vibration level across all gyro axes. A properly filtered signal drops quickly after the motor frequencies (after around 600 Hz) and remains low, indicating effective suppression of high-frequency noise and resonances.
-\end{itemize} 
+\end{itemize}
 
 \begin{figure}[H]
-  \centering
-  \includegraphics[width=\textwidth]{./Images/Tuning_OvershootExpress/Spectra.jpg}
-  \caption{Spectra}
-  \label{fig:Spectra_tuning}
+	\centering
+	\includegraphics[width=\textwidth]{./Images/Tuning_OvershootExpress/Spectra.jpg}
+	\caption{Spectra}
+	\label{fig:Spectra_tuning}
 \end{figure}
 
 We can see in this figure that our filter settings work well. The filtered signals have very little noise and no big resonances. Only the yaw axis has a small peak around 550 Hz, which is acceptable. The axis sum drops nicely and stays low after about 600 Hz, right where the motor frequencies end. This shows the drone is running smoothly with vibrations under control.
 
-The vibrations are also visible in the \textbf{spectrogram} plots in Figure~\ref{fig:Spectrograms_tuning}. 
+The vibrations are also visible in the \textbf{spectrogram} plots in Figure~\ref{fig:Spectrograms_tuning}.
 Here frequencies are plotted against thrust level and the color show the signal intensity. Red equals high energy and blue low energy.
 
 \begin{figure}[H]
-  \centering
-  \includegraphics[width=\textwidth]{./Images/Tuning_OvershootExpress/Spectrograms.jpg}
-  \caption{Spectrograms}
-  \label{fig:Spectrograms_tuning}
+	\centering
+	\includegraphics[width=\textwidth]{./Images/Tuning_OvershootExpress/Spectrograms.jpg}
+	\caption{Spectrograms}
+	\label{fig:Spectrograms_tuning}
 \end{figure}
 
 \textbf{Vertical lines} in the spectrogram indicate vibrations at fixed frequencies that do not change with thrust. These usuallly come from frame resonances or loose components. Such resonances can be removed with static notch filters, but because they sit only on a single frequency, they must be used carefully. For more robust suppression, especially when frequencies shift due to bent props or changing load conditions, a dynamic notch filter is usually the better choice.
@@ -709,7 +660,7 @@ Here frequencies are plotted against thrust level and the color show the signal 
 
 \textbf{Aliasing}\\
 When you try to sample a signal that contains frequencies higher than half of your sampling rate, aliasing can happen. This would make high-frequency content appear as lower frequencies, corrupting the measurement data. To avoid this, we have set a PT1 lowpassfilter. The cutoff frequency should not be larger than the sampling frequency divided by two. As we use a 2 kHz logging frequency, we have set the cutoff to 800 Hz, to be on the safe side.
-If aliasing happens on your drone, can be seen in the Spectrogram as a diagonal lines going down, as you move to higher frequencies. 
+If aliasing happens on your drone, can be seen in the Spectrogram as a diagonal lines going down, as you move to higher frequencies.
 
 \textbf{Dynamic notch filter}\\
 The dynamic notch filter automatically finds and removes mechanical motor noise with the highest amplitude for each axis. The standard setting here is 2 notches from 100 to 600 Hz. Through testing, we found changing the Notch filter count from two to three, porvides better filtering. We can see in Figure~\ref{fig:Spectrograms_tuning}, that the filtered plots don't show any diagonal lines anymore.
@@ -730,20 +681,20 @@ After the filter settings were set, we could move on to the PID tuning.
 The tool calculates the Plant and Controller Bode plots to build a mathematical model of the drone. These are exciting for an engineer, but not necessarily useful for a user in the community, as they are less intuitive. We mainly focused on the Step Response and the Gang of Four, where you can see flight performance and stability directly.
 
 \begin{figure}[H]
-    \centering
-    \begin{minipage}{0.48\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{./Images/Tuning_OvershootExpress/plant.jpg}
-        \caption{Flight controller loop time}
-        \label{fig:plant_tuning}
-    \end{minipage}
-    \hfill
-    \begin{minipage}{0.48\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{./Images/Tuning_OvershootExpress/Bode_controller_pitch.jpg}
-        \caption{Flight overview}
-        \label{fig:bodeController_tuning}
-    \end{minipage}
+	\centering
+	\begin{minipage}{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{./Images/Tuning_OvershootExpress/plant.jpg}
+		\caption{Flight controller loop time}
+		\label{fig:plant_tuning}
+	\end{minipage}
+	\hfill
+	\begin{minipage}{0.48\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{./Images/Tuning_OvershootExpress/Bode_controller_pitch.jpg}
+		\caption{Flight overview}
+		\label{fig:bodeController_tuning}
+	\end{minipage}
 \end{figure}
 
 The \textbf{step response} plot shows exactly what happens when the pilot moves the stick rapidly. You can see how fast the drone reacts to the command, if it overshoots the target value, and how quickly it settles to a steady state.
@@ -755,22 +706,22 @@ The \textbf{step response} plot shows exactly what happens when the pilot moves 
 	\label{fig:step_response_tuning}
 \end{figure}
 
-\begin{itemize} 
-  \item Tracking (Top Plot): It shows how the drone follows a command
+\begin{itemize}
+	\item Tracking (Top Plot): It shows how the drone follows a command
 	\item Compliance (Bottom Plot): This shows how the drone reacts to external hits, like wind
 \end{itemize}
 
 \textbf{Gang of Four}\\
 The Gang of Four is a standard set of four transfer functions that together fully characterize a feedback control system. These four plots show the Sensitivity (S), Complementary Sensitivity (T, Bode plot), Controller Effort (SC), and Compliance (SP). By looking at these plots, we can see if the drone is stable, how well it follows commands, how it handles wind, and whether the motors are working too hard, all in one view.
 
-During our tuning, we paid specific attention to three of these plots: 
-\begin{enumerate} 
-	\item Sensitivity (S): 
-  It shows how the system responds to noise and reference commands. The peak value tells us how stable the system is. For a well-damped system, the peak should be below 6 dB, because higher values mean the drone could start oscillating or become unstable.
-	\item Controller Effort (SC): 
-  Indicates how hard the controller is working. If the effort is too high at high frequencies, the system is reacting to sensor noise rather than real disturbances. This causes unnecessary motor activity, leading to heating and wear.
+During our tuning, we paid specific attention to three of these plots:
+\begin{enumerate}
+	\item Sensitivity (S):
+	      It shows how the system responds to noise and reference commands. The peak value tells us how stable the system is. For a well-damped system, the peak should be below 6 dB, because higher values mean the drone could start oscillating or become unstable.
+	\item Controller Effort (SC):
+	      Indicates how hard the controller is working. If the effort is too high at high frequencies, the system is reacting to sensor noise rather than real disturbances. This causes unnecessary motor activity, leading to heating and wear.
 	\item Compliance (SP):
-	Shows how much external disturbances (like wind gusts) affect the drone's motion. A lower compliance is better, it means the drone resists disturbances more effectively.
+	      Shows how much external disturbances (like wind gusts) affect the drone's motion. A lower compliance is better, it means the drone resists disturbances more effectively.
 \end{enumerate}
 
 \begin{figure}[H]
@@ -783,13 +734,13 @@ During our tuning, we paid specific attention to three of these plots:
 \textbf{PID tuning summary}\\
 Our tuning objective was to achieve a fast step response without overshoot while maintaining good disturbance rejection and stability margins. It is important to note that there is no universally perfect tune. Settings depend heavily on pilot preferences. Racing pilots typically prefer aggressive, responsive tuning for competitive performance, while freestyle pilots maybe prioritize smoothness and flight feel. Since none of our team members is a professional pilot, we focused on achieving robustness and a step response without overshoot. This tuning approach is probably somewhere between of what a racing pilot would want and a freestyle pilot. Robustness in this case is practical, because scenarios like slightly bent propellers, a battery positioned off-center, or additional components such as cameras mounted on the drone can be handled. Also to mention is, that the axes roll and pitch should be tuned as similar to each other as possible. This is because symmetrical tuning makes the drone more intuitive to pilot. When both axes respond identically to stick inputs, the drone behaves predictably during combined maneuvers, making control feel natural.
 
-The tuning process involved iteratively adjusting PID gains in MATLAB while monitoring both the step response and Gang of Four plots side by side. We found and used an online \href{https://www.luisllamas.es/en/pid-controller-simulator/}{PID simulator} as a guidance tool to build intuition for how P, I, and D values affect system behavior. For the step response, we aimed for a fast rise time with minimal or no overshoot and a smooth curve without oscillations. On the Gang of Four side, we wanted the sensitivity peak to stay below 6 dB for good stability margins, low compliance across the control bandwidth for effective disturbance rejection, and reasonable controller effort to avoid amplifying sensor noise. All transfer functions should show smooth, rounded shapes without sharp resonances that indicate problematic dynamics. Once we were satisfied with the curves and their shapes, we could take the P, I and D values for each axis from the command window in MATLAB and set them via the Betaflight configurator to the drone. 
+The tuning process involved iteratively adjusting PID gains in MATLAB while monitoring both the step response and Gang of Four plots side by side. We found and used an online \href{https://www.luisllamas.es/en/pid-controller-simulator/}{PID simulator} as a guidance tool to build intuition for how P, I, and D values affect system behavior. For the step response, we aimed for a fast rise time with minimal or no overshoot and a smooth curve without oscillations. On the Gang of Four side, we wanted the sensitivity peak to stay below 6 dB for good stability margins, low compliance across the control bandwidth for effective disturbance rejection, and reasonable controller effort to avoid amplifying sensor noise. All transfer functions should show smooth, rounded shapes without sharp resonances that indicate problematic dynamics. Once we were satisfied with the curves and their shapes, we could take the P, I and D values for each axis from the command window in MATLAB and set them via the Betaflight configurator to the drone.
 
 Achieving an optimal tune required several iterations due to challenges with filter adjustments and occasional logging issues. Nevertheless, the drone was successfully tuned, and the improvement was immediately noticeable. During propwash maneuvers, the drone remained significantly more stable, and flips were executed with greater precision at the stop point.
 
 
 \textbf{Additional Resources}\\
-For in-depth technical background on transfer functions and control theory, see our \href{https://github.com/InsaneBroccoli/bf_controller_tuning/tree/PA_final/markdown/Frequency_Response}{Frequency Response documentation}. 
+For in-depth technical background on transfer functions and control theory, see our \href{https://github.com/InsaneBroccoli/bf_controller_tuning/tree/PA_final/markdown/Frequency_Response}{Frequency Response documentation}.
 Detailed explanations of all generated plots and their interpretation can be found in the \href{https://github.com/InsaneBroccoli/bf_controller_tuning/tree/PA_final/markdown/Descriptions_Figures}{Figure Documentation}.
 
 
@@ -797,7 +748,7 @@ Detailed explanations of all generated plots and their interpretation can be fou
 
 \subsection{Decoding Betaflight Blackbox Logs}
 \subsubsection*{Purpose}
-Currently to obtain a useable Blackbox log from Betaflight, pilots rely on the Betaflight Explorer. 
+Currently to obtain a useable Blackbox log from Betaflight, pilots rely on the Betaflight Explorer.
 Wich is a reliable tool, but lacks comfort if the tuning tool is used iteratively since you have to visit the Explorer every time you want to download a new log.
 To improve this workflow, we tried to make use of the existing open-source blackbox decode tool.
 
@@ -806,55 +757,55 @@ The blackbox decode tool is a C-based command-line utility designed to convert B
 It offers similar core functionality to the Betaflight Blackbox Explorer but is intended for users who prefer command-line tools or need to automate log processing tasks.\par
 
 However, integrating blackbox decode into our project presented several challenges.
-The most obvious issue is the absence of header information by default. 
-While this can be addressed by using the --save-headers flag, the format of these headers differs from that used by the Betaflight Explorer. 
+The most obvious issue is the absence of header information by default.
+While this can be addressed by using the --save-headers flag, the format of these headers differs from that used by the Betaflight Explorer.
 This discrepancy is manageable, as we could adapt our data import functions to handle both formats.\par
 
 A more significant problem is the presence of numerical differences in the decoded data.
 When comparing logs decoded with blackbox decode to those processed with Betaflight Explorer, the resulting datasets differ structurally and semantically in several critical ways.
-Specifically, the blackbox decode stores the vehicle attitude as Euler angles in degrees, whereas the Explorer provides quaternion-like components. 
+Specifically, the blackbox decode stores the vehicle attitude as Euler angles in degrees, whereas the Explorer provides quaternion-like components.
 With priority set on other tasks, we decided to set aside the integration of blackbox decode for now.
 
 \newpage
 
 \subsection{Code Structure and programming style}
-From the start of the project, we recognized that a clear and maintainable code structure would be essential. 
-The initial proof-of-concept code already contained a rough separation into topics such as data I/O and step response, 
-but everything was packed into a single file, making it difficult to navigate. 
-Our first step was to comment out the proof-of-concept code and reorganize it into thematic sections. 
+From the start of the project, we recognized that a clear and maintainable code structure would be essential.
+The initial proof-of-concept code already contained a rough separation into topics such as data I/O and step response,
+but everything was packed into a single file, making it difficult to navigate.
+Our first step was to comment out the proof-of-concept code and reorganize it into thematic sections.
 This was the foundation for a more organized layout and we came to an initial directory structure:
 \\
 \dirtree{%
-.1 bf\_controller\_tuning/.
-.2 main.m.
-.2 data\_io/.
-.3 load\_data.m.
-.3 extract\_header\_information.m.
-.3 preprocess\_data.m.
-.2 flight\_parameters/.
-.3 get\_pid\_parameters.m.
-.3 scale\_pid\_parameters.m.
-.3 print\_parameters.m.
-.2 spectrogram/.
-.3 calculate\_spectrogram.m.
-.3 plot\_spectrogram.m.
-.3 show\_spectrogram.m.
-.2 spectra/.
-.3 estimate\_spectra.m.
-.3 plot\_spectra.m.
-.3 show\_spectra.m.
-.2 frequency\_response/.
-.3 estimate\_frequency\_response.m.
-.3 plot\_bode.m.
-.3 show\_frequency\_response.m.
-.2 controller\_analysis/.
-.3 calculate\_closed\_loop.m.
-.3 calculate\_step\_response.m.
-.3 show\_controller\_analysis.m.
-.2 utils/.
-.3 apply\_rotfiltfilt.m.
-.3 downsample\_frd.m.
-.3 get\_my\_colors.m.
+	.1 bf\_controller\_tuning/.
+	.2 main.m.
+	.2 data\_io/.
+	.3 load\_data.m.
+	.3 extract\_header\_information.m.
+	.3 preprocess\_data.m.
+	.2 flight\_parameters/.
+	.3 get\_pid\_parameters.m.
+	.3 scale\_pid\_parameters.m.
+	.3 print\_parameters.m.
+	.2 spectrogram/.
+	.3 calculate\_spectrogram.m.
+	.3 plot\_spectrogram.m.
+	.3 show\_spectrogram.m.
+	.2 spectra/.
+	.3 estimate\_spectra.m.
+	.3 plot\_spectra.m.
+	.3 show\_spectra.m.
+	.2 frequency\_response/.
+	.3 estimate\_frequency\_response.m.
+	.3 plot\_bode.m.
+	.3 show\_frequency\_response.m.
+	.2 controller\_analysis/.
+	.3 calculate\_closed\_loop.m.
+	.3 calculate\_step\_response.m.
+	.3 show\_controller\_analysis.m.
+	.2 utils/.
+	.3 apply\_rotfiltfilt.m.
+	.3 downsample\_frd.m.
+	.3 get\_my\_colors.m.
 }
 
 This draft was never intended to be final. Rather, it served as an initial attempt to bring clarity and separation between different functional areas.
@@ -862,11 +813,11 @@ This draft was never intended to be final. Rather, it served as an initial attem
 \newpage
 
 \subsubsection*{OOP vs. Functional Approach}
-At this stage, we discussed whether to implement the entire project using object-oriented programming (OOP) or stick to a modular, 
-function-based approach. Initially, we considered OOP as a challenge, since most of us were not very experienced with it. 
+At this stage, we discussed whether to implement the entire project using object-oriented programming (OOP) or stick to a modular,
+function-based approach. Initially, we considered OOP as a challenge, since most of us were not very experienced with it.
 We started writing some components as classes, but quickly realized that only one team member was really comfortable with OOP,
 while the others struggled. This made us reconsider.
-Our conclusion was to use OOP selectively—only for parts that benefit from reuse and encapsulation, such as data loading and plotting, 
+Our conclusion was to use OOP selectively—only for parts that benefit from reuse and encapsulation, such as data loading and plotting,
 while keeping the rest function-based for simplicity. This hybrid approach allowed us to maintain flexibility without overcomplicating the design.
 
 After several attempts, we agreed on the following principles:
@@ -880,138 +831,138 @@ After several attempts, we agreed on the following principles:
 Existing library functions from the proof of concept were reused without modification. The thematic grouping included:
 \\
 \dirtree{%
-.1 bf\_controller\_tuning/.
-.2 class/.
-.3 main\_class.m.
-.3 plot\_utils.m.
-.2 lib/.
-.3 apply\_rotfiltfilt.m.
-.3 calculate\_closed\_loop.m.
-.3 calculate\_controllers.m.
-.3 calculate\_step\_response\_from\_frd.m.
-.3 calculate\_transfer\_functions.m.
-.3 downsample\_frd.m.
-.3 estimate\_frequency\_response.m.
-.3 estimate\_spectra.m.
-.3 estimate\_spectrogram.m.
-.3 expand\_multiple\_figure\_nr.m.
-.3 extract\_header\_information.m.
-.3 get\_chirp\_signals.m.
-.3 get\_fcut\_from\_D\_and\_fcenter.m.
-.3 get\_fcut\_from\_exp.m.
-.3 get\_filter.m.
-.3 get\_ind\_eval.m.
-.3 get\_my\_colors.m.
-.3 get\_notch\_Q.m.
-.3 get\_pid\_scale.m.
-.3 get\_switch\_case\_text\_from\_para.m.
-.2 logs/.
-.2 main.m.
+	.1 bf\_controller\_tuning/.
+	.2 class/.
+	.3 main\_class.m.
+	.3 plot\_utils.m.
+	.2 lib/.
+	.3 apply\_rotfiltfilt.m.
+	.3 calculate\_closed\_loop.m.
+	.3 calculate\_controllers.m.
+	.3 calculate\_step\_response\_from\_frd.m.
+	.3 calculate\_transfer\_functions.m.
+	.3 downsample\_frd.m.
+	.3 estimate\_frequency\_response.m.
+	.3 estimate\_spectra.m.
+	.3 estimate\_spectrogram.m.
+	.3 expand\_multiple\_figure\_nr.m.
+	.3 extract\_header\_information.m.
+	.3 get\_chirp\_signals.m.
+	.3 get\_fcut\_from\_D\_and\_fcenter.m.
+	.3 get\_fcut\_from\_exp.m.
+	.3 get\_filter.m.
+	.3 get\_ind\_eval.m.
+	.3 get\_my\_colors.m.
+	.3 get\_notch\_Q.m.
+	.3 get\_pid\_scale.m.
+	.3 get\_switch\_case\_text\_from\_para.m.
+	.2 logs/.
+	.2 main.m.
 }
 
-This structure worked well and kept the main script simple for the user. 
-However, after a review meeting, our instructor suggested further modularization. 
-The reason: we had created a “god class,” which limited flexibility. For example, 
-if someone wanted to use the tool only for plotting spectrograms without any drone-specific logic, the current design made that difficult. 
-Also the program was slow. All calculations were made, every time the user changed something. 
-We wanted to improve the speed in only doing these calculations again, which are relevant on that specific user input change. 
+This structure worked well and kept the main script simple for the user.
+However, after a review meeting, our instructor suggested further modularization.
+The reason: we had created a “god class,” which limited flexibility. For example,
+if someone wanted to use the tool only for plotting spectrograms without any drone-specific logic, the current design made that difficult.
+Also the program was slow. All calculations were made, every time the user changed something.
+We wanted to improve the speed in only doing these calculations again, which are relevant on that specific user input change.
 
 \subsubsection*{Final Structure Concept}
 Out of this, we decided to split up this god class into three classes.
 The \texttt{flight\_analyzer} class handles frequency domain analysis and vibration characterization.
 Its core responsibility is performing spectral analysis on flight log data to identify resonance frequencies and assess filter effectiveness.
-It computes power spectral density of gyro signals (both filtered and unfiltered) and generates spectrograms showing 
+It computes power spectral density of gyro signals (both filtered and unfiltered) and generates spectrograms showing
 how vibration frequencies vary with throttle levels across all three axes (roll, pitch, yaw).
 This analysis is essential for identifying noise sources, evaluating filtering strategies, and optimizing drone stability during tuning.
-The \texttt{flight\_data} class is responsible for loading, parsing, and managing flight log data. 
+The \texttt{flight\_data} class is responsible for loading, parsing, and managing flight log data.
 It provides methods to extract relevant information from Blackbox logs, such as gyro and motor data, and prepares this data for analysis.
 The \texttt{gyro\_ctrl\_tuning} class focuses on tuning the PID controllers for the drone's flight.
-It uses the results from the frequency response and spectral analysis to adjust the PID parameters, aiming to optimize the drone's flight characteristics. 
+It uses the results from the frequency response and spectral analysis to adjust the PID parameters, aiming to optimize the drone's flight characteristics.
 The \texttt{plot\_utils} class remains responsible for visualization and graphical representation of all analysis results.
-Unlike the previous approach, this class is now more flexible and reusable. It can be used independently to generate plots from pre-calculated data, 
+Unlike the previous approach, this class is now more flexible and reusable. It can be used independently to generate plots from pre-calculated data,
 making it suitable for users who only want to visualize spectrograms, frequency responses, or step responses without running the full analysis pipeline.
 This modularity allows the plotting functionality to be easily adapted for different visualization needs and integrated into other workflows.
 
 This approach still holds thematic sections, but is more accessible to use only specific parts of the tool.
 
 \dirtree{%
-.1 bf\_controller\_tuning/.
-.2 class/.
-.3 flight\_analyzer.m.
-.3 flight\_data.m.
-.3 gyro\_ctrl\_tuning.m.
-.3 plot\_utils.m.
-.2 lib/.
-.3 apply\_rotfiltfilt.m.
-.3 calculate\_closed\_loop.m.
-.3 calculate\_controllers.m.
-.3 calculate\_step\_response\_from\_frd.m.
-.3 calculate\_transfer\_functions.m.
-.3 downsample\_frd.m.
-.3 estimate\_frequency\_response.m.
-.3 estimate\_spectra.m.
-.3 estimate\_spectrogram.m.
-.3 expand\_multiple\_figure\_nr.m.
-.3 extract\_header\_information.m.
-.3 get\_chirp\_signals.m.
-.3 get\_fcut\_from\_D\_and\_fcenter.m.
-.3 get\_fcut\_from\_exp.m.
-.3 get\_filter.m.
-.3 get\_ind\_eval.m.
-.3 get\_my\_colors.m.
-.3 get\_notch\_Q.m.
-.3 get\_pid\_scale.m.
-.3 get\_switch\_case\_text\_from\_para.m.
-.2 logs/.
-.2 main.m.
+	.1 bf\_controller\_tuning/.
+	.2 class/.
+	.3 flight\_analyzer.m.
+	.3 flight\_data.m.
+	.3 gyro\_ctrl\_tuning.m.
+	.3 plot\_utils.m.
+	.2 lib/.
+	.3 apply\_rotfiltfilt.m.
+	.3 calculate\_closed\_loop.m.
+	.3 calculate\_controllers.m.
+	.3 calculate\_step\_response\_from\_frd.m.
+	.3 calculate\_transfer\_functions.m.
+	.3 downsample\_frd.m.
+	.3 estimate\_frequency\_response.m.
+	.3 estimate\_spectra.m.
+	.3 estimate\_spectrogram.m.
+	.3 expand\_multiple\_figure\_nr.m.
+	.3 extract\_header\_information.m.
+	.3 get\_chirp\_signals.m.
+	.3 get\_fcut\_from\_D\_and\_fcenter.m.
+	.3 get\_fcut\_from\_exp.m.
+	.3 get\_filter.m.
+	.3 get\_ind\_eval.m.
+	.3 get\_my\_colors.m.
+	.3 get\_notch\_Q.m.
+	.3 get\_pid\_scale.m.
+	.3 get\_switch\_case\_text\_from\_para.m.
+	.2 logs/.
+	.2 main.m.
 }
 
 \newpage
 
 \subsection{Conversion from MATLAB to Python}
 
-To make the project more accessible to the FPV community, we decided to migrate the existing MATLAB codebase to Python.  
-The first step was to select suitable Python libraries that offer similar functionality to MATLAB, while maintaining code efficiency and readability.  
-After evaluating several options, we chose the following libraries:  
+To make the project more accessible to the FPV community, we decided to migrate the existing MATLAB codebase to Python.
+The first step was to select suitable Python libraries that offer similar functionality to MATLAB, while maintaining code efficiency and readability.
+After evaluating several options, we chose the following libraries:
 \begin{itemize}
-  \item \textbf{NumPy}: For numerical operations and array manipulations, analogous to MATLAB's matrix operations.
-  \item \textbf{SciPy}: For scientific computing tasks, including signal processing functions comparable to MATLAB’s capabilities.
-  \item \textbf{Matplotlib}: For plotting and visualization, providing features similar to MATLAB's plotting tools.
-  \item \textbf{Pandas}: For data manipulation and analysis, useful for handling tabular data as in MATLAB tables.
-  \item \textbf{Control Systems Library (control)}: For control system analysis and design, offering functions equivalent to MATLAB's Control System Toolbox.
+	\item \textbf{NumPy}: For numerical operations and array manipulations, analogous to MATLAB's matrix operations.
+	\item \textbf{SciPy}: For scientific computing tasks, including signal processing functions comparable to MATLAB’s capabilities.
+	\item \textbf{Matplotlib}: For plotting and visualization, providing features similar to MATLAB's plotting tools.
+	\item \textbf{Pandas}: For data manipulation and analysis, useful for handling tabular data as in MATLAB tables.
+	\item \textbf{Control Systems Library (control)}: For control system analysis and design, offering functions equivalent to MATLAB's Control System Toolbox.
 \end{itemize}
-We selected Python version 3.12, as it is well-supported and compatible with the required libraries.  
-To validate these choices, we developed a prototype script that implements the core functionalities needed for the Drone Tuning Tool.  
-The script loads flight log data from CSV files, parses and caches the data efficiently, and extracts relevant signals such as setpoints and gyro measurements.  
-NumPy and Pandas are used for numerical and tabular data handling, while SciPy provides signal processing utilities for windowing and frequency analysis.  
-The Control Systems Library is employed to estimate the system’s frequency response and step response from flight data, replicating MATLAB’s identification routines.  
-Matplotlib is used for visualizing raw signals, chirp responses, and system characteristics.  
-The modular structure, including custom data classes and caching, ensures fast and reproducible analysis.  
-This approach demonstrates that Python and its scientific libraries are suitable replacements for MATLAB in the drone tuning workflow.  
-While Pandas is not strictly necessary for the prototype, it simplifies data handling and improves code readability.  
-However, to minimize dependencies and ensure cross-platform compatibility, we may consider removing Pandas in the final implementation.  
-The flexibility of Python also allows for easier integration with other tools and automation of data processing tasks, which is beneficial for large-scale log analysis.  
+We selected Python version 3.12, as it is well-supported and compatible with the required libraries.
+To validate these choices, we developed a prototype script that implements the core functionalities needed for the Drone Tuning Tool.
+The script loads flight log data from CSV files, parses and caches the data efficiently, and extracts relevant signals such as setpoints and gyro measurements.
+NumPy and Pandas are used for numerical and tabular data handling, while SciPy provides signal processing utilities for windowing and frequency analysis.
+The Control Systems Library is employed to estimate the system’s frequency response and step response from flight data, replicating MATLAB’s identification routines.
+Matplotlib is used for visualizing raw signals, chirp responses, and system characteristics.
+The modular structure, including custom data classes and caching, ensures fast and reproducible analysis.
+This approach demonstrates that Python and its scientific libraries are suitable replacements for MATLAB in the drone tuning workflow.
+While Pandas is not strictly necessary for the prototype, it simplifies data handling and improves code readability.
+However, to minimize dependencies and ensure cross-platform compatibility, we may consider removing Pandas in the final implementation.
+The flexibility of Python also allows for easier integration with other tools and automation of data processing tasks, which is beneficial for large-scale log analysis.
 
 \subsection{Python in MATLAB}
 
-In our initial porting attempt, we utilized MATLAB’s built-in functionality to execute Python code directly from within the MATLAB environment.  
-While this approach allowed us to access Python libraries and scripts, it introduced some challenges.  
-One major issue was the frequent need for unit conversions between MATLAB and Python data types, which often led to subtle bugs and inconsistencies.  
-Additionally, we encountered differences in the implementation of certain algorithms, such as varying scaling conventions in the state-space representation of transfer functions.  
-These discrepancies complicated the integration process and made it difficult to ensure consistent results across both platforms.  
-Managing library dependencies and Python environments within MATLAB also proved cumbersome, especially when working across different operating systems or MATLAB versions.  
-As a result, this method proved unreliable for our project’s requirements.  
-We ultimately decided to pursue a native Python implementation to avoid these integration issues and streamline the development workflow.  
+In our initial porting attempt, we utilized MATLAB’s built-in functionality to execute Python code directly from within the MATLAB environment.
+While this approach allowed us to access Python libraries and scripts, it introduced some challenges.
+One major issue was the frequent need for unit conversions between MATLAB and Python data types, which often led to subtle bugs and inconsistencies.
+Additionally, we encountered differences in the implementation of certain algorithms, such as varying scaling conventions in the state-space representation of transfer functions.
+These discrepancies complicated the integration process and made it difficult to ensure consistent results across both platforms.
+Managing library dependencies and Python environments within MATLAB also proved cumbersome, especially when working across different operating systems or MATLAB versions.
+As a result, this method proved unreliable for our project’s requirements.
+We ultimately decided to pursue a native Python implementation to avoid these integration issues and streamline the development workflow.
 
 \subsection{Transferring the MATLAB Library to Python}
 
-The core functionality of the Drone Tuning Tool resides in its library functions.  
-To ensure that the Python implementation is both reliable and consistent with the original MATLAB code, we systematically transferred each library function from MATLAB to Python.  
-For functions with simple numerical outputs, we used \texttt{np.testing.assert\_allclose} with appropriate absolute and relative tolerances, saving the function inputs and outputs from MATLAB and comparing them with the Python implementation.  
-For more complex functions, such as those involving state-space outputs, we developed dedicated test scripts to compare the behavior of the MATLAB and Python versions across a range of scenarios.  
-This rigorous testing approach helped us validate the correctness and consistency of the ported library functions.  
-Automated testing and comparison between MATLAB and Python outputs were essential to ensure that the new implementation maintained the expected performance and accuracy.  
-This systematic transfer and validation process significantly reduced the risk of introducing errors during migration and increased confidence in the reliability of the Python-based tool.  
+The core functionality of the Drone Tuning Tool resides in its library functions.
+To ensure that the Python implementation is both reliable and consistent with the original MATLAB code, we systematically transferred each library function from MATLAB to Python.
+For functions with simple numerical outputs, we used \texttt{np.testing.assert\_allclose} with appropriate absolute and relative tolerances, saving the function inputs and outputs from MATLAB and comparing them with the Python implementation.
+For more complex functions, such as those involving state-space outputs, we developed dedicated test scripts to compare the behavior of the MATLAB and Python versions across a range of scenarios.
+This rigorous testing approach helped us validate the correctness and consistency of the ported library functions.
+Automated testing and comparison between MATLAB and Python outputs were essential to ensure that the new implementation maintained the expected performance and accuracy.
+This systematic transfer and validation process significantly reduced the risk of introducing errors during migration and increased confidence in the reliability of the Python-based tool.
 
 \newpage
 
@@ -1027,7 +978,7 @@ In summary, the project demonstrates that offline analysis and tuning of Betafli
 \section{Discussion and next steps}
 \subsection{Discussion}
 Overall, the work in the last 14 weeks mainly served as a foundation for the future work at the project during our Bachlor thesis rather than a finished end product. We were able to lay the groundwork for further developments. For example, we newly structured the code, which allows us to make addtions and upgrades in the code faster and clearer. But more importantly, we were able to lern much about the behaviour of the Betaflight controll system and how we have to face challenges in it. Dario Jurietti and Janick Dort also lerned how a drone flys and how to build an FPV drone. This experience helped them to better relate the abstract analysis results and behaviour in the air. \par
-Additionally to this, we deepened our understanding how advanced signal-processing methode and more complex controll loops working. We achived this through a series of simulations which made it us easier to connect the theorie to the measuered data of real flights. Also, we improved our skills in object oriented programming and how to structer a big code. We also were able to get our first experiene in using control-engineering in Python, even though the Python implementation is not finished yet. All of this will help us to develope new features quickly and with high quality in our Bachlor thesis. 
+Additionally to this, we deepened our understanding how advanced signal-processing methode and more complex controll loops working. We achived this through a series of simulations which made it us easier to connect the theorie to the measuered data of real flights. Also, we improved our skills in object oriented programming and how to structer a big code. We also were able to get our first experiene in using control-engineering in Python, even though the Python implementation is not finished yet. All of this will help us to develope new features quickly and with high quality in our Bachlor thesis.
 
 \subsection{Next Steps}
 This project is being continued and further developed as part of a bachelor’s thesis. In this context, we plan to extend the existing codebase with new features such as offline tuning for position and altitude hold. These additions will provide deeper insight into the behaviour of the corresponding control loops and allow their optimisation. \par
@@ -1049,48 +1000,48 @@ Throughout the project, we gained a deep understanding of the Betaflight control
 
 \paragraph{OpenAI (2025) – ChatGPT 5.1}
 \begin{itemize}
-    \item Available online: 
-    \href{https://chat.openai.com/}{https://chat.openai.com/}
-    \item Functions:
-    \begin{itemize}
-        \item Generation of text suggestions
-        \item Grammar and language correction
-        \item Support in writing LaTeX and MATLAB code
-    \end{itemize}
+	\item Available online:
+	      \href{https://chat.openai.com/}{https://chat.openai.com/}
+	\item Functions:
+	      \begin{itemize}
+		      \item Generation of text suggestions
+		      \item Grammar and language correction
+		      \item Support in writing LaTeX and MATLAB code
+	      \end{itemize}
 \end{itemize}
 
 \paragraph{DeepL (2025) – DeepL Translator (Free Version)}
 \begin{itemize}
-    \item Available online: 
-    \href{https://www.deepl.com/translator}{https://www.deepl.com/translator}
-    \item Functions:
-    \begin{itemize}
-        \item Translation of text
-    \end{itemize}
+	\item Available online:
+	      \href{https://www.deepl.com/translator}{https://www.deepl.com/translator}
+	\item Functions:
+	      \begin{itemize}
+		      \item Translation of text
+	      \end{itemize}
 \end{itemize}
 
 \paragraph{Microsoft (2025) – Copilot AI Assistant}
 \begin{itemize}
-    \item Available online: 
-    \href{https://copilot.microsoft.com/}{https://copilot.microsoft.com/}
-    \item Functions:
-    \begin{itemize}
-        \item Generation of text and summaries
-        \item Integration into Microsoft Office tools such as Word and PowerPoint
-        \item Assistance in software development (e.g., code suggestions)
-    \end{itemize}
+	\item Available online:
+	      \href{https://copilot.microsoft.com/}{https://copilot.microsoft.com/}
+	\item Functions:
+	      \begin{itemize}
+		      \item Generation of text and summaries
+		      \item Integration into Microsoft Office tools such as Word and PowerPoint
+		      \item Assistance in software development (e.g., code suggestions)
+	      \end{itemize}
 \end{itemize}
 
 \paragraph{Anthropic (2025) – Claude AI}
 \begin{itemize}
-    \item Available online: 
-    \href{https://claude.ai/}{https://claude.ai/}
-    \item Functions:
-    \begin{itemize}
-        \item Text generation and editing
-        \item Support for research tasks (e.g., summarisation and structuring)
-        \item Assistance in programming-related workflows
-    \end{itemize}
+	\item Available online:
+	      \href{https://claude.ai/}{https://claude.ai/}
+	\item Functions:
+	      \begin{itemize}
+		      \item Text generation and editing
+		      \item Support for research tasks (e.g., summarisation and structuring)
+		      \item Assistance in programming-related workflows
+	      \end{itemize}
 \end{itemize}
 
 
@@ -1100,11 +1051,11 @@ Throughout the project, we gained a deep understanding of the Betaflight control
 \subsection{List of Figures}
 \vspace*{-3\baselineskip}% Wert nach Geschmack anpassen
 \begingroup
-  % keine eigene Überschrift von \listoffigures
-  \renewcommand{\listfigurename}{}
-  % optional: verhindert einen zusätzlichen Eintrag im Inhaltsverzeichnis
-  \renewcommand{\addcontentsline}[3]{}
-  \listoffigures
+% keine eigene Überschrift von \listoffigures
+\renewcommand{\listfigurename}{}
+% optional: verhindert einen zusätzlichen Eintrag im Inhaltsverzeichnis
+\renewcommand{\addcontentsline}[3]{}
+\listoffigures
 \endgroup
 
 \section{Appendix}
@@ -1113,10 +1064,10 @@ Throughout the project, we gained a deep understanding of the Betaflight control
 
 % Seite 1 direkt unter dem Titel
 \begin{figure}[H]
-  \centering
-  \includegraphics[page=1,width=\textwidth]{pdf/aufgabenstellung.pdf}
-  \caption{Project Assignment}
-  \label{fig:project_assignment_1}
+	\centering
+	\includegraphics[page=1,width=\textwidth]{pdf/aufgabenstellung.pdf}
+	\caption{Project Assignment}
+	\label{fig:project_assignment_1}
 \end{figure}
 
 % Seite 2 und 3 als reine PDFs
