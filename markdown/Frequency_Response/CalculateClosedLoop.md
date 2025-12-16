@@ -59,7 +59,7 @@ $$SP(\omega) = G_{yu}(\omega) \cdot S_{out}(\omega)$$
 
 ## References
 
-[1] H. Lutz and W. Wendt, Taschenbuch der Regelungstechnik, Springer Vieweg, Berlin, Heidelberg, pp. 183–186.
+[1] H. Lutz and W. Wendt, Taschenbuch der Regelungstechnik, 6th ed., Springer Vieweg, Berlin, Heidelberg, pp. 183–186.
 
 [2] K. Stadler, Control Theory I (Regelungstechnik I), Zurich University of Applied Sciences (ZHAW), Rev. 7.13, 2025, Sec. 7.3.1 “Sensitivity & complementary sensitivity limits”, p. 130.
 
