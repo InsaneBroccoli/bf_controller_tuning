@@ -32,8 +32,10 @@ $$C_{PI,ana,new}(ω) = C_{PI,ana}(ω) · C_{PI,com}(ω)$$
 ---
 ## References
 
-[1] K. J. Åström, R. M. Murray, *Feedback Systems: An Introduction for Scientists and Engineers*, Princeton University Press, 2008, **pp. 85–110.**  
-[2] G. F. Franklin, J. D. Powell, A. Emami-Naeini, *Feedback Control of Dynamic Systems*, 7th ed., Pearson, 2015, **pp. 320–350.**  
-[3] Betaflight Development Team, *I-Term Relax*, Betaflight Wiki,  
-https://github.com/betaflight/betaflight/wiki/I-Term-Relax  
+[1] K. Stadler, Control Theory I (Regelungstechnik I), ZHAW, Rev. 7.13, 2025,
+Sec. 5.2.2, pp. 79–81.
+[2] K. Stadler, Control Theory I (Regelungstechnik I), ZHAW, Rev. 7.13, 2025,
+Sec. 6.3.1–6.3.2, pp. 111–114.
+[3] Betaflight Development Team, I-Term Relax, Betaflight Wiki.
+Available: https://github.com/betaflight/betaflight/wiki/I-Term-Relax
 
