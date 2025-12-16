@@ -53,4 +53,5 @@ With these newly computed controllers, it becomes possible to predict how the sy
 [1] Betaflight Development Team, *Betaflight PID Controller Implementation*, GitHub Repository.  
 https://github.com/betaflight/betaflight  
 
-[2] H. Lutz, *Taschenbuch der Regelungstechnik*, Springer Vieweg, aktuelle Auflage.
+[2] H. Lutz and W. Wendt, Taschenbuch der Regelungstechnik, 6th ed., Springer Vieweg, Berlin, Heidelberg, pp. 183–186.
+
