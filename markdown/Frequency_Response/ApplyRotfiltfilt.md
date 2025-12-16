@@ -81,5 +81,5 @@ The result is a filtered version of the original signal $x(t)$, with high-freque
 Available: https://ch.mathworks.com/help/signal/ref/chirp.html
 Accessed: 16 Dec. 2025.
 
-[3] M. H. Hayes, Statistical Digital Signal Processing and Modeling, John Wiley & Sons, New York, 1996, pp. 330–340. 
+[3] M. H. Hayes, Statistical Digital Signal Processing and Modeling, 1st ed., John Wiley & Sons, New York, 1996, pp. 330–340. 
 
