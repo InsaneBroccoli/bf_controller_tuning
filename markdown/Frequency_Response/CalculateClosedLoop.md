@@ -33,7 +33,8 @@ The sensitivity describes how the closed-loop system reacts to disturbances and 
 
 To calculate the sensitivity functions of the inner and outer loop, we use the following formulas:
 
-$$S_{in}\(omega) = \frac{1}{1+L_{in}(\omega)}$$ $$\qquad$$ $$S_{out}(\omega) = \frac{1}{1+L_{out}(\omega)}$$
+$$S_{in}(\omega) = \frac{1}{1+L_{in}(\omega)}$$
+$$S_{out}(\omega) = \frac{1}{1+L_{out}(\omega)}$$
 
 ---
 
