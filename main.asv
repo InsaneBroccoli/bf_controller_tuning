@@ -150,6 +150,6 @@ plotter.plot_Spectogram(3);
 
 %% Plot Tuning Data
 plotter.plot_Bode_Plant(ind_ax);
-plotter.plot_Bode_Contr(ind_ax, do_insert_legends);
-plotter.plot_Gang_of_Four(do_insert_legends);
-plotter.plot_Step_Response(do_insert_legends);
+% plotter.plot_Bode_Contr(ind_ax, do_insert_legends);
+% plotter.plot_Gang_of_Four(do_insert_legends);
+% plotter.plot_Step_Response(do_insert_legends);
