@@ -84,10 +84,13 @@ Beyond software development, this project also encompasses the construction and 
 
 This document is structured as follows: Section 5 provides the theoretical foundations of control systems and signal processing relevant to the tuning process. Section 6 details the methodological challenges and solutions developed during implementation, including simulations, drone construction, and the code migration from MATLAB to Python. Section 7 presents the results obtained from simulations and flight tests. Finally, Section 8 discusses the findings and outlines future work planned for continuation in the bachelor thesis.
 
+\newpage
+
 \subsection{Initial situation}
 The open-source firmware Betaflight is the most widely used platform for FPV racing drones and is continuously developed by a large community. The quality of the rate control is crucial for flight performance, as it enables stability, agility, and effective suppression of disturbances such as prop wash.\par
 Today, tuning of controller parameters is still largely performed by trial-and-error adjustments, a method that is time-consuming and often challenging for less experienced pilots. A proof of concept (developed by Michael Peter) already exists, which enables offline tuning of rate controllers using flight measurement data obtained from chirp signal excitation. However, the current implementation is based on MATLAB, which is not widely used within the FPV community and therefore limits accessibility. In addition, the proof-of-concept requires a certain level of technical knowledge to operate, which further complicates its practical use for many pilots. \par
 As a result, the potential of data-driven controller tuning remains largely unused in everyday FPV practice. This creates a gap between academically established system identification and control design methods on the one hand, and the predominantly experience-based tuning approaches used by pilots on the other. Bridging this gap represents a key motivation for the further development of the existing proof of concept.
+
 \newpage
 
 \subsection{Task and Objective}
