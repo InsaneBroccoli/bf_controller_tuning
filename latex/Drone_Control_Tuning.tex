@@ -134,7 +134,7 @@ Mathematically, a chirp signal can be represented as a sinusoidal wave with inst
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=1.0\textwidth]{./Images/Theory/chirp_signal.jpg}
+	\includegraphics[width=0.9\textwidth]{./Images/Theory/chirp_signal.png}
 	\caption{Chirp signal example}
 	\label{fig:chirp}
 \end{figure}
@@ -168,6 +168,13 @@ The Betaflight rate control loop behaves approximately as a differentiator below
 
 The specific corner frequencies of 3 Hz and 30 Hz are configured to match the typical dynamics of FPV racing drones and ensure robust excitation without causing instability or excessive motor stress. In the Betaflight implementation, the filtered chirp signal is added to the pilot's stick input before entering the PID controller, allowing the system to be excited while maintaining manual control authority during flight.
 
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\textwidth]{./Images/Theory/Chirp_lead_lag.png}
+	\caption{Chirp signal example}
+	\label{fig:chirp}
+\end{figure}
+
 \subsubsection*{Data Import and Preprocessing}
 To analyze Betaflight Blackbox logs effectively, the recorded data must first be imported and preprocessed to ensure correct scaling, structure, and suitability for further analysis. Each log consists of a header containing essential metadata, such as filter settings and PID values, and a data block with the recorded signals. Both components are required for correct interpretation of the flight data.
 
@@ -183,7 +190,7 @@ The recorded data logs provide two types of gyroscope signals. On the one hand, 
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=0.9\linewidth]{Images/Theory/Control_Gyro.png}
+	\includegraphics[width=0.8\linewidth]{Images/Theory/Control_Gyro.png}
 	\caption{Filtered versus unfiltered gyroscope signal}
 	\label{fig:gyro_filtered_vs_unfiltered}
 \end{figure}
@@ -207,7 +214,7 @@ In practical applications, measurement data is often contaminated by noise, whic
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=0.9\textwidth]{Images/Theory/Freq_Blockschalt.png}
+	\includegraphics[width=0.65\textwidth]{Images/Theory/Freq_Blockschalt.png}
 	\caption{System model including measurement noise}
 	\label{fig:system_noise}
 \end{figure}
@@ -243,7 +250,7 @@ Figure~\ref{fig:closedloop} shows a simplified closed loop structure.
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.9\textwidth]{Images/Theory/Control_Loop_easy.png}
+	\includegraphics[width=0.7\textwidth]{Images/Theory/Control_Loop_easy.png}
 	\caption{Simplified closed loop system}
 	\label{fig:closedloop}
 \end{figure}
@@ -278,7 +285,7 @@ As an example, the closed-loop configuration shown in Figure \ref{fig:closed_loo
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=0.9\textwidth]{Images/Theory/Control_Loop_easy.png}
+	\includegraphics[width=0.7\textwidth]{Images/Theory/Control_Loop_easy.png}
 	\caption{Simplified closed loop system}
 	\label{fig:closed_loop}
 \end{figure}
@@ -318,7 +325,7 @@ This allows the controller to respond quickly to fast pilot inputs while prevent
 For analysis and controller tuning, the effect of I-Term Relax must be considered, as it modifies the controller behavior depending on the current flight conditions.
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=0.6\textwidth]{Images/Theory/Control_Loop_Iterm.png}
+	\includegraphics[width=0.7\textwidth]{Images/Theory/Control_Loop_Iterm.png}
 	\caption{Segmentation of a signal into overlapping windows}
 	\label{fig:I_term}
 \end{figure}
@@ -363,12 +370,15 @@ For a step input, this convolution illustrates how the system accumulates the ef
 At the beginning of our thesis, we developed several simulations to deepen our understanding of the existing code and the methods applied within it. Although creating these simulations was time-intensive, they proved essential for our work. They provided the foundation for all subsequent analysis steps and enabled us to fully understand the existing functions before applying them further.
 
 \subsubsection*{Simulation of Betaflight Controller Order}
-To gain a deeper understanding of the Betaflight control architecture and its internal components, we reconstructed the complete control structure in MATLAB. The objective was to simulate the system’s step response using the same PID parameters and filter settings as those used on the actual drone.
-\par
-In the first step, we implemented the various filters according to the documentation \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/Filter_and_Controller.md}{Filter and Controller}. For each filter type, we created continuous and discrete versions, allowing us to compare their behavior directly. An example of this comparison is illustrated in Figure \ref{fig:dis_cont}.
+To gain a deeper understanding of the Betaflight control architecture, the complete control structure was reconstructed in MATLAB. The system’s step
+response was simulated using the same PID parameters and filter settings as onthe actual drone.\par
+
+The filter structure implemented in Betaflight was reproduced, with both continuous- and discrete-time versions created to allow a direct comparison of
+their behavior, as shown in Fig.~\ref{fig:dis_cont}.
+
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.77\textwidth]{./Images/Simulations/Dicrete_continuous.png}
+	\includegraphics[width=0.85\textwidth]{./Images/Simulations/Dicrete_continuous.png}
 	\caption{Comparison of continuous and discrete filters}
 	\label{fig:dis_cont}
 \end{figure}
@@ -377,7 +387,7 @@ Next, we implemented the PI and D controllers following the same principles. For
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.77\textwidth]{./Images/Simulations/plant_meas_sim.png}
+	\includegraphics[width=0.85\textwidth]{./Images/Simulations/plant_meas_sim.png}
 	\caption{Simplified plant model}
 	\label{fig:dis_plant_model}
 \end{figure}
@@ -456,7 +466,7 @@ Same as in the real system, we could not measure the plant without noise. Instea
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics[width=0.85\textwidth]{./Images/Simulations/Freq_Input_Output.png}
+	\includegraphics[width=0.83\textwidth]{./Images/Simulations/Freq_Input_Output.png}
 	\caption{Input and output signals with noise}
 	\label{fig:Freq_input}
 \end{figure}
@@ -465,7 +475,7 @@ If we calculate the transfer function directly from the noisy signals using a pl
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics[width=0.9\textwidth]{./Images/Simulations/Freq_Y_U.png}
+	\includegraphics[width=0.87\textwidth]{./Images/Simulations/Freq_Y_U.png}
 	\caption{Bode plot estimated with plain FFT}
 	\label{fig:Freq_FFT}
 \end{figure}
