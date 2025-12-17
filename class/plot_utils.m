@@ -20,8 +20,8 @@ classdef plot_utils
         linewidth            (1,1) double  = 1.2
         colorOrder = get(0, 'DefaultAxesColorOrder')
         axis_names cell = {'Roll', 'Pitch', 'Yaw'}
-        pos_bode double = [0.1514, 0.5838-0.2, 0.7536, 0.3472+0.2; ...
-                          0.1514, 0.1100,      0.7536, 0.1917] 
+        pos_bode double = [0.1514+0.05, 0.5838-0.2, 0.7536, 0.3472+0.2; ...
+                           0.1514+0.05, 0.08,       0.7536, 0.2017] 
     
     end
     methods
