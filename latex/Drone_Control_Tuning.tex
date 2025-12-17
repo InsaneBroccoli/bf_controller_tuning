@@ -565,26 +565,16 @@ By working with the hardware, it is easier for us to understand what practical c
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.6\textwidth]{./Images/OvershootExpress.jpg}
+	\includegraphics[width=0.7\textwidth]{./Images/OvershootExpress.JPG}
 	\caption{aosmini 3-inch build}
 	\label{fig:OvershootExpress}
 \end{figure}
 
-Therefore, a three-inch FPV drone was built from the ground up.
-This work included:
-\begin{itemize}
-	\item creating schemes to see which connections were required
-	\item soldering all the components such as the motors, receiver, video system, logger, and GPS module to the flight controller
-	\item attaching everything to the frame so that nothing generates unnecessary oscillations during flight
-	\item double-checking all soldering connections and screws
-	\item setting everything up in Betaflight
-	\item test-flying the drone
-	\item drone tuning
-\end{itemize}
+Therefore, a three-inch FPV drone was built from the ground up. This work included creating wiring schemes to determine the required connections and soldering all the components, such as the motors, receiver, video system, logger, and GPS module to the flight controller. All components were then securely fixed to the frame to ensure they remained in place during flight. Particular attention was paid to tightening all screws and soldering connections. We used zipties, to prevent any cables or components creating unnecessary oscillations. The setup process continued with configuring everything in Betaflight, followed by test flights and subsequent tuning of the drone.
 
 The flight controller barely fit into this frame. The GPS mount had to be trimmed off a little bit so that we could mount the all-in-one stack. The video system was also mounted very close to the stack. Due to a connector between these two parts, we had to lift the video system up with some spacers. This resulted in insufficient space on top of the video system for the screws, which attach the component to the frame. The video system then had to be mounted with just two screws instead of four. In the first test flights, no unusual vibrations were observed, so it's probably mounted adequately. As we need to be able to get the microSD card out of the logger, the small PCB has to be mounted somewhere outside the drone. We designed a small 3D-printed surface where the logger could be mounted with some double-sided tape. This component then was the lowest part of the drone, which was a problem. In one of the first flights, the microSD card holder opened and we lost the card during landing.
 
-To prevent this from happening again, we need to place the logger somewhere else or design some stands for the drone. This is being addressed in a later step, as it is not fundamental for the tuning process.
+To prevent this from happening again, we will design some 3D-printed stands to slightly raise the drone. This is being addressed in a later step, as it is not fundamental for the tuning process in this project.
 
 \subsection{Drone tuning}
 As part of understanding the workflow, we tuned an FPV drone ourselves. Initially, we applied a poor tuning configuration to observe its effects. During the first field test with this setup, it quickly became clear that the tuning was severely inadequate. The drone began oscillating aggressively and climbed rapidly. As the drone was out of control, the kill switch had to be activated, resulting in a crash that broke one of the four arms. Fortunately, the damage was minor and repaired quickly.
@@ -596,31 +586,33 @@ To enable the chirp flight mode, the flight controller was freshly flashed with 
 
 \subsubsection*{The tuning process using our tool}
 
-Our tool generates more plots than essentially needed for tuning. While some provide useful diagnostic information, they are not directly used in the tuning process itself. Figure~\ref{fig:evaluationTime_tuning} shows how stable and consistent the flight controller loop time was during flight. Figure~\ref{fig:flightoverview_tuning} gives a broad summary of gyro rates, motor outputs, and throttle. This plot is important for verifying that the motor outputs don't drop to minimum throttle during the chirp measurement. This would interrupt the system response and invalidate the frequency data. Figure~\ref{fig:flightgyrodata_tuning} shows how well the drone tracks commanded inputs on each axis, providing a visual overview of the setpoint tracking performance.
+Our tool generates more plots than essentially needed for tuning. While some provide useful diagnostic information, they are not directly used in the tuning process itself. Figure~\ref{fig:evaluationTime_tuning} shows how stable and consistent the flight controller loop time was during flight. The values represent the time difference between two logged samples, measured in microseconds. As the Median here is around 500 $\mu$s, the logging frequency was set to $1/f$ = 2 kHz.
 
 \begin{figure}[H]
 	\centering
-	\begin{minipage}{0.32\textwidth}
-		\centering
-		\includegraphics[width=\textwidth]{./Images/Tuning_OvershootExpress/evaluation_time.jpg}
-		\caption{Flight controller loop time}
-		\label{fig:evaluationTime_tuning}
-	\end{minipage}
-	\hfill
-	\begin{minipage}{0.32\textwidth}
-		\centering
-		\includegraphics[width=\textwidth]{./Images/Tuning_OvershootExpress/flight_overview.jpg}
-		\caption{Flight overview}
-		\label{fig:flightoverview_tuning}
-	\end{minipage}
-	\hfill
-	\begin{minipage}{0.32\textwidth}
-		\centering
-		\includegraphics[width=\textwidth]{./Images/Tuning_OvershootExpress/flight_gyro_data.jpg}
-		\caption{Gyro setpoint tracking}
-		\label{fig:flightgyrodata_tuning}
-	\end{minipage}
+	\includegraphics[width=0.9\textwidth]{./Images/Tuning_OvershootExpress/evaluation_time.jpg}
+	\caption{Flight controller loop time}
+	\label{fig:evaluationTime_tuning}
 \end{figure}
+
+Figure~\ref{fig:flightoverview_tuning} gives a broad summary of gyro rates, axissum, motor outputs, and throttle. This plot is important for verifying that the motor outputs don't drop to minimum throttle during the chirp measurement. This would interrupt the system response and invalidate the frequency data. 
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\textwidth]{./Images/Tuning_OvershootExpress/flight_overview.jpg}
+	\caption{Flight overview}
+	\label{fig:flightoverview_tuning}
+\end{figure}
+
+Figure~\ref{fig:flightgyrodata_tuning} shows how well the drone tracks commanded inputs on each axis, providing a visual overview of the setpoint tracking performance.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\textwidth]{./Images/Tuning_OvershootExpress/flight_gyro_data.jpg}
+	\caption{Gyro setpoint tracking}
+	\label{fig:flightgyrodata_tuning}
+\end{figure}
+
 
 \subsubsection*{Filter Tuning}
 Before we start tuning the PID controllers, we need good filtering to have clean signals to work with. The general aim here is to use as little filtering as possible because too much filtering causes delay in the system. However, no quadcopter build is perfect, so at least some filtering is necessary in order to achieve a well-tuned system.
@@ -663,6 +655,8 @@ Here, frequencies are plotted against thrust level and the color shows the signa
 When you try to sample a signal that contains frequencies higher than half of your sampling rate, aliasing can occur. This would make high-frequency content appear as lower frequencies, corrupting the measurement data. To avoid this, we set a PT1 low-pass filter. The cutoff frequency should not be greater than the sampling frequency divided by two. As we use a 2 kHz logging frequency, we set the cutoff to 800 Hz as a conservative choice.
 If aliasing occurs on your drone, it can be seen in the spectrogram as diagonal lines going down as you move to higher frequencies.
 
+\newpage
+
 \textbf{Dynamic notch filter}\\
 The dynamic notch filter automatically finds and removes mechanical motor noise with the highest amplitude for each axis. The standard setting here is 2 notches from 100 to 600 Hz. Through testing, we found that changing the notch filter count from two to three provided better filtering. We can see in Figure~\ref{fig:Spectrograms_tuning} that the filtered plots don't show any diagonal lines anymore.
 
@@ -679,21 +673,21 @@ Further information about spectra and spectrograms can be found \href{https://gi
 \subsubsection*{PID tuning}
 After configuring the filter settings, we could move on to the PID tuning.
 
-The tool calculates the Plant and Controller Bode plots to build a mathematical model of the drone. These are interesting for an engineer but not necessarily useful for a user in the community, as they are less intuitive. We mainly focused on the Step Response and the Gang of Four, where you can see flight performance and stability directly.
+The tool calculates the Plant (Figure~\ref{fig:plant_tuning}) and Controller Bode plots (Figure~\ref{fig:bodeController_tuning}) to build a mathematical model of the drone. These are interesting for an engineer but not necessarily useful for a user in the community, as they are less intuitive. We mainly focused on the Step Response and the Gang of Four, where you can see flight performance and stability directly.
 
 \begin{figure}[H]
 	\centering
-	\begin{minipage}{0.48\textwidth}
+	\begin{minipage}{0.49\textwidth}
 		\centering
 		\includegraphics[width=\textwidth]{./Images/Tuning_OvershootExpress/plant.jpg}
-		\caption{Plant Bode plot}
+		\caption{Bode plot of the Plant}
 		\label{fig:plant_tuning}
 	\end{minipage}
 	\hfill
-	\begin{minipage}{0.48\textwidth}
+	\begin{minipage}{0.49\textwidth}
 		\centering
 		\includegraphics[width=\textwidth]{./Images/Tuning_OvershootExpress/Bode_controller_pitch.jpg}
-		\caption{Controller Bode plot}
+		\caption{Bode plot of the Controller}
 		\label{fig:bodeController_tuning}
 	\end{minipage}
 \end{figure}
@@ -702,7 +696,7 @@ The \textbf{step response} plot shows exactly what happens when the pilot moves 
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=1.0\textwidth]{./Images/Tuning_OvershootExpress/Step_response_pitch_tuned.jpg}
+	\includegraphics[width=0.9\textwidth]{./Images/Tuning_OvershootExpress/Step_response_pitch_tuned.jpg}
 	\caption{Step Response}
 	\label{fig:step_response_tuning}
 \end{figure}
@@ -727,17 +721,15 @@ During our tuning, we paid specific attention to three of these plots:
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=1.0\textwidth]{./Images/Tuning_OvershootExpress/gang_of_four_pitch_tuned.jpg}
+	\includegraphics[width=0.9\textwidth]{./Images/Tuning_OvershootExpress/gang_of_four_pitch_tuned.jpg}
 	\caption{Gang of Four}
 	\label{fig:gangoffour_tuning}
 \end{figure}
 
 \textbf{PID tuning summary}\\
-Our tuning objective was to achieve a fast step response without overshoot while maintaining good disturbance rejection and stability margins. It is important to note that there is no universally perfect tune. Settings depend heavily on pilot preferences. Racing pilots typically prefer aggressive, responsive tuning for competitive performance, while freestyle pilots may prioritize smoothness and flight feel. Since none of our team members is a professional pilot, we focused on achieving robustness and a step response without overshoot. This tuning approach is probably somewhere between what a racing pilot would want and a freestyle pilot would prefer. Robustness is practical in this case because it handles scenarios such as slightly bent propellers, a battery positioned off-center, or additional components such as cameras mounted on the drone. It should also be mentioned that the axes roll and pitch should be tuned as similarly as possible. This is because symmetrical tuning makes the drone more intuitive to pilot. When both axes respond identically to stick inputs, the drone behaves predictably during combined maneuvers, making control feel natural.
+Our tuning objective was to achieve a fast step response without overshoot while maintaining good disturbance rejection and stability margins. It is important to note that there is no universally perfect tune. Settings depend heavily on pilot preferences. Racing pilots typically prefer aggressive, responsive tuning for competitive performance, while freestyle pilots may prioritize smoothness and flight feel. Since none of our team members is a professional pilot, we focused on achieving robustness and a step response without overshoot. Robustness is practical in this case because it handles scenarios such as slightly bent propellers, a battery positioned off-center, or additional components such as cameras mounted on the drone. It should also be mentioned that the axes roll and pitch should be tuned as similarly as possible. This is because symmetrical tuning makes the drone more intuitive to pilot. When both axes respond identically to stick inputs, the drone behaves predictably during combined maneuvers, making control feel natural.
 
 The tuning process involved iteratively adjusting PID gains in MATLAB while monitoring both the step response and Gang of Four plots side by side. We found and used an online \href{https://www.luisllamas.es/en/pid-controller-simulator/}{PID simulator} as a guide to build intuition for how P, I, and D values affect system behavior. For the step response, we aimed for a fast rise time with minimal or no overshoot and a smooth curve without oscillations. On the Gang of Four side, we wanted the sensitivity peak to stay below 6 dB for good stability margins, low compliance across the control bandwidth for effective disturbance rejection, and reasonable controller effort to avoid amplifying sensor noise. All transfer functions should show smooth, rounded shapes without sharp resonances that indicate problematic dynamics. Once we were satisfied with the curves and their shapes, we could take the P, I, and D values for each axis from the command window in MATLAB and set them via the Betaflight configurator to the drone.
-
-Achieving an optimal tune required several iterations due to challenges with filter adjustments and occasional logging issues. Nevertheless, the drone was successfully tuned, and the improvement was immediately noticeable. During propwash maneuvers, the drone remained significantly more stable, and flips were executed with greater precision at the stop point.
 
 
 \textbf{Additional Resources}\\
@@ -883,6 +875,8 @@ The \texttt{plot\_utils} class remains responsible for visualization and graphic
 Unlike the previous approach, this class is now more flexible and reusable. It can be used independently to generate plots from pre-calculated data,
 making it suitable for users who only want to visualize spectrograms, frequency responses, or step responses without running the full analysis pipeline.
 This modularity allows the plotting functionality to be easily adapted for different visualization needs and integrated into other workflows.
+
+\newpage
 
 This approach maintains thematic organization but makes it easier to use only specific parts of the tool.
 

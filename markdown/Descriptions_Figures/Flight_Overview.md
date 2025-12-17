@@ -23,7 +23,7 @@ This plot shows the motor speeds throughout the entire flight. Each motor is plo
 This plot shows the throttle stick input throughout the flight. It represents the amount of throttle commanded by the pilot. The throttle signal ranges from 0 to 1000, where 0 corresponds to minimum throttle and 1000 corresponds to 100% throttle.
 
 <p align="center">
-  <img src="./Images/Flight_Overview.jpg"
+  <img src="./Images/flight_overview.jpg"
      alt="Original noisy signals"
      width="1000"
      style="float:center; margin-left:10px; margin-right:10px;">
