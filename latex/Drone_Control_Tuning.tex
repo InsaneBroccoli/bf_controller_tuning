@@ -183,7 +183,7 @@ The recorded data logs provide two types of gyroscope signals: the signal \textt
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=0.8\linewidth]{Images/Theory/Control_Gyro.png}
+	\includegraphics[width=0.7\linewidth]{Images/Theory/Control_Gyro.png}
 	\caption{Filtered versus unfiltered gyroscope signal}
 	\label{fig:gyro_filtered_vs_unfiltered}
 \end{figure}
@@ -207,7 +207,7 @@ In practical applications, measurement data is often contaminated by noise, whic
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=0.65\textwidth]{Images/Theory/Freq_Blockschalt.png}
+	\includegraphics[width=0.55\textwidth]{Images/Theory/Freq_Blockschalt.png}
 	\caption{System model including measurement noise}
 	\label{fig:system_noise}
 \end{figure}
@@ -224,7 +224,7 @@ Subsequently, the frequency response is estimated using the filtered output sign
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=1.0\textwidth]{Images/Theory/segmentation.png}
+	\includegraphics[width=0.9\textwidth]{Images/Theory/segmentation.png}
 	\caption{Segmentation of a signal into overlapping windows}
 	\label{fig:segmentation}
 \end{figure}
@@ -243,7 +243,7 @@ Figure~\ref{fig:closedloop} shows a simplified closed-loop structure.
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.7\textwidth]{Images/Theory/Control_Loop_easy.png}
+	\includegraphics[width=0.65\textwidth]{Images/Theory/Control_Loop_easy.png}
 	\caption{Simplified closed loop system}
 	\label{fig:closedloop}
 \end{figure}
@@ -278,7 +278,7 @@ As an example, the closed-loop configuration shown in Figure \ref{fig:closed_loo
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=0.7\textwidth]{Images/Theory/Control_Loop_easy.png}
+	\includegraphics[width=0.65\textwidth]{Images/Theory/Control_Loop_easy.png}
 	\caption{Simplified closed loop system}
 	\label{fig:closed_loop}
 \end{figure}
@@ -459,7 +459,7 @@ As in the real system, we could not measure the plant without noise. Instead, we
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics[width=0.83\textwidth]{./Images/Simulations/Freq_Input_Output.png}
+	\includegraphics[width=0.9\textwidth]{./Images/Simulations/Freq_Input_Output.png}
 	\caption{Input and output signals with noise}
 	\label{fig:Freq_input}
 \end{figure}
@@ -468,7 +468,7 @@ If we calculate the transfer function directly from the noisy signals using a pl
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics[width=0.87\textwidth]{./Images/Simulations/Freq_Y_U.png}
+	\includegraphics[width=0.95\textwidth]{./Images/Simulations/Freq_Y_U.png}
 	\caption{Bode plot estimated with plain FFT}
 	\label{fig:Freq_FFT}
 \end{figure}
@@ -478,7 +478,7 @@ To improve this poor estimate, we applied different signal-processing methods. F
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics[width=0.9\textwidth]{./Images/Simulations/Freq_Welch.png}
+	\includegraphics[width=0.95\textwidth]{./Images/Simulations/Freq_Welch.png}
 	\caption{Bode plot estimated with Welch method}
 	\label{fig:Freq_Welch}
 \end{figure}
@@ -487,7 +487,7 @@ In the next step, we also implemented a rotated-signal approach, where the chirp
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics[width=0.9\textwidth]{./Images/Simulations/Freq_Rot.png}
+	\includegraphics[width=0.95\textwidth]{./Images/Simulations/Freq_Rot.png}
 	\caption{Bode plot estimated with rotated Welch method}
 	\label{fig:Freq_Rot}
 \end{figure}
@@ -509,7 +509,7 @@ In the next step, we compared the frequency spectrum of the signal with and with
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics[width=0.85\textwidth]{./Images/Simulations/Spectra_window.png}
+	\includegraphics[width=0.9\textwidth]{./Images/Simulations/Spectra_window.png}
 	\caption{Comparison of spectra with and without windowing}
 	\label{fig:spectra_window}
 \end{figure}
@@ -518,7 +518,7 @@ In the last step, we split the signal into several overlapping segments, as desc
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics[width=0.85\textwidth]{./Images/Simulations/Spectra_segment.png}
+	\includegraphics[width=0.9\textwidth]{./Images/Simulations/Spectra_segment.png}
 	\caption{Spectrum with segment averaging}
 	\label{fig:spectra_seg}
 \end{figure}
@@ -531,7 +531,7 @@ To analyze how the frequency content of an input signal changes with both time a
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics[width=0.75\textwidth]{./Images/Simulations/Spectogram_overview.png}
+	\includegraphics[width=0.8\textwidth]{./Images/Simulations/Spectogram_overview.png}
 	\caption{Input signal, windowed input signal, and thrust over time}
 	\label{fig:spectogram_input}
 \end{figure}
@@ -540,7 +540,7 @@ In the next step, the input signal was divided into short, non-overlapping time 
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics[width=0.75\textwidth]{./Images/Simulations/Spectogram_Time_Freq.png}
+	\includegraphics[width=0.8\textwidth]{./Images/Simulations/Spectogram_Time_Freq.png}
 	\caption{Spectrogram showing the amplitude over frequency and time}
 	\label{fig:spectogram_time}
 \end{figure}
@@ -549,7 +549,7 @@ To relate the spectral content to the thrust level, we assigned each segment the
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics[width=0.75\textwidth]{./Images/Simulations/Spectogram_Thrust_Freq.png}
+	\includegraphics[width=0.8\textwidth]{./Images/Simulations/Spectogram_Thrust_Freq.png}
 	\caption{Spectrogram showing the amplitude over frequency and thrust}
 	\label{fig:spectogram_thrust}
 \end{figure}
@@ -1093,15 +1093,30 @@ The work completed during this project phase positions the bachelor thesis for f
 \subsection{Project Management}
 \subsubsection*{Project Assignment}
 
+
+% ---------- Aufgabenstellung Seite 1 ----------
 \begin{figure}[H]
-	\centering
-	\includegraphics[page=1,width=\textwidth]{pdf/aufgabenstellung.pdf}
-	\caption{Project Assignment}
-	\label{fig:project_assignment_1}
+  \centering
+  \includegraphics[page=1,width=0.95\textwidth]{pdf/aufgabenstellung.pdf}
 \end{figure}
 
-\includepdf[pages=2]{pdf/aufgabenstellung.pdf}
-\includepdf[pages=3]{pdf/aufgabenstellung.pdf}
+\clearpage
+
+% ---------- Aufgabenstellung Seite 2 ----------
+\begin{figure}[H]
+  \centering
+  \includegraphics[page=2,width=0.95\textwidth]{pdf/aufgabenstellung.pdf}
+\end{figure}
+
+\clearpage
+
+% ---------- Aufgabenstellung Seite 3 ----------
+\begin{figure}[H]
+  \centering
+  \includegraphics[page=3,width=0.95\textwidth]{pdf/aufgabenstellung.pdf}
+\end{figure}
+
+
 
 
 \subsubsection*{Project Schedule — Version 0}
@@ -1134,17 +1149,5 @@ This project schedule was created prior to the second milestone meeting and appr
 	\caption{Project Schedule — Version 2}
 	\label{fig:Project Schedule — Version 2}
 \end{figure}
-
-\subsubsection*{Meeting Minutes}
-
-\newpage
-
-
-\subsection{Additional Information}
-
-
-
-\newpage
-Projektcode
 
 \end{document}
