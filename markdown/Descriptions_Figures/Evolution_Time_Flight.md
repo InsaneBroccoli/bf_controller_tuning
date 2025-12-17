@@ -30,7 +30,7 @@ These values represent the target loop time (`desiredPeriodUs`) configured in th
 ---
 
 <p align="center">
-  <img src="./Images/Evolution_Time_Flight.jpg"
+  <img src="./Images/evolution_time_flight.jpg"
      alt="Flight controller loop time over entire flight"
      width="1000"
      style="float:center; margin-left:10px; margin-right:10px;">
