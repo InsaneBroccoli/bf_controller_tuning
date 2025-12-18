@@ -77,8 +77,8 @@ H(s) = \frac{1 + s/\omega_z}{1 + s/\omega_p}
 ```
 
 where  
-\(\omega_z = 2\pi \cdot 30\;\text{rad/s}\) represents the zero frequency and  
-\(\omega_p = 2\pi \cdot 3\;\text{rad/s}\) represents the pole frequency.
+$$\omega_z = 2\pi \cdot 30\ \text{rad/s}$$ represents the zero frequency and  
+$$\omega_p = 2\pi \cdot 3\ \text{rad/s}$$ represents the pole frequency.
 
 The pole introduces the lag characteristic by reducing the magnitude for frequencies above its cutoff frequency. Conversely, the zero limits this attenuation by introducing magnitude amplification above its own cutoff frequency. However, since the pole frequency is lower than the zero frequency, the pole’s contribution dominates over the primary control bandwidth, resulting in an overall lag filter behavior.
 
