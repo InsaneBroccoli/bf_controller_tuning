@@ -88,7 +88,7 @@ This document is structured as follows: \autoref{sec:Theory} provides the theore
 \newpage
 
 \subsection{Initial situation}
-The open-source firmware Betaflight is the most widely used platform for FPV racing drones and is continuously developed by a large community. The quality of the rate controlers is crucial for flight performance, as it enables stability, agility, and effective suppression of disturbances such as prop wash.\par
+The open-source firmware Betaflight is the most pobular platform for FPV racing drones and is continuously developed by a large community. The quality of the rate controlers is crucial for flight performance, as it enables stability, agility, and effective suppression of disturbances such as prop wash.\par
 Today, tuning of controller parameters is still largely performed by trial-and-error adjustments, a method that is time-consuming and often challenging for less experienced pilots. A proof of concept (developed by Michael Peter) already exists, which enables offline tuning of rate controllers using flight measurement data obtained from chirp signal excitation. However, the current implementation is based on MATLAB, which has limited access and therefore less common in the FPV-community. In addition, the proof-of-concept requires a certain level of technical knowledge to operate, which further complicates its practical use for many pilots. \par
 As a result, the potential of data-driven controller tuning remains largely unused in everyday FPV practice. This creates a gap between academically established system identification and control design methods on the one hand, and the predominantly experience-based tuning approaches used by pilots on the other. Bridging this gap represents a key motivation for the further development of the existing proof of concept.
 
@@ -428,7 +428,7 @@ In the mid-frequency range, the proportional gain sets the magnitude level
 	20\log_{10}(K_p) = 20\log_{10}(100) = 40\,\text{dB}
 \end{equation}
 
-At low frequencies, the integral term causes a slope of $-20\,\text{dB/decade}$ 
+At low frequencies, the integral term causes a slope of $-20\,\text{dB/decade}$
 \begin{equation}
 	|C_I(s)| = \frac{K_i}{\omega} = \frac{10}{\omega}
 \end{equation}
