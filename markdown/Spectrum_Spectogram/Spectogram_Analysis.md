@@ -82,6 +82,7 @@ Amplitude spectrograms can be obtained via:
 
 $$A(y,f) = \sqrt{P_{\text{avg}}(y,f)}$$
 
+---
 
 ## References
 
