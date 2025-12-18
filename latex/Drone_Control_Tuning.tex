@@ -103,7 +103,7 @@ In addition, the tool will be accompanied by comprehensive Markdown documentatio
 \label{sec:Theory}
 
 \subsection{Control System and Signal Processing}
-This section provides an overview of the key concepts and methods used for the analysis and tuning of the Betaflight flight controller. It introduces the essential aspects of signal processing, control system identification, and evaluation techniques that form the basis for optimizing controller performance. A more detailed description of the underlying theory and mathematical formulation is available in the project documentation on \href{https://github.com/InsaneBroccoli/bf_controller_tuning/tree/PA_final/markdown}{GitHub}.
+This section provides an overview of the key concepts and methods used for the analysis and tuning of the Betaflight flight controller. It introduces the essential aspects of signal processing, control system identification, and evaluation techniques that form the basis for optimizing controller performance. A more detailed description of the underlying theory and mathematical formulation is available in the project documentation on \href{https://github.com/InsaneBroccoli/bf_controller_tuning/tree/main/markdown}{GitHub}.
 
 \subsubsection*{Betaflight Gyro Control System}
 
@@ -477,7 +477,7 @@ If we calculate the transfer function directly from the noisy signals using a pl
 	\label{fig:Freq_FFT}
 \end{figure}
 
-To improve this poor estimate, we applied different signal-processing methods. First, we used the Welch method, which improves the estimation by averaging over overlapping segments. The implementation of the Welch frequency response function (FRF) follows the theory described in the documentation \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/estimate_frequency_response.md}{Estimate
+To improve this poor estimate, we applied different signal-processing methods. First, we used the Welch method, which improves the estimation by averaging over overlapping segments. The implementation of the Welch frequency response function (FRF) follows the theory described in the documentation \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/main/markdown/Frequency_Response/estimate_frequency_response.md}{Estimate
 	Frequency Response}. This allowed us to compare the plain FFT approach with the more robust Welch estimator. The result is shown in \autoref{fig:Freq_Welch}.
 
 \begin{figure}[htbp]
@@ -487,7 +487,7 @@ To improve this poor estimate, we applied different signal-processing methods. F
 	\label{fig:Freq_Welch}
 \end{figure}
 
-In the next step, we also implemented a rotated-signal approach, where the chirp is demodulated to baseband before filtering. For this part, we used the zero-phase filtering method \texttt{apply\_rotfiltfilt}, as described in the documentation \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Frequency_Response/ApplyRotfiltfilt.md}{Apply Rotfiltfilt}. Finally, we compared the original Bode plot to the signal-processed one, as shown in \autoref{fig:Freq_Rot}, to assess how the rotation technique improves noise robustness.
+In the next step, we also implemented a rotated-signal approach, where the chirp is demodulated to baseband before filtering. For this part, we used the zero-phase filtering method \texttt{apply\_rotfiltfilt}, as described in the documentation \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/main/markdown/Frequency_Response/ApplyRotfiltfilt.md}{Apply Rotfiltfilt}. Finally, we compared the original Bode plot to the signal-processed one, as shown in \autoref{fig:Freq_Rot}, to assess how the rotation technique improves noise robustness.
 
 \begin{figure}[htbp]
 	\centering
@@ -518,7 +518,7 @@ In the next step, we compared the frequency spectrum of the signal with and with
 	\label{fig:spectra_window}
 \end{figure}
 
-In the last step, we split the signal into several overlapping segments, as described in the documentation \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Spectrum_Spectogram/Spectra_Analysis.md}{Spectra Analysis}. By averaging across these segments, we were able to observe how this method reduces noise and stabilizes the resulting spectrum.
+In the last step, we split the signal into several overlapping segments, as described in the documentation \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/main/markdown/Spectrum_Spectogram/Spectra_Analysis.md}{Spectra Analysis}. By averaging across these segments, we were able to observe how this method reduces noise and stabilizes the resulting spectrum.
 
 \begin{figure}[htbp]
 	\centering
@@ -540,7 +540,7 @@ To analyze how the frequency content of an input signal changes with both time a
 	\label{fig:spectogram_input}
 \end{figure}
 
-In the next step, the input signal was divided into short, non-overlapping time windows. For each segment, we computed the discrete Fourier transform (FFT) to obtain a local frequency spectrum. By arranging these spectra along the time axis, we created a time-frequency representation of the signal, as shown in \autoref{fig:spectogram_time}.
+In the next step, the input signal was divided into short, non-overlapping time windows. For each segment, we computed the fast Fourier transform (FFT) to obtain a local frequency spectrum. By arranging these spectra along the time axis, we created a time-frequency representation of the signal, as shown in \autoref{fig:spectogram_time}.
 
 \begin{figure}[htbp]
 	\centering
@@ -670,7 +670,7 @@ For our initial flight, we configured a PT3 (third-order) filter with a cutoff o
 The yaw low-pass filter smooths the gyroscope signal by ignoring high-frequency noise. Since the yaw axis typically experiences less mechanical vibration than roll and pitch, the filter can often be configured less aggressively without compromising signal quality.
 For our setup, we retained the default Betaflight settings, as they provided good noise suppression without creating unnecessary delay.
 
-Further information about spectra and spectrograms can be found \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Spectrum_Spectogram}{here}. Also consider looking at the \href{https://www.betaflight.com/docs/wiki/configurator/pid-tuning-tab}{Betaflight wiki page} for more information about Betaflight filters.
+Further information about spectra and spectrograms can be found \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/main/markdown/Spectrum_Spectogram}{here}. Also consider looking at the \href{https://www.betaflight.com/docs/wiki/configurator/pid-tuning-tab}{Betaflight wiki page} for more information about Betaflight filters.
 
 \subsubsection*{PID Tuning}
 After configuring the filter settings, we could move on to the PID tuning.
@@ -736,8 +736,8 @@ Our tuning objective was to achieve a fast step response without overshoot while
 The tuning process involved iteratively adjusting PID gains in MATLAB while monitoring both the step response and Gang of Four plots side by side. We found and used an online \href{https://www.luisllamas.es/en/pid-controller-simulator/}{PID simulator} as a guide to build intuition for how P, I, and D values affect system behavior. For the step response, we aimed for a fast rise time with minimal or no overshoot and a smooth curve without oscillations. On the Gang of Four side, we wanted the sensitivity peak to stay below 6 dB for good stability margins, low compliance across the control bandwidth for effective disturbance rejection, and reasonable controller effort to avoid amplifying sensor noise. All transfer functions should show smooth, rounded shapes without sharp resonances that indicate problematic dynamics. Once we were satisfied with the curves and their shapes, we could take the P, I, and D values for each axis from the command window in MATLAB and set them via the Betaflight configurator to the drone.
 
 \textbf{Additional Resources}\\
-For in-depth technical background on transfer functions and control theory, see our \href{https://github.com/InsaneBroccoli/bf_controller_tuning/tree/PA_final/markdown/Frequency_Response}{Frequency Response documentation}.
-Detailed explanations of all generated plots and their interpretation can be found in the \href{https://github.com/InsaneBroccoli/bf_controller_tuning/tree/PA_final/markdown/Descriptions_Figures}{Figure Documentation}.
+For in-depth technical background on transfer functions and control theory, see our \href{https://github.com/InsaneBroccoli/bf_controller_tuning/tree/main/markdown/Frequency_Response}{Frequency Response documentation}.
+Detailed explanations of all generated plots and their interpretation can be found in the \href{https://github.com/InsaneBroccoli/bf_controller_tuning/tree/main/markdown/Descriptions_Figures}{Figure Documentation}.
 
 
 \clearpage

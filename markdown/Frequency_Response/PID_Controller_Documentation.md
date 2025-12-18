@@ -6,7 +6,7 @@ To obtain correct controller behavior in simulations, frequency-domain models, o
 
 ---
 
-## 1. Betaflight PID Gain Scaling
+## Betaflight PID Gain Scaling
 
 Betaflight internally scales its PID gains using fixed numerical factors [1].  
 To convert Betaflight PID values into physically meaningful controller gains, the following scale factors are applied:
@@ -15,7 +15,7 @@ This scaling comes **directly from Betaflight’s internal controller implementa
 
 ---
 
-## 2. Scaling of New PID Gains
+## Scaling of New PID Gains
 
 Given the original PID vector:
 
@@ -27,24 +27,24 @@ This step converts user-facing Betaflight PID values into controller gains suita
 
 ---
 
-## 3. Construction of PI and D Controllers
+## Construction of PI and D Controllers
 
 The discrete-time controllers (with sample time $T_s$) are constructed as:
 
 ### PI Controller
 
-$$C_{PI} = K_p\ \cdot G_f + K_i \cdot T_s \cdot \frac{1}{1-z^{-1}}$$  [2]
+$$C_{PI} = K_p\ \cdot G_f + K_i \cdot T_s \cdot \frac{1}{1-z^{-1}}$$ 
 
 ### D Controller
 
-$$C_D = \frac{K_d}{T_s}(1 - z^{-1})$$  [2]
+$$C_D = \frac{K_d}{T_s}(1 - z^{-1})$$  
 
 The output of the implementation is:
 
 - **Cpi** — proportional + integral controller  
 - **Cd** — discrete derivative controller
 
-With these newly computed controllers, it becomes possible to predict how the system will respond when operated under the updated control gains.
+With these newly computed controllers, it becomes possible to predict how the system will respond when operated under the updated control gains. [2]
 
 ---
 
@@ -54,4 +54,3 @@ With these newly computed controllers, it becomes possible to predict how the sy
 https://github.com/betaflight/betaflight  
 
 [2] H. Lutz and W. Wendt, Taschenbuch der Regelungstechnik, 6th ed., Springer Vieweg, Berlin, Heidelberg, pp. 183–186.
-

@@ -33,7 +33,7 @@ By combining the spectra with the filter settings, you can choose filters that k
 
 ## Axis Sum Spectra
 
-As described in the [flight overview documentation](https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Descriptions_Figures/Flight_Overview.md), AxisSum represents the total output of the rate PID controller for each axis (roll, pitch, and yaw), combining all active control terms (P, I, D, and feedforward, if enabled). Here, in the frequency domain, the AxisSum spectra show at which frequencies the controller is working hardest.
+As described in the [flight overview documentation](./Flight_Overview.md), AxisSum represents the total output of the rate PID controller for each axis (roll, pitch, and yaw), combining all active control terms (P, I, D, and feedforward, if enabled). Here, in the frequency domain, the AxisSum spectra show at which frequencies the controller is working hardest.
 
 In the spectra, low amplitudes indicate the drone is tracking the setpoint with minimal correction, while higher amplitudes mean the controller is applying more effort to compensate for disturbances, tracking errors, or aggressive inputs. Spikes or elevated noise at specific frequencies often correspond to mechanical resonances, motor harmonics, or persistent vibrations. A generally high noise floor or persistent high levels can indicate overly aggressive gains, insufficient filtering, or mechanical issues.
 

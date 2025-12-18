@@ -1,4 +1,4 @@
-# Loading data and Parsing Header for Betaflight Blackbox Logs
+# Blackbox Log Data Handling
 
 ## Header Information
 
@@ -7,12 +7,16 @@ The **header**, which contains configuration and system information, and the **d
 
 The data block alone is useless without the header. It contains only raw numerical values with no context. The header describes how this data must be interpreted. It defines the meaning of each column, the units and scaling factors, the sample rate, and the system configuration. For this reason, both sections are read and processed systematically.
 
+---
+
 ## Efficient Loading of Large Log Files in MATLAB
 
 To avoid repeated CSV parsing, the .csv file is converted to a `.mat` file on first load. Following runs load the binary `.mat` file directly, which is significantly faster for large logs.
 
 
 Parsing large CSV files can be slow, especially with logs containing millions of samples. To speed things up, the CSV is converted to a `.mat` file on first load. On following runs, MATLAB loads the binary `.mat` directly, which is significantly faster than the parsing from CSV.
+
+---
 
 ## Extracting Parameter Data from the Blackbox Header
 
@@ -21,11 +25,15 @@ This part of the log contains all relevant Betaflight parameters, such as loop f
 
 Extraction starts at the line containing `frameIntervalI` and ends at `loopIteration`. All lines in this range are parsed and stored in the struct `para`. This creates a clean and structured collection of all metadata needed for downstream analysis.
 
+---
+
 ## Building the Signal Index
 
 The line containing `loopIteration` marks the end of the header and lists all recorded signals in column order, as they appear in the .csv file.
 
 This line is parsed to build the index struct `ind`, mapping each signal name to its column index. This enables name-based access to the data matrix instead of hardcoded column numbers.
+
+---
 
 ## Loading the Measurement Data
  

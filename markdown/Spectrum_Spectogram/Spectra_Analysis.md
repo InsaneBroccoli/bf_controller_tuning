@@ -8,11 +8,13 @@ To better understand the dynamic behavior of a system, it is often useful to ana
 The function processes each signal column independently and performs the following steps:
 
 
-### 1. Mean Removal
+### Mean Removal
 
 A global mean is removed from every signal. Additionally, each segment undergoes per-segment mean removal, which suppresses low-frequency drift and numerical bias. (DC components are therefore intentionally attenuated)
 
-### 2. Windowing of Each Segment
+---
+
+### Windowing of Each Segment
 
 Before the FFT is computed, each data segment is multiplied by the chosen analysis window (for example, a periodic Hann window). The window reduces unwanted frequency spreading by making the signal smoothly fade in and out at the edges of each segment. Without this tapering, sudden jumps at the segment boundaries would create artificial frequency components that do not exist in the original signal.
 
@@ -26,8 +28,10 @@ A periodic Hann window is commonly used because it provides:
 
 After windowing, the segment is ready for amplitude-correct spectral estimation.
 
+---
 
-### 3. Segmentation with Overlap
+
+### Segmentation with Overlap
 
 The input signal is divided into multiple analysis windows (segments) of length \($\text{Nest}$\). These segments can overlap to improve statistical stability and reduce variance in spectral estimates. A 50% overlap is widely recommended in the literature for Welch’s method [2, pp. 419–434], while overlaps of 75% are also frequently used in practical implementations to further reduce variance. Increasing overlap up to 100% can provide maximum variance reduction, as noted in frequency-domain FRF measurement techniques [1, pp. 62–63, 239].
 
@@ -37,8 +41,10 @@ $$\text{N}_{\text{Shift}} = \text{Nest} - \text{N}_{\text{Overlap}}$$
 
 Higher overlaps improve smoothness and consistency but increase computational cost. The choice depends on the desired trade-off between variance reduction and efficiency.
 
+---
 
-### 4. Windowing and Amplitude-Correct FFT Scaling
+
+### Windowing and Amplitude-Correct FFT Scaling
 
 The function uses a custom normalization: 
 
@@ -64,7 +70,7 @@ These characteristics are well documented in frequency-domain signal analysis li
 
 ---
 
-### 4) One-Sided Power Spectrum Construction
+### One-Sided Power Spectrum Construction
 
 From the two-sided FFT power spectrum, only the positive half is used:
 
@@ -85,11 +91,12 @@ $$A(f) = \sqrt{P_{\text{avg}}(f)}$$
 
 This form is used throughout the analysis for gyro data, filtered gyro signals, and control-loop sums [1].
 
+---
 
 ## References
 
 [1] Pintelon, R., & Schoukens, J. *System Identification: A Frequency Domain Approach*  
-    (2nd ed.). Wiley-IEEE Press, 2012, **pp. 45–60, 118–121, 62–63, 239**.
+    (2nd ed.). Wiley-IEEE Press, 2012, pp. 45–60, 118–121, 62–63, 239.
 
 [2] Hayes, M. H. *Statistical Digital Signal Processing and Modeling*.  
-    Wiley, 1996, **pp. 455–457**.
+    Wiley, 1996, pp. 455–457.
