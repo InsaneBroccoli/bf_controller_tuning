@@ -33,7 +33,7 @@ These variations mean that even when configured for a 1 kHz logging rate, the ac
 To visualize this effect, the figure below shows actual sampling intervals extracted from a real Betaflight Blackbox log.  You can clearly see the timing jitter around the target interval, as well as occasional larger spikes caused by SD card write latency and task scheduling delays.
 
 <p align="center">
-  <img src="../Descriptions_Figures/Images/Evolution_Time_Flight.jpg"
+  <img src="../Descriptions_Figures/Images/evolution_time_flight.jpg"
      alt="Original noisy signals"
      width="1000"
      style="float:center; margin-left:10px; margin-right: 10px;">

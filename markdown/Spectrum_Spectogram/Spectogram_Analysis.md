@@ -86,7 +86,7 @@ $$A(y,f) = \sqrt{P_{\text{avg}}(y,f)}$$
 ## References
 
 [1] R. Pintelon, J. Schoukens, *System Identification: A Frequency Domain Approach*,  
-2nd ed., IEEE Press, 2012, **pp. 45–60, 62–63, 239**.
+2nd ed., IEEE Press, 2012, pp. 45–60, 62–63, 239.
 
 [2] M. H. Hayes, *Statistical Digital Signal Processing and Modeling*,  
-John Wiley & Sons, 1996, **pp. 51–52, 455–457**.
+John Wiley & Sons, 1996, pp. 51–52, 455–457.
