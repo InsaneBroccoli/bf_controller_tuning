@@ -32,10 +32,9 @@
 \end{titlepage}
 
 \section{Summary}
-
-Dieses Projekt befasst sich mit der Entwicklung eines Werkzeugs zur Offline-Abstimmung von Gyroskop-Reglern für FPV-Racing-Drohnen auf Basis der Open-Source-Flugsteuerungssoftware Betaflight. Die Qualität des Gyro-Regelkreises beeinflusst direkt die Flugstabilität, die Unterdrückung von Störungen wie Propwash sowie die Wendigkeit der Drohne. Bisher erfolgt die Abstimmung der Drehraten-Regler meist durch zeitaufwendiges Ausprobieren. \par
-Ziel des Projekts ist die Entwicklung einer modularen Open-Source-Lösung zur Offline-Optimierung auf Grundlage eines bestehenden Funktionsmusters. Die Umsetzung erfolgt in MATLAB und wird durch eine schlanke Python-Version ergänzt. Zusätzlich werden eine ausführliche Dokumentation im Markdown-Format sowie Beispielanwendungen auf GitHub bereitgestellt. Das Projekt soll der Gemeinschaft eine einfache Möglichkeit bieten, Drohnenparameter effizient zu optimieren und dadurch die Flugleistung zu verbessern. \par
-Die Ergebnisse werden in einem öffentlich zugänglichen GitHub-Repository veröffentlicht und in einem Bericht dokumentiert. Neben der Softwareentwicklung beinhaltet das Projekt auch praktische Versuche mit FPV-Drohnen zur Überprüfung der entwickelten Methoden.
+Die vorliegende Arbeit behandelt die Entwicklung einer Software-Lösung zum datenbasierten Tuning von Drehraten-Reglern in FPV-Racing-Drohnen, die auf der Open-Source-Firmware Betaflight basieren. Der Drehraten-Regelkreis bestimmt massgeblich das Flugverhalten und beeinflusst sowohl die Stabilität und Agilität der Drohne als auch deren Fähigkeit, Störungen effektiv zu kompensieren. Die gegenwärtige Praxis des Regler-Tunings stützt sich weitgehend auf iteratives Probieren, ein Ansatz, der hohen Zeitaufwand erfordert und fundierte Flugerfahrung voraussetzt. \par
+Im Rahmen dieses Projekts wird ein existierender Open-Source Proof-of-Concept zu einer modularen Lösung weiterentwickelt. Die Implementierung erfolgt primär in MATLAB, ergänzt durch einen Python-Prototyp, der die Kernfunktionalität demonstriert. Eine umfassende technische Dokumentation im Markdown-Format sowie praktische Anwendungsbeispiele werden über GitHub der Community zur Verfügung gestellt. Durch diese systematische, messwertebasierte Herangehensweise soll das Regler-Tuning vereinfacht und objektiv nachvollziehbar gestaltet werden. \par
+Auch die Projektergebnisse (einschließlich Quellcode, Dokumentation und Analysewerkzeuge) werden in einem öffentlichen GitHub-Repository bereitgestellt und in diesem Bericht dokumentiert. Die entwickelten Methoden werden durch Flugversuche mit einer eigens konstruierten FPV-Drohne validiert.
 
 \section{Abstract}
 This project focuses on the development of a tool for offline tuning of gyro controllers for FPV racing
@@ -602,7 +601,7 @@ Our tool generates more plots than essentially needed for tuning. While some pro
 	\label{fig:evaluationTime_tuning}
 \end{figure}
 
-\autoref{fig:flightoverview_tuning} gives a broad summary of gyro rates, axissum, motor outputs, and throttle. This plot is important for verifying that the motor outputs don't drop to minimum throttle during the chirp measurement. This would interrupt the system response and invalidate the frequency data. 
+\autoref{fig:flightoverview_tuning} gives a broad summary of gyro rates, axissum, motor outputs, and throttle. This plot is important for verifying that the motor outputs don't drop to minimum throttle during the chirp measurement. This would interrupt the system response and invalidate the frequency data.
 
 \begin{figure}[H]
 	\centering
