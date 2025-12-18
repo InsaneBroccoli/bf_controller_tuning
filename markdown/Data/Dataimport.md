@@ -1,18 +1,17 @@
-# Loading data and Parsing Header for Betaflight Blackbox Logs
+# Loading Data and Parsing Header for Betaflight Blackbox Logs
 
 ## Header Information
 
 A Betaflight Blackbox log consists of two logically separate sections: <br>
-The **header**, which contains configuration and system information, and the **data block**, with the actual recorded sensor values.
+The **header**, which contains configuration and system information and the **data block** with the actual recorded sensor values.
 
-The data block alone is useless without the header. It contains only raw numerical values with no context. The header describes how this data must be interpreted. It defines the meaning of each column, the units and scaling factors, the sample rate, and the system configuration. For this reason, both sections are read and processed systematically.
+The data block alone is useless without the header. It contains only raw numerical values with no context. The header describes how this data must be interpreted. It defines the meaning of each column, the units and scaling factors, the sample rate and the system configuration. For this reason, both sections are read and processed systematically.
 
 ## Efficient Loading of Large Log Files in MATLAB
 
-To avoid repeated CSV parsing, the .csv file is converted to a `.mat` file on first load. Following runs load the binary `.mat` file directly, which is significantly faster for large logs.
+To avoid repeated CSV parsing, the .csv file is converted to a `.mat` file on first load. Future runs load the binary `.mat` file directly, which is much faster for large logs.
 
-
-Parsing large CSV files can be slow, especially with logs containing millions of samples. To speed things up, the CSV is converted to a `.mat` file on first load. On following runs, MATLAB loads the binary `.mat` directly, which is significantly faster than the parsing from CSV.
+Parsing large CSV files can be slow, especially with logs containing millions of samples. To speed things up, the CSV is converted to a `.mat` file on first load. On later runs, MATLAB loads the binary `.mat` file directly, which is much faster than parsing from CSV.
 
 ## Extracting Parameter Data from the Blackbox Header
 
@@ -23,7 +22,7 @@ Extraction starts at the line containing `frameIntervalI` and ends at `loopItera
 
 ## Building the Signal Index
 
-The line containing `loopIteration` marks the end of the header and lists all recorded signals in column order, as they appear in the .csv file.
+The line containing `loopIteration` marks the end of the header and lists all recorded signals in column order as they appear in the .csv file.
 
 This line is parsed to build the index struct `ind`, mapping each signal name to its column index. This enables name-based access to the data matrix instead of hardcoded column numbers.
 
@@ -36,4 +35,4 @@ This enables name based access, for example:
 
 - `data(:, ind.gyroADC(1))` – Gyro X  
 - `data(:, ind.setpoint(3))` – Yaw setpoint  
-- `data(:, ind.motor)` – Motor outputs  
+- `data(:, ind.motor)` – Motor outputs
