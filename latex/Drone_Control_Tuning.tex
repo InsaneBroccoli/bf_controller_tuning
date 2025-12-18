@@ -76,11 +76,11 @@ complex algorithms were invaluable.
 
 \section{Introduction}
 \label{Introduction}
-First-person-view (FPV) racing drones require precise and responsive control to achieve high flight stability, minimize disturbances such as propeller wash, and maintain agility during rapid maneuvers. Proper tuning of the angular rate controllers is essential to this performance, as it directly determines how the drone reacts to pilot inputs and external influences. Until now, tuning these controllers has predominantly relied on iterative trial-and-error methods. This approach is both time-intensive and requires substantial piloting experience, thus presenting significant barriers for less experienced pilots.
+First-Person-View (FPV) racing drones require precise and responsive control to achieve high flight stability, minimize disturbances such as propeller wash, and maintain agility during rapid maneuvers. Proper tuning of the angular rate controllers is essential to this performance, as it directly determines how the drone reacts to pilot inputs and external influences. Until now, tuning these controllers has predominantly relied on iterative trial-and-error methods. This approach is both time-intensive and requires substantial piloting experience, thus presenting significant barriers for less experienced pilots.
 
 Betaflight, an open-source firmware widely used in the FPV community, provides a flexible platform for configuring flight controllers. However, despite its popularity, efficient tuning remains a significant challenge. To address this, the present project builds upon an existing proof of concept for offline tuning of angular rate controllers using flight data and system identification techniques. The objective is to transform this concept into a robust, modular, and open-source library that simplifies the tuning process.
 
-The library is implemented in MATLAB and Python, providing tools for analyzing flight logs, estimating system dynamics, and optimizing controller parameters without requiring repeated flight tests. Comprehensive documentation is developed and published on GitHub to ensure accessibility for the FPV community. This documentation demonstrates the practical application of the tool and provides detailed technical background on the underlying methods.
+The library is implemented in MATLAB and partially Python, providing tools for analyzing flight logs, estimating system dynamics, and mainly controller parameters without requiring repeated flight tests. Comprehensive documentation is developed and published on GitHub to ensure accessibility for the FPV community. This documentation demonstrates the practical application of the tool and provides detailed technical background on the underlying methods.
 
 Beyond software development, this project also encompasses the construction and flight testing of an FPV drone to validate the effectiveness of the proposed methods. By providing a structured, data-driven approach to tuning, this work aims to improve flight performance and reduce the barriers to achieving optimal control settings for both hobbyists and professionals.
 
@@ -89,8 +89,8 @@ This document is structured as follows: \autoref{sec:Theory} provides the theore
 \newpage
 
 \subsection{Initial situation}
-The open-source firmware Betaflight is the most widely used platform for FPV racing drones and is continuously developed by a large community. The quality of the rate control is crucial for flight performance, as it enables stability, agility, and effective suppression of disturbances such as prop wash.\par
-Today, tuning of controller parameters is still largely performed by trial-and-error adjustments, a method that is time-consuming and often challenging for less experienced pilots. A proof of concept (developed by Michael Peter) already exists, which enables offline tuning of rate controllers using flight measurement data obtained from chirp signal excitation. However, the current implementation is based on MATLAB, which is not widely used within the FPV community and therefore limits accessibility. In addition, the proof-of-concept requires a certain level of technical knowledge to operate, which further complicates its practical use for many pilots. \par
+The open-source firmware Betaflight is the most widely used platform for FPV racing drones and is continuously developed by a large community. The quality of the rate controlers is crucial for flight performance, as it enables stability, agility, and effective suppression of disturbances such as prop wash.\par
+Today, tuning of controller parameters is still largely performed by trial-and-error adjustments, a method that is time-consuming and often challenging for less experienced pilots. A proof of concept (developed by Michael Peter) already exists, which enables offline tuning of rate controllers using flight measurement data obtained from chirp signal excitation. However, the current implementation is based on MATLAB, which has limited access and therefore less common in the FPV-community. In addition, the proof-of-concept requires a certain level of technical knowledge to operate, which further complicates its practical use for many pilots. \par
 As a result, the potential of data-driven controller tuning remains largely unused in everyday FPV practice. This creates a gap between academically established system identification and control design methods on the one hand, and the predominantly experience-based tuning approaches used by pilots on the other. Bridging this gap represents a key motivation for the further development of the existing proof of concept.
 
 \newpage
@@ -98,7 +98,7 @@ As a result, the potential of data-driven controller tuning remains largely unus
 \subsection{Task and Objective}
 The aim of this project is to further develop the existing proof of concept into an accessible and practical tool for tuning rate controllers on Betaflight-based FPV drones. The focus lies on transforming the prototype from a research-oriented MATLAB implementation into a solution that can be used by the wider community with minimal technical barriers. This includes designing a clean and modular software architecture, improving usability, and integrating functions for importing, processing, and analyzing flight data.
 \par
-In addition, the tool will be accompanied by comprehensive Markdown documentation, including explanations of key methods, usage instructions, and practical examples to support new users. The implementation will serve as a foundation for future developments, such as extended analysis features, alternative controller designs, or deployment in other embedded flight control systems. The overarching objective is to provide a reliable, data-driven workflow that replaces subjective trial-and-error tuning and enables verifiable control performance improvements.
+In addition, the tool will be accompanied by comprehensive Markdown documentation, including explanations of key methods, usage instructions, and practical examples to support new users. The implementation will serve as a foundation for future developments, such as extended analysis features or alternative controller designs. The overarching objective is to provide a reliable, data-driven workflow that replaces subjective trial-and-error tuning and enables verifiable control performance improvements.
 
 \newpage
 
@@ -126,7 +126,7 @@ The control system consists of two loops: an inner loop responsible for angular 
 \newpage
 
 \subsubsection*{Chirp Concept}
-A chirp is an input signal that sweeps continuously over a defined frequency range (e.g., from low to high frequency).
+A chirp is an input signal that sweeps continuously over a defined frequency range (from low to high frequency).
 This signal excites the system at multiple frequencies in one run, thus allowing the observation of the frequency response and step response,
 which form the foundation of controller tuning.
 Mathematically, a chirp signal can be represented as a sinusoidal wave with instantaneous frequency that varies linearly or exponentially with time \parencite{bf_chirp}.
@@ -156,15 +156,15 @@ The recorded log file, containing both the input chirp and the corresponding gyr
 is then used for offline analysis to determine the frequency response of the system.
 However, to ensure reliable frequency response estimation, the chirp signal must first be properly conditioned before injection into the control loop.
 
-\subsubsection*{Lead-Lag Filter for Chirp Signal Shaping}
+\subsubsection*{Lag-Filter for Chirp Input Shaping}
 
-Before the chirp signal is injected into the control loop, it is shaped by a lead-lag filter to ensure uniform excitation across the frequency range of interest. This preprocessing step is essential because the closed-loop rate control system exhibits differentiating behavior at low frequencies, which would otherwise lead to negligible motor response at the start of the chirp and potential saturation at higher frequencies.
+Before the chirp signal is injected into the control loop, it is conditioned by a filter to address the differentiating behavior of the controller effort at low frequencies. This differentiating characteristic causes rising gain at low frequencies, which would lead to excessive motor response at the start of the chirp sweep and potentially cause saturation, compromising the quality of system identification data. The filter reduces low-to-mid frequency components of the chirp signal before injection, such that the combined response produces approximately uniform excitation across the frequency range.
 
-The lead-lag filter is configured with a pole at 3 Hz and a zero at 30 Hz. This configuration pre-emphasizes low-frequency components while maintaining unity gain at higher frequencies. The frequency response exhibits three distinct characteristics. Below 3 Hz, the filter amplifies the signal to compensate for the system's low-frequency attenuation. Between 3 Hz and 30 Hz, the filter provides a relatively flat response with phase lead. Above 30 Hz, the filter approaches unity gain as the system no longer requires compensation.
-
-The Betaflight rate control loop behaves approximately as a differentiator below 30 Hz when viewed from setpoint input to motor output. Without the lead-lag filter, a chirp starting at 0.2 Hz would produce almost no motor response initially, followed by rapidly increasing amplitude that could saturate the motors. The lead-lag filter compensates for this behavior by shaping the chirp signal such that, when combined with the system's inherent dynamics, a uniform excitation amplitude is achieved across the entire frequency sweep. This ensures sufficient excitation at low frequencies for accurate system identification, prevents motor saturation at higher frequencies, and maintains consistent signal-to-noise ratio throughout the measurement.
-
-The specific corner frequencies of 3 Hz and 30 Hz are configured to match the typical dynamics of FPV racing drones and ensure robust excitation without causing instability or excessive motor stress. In the Betaflight implementation, the filtered chirp signal is added to the pilot's stick input before entering the PID controller, allowing the system to be excited while maintaining manual control authority during flight.
+The filter is configured with a pole at 3 Hz and a zero at 30 Hz. This configuration corresponds to the transfer function
+\begin{equation}
+	H(s) = \frac{1 + s/\omega_z}{1 + s/\omega_p}
+\end{equation}
+where $\omega_z = 2\pi \cdot 30$ rad/s and $\omega_p = 2\pi \cdot 3$ rad/s represent the zero and pole frequencies respectively. The pole introduces the lag component by creating magnitude reduction at frequencies above its cutoff frequency. The zero limits this reduction by introducing magnitude amplification at frequencies above its cutoff frequency. However, since the pole frequency is lower than the zero frequency, the pole's contribution dominates throughout the primary control bandwidth, resulting in a net lag filter. It is important to note that in the Betaflight implementation, the pole frequency ($\omega_p$) must not be set higher than the zero frequency ($\omega_z$), as this would create a lead filter that amplifies high frequencies and could potentially damage the motors.
 
 \begin{figure}[H]
 	\centering
@@ -173,10 +173,11 @@ The specific corner frequencies of 3 Hz and 30 Hz are configured to match the ty
 	\label{fig:chirpleadlag}
 \end{figure}
 
+\newpage
 \subsubsection*{Data Import and Preprocessing}
-To analyze Betaflight Blackbox logs effectively, the recorded data must first be imported and preprocessed to ensure correct scaling, structure, and suitability for further analysis. Each log consists of a header containing essential metadata, such as filter settings and PID values, and a data block with the recorded signals. Both components are required for correct interpretation of the flight data.
+To analyze Betaflight Blackbox logs effectively, the recorded data must first be imported and preprocessed to ensure correct scaling, structure, and suitability for further analysis. Each log consists of a header containing essential metadata, such as filter settings PID values, and a data block with the recorded signals. Both components are required for correct interpretation of the flight data.
 
-To reduce computational effort, the raw CSV log files are converted into the faster MATLAB \texttt{.mat} format, allowing for significantly shorter loading times. During this step, signal names are automatically mapped to their corresponding data columns, which simplifies the identification and use of individual signals in subsequent analyses \parencite{bf_LoadData}. Betaflight's High Resolution Mode scales selected signals by a factor of ten to optimize storage and reduce numerical rounding errors. These signals are therefore rescaled to their original values during preprocessing to ensure accurate results \parencite{bf_UnshigRes}.
+To reduce computational effort, the raw CSV log files are converted into the faster MATLAB \texttt{.mat} format, allowing for significantly shorter loading times. During this step, signal names are automatically mapped to their corresponding data columns, which simplifies the identification and use of individual signals in further analyses \parencite{bf_LoadData}. Betaflight's High Resolution Mode scales selected signals by a factor of ten to optimize storage and reduce numerical rounding errors. These signals are therefore rescaled to their original values during preprocessing to ensure accurate results \parencite{bf_UnshigRes}.
 
 Finally, the time information, originally stored as a microsecond counter, is converted into a uniform time base. By evaluating the time differences between samples, irregular sampling caused by dropped frames or variations in the effective sampling rate can be detected. Proper handling of the time data is essential for reliable frequency analysis and controller tuning \parencite{bf_TimeConv}.
 
@@ -205,10 +206,10 @@ This representation helps to understand how resonances, noise levels, and domina
 To estimate the frequency response of a system from measured input and output signals, the data must first be transformed into the frequency domain. This is achieved using the Fast Fourier Transform (FFT). The frequency response is then obtained by dividing the Fourier transform of the output signal by that of the input signal:
 
 \begin{equation}
-	G_{xy}(\omega) = \frac{\mathrm{FFT}(y)}{\mathrm{FFT}(x)} .
+	G_{xy}(\omega) = \frac{\mathrm{FFT}(y)}{\mathrm{FFT}(x)}
 \end{equation}
 
-In practical applications, measurement data is often contaminated by noise, which can significantly distort the frequency response estimation. As illustrated in \autoref{fig:system_noise}, noise is added to the system between the input signal \(u(t)\) and the output signal \(y(t)\). This noise may originate from sensor inaccuracies, environmental disturbances, or electronic interference. If not properly handled, it can lead to unreliable or misleading results. To mitigate this effect, the program applies a dedicated filtering routine, implemented in the function \texttt{apply\_rotfiltfilt}.
+In practical applications, measurement data is often disturbed by noise, which can significantly distort the frequency response estimation. As illustrated in \autoref{fig:system_noise}, noise is added to the system between the input signal \(u(t)\) and the output signal \(y(t)\). This noise may originate from sensor inaccuracies, environmental disturbances, or electronic interference. If not properly handled, it can lead to unreliable or misleading results. To mitigate this effect, the program applies a dedicated filtering routine, implemented in the function \texttt{apply\_rotfiltfilt}.
 
 \begin{figure}[h]
 	\centering
@@ -220,7 +221,7 @@ In practical applications, measurement data is often contaminated by noise, whic
 To improve the robustness of the frequency response estimation, a rotational filtering approach is used. In this method, the output signal is shifted to the baseband, filtered, and then shifted back to its original frequency range. The frequency shift is achieved by multiplying the signal with a complex exponential corresponding to the instantaneous chirp frequency:
 
 \begin{equation}
-	y_{\mathrm{rot}}(t) = y(t) \cdot e^{-j 2 \pi f_{\mathrm{chirp}}(t) t} .
+	y_{\mathrm{rot}}(t) = y(t) \cdot e^{-j 2 \pi f_{\mathrm{chirp}}(t) t}
 \end{equation}
 
 After shifting the signal to baseband, a zero-phase filter is applied to remove unwanted frequency components while preserving the phase information of the signal. This step is essential for reducing noise without distorting the underlying system dynamics. The filtered signal is then shifted back to its original frequency range \parencite{bf_ApplyRot}.
@@ -258,18 +259,18 @@ From the measurement data we compute
 
 \begin{equation}
 	G_{yr}(\omega) = \frac{\mathrm{FFT}(y)}{\mathrm{FFT}(r)}
-	= \frac{C(\omega)\,P(\omega)}{1 + C(\omega)\,P(\omega)},
+	= \frac{C(\omega)\,P(\omega)}{1 + C(\omega)\,P(\omega)}
 \end{equation}
 
 \begin{equation}
 	G_{ur}(\omega) = \frac{\mathrm{FFT}(u)}{\mathrm{FFT}(r)}
-	= \frac{C(\omega)}{1 + C(\omega)\,P(\omega)}.
+	= \frac{C(\omega)}{1 + C(\omega)\,P(\omega)}
 \end{equation}
 
 By dividing the two expressions, the controller cancels out and we obtain an estimate of the plant transfer function:
 
 \begin{equation}
-	P(\omega) = \frac{G_{yr}(\omega)}{G_{ur}(\omega)}.
+	P(\omega) = \frac{G_{yr}(\omega)}{G_{ur}(\omega)}
 \end{equation}
 
 This allows us to reconstruct the plant transfer function \(P(\omega)\) from closed-loop measurement data without opening the control loop during the experiment \parencite{bf_Transfun}.
@@ -290,22 +291,22 @@ As an example, the closed-loop configuration shown in \autoref{fig:closed_loop} 
 
 The closed-loop transfer function from the reference input to the output is given by
 \begin{equation}
-	G_{yr}(\omega) = \frac{C(\omega) P(\omega)}{1 + C(\omega) P(\omega)} .
+	G_{yr}(\omega) = \frac{C(\omega) P(\omega)}{1 + C(\omega) P(\omega)}
 \end{equation}
 
 The sensitivity function, which describes how sensitive the system output is to disturbances and model uncertainties, is defined as
 \begin{equation}
-	S(\omega) = \frac{1}{1 + C(\omega) P(\omega)} .
+	S(\omega) = \frac{1}{1 + C(\omega) P(\omega)}
 \end{equation}
 
 The compliance function, representing the system response to disturbances acting on the plant, is given by
 \begin{equation}
-	SP(\omega) = P(\omega) \cdot S(\omega) .
+	SP(\omega) = P(\omega) \cdot S(\omega)
 \end{equation}
 
 Finally, the controller effort describes the influence of the reference input on the controller output and is defined as \parencite{bf_closeloop}
 \begin{equation}
-	SC(\omega) = C(\omega) \cdot S(\omega) .
+	SC(\omega) = C(\omega) \cdot S(\omega)
 \end{equation}
 
 
@@ -324,7 +325,7 @@ For analysis and controller tuning, the effect of I-Term Relax must be considere
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=0.7\textwidth]{Images/Theory/Control_Loop_Iterm.png}
-	\caption{Segmentation of a signal into overlapping windows}
+	\caption{Simplified closed loop system with I-term Relax}
 	\label{fig:I_term}
 \end{figure}
 
@@ -332,13 +333,13 @@ The measured controller transfer function is compared with an analytically deriv
 
 To this end, a compensation factor is defined as the ratio between the measured PI controller transfer function and its analytical counterpart:
 \begin{equation}
-	C_{\mathrm{PI,com}}(\omega) = \frac{C_{\mathrm{PI}}(\omega)}{C_{\mathrm{PI,ana}}(\omega)} .
+	C_{\mathrm{PI,com}}(\omega) = \frac{C_{\mathrm{PI}}(\omega)}{C_{\mathrm{PI,ana}}(\omega)}
 \end{equation}
 
-This frequency-dependent compensation factor represents the combined influence of effects that are not explicitly modeled, including the impact of I-Term Relax. The factor is subsequently applied to both the original analytical PI controller and the newly designed PI controller:
+This frequency-dependent compensation factor represents the combined influence of effects that are not explicitly modeled, including the impact of I-Term Relax. The factor is further applied to both the original analytical PI controller and the newly designed PI controller:
 \begin{align}
-	C_{\mathrm{PI,ana,new}}(\omega) & = C_{\mathrm{PI,ana}}(\omega) \cdot C_{\mathrm{PI,com}}(\omega) , \\
-	C_{\mathrm{PI,new,new}}(\omega) & = C_{\mathrm{PI,new}}(\omega) \cdot C_{\mathrm{PI,com}}(\omega) .
+	C_{\mathrm{PI,ana,new}}(\omega) & = C_{\mathrm{PI,ana}}(\omega) \cdot C_{\mathrm{PI,com}}(\omega) \\
+	C_{\mathrm{PI,new,new}}(\omega) & = C_{\mathrm{PI,new}}(\omega) \cdot C_{\mathrm{PI,com}}(\omega)
 \end{align}
 
 The resulting compensated controller transfer functions are then reinserted into the closed-loop system for further analysis and evaluation \parencite{bf_compITerm}.
@@ -349,13 +350,13 @@ The step response provides a direct view of how the system reacts to sudden chan
 To obtain the step response, the closed-loop transfer function must be transformed back into the time domain. This is achieved by applying the inverse Fourier transformation to the output spectrum
 \begin{equation}
 	y(t) = \mathcal{F}^{-1}\{Y(\omega)\}
-	= \mathcal{F}^{-1}\{G_{yr}(\omega)\cdot R(\omega)\}.
+	= \mathcal{F}^{-1}\{G_{yr}(\omega)\cdot R(\omega)\}
 \end{equation}
 
 Using the convolution theorem, this expression can be interpreted in the time domain as a convolution of the system's impulse response $g_{yr}(t)$ with the input signal $r(t)$:
 \begin{equation}
 	y(t) = (g_{yr} * r)(t)
-	= \int_{0}^{t} g_{yr}(\tau)\, r(t-\tau)\, d\tau.
+	= \int_{0}^{t} g_{yr}(\tau)\, r(t-\tau)\, d\tau
 \end{equation}
 
 For a step input, this convolution illustrates how the system accumulates the effect of its impulse response over time, leading to the characteristic shape of the step response \parencite{dortClosedLoopAnalysis}.
@@ -366,7 +367,7 @@ For a step input, this convolution illustrates how the system accumulates the ef
 \label{sec:ChallengesAndMethodologicalApproach}
 
 \subsection{Simulations}
-At the beginning of our thesis, we developed several simulations to deepen our understanding of the existing code and the methods applied within it. Although creating these simulations was time-intensive, they proved essential for our work. They provided the foundation for all subsequent analysis steps and enabled us to fully understand the existing functions before applying them further.
+At the beginning of our thesis, we developed several simulations to deepen our understanding of the existing code and the methods applied within it. Although creating these simulations was time-intensive, they proved essential for our work. They provided the foundation for all following analysis steps and enabled us to fully understand the existing functions before applying them further.
 
 \subsubsection*{Simulation of Betaflight Controller Order}
 To gain a deeper understanding of the Betaflight control architecture, the complete control structure was reconstructed in MATLAB. The system’s step
@@ -412,7 +413,7 @@ The simulated step response, shown in \autoref{fig:step_resp_sim}, closely match
 
 \newpage
 \subsubsection*{Simulation PID Controller}
-To get a better understanding of the individual controller components, we wrote an additional MATLAB script that lets us combine different controller types with simple plant models. The user can switch between P, I, PI, PD, and PID controllers, as well as between a few basic plant types. This makes it easier to see how each controller part affects the overall system behavior. The script calculates the open-loop and closed-loop transfer functions and produces Bode plots, Nyquist diagrams, and step responses. \autoref{fig:controllerbode} shows an example Bode plot from this simulation.
+To get a better understanding of the individual controller components, we implemented an additional MATLAB script that lets us combine different controller types with simple plant models. The user can switch between P, I, PI, PD, and PID controllers, as well as between a few basic plant types. This makes it easier to see how each controller part affects the overall system behavior. The script calculates the open-loop and closed-loop transfer functions and produces Bode plots, Nyquist diagrams, and step responses. \autoref{fig:controllerbode} shows an example Bode plot from this simulation.
 
 \begin{figure}[htbp]
 	\centering
@@ -422,30 +423,30 @@ To get a better understanding of the individual controller components, we wrote 
 \end{figure}
 
 The frequency response of the shown PID controller is based on the parameters
-$K_p = 100$, $K_i = 10$ and $K_d = 10$.
+$K_p = 100$, $K_i = 10$ and $K_d = 10$
 The proportional gain defines the magnitude level in the mid-frequency range:
 \begin{equation}
-	20\log_{10}(K_p) = 20\log_{10}(100) = 40\,\text{dB}.
+	20\log_{10}(K_p) = 20\log_{10}(100) = 40\,\text{dB}
 \end{equation}
 
 The integral term causes the slope of $-20\,\text{dB/decade}$ at low frequencies with
 \begin{equation}
-	|C_I(j\omega)| = \frac{K_i}{\omega} = \frac{10}{\omega}.
+	|C_I(j\omega)| = \frac{K_i}{\omega} = \frac{10}{\omega}
 \end{equation}
 
 The corresponding lower corner frequency is
 \begin{equation}
-	\omega_{k,I} = \frac{K_i}{K_p} = \frac{10}{100} = 0.1\,\text{rad/s}.
+	\omega_{k,I} = \frac{K_i}{K_p} = \frac{10}{100} = 0.1\,\text{rad/s}
 \end{equation}
 
 The derivative term causes the slope of $+20\,\text{dB/decade}$ at high frequencies with
 \begin{equation}
-	|C_D(j\omega)| = K_d\,\omega = 10\,\omega.
+	|C_D(j\omega)| = K_d\,\omega = 10\,\omega
 \end{equation}
 
 The corresponding upper corner frequency is
 \begin{equation}
-	\omega_{k,D} = \frac{K_p}{K_d} = \frac{100}{10} = 10\,\text{rad/s}.
+	\omega_{k,D} = \frac{K_p}{K_d} = \frac{100}{10} = 10\,\text{rad/s}
 \end{equation}
 
 This example also shows that changing the integral and derivative gains shifts the position of the slopes in the Bode plot. A larger integral gain moves the low-frequency slope towards higher frequencies, while a larger derivative gain moves the high-frequency slope towards lower frequencies. In this way, the shape of the frequency response can be adjusted to the desired system behavior.
@@ -533,7 +534,7 @@ In the last step, we split the signal into several overlapping segments, as desc
 
 \subsubsection*{Simulation Spectrogram}
 
-To analyze how the frequency content of an input signal changes with both time and thrust, we developed a MATLAB simulation. In this script, we generated a noisy sinusoidal input signal with a slowly varying instantaneous frequency, together with a slowly varying thrust signal. The thrust is modeled as a sinusoid around a mean value of 2. To illustrate the effect of windowing, a Hann window was also applied to the full input signal, as shown in \autoref{fig:spectogram_input}.
+To analyze how the frequency content of an input signal changes with both time and thrust, we developed a MATLAB simulation. In this script, we generated a noisy sinusoidal input signal with a slowly increasing instantaneous frequency, together with a slowly varying thrust signal. The thrust is modeled as a sinusoid around a mean value of 2. To illustrate the effect of windowing, a Hann window was also applied to the full input signal, as shown in \autoref{fig:spectogram_input}.
 
 \begin{figure}[htbp]
 	\centering
@@ -576,9 +577,9 @@ By working with the hardware, it is easier for us to understand what practical c
 	\label{fig:OvershootExpress}
 \end{figure}
 
-Therefore, a three-inch FPV drone was built from the ground up. This work included creating wiring schemes to determine the required connections and soldering all the components, such as the motors, receiver, video system, logger, and GPS module to the flight controller. All components were then securely fixed to the frame to ensure they remained in place during flight. Particular attention was paid to tightening all screws and soldering connections. We used zipties, to prevent any cables or components creating unnecessary oscillations. The setup process continued with configuring everything in Betaflight, followed by test flights and subsequent tuning of the drone.
+Therefore, a three-inch FPV drone was built from scratch. This work included creating wiring schemes to determine the required connections and soldering all the components, such as the motors, receiver, video system, logger, and GPS module to the flight controller. All components were then securely fixed to the frame to ensure they remained in place during flight. Particular attention was paid to tightening all screws and soldering connections. We used zipties, to prevent any cables or components creating unnecessary oscillations. The setup process continued with configuring everything in Betaflight, followed by test flights and subsequent tuning of the drone.
 
-The flight controller barely fit into this frame. The GPS mount had to be trimmed off a little bit so that we could mount the all-in-one stack. The video system was also mounted very close to the stack. Due to a connector between these two parts, we had to lift the video system up with some spacers. This resulted in insufficient space on top of the video system for the screws, which attach the component to the frame. The video system then had to be mounted with just two screws instead of four. In the first test flights, no unusual vibrations were observed, so it's probably mounted adequately. As we need to be able to get the microSD card out of the logger, the small PCB has to be mounted somewhere outside the drone. We designed a small 3D-printed surface where the logger could be mounted with some double-sided tape. This component then was the lowest part of the drone, which was a problem. In one of the first flights, the microSD card holder opened and we lost the card during landing.
+The flight controller barely fit into this frame. The GPS mount had to be trimmed off a little bit so that we could mount the all-in-one stack. The video system was also mounted very close to the stack. Due to a connector between these two parts, we had to lift the video system up with some spacers. This resulted in insufficient space on top of the video system for the screws, which attach the component to the frame. The video system then had to be mounted with just two screws instead of four. In the first test flights, no unusual vibrations were observed, so it's probably mounted adequately. As we need to be able to get the microSD card out of the logger, the small PCB has to be mounted somewhere outside the drone. We designed a small 3D-printed surface where the logger could be mounted with some double-sided tape. This component subsequently was the lowest part of the drone, which was a problem. In one of the first flights, the microSD card holder opened and we lost the card during landing.
 
 To prevent this from happening again, we will design some 3D-printed stands to slightly raise the drone. This is being addressed in a later step, as it is not fundamental for the tuning process in this project.
 
@@ -757,7 +758,7 @@ It offers similar core functionality to the Betaflight Blackbox Explorer but is 
 
 However, integrating blackbox decode into our project presented several challenges.
 The most obvious issue is the absence of header information by default.
-While this can be addressed by using the --save-headers flag, the format of these headers differs from that used by the Betaflight Explorer.
+While this can be addressed by using the "--save-headers" flag, the format of these headers differs from that used by the Betaflight Explorer.
 This discrepancy is manageable, as we could adapt our data import functions to handle both formats.\par
 
 A more significant problem is the presence of numerical differences in the decoded data.
@@ -980,7 +981,7 @@ The existing proof-of-concept implementation was restructured into a modular cod
 
 Five simulation environments were developed to understand the proof-of-concept code and the methods applied within it. These included a Simulink model of the Betaflight control architecture with inner and outer control loops, all filter types, and a simplified plant model that closely matched experimental behavior, a PID controller characteristics simulation, a frequency response estimation simulation comparing FFT, Welch, and rotational filtering approaches, a spectral analysis simulation demonstrating windowing effects, and a spectrogram generation simulation showing throttle-dependent vibration mapping. These simulations established an understanding of control theory and signal processing techniques required for the analysis workflow.
 
-A three-inch FPV drone was constructed using an aosmini frame, integrated flight controller stack, twelve-pole motors, and three-bladed propellers. The flight controller was flashed with Betaflight version 4.5.0 for chirp mode access. Experimental tuning through iterative chirp flights and offline analysis successfully eliminated motor-induced vibrations and achieved step responses with minimal overshoot. The sensitivity function peak remained below 6 dB across all axes, ensuring adequate stability margins. Flight testing confirmed improvements in propwash handling and maneuver precision compared to default parameters.
+A three-inch FPV drone was constructed using an aosmini frame, integrated flight controller stack, twelve-pole motors, and three-bladed propellers. The flight controller was flashed with Betaflight version 2025.12.0-RC1 for chirp mode access. Experimental tuning through iterative chirp flights and offline analysis successfully eliminated motor-induced vibrations and achieved step responses with minimal overshoot. The sensitivity function peak remained below 6 dB across all axes, ensuring adequate stability margins. Flight testing confirmed improvements in propwash handling and maneuver precision compared to default parameters.
 
 Python migration was partially completed. Core library functions including frequency response estimation, spectral analysis, filter design, and closed-loop calculations were transferred and validated against MATLAB implementations. Three functions require refinement: \texttt{apply\_rotfiltfilt} exhibits maximum differences of 0.024 absolute and 0.6\% relative in 0.2\% of data points, \texttt{downsample\_frd} shows systematic deviations across all frequencies, and \texttt{calculate\_transferfunctions} produces runtime errors in dynamic gyro low-pass filter configuration. A validation framework using exported MATLAB test data enables systematic comparison.
 
@@ -1023,7 +1024,7 @@ This project successfully established the foundational knowledge and software in
 
 The methods implemented demonstrate that offline analysis based on system identification techniques offers a viable alternative to trial-and-error tuning approaches. Frequency response estimation from chirp excitation data enables reconstruction of control loop dynamics, providing objective metrics for evaluating stability margins, disturbance rejection, and tracking performance. However, the transition from analytical capability to practical usability requires further development, particularly in automation of the tuning process and reduction of the control-theoretic knowledge required to interpret results.
 
-The work completed during this project phase positions the bachelor thesis for focused development of the remaining capabilities. The clear separation between data management, analysis algorithms, and visualization components allows parallel development of new features while maintaining code quality. The systematic approach to Python migration provides confidence that the final implementation will maintain numerical accuracy while achieving the accessibility benefits of an open-source platform. Continued validation through flight testing will ensure that the tool delivers reliable performance improvements in real operational scenarios.
+The work completed during this project phase positions the bachelor thesis for focused development of additional features. The clear separation between data management, analysis algorithms, and visualization components allows parallel development of new features while maintaining code quality. The systematic approach to Python migration provides confidence that the final implementation will maintain numerical accuracy while achieving the accessibility benefits of an open-source platform. Continued validation through flight testing will ensure that the tool delivers reliable performance improvements in real operational scenarios.
 
 \newpage
 \printbibliography[title={References}]
@@ -1088,32 +1089,29 @@ The work completed during this project phase positions the bachelor thesis for f
 \renewcommand{\addcontentsline}[3]{}
 \listoffigures
 \endgroup
-
 \section{Appendix}
 \subsection{Project Management}
 \subsubsection*{Project Assignment}
-
-
 % ---------- Aufgabenstellung Seite 1 ----------
 \begin{figure}[H]
-  \centering
-  \includegraphics[page=1,width=0.95\textwidth]{pdf/aufgabenstellung.pdf}
+	\centering
+	\includegraphics[page=1,width=0.95\textwidth]{pdf/aufgabenstellung.pdf}
 \end{figure}
 
 \clearpage
 
 % ---------- Aufgabenstellung Seite 2 ----------
 \begin{figure}[H]
-  \centering
-  \includegraphics[page=2,width=0.95\textwidth]{pdf/aufgabenstellung.pdf}
+	\centering
+	\includegraphics[page=2,width=0.95\textwidth]{pdf/aufgabenstellung.pdf}
 \end{figure}
 
 \clearpage
 
 % ---------- Aufgabenstellung Seite 3 ----------
 \begin{figure}[H]
-  \centering
-  \includegraphics[page=3,width=0.95\textwidth]{pdf/aufgabenstellung.pdf}
+	\centering
+	\includegraphics[page=3,width=0.95\textwidth]{pdf/aufgabenstellung.pdf}
 \end{figure}
 
 
