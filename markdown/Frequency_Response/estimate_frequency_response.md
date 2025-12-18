@@ -13,7 +13,7 @@ As an example, consider a system excited by a random or chirp signal, where both
 
 ---
 
-## 1) Spectral Estimation and Theoretical Basis
+## Spectral Estimation and Theoretical Basis
 
 ### Derivation of the Frequency Response Formula
 
@@ -45,7 +45,7 @@ This formulation provides a consistent estimate of the system’s amplitude and 
 
 ---
 
-## 2) The Welch Method for Averaging
+## The Welch Method for Averaging
 
 The function implements the **Welch averaging method** [1], which provides a smoother and statistically robust estimate by dividing the data into overlapping, windowed segments.
 
@@ -70,7 +70,7 @@ The function implements the **Welch averaging method** [1], which provides a smo
    
    The spectra are then converted to **one-sided** form by doubling all interior bins and dividing the DC and Nyquist bins by 4 [1].
 
-5. **Averaging:**  
+ **Averaging:**  
    The spectra from all segments are averaged to yield $S_{uu}, S_{yu}, S_{yy}$.
 
 <p align="center">
@@ -82,7 +82,7 @@ The function implements the **Welch averaging method** [1], which provides a smo
 
 ---
 
-## 3) Regularization and Robustness
+## Regularization and Robustness
 
 To avoid division by near-zero values of $S_{uu}(\omega)$, a small positive constant `delta` is added:
 
