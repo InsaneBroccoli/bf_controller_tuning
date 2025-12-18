@@ -50,7 +50,7 @@ The results will be published in a public GitHub repository and documented in a 
 software development, the project also includes practical work with FPV drones to validate the developed
 methods.
 
-\newpage
+\clearpage
 
 \section{Preface}
 This document summarizes the results of our project thesis, which we worked on during the fall semester 2025 at
@@ -67,11 +67,11 @@ would like to express our gratitude to our supervisor, Michael Peter, for his gu
 this project. His expertise, constructive feedback, and willingness to take the time to assist us in developing
 complex algorithms were invaluable.
 
-\newpage
+\clearpage
 
 \tableofcontents
 
-\newpage
+\clearpage
 
 \section{Introduction}
 \label{Introduction}
@@ -85,21 +85,19 @@ Beyond software development, this project also encompasses the construction and 
 
 This document is structured as follows: \autoref{sec:Theory} provides the theoretical foundations of control systems and signal processing relevant to the tuning process. \autoref{sec:ChallengesAndMethodologicalApproach} details the methodological challenges and solutions developed during implementation, including simulations, drone construction, and the code migration from MATLAB to Python. \autoref{sec:Results} presents the results obtained from simulations and flight tests. Finally, \autoref{sec:DiscussionAndNextSteps} discusses the findings and outlines future work planned for continuation in the bachelor thesis.
 
-\newpage
+\clearpage
 
 \subsection{Initial Situation}
 The open-source firmware Betaflight is the most pobular platform for FPV racing drones and is continuously developed by a large community. The quality of the rate controlers is crucial for flight performance, as it enables stability, agility, and effective suppression of disturbances such as prop wash.\par
 Today, tuning of controller parameters is still largely performed by trial-and-error adjustments, a method that is time-consuming and often challenging for less experienced pilots. A proof of concept (developed by Michael Peter) already exists, which enables offline tuning of rate controllers using flight measurement data obtained from chirp signal excitation. However, the current implementation is based on MATLAB, which has limited access and therefore less common in the FPV-community. In addition, the proof-of-concept requires a certain level of technical knowledge to operate, which further complicates its practical use for many pilots. \par
 As a result, the potential of data-driven controller tuning remains largely unused in everyday FPV practice. This creates a gap between academically established system identification and control design methods on the one hand, and the predominantly experience-based tuning approaches used by pilots on the other. Bridging this gap represents a key motivation for the further development of the existing proof of concept.
 
-\newpage
-
 \subsection{Project Objectives}
 The aim of this project is to further develop the existing proof of concept into an accessible and practical tool for tuning rate controllers on Betaflight-based FPV drones. The focus lies on transforming the prototype from a research-oriented MATLAB implementation into a solution that can be used by the wider community with minimal technical barriers. This includes designing a clean and modular software architecture, improving usability, and integrating functions for importing, processing, and analyzing flight data.
 \par
 In addition, the tool will be accompanied by comprehensive Markdown documentation, including explanations of key methods, usage instructions, and practical examples to support new users. The implementation will serve as a foundation for future developments, such as extended analysis features or alternative controller designs. The overarching objective is to provide a reliable, data-driven workflow that replaces subjective trial-and-error tuning and enables verifiable control performance improvements.
 
-\newpage
+\clearpage
 
 \section{Theory}
 \label{sec:Theory}
@@ -122,7 +120,7 @@ The control system consists of two loops: an inner loop responsible for angular 
 	\label{fig:bf_gyro_control}
 \end{figure}
 
-\newpage
+\clearpage
 
 \subsubsection*{Chirp Concept}
 A chirp is an input signal that sweeps continuously over a defined frequency range (from low to high frequency).
@@ -172,7 +170,7 @@ where $\omega_z = 2\pi \cdot 30$ rad/s and $\omega_p = 2\pi \cdot 3$ rad/s repre
 	\label{fig:chirpleadlag}
 \end{figure}
 
-\newpage
+\clearpage
 \subsubsection*{Data Import and Preprocessing}
 To analyze Betaflight Blackbox logs effectively, the recorded data must first be imported and preprocessed to ensure correct scaling, structure, and suitability for further analysis. Each log consists of a header containing essential metadata, such as filter settings PID values, and a data block with the recorded signals. Both components are required for correct interpretation of the flight data.
 
@@ -234,7 +232,7 @@ Subsequently, the frequency response is estimated using the filtered output sign
 	\label{fig:segmentation}
 \end{figure}
 
-\newpage
+\clearpage
 
 \subsubsection*{Transfer Function Estimation}
 
@@ -309,7 +307,7 @@ Finally, the controller effort describes the influence of the reference input on
 \end{equation}
 
 
-\newpage
+\clearpage
 
 \subsubsection*{Compensation of the I-Term}
 The integral term of a PID controller is used to compensate for steady-state errors by integrating the control error over time. In flight control systems, this helps to counteract constant disturbances such as motor imbalances or aerodynamic effects. During fast stick movements or aggressive maneuvers, however, the integral term can accumulate too much error.
@@ -360,7 +358,7 @@ Using the convolution theorem, this expression can be interpreted in the time do
 
 For a step input, this convolution illustrates how the system accumulates the effect of its impulse response over time, leading to the characteristic shape of the step response \parencite{dortClosedLoopAnalysis}.
 
-\newpage
+\clearpage
 
 \section{Challenges and Methodological Approach}
 \label{sec:ChallengesAndMethodologicalApproach}
@@ -410,7 +408,7 @@ The simulated step response, shown in \autoref{fig:step_resp_sim}, closely match
 \end{figure}
 
 
-\newpage
+\clearpage
 \subsubsection*{PID Controller Simulation}
 To get a better understanding of the individual controller components, we implemented an additional MATLAB script that lets us combine different controller types with simple plant models. The user can switch between P, I, PI, PD, and PID controllers, as well as between a few basic plant types. This makes it easier to see how each controller part affects the overall system behavior. The script calculates the open-loop and closed-loop transfer functions and produces Bode plots, Nyquist diagrams, and step responses. \autoref{fig:controllerbode} shows an example Bode plot from this simulation.
 
@@ -498,7 +496,7 @@ In the next step, we also implemented a rotated-signal approach, where the chirp
 	\label{fig:Freq_Rot}
 \end{figure}
 
-\newpage
+\clearpage
 
 
 \subsubsection*{Spectral Analysis Simulation}
@@ -529,7 +527,7 @@ In the last step, we split the signal into several overlapping segments, as desc
 	\label{fig:spectra_seg}
 \end{figure}
 
-\newpage
+\clearpage
 
 \subsubsection*{Spectrogram Simulation}
 
@@ -560,7 +558,7 @@ To relate the spectral content to the thrust level, we assigned each segment the
 	\label{fig:spectogram_thrust}
 \end{figure}
 
-\newpage
+\clearpage
 
 \subsection{FPV Drone Construction}
 \label{subsec:BuildingFPVdrone}
@@ -622,7 +620,7 @@ The tool generates more plots than essentially needed for tuning. While some pro
 \subsubsection*{Filter tuning}
 Before we start tuning the PID controllers, we need good filtering to have clean signals to work with. The general aim here is to use as little filtering as possible because too much filtering causes delay in the system. However, no quadcopter build is perfect, so at least some filtering is necessary in order to achieve a well-tuned system.
 
-After running the program in MATLAB and importing a log file, you can see in the command window which filter and PID settings were used during that flight. Our tool, in its current state, doesn't copy these values to the code automatically, so the first step is to copy the settings from the command window to the correct position in the code. 
+After running the program in MATLAB and importing a log file, you can see in the command window which filter and PID settings were used during that flight. Our tool, in its current state, doesn't copy these values to the code automatically, so the first step is to copy the settings from the command window to the correct position in the code.
 
 We then start by looking at the spectrograms and spectra figures to assess the effectiveness of the current filtering. It is important to note that the spectra and spectrogram plots only show the data recorded in the loaded log file. Changing filter settings in the code does not affect these plots, as they reflect the settings that were active during the flight. To see the effect of any changes, a new flight must be performed and logged with the updated settings.
 
@@ -643,7 +641,6 @@ When we analyze this plot, we look for three main things:
 \end{figure}
 
 We can see in this figure that our filter settings work well. The filtered signals have very little noise (much smoother lines) and no large resonances. Only the yaw axis has a small peak around 550 Hz, which is acceptable. The axis sum drops nicely and stays low after about 600 Hz, approximately where the motor frequencies end. This shows the drone is running smoothly with vibrations under control.
-\newpage
 The vibrations are also visible in the \textbf{spectrogram} plots in \autoref{fig:Spectrograms_tuning}.
 Here, frequencies are plotted against thrust level and the color shows the signal intensity. Red equals much vibration, blue equals little vibration.
 
@@ -661,8 +658,6 @@ Here, frequencies are plotted against thrust level and the color shows the signa
 \textbf{Aliasing}\\
 When sampling a signal that contains frequencies higher than half of your sampling rate, aliasing can occur. This would make high-frequency content appear as lower frequencies, corrupting the measurement data. To avoid this, we applied a PT1 low-pass filter with a cutoff frequency not greater than the sampling frequency divided by two. As we use a 2 kHz logging frequency, we set the cutoff to 800 Hz as a conservative choice.
 If aliasing occurs on your drone, it appears in the spectrogram as diagonal lines going down as you move to higher frequencies.
-
-\newpage
 
 \textbf{Dynamic notch filter}\\
 The dynamic notch filter automatically finds and removes mechanical motor noise with the highest amplitude for each axis. The standard setting here is 2 notches from 100 to 600 Hz. Through testing, we found that changing the notch filter count from two to three provided better filtering. We can see in \autoref{fig:Spectrograms_tuning} that the filtered plots don't show any diagonal lines anymore. It is important to keep in mind that adding more notches also adds delay to the system. However, for the robustness of our tune, this trade off can be turned in favor of compensating external influences.
@@ -712,7 +707,7 @@ The \textbf{step response} plot shows exactly what happens when the pilot moves 
 	\item Tracking (Top Plot): It shows how the drone follows a command.
 	\item Compliance (Bottom Plot): It shows how the drone reacts to external disturbances, like wind.
 \end{itemize}
-
+\clearpage
 \textbf{Gang of Four}\\
 The Gang of Four is a standard set of four transfer functions that together fully characterize a feedback control system. These four plots represent the Sensitivity (S), Complementary Sensitivity (T, Bode plot), Controller Effort (SC), and Compliance (SP). By analyzing these plots, we can assess the stability of the drone, its ability to follow commands, its response to external disturbances, and the workload on the motors, all in one comprehensive view.
 
@@ -730,7 +725,7 @@ In our experience, the Gang of Four plots provided a clear and structured way to
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.9\textwidth]{./Images/Tuning_OvershootExpress/gang_of_four_pitch_tuned.jpg}
+	\includegraphics[width=0.898\textwidth]{./Images/Tuning_OvershootExpress/gang_of_four_pitch_tuned.jpg}
 	\caption{Gang of Four}
 	\label{fig:gangoffour_tuning}
 \end{figure}
@@ -740,13 +735,12 @@ Our tuning objective was to achieve a fast step response without overshoot while
 
 The tuning process involved iteratively adjusting PID gains in MATLAB while monitoring both the step response and Gang of Four plots side by side. We found and used an online \href{https://www.luisllamas.es/en/pid-controller-simulator/}{PID simulator} as a guide to build intuition for how P, I, and D values affect system behavior. For the step response, we aimed for a fast rise time with minimal or no overshoot and a smooth curve without oscillations. On the Gang of Four side, we wanted the sensitivity peak to stay below 6 dB for good stability margins, low compliance across the control bandwidth for effective disturbance rejection, and reasonable controller effort to avoid amplifying sensor noise. All transfer functions should show smooth, rounded shapes without sharp resonances that indicate problematic dynamics. Once we were satisfied with the curves and their shapes, we could take the P, I, and D values for each axis from the command window in MATLAB and set them via the Betaflight configurator to the drone.
 
-
 \textbf{Additional Resources}\\
 For in-depth technical background on transfer functions and control theory, see our \href{https://github.com/InsaneBroccoli/bf_controller_tuning/tree/PA_final/markdown/Frequency_Response}{Frequency Response documentation}.
 Detailed explanations of all generated plots and their interpretation can be found in the \href{https://github.com/InsaneBroccoli/bf_controller_tuning/tree/PA_final/markdown/Descriptions_Figures}{Figure Documentation}.
 
 
-\newpage
+\clearpage
 
 \subsection{Decoding Betaflight Blackbox Logs}
 \subsubsection*{Purpose}
@@ -768,7 +762,7 @@ When comparing logs decoded with blackbox decode to those processed with Betafli
 Specifically, the blackbox decode stores the vehicle attitude as Euler angles in degrees, whereas the Explorer provides quaternion-like components.
 With priority set on other tasks, we decided to set aside the integration of blackbox decode for now.
 
-\newpage
+\clearpage
 
 \subsection{Code Structure and Programming Style}
 From the start of the project, we recognized that a clear and maintainable code structure would be essential.
@@ -812,7 +806,7 @@ This was the foundation for a more organized layout, and we arrived at an initia
 
 This draft was never intended to be final. Rather, it served as an initial attempt to bring clarity and separation between different functional areas.
 
-\newpage
+\clearpage
 
 \subsubsection*{Object-Oriented vs. Functional Approach}
 At this stage, we discussed whether to implement the entire project using object-oriented programming (OOP) or stick to a modular,
@@ -884,7 +878,7 @@ Unlike the previous approach, this class is now more flexible and reusable. It c
 making it suitable for users who only want to visualize spectrograms, frequency responses, or step responses without running the full analysis pipeline.
 This modularity allows the plotting functionality to be easily adapted for different visualization needs and integrated into other workflows.
 
-\newpage
+\clearpage
 
 This approach maintains thematic organization but makes it easier to use only specific parts of the tool.
 
@@ -920,7 +914,7 @@ This approach maintains thematic organization but makes it easier to use only sp
 	.2 main.m.
 }
 
-\newpage
+\clearpage
 
 \subsection{Conversion from MATLAB to Python}
 
@@ -973,7 +967,7 @@ For the ongoing development, a comprehensive testing framework is planned that w
 This extended validation will provide a more robust assessment of the Python implementation's reliability and help identify edge cases that may not have been apparent in single-flight testing.
 The systematic transfer and validation process established so far provides a solid foundation for completing the migration and ensuring consistency between the MATLAB and Python implementations in future work.
 
-\newpage
+\clearpage
 
 \section{Results}
 \label{sec:Results}
@@ -986,7 +980,7 @@ A three-inch FPV drone was constructed using an aosmini frame, integrated flight
 
 Python migration was partially completed. Core library functions including frequency response estimation, spectral analysis, filter design, and closed-loop calculations were transferred and validated against MATLAB implementations. Three functions require refinement: \texttt{apply\_rotfiltfilt} exhibits maximum differences of 0.024 absolute and 0.6\% relative in 0.2\% of data points, \texttt{downsample\_frd} shows systematic deviations across all frequencies, and \texttt{calculate\_transferfunctions} produces runtime errors in dynamic gyro low-pass filter configuration. A validation framework using exported MATLAB test data enables systematic comparison.
 
-\newpage
+\clearpage
 
 \section{Discussion and Next Steps}
 \label{sec:DiscussionAndNextSteps}
@@ -1017,7 +1011,7 @@ The platform completion track will finalize the migration from MATLAB to Python.
 
 The practical validation track will conduct systematic flight tests to verify the accuracy of the offline analysis and the effectiveness of tuned parameters. This validation will compare predicted system behavior from offline analysis with measured closed-loop performance during flight. Particular attention will be given to assessing how well the linear system identification captures the nonlinear dynamics present in aggressive maneuvers. The results of this validation will inform necessary refinements to the analysis methods and guide the development of robustness criteria for the tuning process.
 
-\newpage
+\clearpage
 
 \subsection{Conclusion}
 
@@ -1027,10 +1021,10 @@ The methods implemented demonstrate that offline analysis based on system identi
 
 The work completed during this project phase positions the bachelor thesis for focused development of additional features. The clear separation between data management, analysis algorithms, and visualization components allows parallel development of new features while maintaining code quality. The systematic approach to Python migration provides confidence that the final implementation will maintain numerical accuracy while achieving the accessibility benefits of an open-source platform. Continued validation through flight testing will ensure that the tool delivers reliable performance improvements in real operational scenarios.
 
-\newpage
+\clearpage
 \printbibliography[title={References}]
 
-\newpage
+\clearpage
 
 \subsubsection*{Overview of Generative AI Systems}
 
@@ -1080,7 +1074,7 @@ The work completed during this project phase positions the bachelor thesis for f
 	      \end{itemize}
 \end{itemize}
 
-\newpage
+\clearpage
 
 \subsection*{List of Figures}
 \vspace*{-3\baselineskip}
@@ -1092,6 +1086,7 @@ The work completed during this project phase positions the bachelor thesis for f
 \section{Appendix}
 \subsection{Project Management}
 \subsubsection*{Project Assignment}
+\clearpage
 % ---------- Aufgabenstellung Seite 1 ----------
 \begin{figure}[H]
 	\centering
@@ -1113,10 +1108,6 @@ The work completed during this project phase positions the bachelor thesis for f
 	\centering
 	\includegraphics[page=3,width=0.95\textwidth]{pdf/aufgabenstellung.pdf}
 \end{figure}
-
-
-
-
 \subsubsection*{Project Schedule — Version 0}
 
 This project schedule was created at the beginning of the project.
@@ -1137,7 +1128,7 @@ This project schedule was created prior to the first milestone meeting and appro
 	\caption{Project Schedule — Version 1}
 	\label{fig:Project Schedule — Version 1}
 \end{figure}
-\newpage
+\clearpage
 
 \subsubsection*{Project Schedule — Version 2}
 This project schedule was created prior to the second milestone meeting and approved during the meeting.
