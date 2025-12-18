@@ -27,8 +27,8 @@ do_insert_legends = true;
 % =========================================================================
 
 log_folder = 'logs';
-flight_folder = '20251208';
-log_name = '01_20251208_OvershootExpress.TXT.csv';
+flight_folder = '20251212';
+log_name = '06_20251212_OvershootExpress.TXT.csv';
 file_path = fullfile(log_folder, flight_folder, log_name);
 
 data_flight = flight_data(file_path);
@@ -101,7 +101,7 @@ para_new.gyro_notch_cutoff   = [0, 0]; % % Cutoff frequency gyro notch 1 and 2
 para_new.dterm_lpf_hz        = 0;       % frequency of dterm lpf 1
 para_new.dterm_filter_type   = 0;       % type of dterm lpf 1
 para_new.dterm_lpf_dyn_hz    = [0, 0];  % dyn dterm lpf overwrites dterm_lpf_hz
-para_new.dterm_lpf2_hz       = 100;     % frequency of dterm lpf 2
+para_new.dterm_lpf2_hz       = 102;     % frequency of dterm lpf 2
 para_new.dterm_filter2_type  = 3;       % type of dterm lpf 2
 para_new.dterm_notch_hz      = 0;       % frequency of dterm notch
 
