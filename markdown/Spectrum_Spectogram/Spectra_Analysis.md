@@ -89,7 +89,7 @@ This form is used throughout the analysis for gyro data, filtered gyro signals, 
 ## References
 
 [1] Pintelon, R., & Schoukens, J. *System Identification: A Frequency Domain Approach*  
-    (2nd ed.). Wiley-IEEE Press, 2012, **pp. 45–60, 118–121, 62–63, 239**.
+    (2nd ed.). Wiley-IEEE Press, 2012, pp. 45–60, 118–121, 62–63, 239.
 
 [2] Hayes, M. H. *Statistical Digital Signal Processing and Modeling*.  
-    Wiley, 1996, **pp. 455–457**.
+    Wiley, 1996, pp. 455–457.
