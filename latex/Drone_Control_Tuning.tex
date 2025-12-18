@@ -87,14 +87,14 @@ This document is structured as follows: \autoref{sec:Theory} provides the theore
 
 \newpage
 
-\subsection{Initial situation}
+\subsection{Initial Situation}
 The open-source firmware Betaflight is the most pobular platform for FPV racing drones and is continuously developed by a large community. The quality of the rate controlers is crucial for flight performance, as it enables stability, agility, and effective suppression of disturbances such as prop wash.\par
 Today, tuning of controller parameters is still largely performed by trial-and-error adjustments, a method that is time-consuming and often challenging for less experienced pilots. A proof of concept (developed by Michael Peter) already exists, which enables offline tuning of rate controllers using flight measurement data obtained from chirp signal excitation. However, the current implementation is based on MATLAB, which has limited access and therefore less common in the FPV-community. In addition, the proof-of-concept requires a certain level of technical knowledge to operate, which further complicates its practical use for many pilots. \par
 As a result, the potential of data-driven controller tuning remains largely unused in everyday FPV practice. This creates a gap between academically established system identification and control design methods on the one hand, and the predominantly experience-based tuning approaches used by pilots on the other. Bridging this gap represents a key motivation for the further development of the existing proof of concept.
 
 \newpage
 
-\subsection{Task and Objective}
+\subsection{Project Objectives}
 The aim of this project is to further develop the existing proof of concept into an accessible and practical tool for tuning rate controllers on Betaflight-based FPV drones. The focus lies on transforming the prototype from a research-oriented MATLAB implementation into a solution that can be used by the wider community with minimal technical barriers. This includes designing a clean and modular software architecture, improving usability, and integrating functions for importing, processing, and analyzing flight data.
 \par
 In addition, the tool will be accompanied by comprehensive Markdown documentation, including explanations of key methods, usage instructions, and practical examples to support new users. The implementation will serve as a foundation for future developments, such as extended analysis features or alternative controller designs. The overarching objective is to provide a reliable, data-driven workflow that replaces subjective trial-and-error tuning and enables verifiable control performance improvements.
@@ -155,7 +155,7 @@ The recorded log file, containing both the input chirp and the corresponding gyr
 is then used for offline analysis to determine the frequency response of the system.
 However, to ensure reliable frequency response estimation, the chirp signal must first be properly conditioned before injection into the control loop.
 
-\subsubsection*{Lag-Filter for Chirp Input Shaping}
+\subsubsection*{Lag Filter for Chirp Input Shaping}
 
 Before the chirp signal is injected into the control loop, it is conditioned by a filter to address the differentiating behavior of the controller effort at low frequencies. This differentiating characteristic causes rising gain at low frequencies, which would lead to excessive motor response at the start of the chirp sweep and potentially cause saturation, compromising the quality of system identification data. The filter reduces low-to-mid frequency components of the chirp signal before injection, such that the combined response produces approximately uniform excitation across the frequency range.
 
@@ -368,7 +368,7 @@ For a step input, this convolution illustrates how the system accumulates the ef
 \subsection{Simulations}
 At the beginning of our thesis, we developed several simulations to deepen our understanding of the existing code and the methods applied within it. Although creating these simulations was time-intensive, they proved essential for our work. They provided the foundation for all following analysis steps and enabled us to fully understand the existing functions before applying them further.
 
-\subsubsection*{Simulation of Betaflight Controller Order}
+\subsubsection*{Betaflight Controller Architecture}
 To gain a deeper understanding of the Betaflight control architecture, the complete control structure was reconstructed in MATLAB. The system’s step
 response was simulated using the same PID parameters and filter settings as on the actual drone.\par
 
@@ -411,7 +411,7 @@ The simulated step response, shown in \autoref{fig:step_resp_sim}, closely match
 
 
 \newpage
-\subsubsection*{Simulation PID Controller}
+\subsubsection*{PID Controller Simulation}
 To get a better understanding of the individual controller components, we implemented an additional MATLAB script that lets us combine different controller types with simple plant models. The user can switch between P, I, PI, PD, and PID controllers, as well as between a few basic plant types. This makes it easier to see how each controller part affects the overall system behavior. The script calculates the open-loop and closed-loop transfer functions and produces Bode plots, Nyquist diagrams, and step responses. \autoref{fig:controllerbode} shows an example Bode plot from this simulation.
 
 \begin{figure}[htbp]
@@ -450,7 +450,7 @@ Accordingly, the upper corner frequency is given by
 
 This example also shows that changing the integral and derivative gains shifts the position of the slopes in the Bode plot. A larger integral gain moves the low-frequency slope towards higher frequencies, while a larger derivative gain moves the high-frequency slope towards lower frequencies. In this way, the shape of the frequency response can be adjusted to the desired system behavior.
 
-\subsubsection*{Simulation Frequency Response}
+\subsubsection*{Frequency Response Simulation}
 
 To analyze the frequency response of a system using input and output data, we created an additional simulation. In this setup, a chirp signal was used as the input signal. As in a real system, we added noise to both the input and the output to mimic realistic measurement conditions. From these noisy signals, we attempted to estimate the original system transfer function. The corresponding control loop is shown in \autoref{fig:Freq_loop}.
 
@@ -501,7 +501,7 @@ In the next step, we also implemented a rotated-signal approach, where the chirp
 \newpage
 
 
-\subsubsection*{Simulation Spectra}
+\subsubsection*{Spectral Analysis Simulation}
 To better understand the components required to generate a meaningful spectrum, we developed a simulation based on the system used in the provided code. In this script, we generated a noisy sinusoidal input signal and computed different spectra from it. In one case, a window function was applied, while in the other case no windowing was used, as illustrated in \autoref{fig:spectra_input}.
 
 \begin{figure}[htbp]
@@ -531,7 +531,7 @@ In the last step, we split the signal into several overlapping segments, as desc
 
 \newpage
 
-\subsubsection*{Simulation Spectrogram}
+\subsubsection*{Spectrogram Simulation}
 
 To analyze how the frequency content of an input signal changes with both time and thrust, we developed a MATLAB simulation. In this script, we generated a noisy sinusoidal input signal with a slowly increasing instantaneous frequency, together with a slowly varying thrust signal. The thrust is modeled as a sinusoid around a mean value of 2. To illustrate the effect of windowing, a Hann window was also applied to the full input signal, as shown in \autoref{fig:spectogram_input}.
 
@@ -562,7 +562,7 @@ To relate the spectral content to the thrust level, we assigned each segment the
 
 \newpage
 
-\subsection{Building an FPV drone}
+\subsection{FPV Drone Construction}
 \label{subsec:BuildingFPVdrone}
 Besides understanding the code and further developing the proof of concept,
 building a drone and setting it up correctly bridges the gap between the digital domain,
@@ -582,7 +582,7 @@ The flight controller barely fit into this frame. The GPS mount had to be trimme
 
 To prevent this from happening again, we will design some 3D-printed stands to slightly raise the drone. This is being addressed in a later step, as it is not fundamental for the tuning process in this project.
 
-\subsection{Drone tuning}
+\subsection{Drone Tuning}
 As part of understanding the workflow, we tuned an FPV drone ourselves. Initially, we applied a poor tuning configuration to observe its effects. During the first field test with this setup, it quickly became clear that the tuning was severely inadequate. The drone began oscillating aggressively and climbed rapidly. As the drone was out of control, the kill switch had to be activated, resulting in a crash that broke one of the four arms. Fortunately, the damage was minor and repaired quickly.
 
 After this incident, we decided not to repeat flights with intentionally poor tuning. Instead, we continued using the default Betaflight parameters as a baseline. With these, the drone flies quite well. However, during maneuvers such as flips or propwash maneuvers, it becomes evident that there is room for improvement in terms of stability and responsiveness.
@@ -590,7 +590,7 @@ After this incident, we decided not to repeat flights with intentionally poor tu
 The tuning process was carried out on a larger 6-inch FPV drone provided by one of the team members and on the 3-inch drone we built (See \autoref{subsec:BuildingFPVdrone}). In this documentation, we focus on the tuning process for the 3-inch build.
 To enable the chirp flight mode, the flight controller was freshly flashed with Betaflight version 2025.12.0-RC1, meaning all filters and settings were at factory defaults. Before the first flight, we already enabled the RPM filter and changed the motor poles from fourteen to twelve because this filter is much more effective at filtering out motor noise.
 
-\subsubsection*{The tuning process using our tool}
+\subsubsection*{Tool-Based Tuning Process}
 
 Our tool generates more plots than essentially needed for tuning. While some provide useful diagnostic information, they are not directly used in the tuning process itself. \autoref{fig:evaluationTime_tuning} shows how stable and consistent the flight controller loop time was during flight. The values represent the time difference between two logged samples, measured in microseconds. As the Median here is around 500 $\mu$s, the logging frequency was set to $1/f$ = 2 kHz.
 
@@ -676,7 +676,7 @@ For our setup, we retained the default Betaflight settings, as they provided goo
 
 Further information about spectra and spectrograms can be found \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/PA_final/markdown/Spectrum_Spectogram}{here}. Also consider looking at the \href{https://www.betaflight.com/docs/wiki/configurator/pid-tuning-tab}{Betaflight wiki page} for more information about Betaflight filters.
 
-\subsubsection*{PID tuning}
+\subsubsection*{PID Tuning}
 After configuring the filter settings, we could move on to the PID tuning.
 
 The tool calculates the Plant (\autoref{fig:plant_tuning}) and Controller Bode plots (\autoref{fig:bodeController_tuning}) to build a mathematical model of the drone. These are interesting for an engineer but not necessarily useful for a user in the community, as they are less intuitive. We mainly focused on the Step Response and the Gang of Four, where you can see flight performance and stability directly.
@@ -732,7 +732,7 @@ During our tuning, we paid specific attention to three of these plots:
 	\label{fig:gangoffour_tuning}
 \end{figure}
 
-\textbf{PID tuning summary}\\
+\subsubsection*{PID Tuning Summary}
 Our tuning objective was to achieve a fast step response without overshoot while maintaining good disturbance rejection and stability margins. It is important to note that there is no universally perfect tune. Settings depend heavily on pilot preferences. Racing pilots typically prefer aggressive, responsive tuning for competitive performance, while freestyle pilots may prioritize smoothness and flight feel. Since none of our team members is a professional pilot, we focused on achieving robustness and a step response without overshoot. Robustness is practical in this case because it handles scenarios such as slightly bent propellers, a battery positioned off-center, or additional components such as cameras mounted on the drone. It should also be mentioned that the axes roll and pitch should be tuned as similarly as possible. This is because symmetrical tuning makes the drone more intuitive to pilot. When both axes respond identically to stick inputs, the drone behaves predictably during combined maneuvers, making control feel natural.
 
 The tuning process involved iteratively adjusting PID gains in MATLAB while monitoring both the step response and Gang of Four plots side by side. We found and used an online \href{https://www.luisllamas.es/en/pid-controller-simulator/}{PID simulator} as a guide to build intuition for how P, I, and D values affect system behavior. For the step response, we aimed for a fast rise time with minimal or no overshoot and a smooth curve without oscillations. On the Gang of Four side, we wanted the sensitivity peak to stay below 6 dB for good stability margins, low compliance across the control bandwidth for effective disturbance rejection, and reasonable controller effort to avoid amplifying sensor noise. All transfer functions should show smooth, rounded shapes without sharp resonances that indicate problematic dynamics. Once we were satisfied with the curves and their shapes, we could take the P, I, and D values for each axis from the command window in MATLAB and set them via the Betaflight configurator to the drone.
@@ -751,8 +751,8 @@ Currently, to obtain a usable Blackbox log from Betaflight, pilots rely on the B
 This is a reliable tool but lacks convenience if the tuning tool is used iteratively since you have to visit the Explorer every time you want to download a new log.
 To improve this workflow, we tried to make use of the existing open-source blackbox decode tool.
 
-\subsubsection*{\href{https://github.com/betaflight/blackbox-tools/}{Blackbox Decode Tool}}
-The blackbox decode tool is a C-based command-line utility designed to convert Betaflight Blackbox log files from their proprietary binary format into more accessible formats such as CSV.
+\subsubsection*{Blackbox Decode Tool}
+The \href{https://github.com/betaflight/blackbox-tools/}{blackbox decode tool} is a C-based command-line utility designed to convert Betaflight Blackbox log files from their proprietary binary format into more accessible formats such as CSV.
 It offers similar core functionality to the Betaflight Blackbox Explorer but is intended for users who prefer command-line tools or need to automate log processing tasks.\par
 
 However, integrating blackbox decode into our project presented several challenges.
