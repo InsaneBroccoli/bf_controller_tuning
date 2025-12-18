@@ -422,15 +422,15 @@ To get a better understanding of the individual controller components, we implem
 \end{figure}
 
 The frequency response of the shown PID controller is based on the parameters
-$K_p = 100$, $K_i = 10$ and $K_d = 10$
-The proportional gain defines the magnitude level in the mid-frequency range:
+$K_p = 100$, $K_i = 10$ and $K_d = 10$. \par
+In the mid-frequency range, the proportional gain sets the magnitude level
 \begin{equation}
 	20\log_{10}(K_p) = 20\log_{10}(100) = 40\,\text{dB}
 \end{equation}
 
-The integral term causes the slope of $-20\,\text{dB/decade}$ at low frequencies with
+At low frequencies, the integral term causes a slope of $-20\,\text{dB/decade}$ 
 \begin{equation}
-	|C_I(j\omega)| = \frac{K_i}{\omega} = \frac{10}{\omega}
+	|C_I(s)| = \frac{K_i}{\omega} = \frac{10}{\omega}
 \end{equation}
 
 The corresponding lower corner frequency is
@@ -440,10 +440,10 @@ The corresponding lower corner frequency is
 
 The derivative term causes the slope of $+20\,\text{dB/decade}$ at high frequencies with
 \begin{equation}
-	|C_D(j\omega)| = K_d\,\omega = 10\,\omega
+	|C_D(s)| = K_d\,\omega = 10\,\omega
 \end{equation}
 
-The corresponding upper corner frequency is
+Accordingly, the upper corner frequency is given by
 \begin{equation}
 	\omega_{k,D} = \frac{K_p}{K_d} = \frac{100}{10} = 10\,\text{rad/s}
 \end{equation}
@@ -474,7 +474,7 @@ If we calculate the transfer function directly from the noisy signals using a pl
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics[width=0.95\textwidth]{./Images/Simulations/Freq_Y_U.png}
+	\includegraphics[width=0.9\textwidth]{./Images/Simulations/Freq_Y_U.png}
 	\caption{Bode plot estimated with plain FFT}
 	\label{fig:Freq_FFT}
 \end{figure}
@@ -484,7 +484,7 @@ To improve this poor estimate, we applied different signal-processing methods. F
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics[width=0.95\textwidth]{./Images/Simulations/Freq_Welch.png}
+	\includegraphics[width=0.9\textwidth]{./Images/Simulations/Freq_Welch.png}
 	\caption{Bode plot estimated with Welch method}
 	\label{fig:Freq_Welch}
 \end{figure}
@@ -493,7 +493,7 @@ In the next step, we also implemented a rotated-signal approach, where the chirp
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics[width=0.95\textwidth]{./Images/Simulations/Freq_Rot.png}
+	\includegraphics[width=0.9\textwidth]{./Images/Simulations/Freq_Rot.png}
 	\caption{Bode plot estimated with rotated Welch method}
 	\label{fig:Freq_Rot}
 \end{figure}
@@ -596,7 +596,7 @@ Our tool generates more plots than essentially needed for tuning. While some pro
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.9\textwidth]{./Images/Tuning_OvershootExpress/evaluation_time.jpg}
+	\includegraphics[width=0.9\textwidth]{./Images/Tuning_OvershootExpress/evaluation_time.png}
 	\caption{Flight controller loop time}
 	\label{fig:evaluationTime_tuning}
 \end{figure}
@@ -605,7 +605,7 @@ Our tool generates more plots than essentially needed for tuning. While some pro
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.9\textwidth]{./Images/Tuning_OvershootExpress/flight_overview.jpg}
+	\includegraphics[width=0.9\textwidth]{./Images/Tuning_OvershootExpress/flight_overview.png}
 	\caption{Flight overview}
 	\label{fig:flightoverview_tuning}
 \end{figure}
@@ -614,7 +614,7 @@ Our tool generates more plots than essentially needed for tuning. While some pro
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.9\textwidth]{./Images/Tuning_OvershootExpress/flight_gyro_data.jpg}
+	\includegraphics[width=0.9\textwidth]{./Images/Tuning_OvershootExpress/flight_gyro_data.png}
 	\caption{Gyro setpoint tracking}
 	\label{fig:flightgyrodata_tuning}
 \end{figure}
@@ -636,13 +636,13 @@ When we analyze this plot, we look for three main things:
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=\textwidth]{./Images/Tuning_OvershootExpress/Spectra.jpg}
+	\includegraphics[width=0.85\textwidth]{./Images/Tuning_OvershootExpress/Spectra.png}
 	\caption{Spectra}
 	\label{fig:Spectra_tuning}
 \end{figure}
 
 We can see in this figure that our filter settings work well. The filtered signals have very little noise and no large resonances. Only the yaw axis has a small peak around 550 Hz, which is acceptable. The axis sum drops nicely and stays low after about 600 Hz, right where the motor frequencies end. This shows the drone is running smoothly with vibrations under control.
-
+\newpage
 The vibrations are also visible in the \textbf{spectrogram} plots in \autoref{fig:Spectrograms_tuning}.
 Here, frequencies are plotted against thrust level and the color shows the signal intensity. Red equals high energy and blue low energy.
 
