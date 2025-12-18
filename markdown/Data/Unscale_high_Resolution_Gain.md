@@ -1,10 +1,12 @@
-# Unscaling High Resolution Gains in Betaflight Blackbox Logs
+# Processing of High-Resolution Gains
 
 ## Overview
 
 Betaflight provides a **High Resolution Mode** for the Blackbox logger that improves data precision for critical flight signals. It is an optional Blackbox setting that multiplies specific signals by a scaling factor before storing them to preserve decimal precision while using integer storage.
 
 The data is stored as integers. For example, a gyro value of 45.7°/s would lose decimal precision if stored directly as the integer → 45. By multiplying by 10 first (resulting in 457), one decimal place is preserved while maintaining integer storage. 
+
+---
 
 ## Affected Signals
 
@@ -29,6 +31,8 @@ Without this rescaling, all affected values would be 10 times too large, which w
 - faulty PID calculations
 - overall: any frequency response analysis would be unusable
 
+---
+
 ## Enabling High Resolution Mode
 
 ### Via CLI
@@ -42,6 +46,7 @@ Check current setting with:
 get blackbox_high_resolution
 ```
 
+---
 
 ## References and Sources
 

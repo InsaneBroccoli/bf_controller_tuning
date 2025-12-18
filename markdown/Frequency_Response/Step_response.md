@@ -6,7 +6,7 @@ A smooth and fast rise indicates a well-tuned controller, whereas overshoot or o
 
 ---
 
-## Method
+## Methods
 
 Through the calculations in the previous steps, the complete **closed-loop transfer function** of the system has already been obtained.  
 Based on this transfer function, it is now possible to determine the **step response**, which describes how the system reacts to a sudden change in the input signal.  
