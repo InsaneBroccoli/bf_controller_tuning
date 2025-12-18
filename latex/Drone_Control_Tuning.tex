@@ -95,7 +95,7 @@ As a result, the potential of data-driven controller tuning remains largely unus
 
 \newpage
 
-\subsection{Task and Objective}
+\subsection{Task and objective}
 The aim of this project is to further develop the existing proof of concept into an accessible and practical tool for tuning rate controllers on Betaflight-based FPV drones. The focus lies on transforming the prototype from a research-oriented MATLAB implementation into a solution that can be used by the wider community with minimal technical barriers. This includes designing a clean and modular software architecture, improving usability, and integrating functions for importing, processing, and analyzing flight data.
 \par
 In addition, the tool will be accompanied by comprehensive Markdown documentation, including explanations of key methods, usage instructions, and practical examples to support new users. The implementation will serve as a foundation for future developments, such as extended analysis features or alternative controller designs. The overarching objective is to provide a reliable, data-driven workflow that replaces subjective trial-and-error tuning and enables verifiable control performance improvements.
@@ -579,25 +579,24 @@ By working with the hardware, it is easier for us to understand what practical c
 
 Therefore, a three-inch FPV drone was built from scratch. This work included creating wiring schemes to determine the required connections and soldering all the components, such as the motors, receiver, video system, logger, and GPS module to the flight controller. All components were then securely fixed to the frame to ensure they remained in place during flight. Particular attention was paid to tightening all screws and soldering connections. We used zipties, to prevent any cables or components creating unnecessary oscillations. The setup process continued with configuring everything in Betaflight, followed by test flights and subsequent tuning of the drone.
 
-The flight controller barely fit into this frame. The GPS mount had to be trimmed off a little bit so that we could mount the all-in-one stack. The video system was also mounted very close to the stack. Due to a connector between these two parts, we had to lift the video system up with some spacers. This resulted in insufficient space on top of the video system for the screws, which attach the component to the frame. The video system then had to be mounted with just two screws instead of four. In the first test flights, no unusual vibrations were observed, so it's probably mounted adequately. As we need to be able to get the microSD card out of the logger, the small PCB has to be mounted somewhere outside the drone. We designed a small 3D-printed surface where the logger could be mounted with some double-sided tape. This component subsequently was the lowest part of the drone, which was a problem. In one of the first flights, the microSD card holder opened and we lost the card during landing.
+The flight controller barely fits into this frame. The GPS mount had to be trimmed off a little bit so that we could mount the all-in-one stack. The video system was also mounted very close to the stack. Due to a connector between these two parts, we had to lift the video system up with some spacers. This resulted in insufficient space on top of the video system for the screws, which attach the component to the frame. The video system then had to be mounted with just two screws instead of four. In the first test flights, no unusual vibrations were observed, so it's probably mounted adequately. As we need to be able to get the microSD card out of the logger, the small PCB has to be mounted somewhere outside the drone. We designed a small 3D-printed surface where the logger could be mounted with some double-sided tape. This component subsequently was the lowest part of the drone, which was a problem. In one of the first flights, the microSD card holder opened and we lost the card during landing.
 
-To prevent this from happening again, we will design some 3D-printed stands to slightly raise the drone. This is being addressed in a later step, as it is not fundamental for the tuning process in this project.
+To avoid similar issues in the future, we plan to add 3D-printed landing stands to slightly raise the drone. This will add some extra weight and could influence the tune, but our approach focuses on robustness, so the tuning should handle these small changes without any problems.
 
 \subsection{Drone tuning}
-As part of understanding the workflow, we tuned an FPV drone ourselves. Initially, we applied a poor tuning configuration to observe its effects. During the first field test with this setup, it quickly became clear that the tuning was severely inadequate. The drone began oscillating aggressively and climbed rapidly. As the drone was out of control, the kill switch had to be activated, resulting in a crash that broke one of the four arms. Fortunately, the damage was minor and repaired quickly.
+As part of the tuning workflow, an FPV drone was configured with intentionally poor PID settings to study their effect on flight behavior. During the first field test, this setup caused severe oscillations and rapid altitude gain, making the drone uncontrollable. The kill switch had to be activated, which led to a crash and a broken arm. The damage was minor and repaired quickly.
+\par
+After this test, flights with deliberately poor tuning were avoided to reduce the risk of hardware damage. Instead, the drone was flown using Betaflight’s default PID and filter settings as a baseline. With these parameters, the drone performed reasonably well, but during demanding maneuvers such as flips or propwash recovery, it was clear that stability and responsiveness could be improved.
+The tuning process was carried out on two platforms, a 6-inch FPV drone provided by a team member and the custom-built 3-inch drone (see \autoref{subsec:BuildingFPVdrone}). This documentation focuses on the tuning approach for the 3-inch build. To enable chirp mode for system identification, the flight controller was freshly flashed with Betaflight v2025.12.0-RC1, restoring all settings to factory defaults. Before the first flight, RPM filtering was enabled and the motor pole count was changed from 14 to 12 to match the actual motor specification, ensuring the telemtry outputs the correct values.
+At this point, a flight was performed with the logger turned on. To ensure high-quality spectra and spectrograms, two throttle punchouts were executed, starting at low throttle and gradually increasing to 100\% over several seconds. Afterward, chirp excitations were carried out for all axes at least once to capture the necessary data for analysis.
 
-After this incident, we decided not to repeat flights with intentionally poor tuning. Instead, we continued using the default Betaflight parameters as a baseline. With these, the drone flies quite well. However, during maneuvers such as flips or propwash maneuvers, it becomes evident that there is room for improvement in terms of stability and responsiveness.
+\subsubsection*{The tuning process using the tool}
 
-The tuning process was carried out on a larger 6-inch FPV drone provided by one of the team members and on the 3-inch drone we built (See \autoref{subsec:BuildingFPVdrone}). In this documentation, we focus on the tuning process for the 3-inch build.
-To enable the chirp flight mode, the flight controller was freshly flashed with Betaflight version 2025.12.0-RC1, meaning all filters and settings were at factory defaults. Before the first flight, we already enabled the RPM filter and changed the motor poles from fourteen to twelve because this filter is much more effective at filtering out motor noise.
-
-\subsubsection*{The tuning process using our tool}
-
-Our tool generates more plots than essentially needed for tuning. While some provide useful diagnostic information, they are not directly used in the tuning process itself. \autoref{fig:evaluationTime_tuning} shows how stable and consistent the flight controller loop time was during flight. The values represent the time difference between two logged samples, measured in microseconds. As the Median here is around 500 $\mu$s, the logging frequency was set to $1/f$ = 2 kHz.
+The tool generates more plots than essentially needed for tuning. While some provide useful diagnostic information, they are not directly used in the tuning process itself. \autoref{fig:flightoverview_tuning} and \autoref{fig:flightgyrodata_tuning} also serve as a control mechanism to verify that chirp modes were executed druing flight and the throttle punchouts occured as intended. \autoref{fig:evaluationTime_tuning} shows how stable and consistent the flight controller loop time was during flight. The values represent the time difference between two logged samples, measured in microseconds. As the Median here is around 500 $\mu$s, the logging frequency was set to $1/f$ = 2 kHz.
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.9\textwidth]{./Images/Tuning_OvershootExpress/evaluation_time.jpg}
+	\includegraphics[width=0.75\textwidth]{./Images/Tuning_OvershootExpress/evaluation_time.jpg}
 	\caption{Flight controller loop time}
 	\label{fig:evaluationTime_tuning}
 \end{figure}
@@ -621,17 +620,19 @@ Our tool generates more plots than essentially needed for tuning. While some pro
 \end{figure}
 
 
-\subsubsection*{Filter Tuning}
+\subsubsection*{Filter tuning}
 Before we start tuning the PID controllers, we need good filtering to have clean signals to work with. The general aim here is to use as little filtering as possible because too much filtering causes delay in the system. However, no quadcopter build is perfect, so at least some filtering is necessary in order to achieve a well-tuned system.
 
-To do this, we started looking at the spectrograms and the spectra figures first after importing a log file into MATLAB. After running the program in MATLAB, you can see in the command window which filter and PID settings were used in this log file. Our tool, in its current state, doesn't copy these values to the code automatically. So the first step was to copy the settings from the command window to the correct position in the code. By then comparing the filtered and unfiltered plots, you can see how well the current settings filter out unwanted vibrations. Note that dynamic filters can't be calculated offline because their cutoff frequencies change continuously based on real-time throttle input, so changing the dynamic filter settings in the code will not show up in the plots. In order to see the changes, you need another flight.
+After running the program in MATLAB and importing a log file, you can see in the command window which filter and PID settings were used during that flight. Our tool, in its current state, doesn't copy these values to the code automatically, so the first step is to copy the settings from the command window to the correct position in the code. 
+
+We then start by looking at the spectrograms and spectra figures to assess the effectiveness of the current filtering. It is important to note that the spectra and spectrogram plots only show the data recorded in the loaded log file. Changing filter settings in the code does not affect these plots, as they reflect the settings that were active during the flight. To see the effect of any changes, a new flight must be performed and logged with the updated settings.
 
 The \textbf{spectra} in \autoref{fig:Spectra_tuning} shows the frequency composition of the gyro signals.
 Peaks in this plot point to vibration sources at specific frequencies.
 When we analyze this plot, we look for three main things:
 \begin{itemize}
-	\item \textbf{Resonance Peaks:} If all three axes show a peak at the same frequency, it usually means there is a resonance in the frame or due to a poorly fixed component. This can be fixed with a specific notch filter.
-	\item \textbf{Noise:} A high noise level indicates general vibration issues. Clean lines in the plot show that the filtering is working well.
+	\item \textbf{Resonance Peaks:} If all three axes show a peak at the same frequency, it usually means there is a resonance in the frame or due to a poorly fixed component. This can be fixed with a specific notch filter or by attaching the loose parts properly.
+	\item \textbf{Noise:} A high noise level indicates general vibration issues. By adjusting the D-term low pass filter, you can counteract this. Clean lines in the plot show that the filtering is working well.
 	\item \textbf{Axis Sum:} The axis sum shows the overall vibration level across all gyro axes. A properly filtered signal drops quickly after the motor frequencies (after around 600 Hz) and remains low, indicating effective suppression of high-frequency noise and resonances.
 \end{itemize}
 
@@ -642,10 +643,10 @@ When we analyze this plot, we look for three main things:
 	\label{fig:Spectra_tuning}
 \end{figure}
 
-We can see in this figure that our filter settings work well. The filtered signals have very little noise and no large resonances. Only the yaw axis has a small peak around 550 Hz, which is acceptable. The axis sum drops nicely and stays low after about 600 Hz, right where the motor frequencies end. This shows the drone is running smoothly with vibrations under control.
+We can see in this figure that our filter settings work well. The filtered signals have very little noise (much smoother lines) and no large resonances. Only the yaw axis has a small peak around 550 Hz, which is acceptable. The axis sum drops nicely and stays low after about 600 Hz, approximately where the motor frequencies end. This shows the drone is running smoothly with vibrations under control.
 
 The vibrations are also visible in the \textbf{spectrogram} plots in \autoref{fig:Spectrograms_tuning}.
-Here, frequencies are plotted against thrust level and the color shows the signal intensity. Red equals high energy and blue low energy.
+Here, frequencies are plotted against thrust level and the color shows the signal intensity. Red equals much vibration, blue equals little vibration.
 
 \begin{figure}[H]
 	\centering
@@ -654,22 +655,22 @@ Here, frequencies are plotted against thrust level and the color shows the signa
 	\label{fig:Spectrograms_tuning}
 \end{figure}
 
-\textbf{Vertical lines} in the spectrogram indicate vibrations at fixed frequencies that do not change with thrust. These usually come from frame resonances or loose components. Such resonances can be removed with static notch filters, but because they are concentrated at a single frequency, they must be used carefully. For more robust suppression, especially when frequencies shift due to bent props or changing load conditions, a dynamic notch filter is usually the better choice.
+\textbf{Vertical lines} in the spectrogram indicate vibrations at fixed frequencies that do not change with thrust. These usually come from frame resonances or loose components. Such resonances can be removed with static notch filters, but because they are fixed at a single frequency, they must be used carefully. For more robust suppression, especially when frequencies shift due to bent props or changing load conditions, a dynamic notch filter is usually the better choice. Also to mention is, that static notch filters should only be applied, when the same resonances appear in all three axes at the same frequency.
 
-\textbf{Diagonal lines} show vibrations that change with motor speed, such as propeller noise. Using the RPM Filter, these propeller vibrations can be filtered out quite well. This filter uses real-time RPM telemetry data to place notch filters exactly on the fundamental and harmonic frequencies of each motor. As propeller vibrations are directly proportional to motor RPM, this approach eliminates noise at its source instead of relying on fixed or dynamic estimation. In our case, we kept the RPM filter with the default settings. We used three-bladed propellers, so setting the filter to three harmonics was sufficient, as we can see in \autoref{fig:Spectrograms_tuning} under the filtered plots.
+\textbf{Diagonal lines} show vibrations that change with motor speed, such as propeller noise. Using the RPM Filter, these propeller vibrations can be filtered out quite well. This filter uses real-time RPM telemetry data to place notch filters exactly on the fundamental and harmonic frequencies of each motor. As propeller vibrations are directly proportional to motor RPM, this approach eliminates noise at its source instead of relying on fixed or dynamic estimation. In our case, we kept the RPM filter with the default settings. We used \textbf{three-bladed} propellers, so the filter has been set to \textbf{three harmonics}. As we can see in \autoref{fig:Spectrograms_tuning} under the filtered plots, the RPM filter removes the diagonal lines effectively.
 
 \textbf{Aliasing}\\
-When you try to sample a signal that contains frequencies higher than half of your sampling rate, aliasing can occur. This would make high-frequency content appear as lower frequencies, corrupting the measurement data. To avoid this, we set a PT1 low-pass filter. The cutoff frequency should not be greater than the sampling frequency divided by two. As we use a 2 kHz logging frequency, we set the cutoff to 800 Hz as a conservative choice.
-If aliasing occurs on your drone, it can be seen in the spectrogram as diagonal lines going down as you move to higher frequencies.
+When sampling a signal that contains frequencies higher than half of your sampling rate, aliasing can occur. This would make high-frequency content appear as lower frequencies, corrupting the measurement data. To avoid this, we applied a PT1 low-pass filter with a cutoff frequency not greater than the sampling frequency divided by two. As we use a 2 kHz logging frequency, we set the cutoff to 800 Hz as a conservative choice.
+If aliasing occurs on your drone, it appears in the spectrogram as diagonal lines going down as you move to higher frequencies.
 
 \newpage
 
 \textbf{Dynamic notch filter}\\
-The dynamic notch filter automatically finds and removes mechanical motor noise with the highest amplitude for each axis. The standard setting here is 2 notches from 100 to 600 Hz. Through testing, we found that changing the notch filter count from two to three provided better filtering. We can see in \autoref{fig:Spectrograms_tuning} that the filtered plots don't show any diagonal lines anymore.
+The dynamic notch filter automatically finds and removes mechanical motor noise with the highest amplitude for each axis. The standard setting here is 2 notches from 100 to 600 Hz. Through testing, we found that changing the notch filter count from two to three provided better filtering. We can see in \autoref{fig:Spectrograms_tuning} that the filtered plots don't show any diagonal lines anymore. It is important to keep in mind that adding more notches also adds delay to the system. However, for the robustness of our tune, this trade off can be turned in favor of compensating external influences.
 
 \textbf{D-term low-pass filter}\\
 The D-term in a PID controller amplifies high-frequency gyro noise. So this filter controls how much noise is fed back into the control loop. If too much noise passes through, the D-term causes rapid micro-oscillations in the motors, leading to overheating and potential hardware failure.
-For our initial flight, we configured a PT3 (third-order) filter with a cutoff of 100 Hz. We chose this filter because PT3 has a much steeper slope than a standard first- or second-order filter. This allows us to aggressively suppress high-frequency noise while minimizing delay in the lower frequencies where the actual flight control happens. The 100 Hz cutoff served as a conservative starting point. In further tuning, this value can be increased to improve responsiveness while keeping the motors cool.
+For our initial flight, we configured a PT3 (third-order) filter with a cutoff of 100 Hz. We chose this filter because PT3 has a much steeper slope than a standard first- or second-order filter. This allows us to aggressively suppress high-frequency noise while minimizing delay in the lower frequencies where the actual flight control happens. The 100 Hz cutoff served as a conservative starting point and worked well. In further tuning, this value can be increased to improve responsiveness while keeping the motors cool. Trough trial and error, the value can be increased as long as the motors don't heat up too much during flight.
 
 \textbf{Yaw low-pass filter}\\
 The yaw low-pass filter smooths the gyroscope signal by ignoring high-frequency noise. Since the yaw axis typically experiences less mechanical vibration than roll and pitch, the filter can often be configured less aggressively without compromising signal quality.
@@ -699,7 +700,7 @@ The tool calculates the Plant (\autoref{fig:plant_tuning}) and Controller Bode p
 	\end{minipage}
 \end{figure}
 
-The \textbf{step response} plot shows exactly what happens when the pilot moves the stick rapidly. You can see how fast the drone reacts to the command, if it overshoots the target value, and how quickly it settles to a steady state.
+The \textbf{step response} plot shows exactly what happens when the pilot moves the stick rapidly. You can see how fast the drone reacts to the command, if it overshoots the target value, and how quickly it settles to a steady state. The plot shows three curves, the yellow curve represents the measured response using the active PID values during flight, the blue curve shows the calculated response derived from the plant model, and the red curve illustrates the predicted response using the newly tuned PID values implemented in the code.
 
 \begin{figure}[H]
 	\centering
@@ -714,17 +715,19 @@ The \textbf{step response} plot shows exactly what happens when the pilot moves 
 \end{itemize}
 
 \textbf{Gang of Four}\\
-The Gang of Four is a standard set of four transfer functions that together fully characterize a feedback control system. These four plots show the Sensitivity (S), Complementary Sensitivity (T, Bode plot), Controller Effort (SC), and Compliance (SP). By looking at these plots, we can see if the drone is stable, how well it follows commands, how it handles wind, and whether the motors are working too hard, all in one view.
+The Gang of Four is a standard set of four transfer functions that together fully characterize a feedback control system. These four plots represent the Sensitivity (S), Complementary Sensitivity (T, Bode plot), Controller Effort (SC), and Compliance (SP). By analyzing these plots, we can assess the stability of the drone, its ability to follow commands, its response to external disturbances, and the workload on the motors, all in one comprehensive view.
 
-During our tuning, we paid specific attention to three of these plots:
+During our tuning process, we found these plots to be invaluable for diagnosing and improving the drone's performance. While all four plots provide useful information, we focused primarily on three of them:
 \begin{enumerate}
 	\item Sensitivity (S):
-	      It shows how the system responds to noise and reference commands. The peak value tells us how stable the system is. For a well-damped system, the peak should be below 6 dB because higher values mean the drone could start oscillating or become unstable.
+	      This plot shows how the system reacts to noise and reference commands. The peak value is a key indicator of stability. In our experience, a peak below 6 dB is ideal for a well-damped system. Higher peaks suggest the drone might oscillate or become unstable, especially during aggressive maneuvers. We noticed that reducing the peak often required balancing stability with responsiveness, as overly conservative settings could make the drone feel sluggish.
 	\item Controller Effort (SC):
-	      Indicates how hard the controller is working. If the effort is too high at high frequencies, the system is reacting to sensor noise rather than real disturbances. This causes unnecessary motor activity, leading to heating and wear.
+	      This plot indicates how much work the controller is doing to maintain stability and follow commands. High effort at higher frequencies usually means the system is reacting to sensor noise rather than real disturbances. This can lead to unnecessary motor activity, overheating, and wear. During tuning, we found that adjusting the D-term gains and optimizing filters helped reduce high-frequency effort while keeping the drone responsive.
 	\item Compliance (SP):
-	      It shows how much external disturbances (like wind gusts) affect the drone's motion. A lower compliance is better; it means the drone resists disturbances more effectively.
+	      Compliance measures how much external disturbances, like wind or propwash, affect the drone's motion. Lower compliance means the drone resists disturbances more effectively. We observed that increasing the P-term gains improved disturbance rejection, but setting them too high caused oscillations during rapid throttle changes. Finding the right balance was critical for maintaining both stability and responsiveness.
 \end{enumerate}
+
+In our experience, the Gang of Four plots provided a clear and structured way to evaluate the effects of each tuning adjustment. For example, after making changes to the PID gains, we could immediately see how these changes impacted stability, motor effort, and disturbance rejection. This iterative process allowed us to fine-tune the system with confidence, ensuring that the drone performed well under a variety of conditions.
 
 \begin{figure}[H]
 	\centering
@@ -734,7 +737,7 @@ During our tuning, we paid specific attention to three of these plots:
 \end{figure}
 
 \textbf{PID tuning summary}\\
-Our tuning objective was to achieve a fast step response without overshoot while maintaining good disturbance rejection and stability margins. It is important to note that there is no universally perfect tune. Settings depend heavily on pilot preferences. Racing pilots typically prefer aggressive, responsive tuning for competitive performance, while freestyle pilots may prioritize smoothness and flight feel. Since none of our team members is a professional pilot, we focused on achieving robustness and a step response without overshoot. Robustness is practical in this case because it handles scenarios such as slightly bent propellers, a battery positioned off-center, or additional components such as cameras mounted on the drone. It should also be mentioned that the axes roll and pitch should be tuned as similarly as possible. This is because symmetrical tuning makes the drone more intuitive to pilot. When both axes respond identically to stick inputs, the drone behaves predictably during combined maneuvers, making control feel natural.
+Our tuning objective was to achieve a fast step response without overshoot while maintaining good disturbance rejection and stability margins. It is important to note that there is no universally perfect tune. Settings depend heavily on pilot preferences. Racing pilots typically prefer aggressive, responsive tuning for competitive performance, while freestyle pilots may prioritize smoothness and flight feel. We focused on achieving robustness and a step response without overshoot. Robustness is practical in this case because it handles scenarios such as slightly bent propellers, a battery positioned off-center, or additional components such as cameras mounted on the drone. It should also be mentioned that the axes roll and pitch should be tuned as similarly as possible. This is because symmetrical tuning makes the drone more intuitive to pilot. When both axes respond identically to stick inputs, the drone behaves predictably during combined maneuvers, making control feel natural.
 
 The tuning process involved iteratively adjusting PID gains in MATLAB while monitoring both the step response and Gang of Four plots side by side. We found and used an online \href{https://www.luisllamas.es/en/pid-controller-simulator/}{PID simulator} as a guide to build intuition for how P, I, and D values affect system behavior. For the step response, we aimed for a fast rise time with minimal or no overshoot and a smooth curve without oscillations. On the Gang of Four side, we wanted the sensitivity peak to stay below 6 dB for good stability margins, low compliance across the control bandwidth for effective disturbance rejection, and reasonable controller effort to avoid amplifying sensor noise. All transfer functions should show smooth, rounded shapes without sharp resonances that indicate problematic dynamics. Once we were satisfied with the curves and their shapes, we could take the P, I, and D values for each axis from the command window in MATLAB and set them via the Betaflight configurator to the drone.
 
