@@ -13,7 +13,7 @@ As an example, we consider a sine wave corrupted by noise which we will filter w
 
 ---
 
-## 1) Frequency Shifting to Baseband
+## Frequency Shifting to Baseband
 
 `apply_rotfiltfilt` uses a mathematical technique that allows us to shift the frequency content of a signal to a baseband (around 0 Hz), apply a low-pass filter, and then shift it back to its original frequency range. This process effectively removes high-frequency noise while maintaining the phase characteristics of the original signal [1].
 
@@ -39,7 +39,7 @@ As you can see in the following spectrum plot, after this rotation step, the sig
 
 ---
 
-## 2) Baseband Filtering and Inverse Rotation
+## Baseband Filtering and Inverse Rotation
 
 Once the signal resides in the baseband, a **zero-phase low-pass filter** can be applied without distorting its timing or phase relationships [4][5].  
 First we have to create a suitable low-pass filter which lays within a small frequency range around 0 Hz. The newly created filter is then applied to both rotated signals $y_R(t)$ and $y_Q(t)$ using the `filtfilt` function in MATLAB, which performs forward and backward filtering to ensure zero-phase distortion [3].
@@ -55,7 +55,7 @@ As you can see in the following spectrum plot, after filtering, the high-frequen
 
 ---
 
-## 3) Inverse Frequency Shift
+## Inverse Frequency Shift
 
 After the filtering in the baseband, the signal is **rotated back** to its original frequency range [1].  
 This is done by multiplying the filtered signals $y_R(t)$ and $y_Q(t)$ with their respective inverse phasors and then combining them back into a **real signal**:

@@ -37,12 +37,11 @@ By filtering the data in this way, the method improves the **signal-to-noise rat
 
 ---
 
-**References**
+## References
+
 
 [1] K. J. Åström and R. M. Murray, Feedback Systems: An Introduction for Scientists
     and Engineers, Princeton University Press, 2008, ch. 10, pp. 364–369.
 
 [2] R. Pintelon and J. Schoukens, System Identification: A Frequency Domain
       Approach, 2nd ed., IEEE Press, 2012, pp. 49-53.
-
-

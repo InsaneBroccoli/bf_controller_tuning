@@ -1,7 +1,7 @@
 # Determination of the Transfer Functions
 
 For the calculation of the transfer functions, corresponding input and output signals were selected from the measurement data.  
-To reduce the influence of noise and disturbances, the functions [`apply_rotfiltfilt`](./ApplyRotRotfilt.md) and [`estimate_frequency_response`](./estimate_frequency_response.md) were used. (More information in [Function apply_rotfilfil](./ApplyRotfiltfilt.md) and [Function estimate_frequency_response](./estimate_frequency_response.md))
+To reduce the influence of noise and disturbances, the functions [`apply_rotfiltfilt`](./ApplyRotRotfilt.md) and [`estimate_frequency_response`](./estimate_frequency_response.md) were used. (More information in [Function apply_rotfiltfilt](./ApplyRotfiltfilt.md) and [Function estimate_frequency_response](./estimate_frequency_response.md))
 The first function shifts the signal to the baseband and applies zero-phase filtering to suppress unwanted components, while the second performs the frequency response estimation using the Welch method with amplitude-correct scaling [1].  
 
 Additionally, care was taken to use as few signals as possible from the closed loop, since noise in those signals is fed back and can therefore be amplified.  
@@ -35,7 +35,7 @@ These relationships make it possible to **reconstruct the plant transfer functio
 
 ---
 
-## 2) Compensation of Gyro Path Filters
+## Compensation of Gyro Path Filters
 
 Since the measured signal $y(t)$ includes the effect of all filters in the gyro signal path (e.g., DLPF, notch, or software low-pass), the resulting $P(j\omega)$ represents the **filtered plant**:
 
@@ -48,7 +48,7 @@ This step restores the unfiltered system dynamics of the motor and frame, while 
 
 ---
 
-## 3) Coherence and Measurement Quality
+## Coherence and Measurement Quality
 
 The coherence is derived from the **auto** and **cross power spectra** of the input $U(f)$ and output $Y(f)$.  
 They are defined as
