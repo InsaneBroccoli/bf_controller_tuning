@@ -1,9 +1,7 @@
 # Chirp-Signal and `sinarg`
 
-A **chirp signal** is a sinusoidal signal whose **frequency varies continuously over time**.  
-It is widely used in **system identification** to excite a broad range of frequencies in a single measurement, making it possible to estimate the frequency response $G(\omega)$ efficiently [1].
+A **chirp signal** is a sinusoidal signal whose **frequency varies continuously over time**. It is widely used in **system identification** to excite a broad range of frequencies in a single measurement, making it possible to estimate the frequency response $G(\omega)$ efficiently [1].
 
----
 
 ## Mathematical Definition
 
@@ -17,11 +15,9 @@ $x(t) = \sin(\text{arg}(t)),$ where the phase argument $\text{arg}(t) = 2\pi \in
      style="float:center; margin-left:10px; margin-right:10px;">
 </p>
 
-In practical implementations such as **Betaflight**, the phase $\text{arg}(t)$ is wrapped using the modulo operation  
-$\text{arg}(t) \bmod 2\pi$, so that it resets to 0 whenever a full $2\pi$ rotation is reached.  
-This keeps the numerical values bounded and results in the **sawtooth-shaped** `sinarg` signal often seen in practice [1].
+In practical implementations such as **Betaflight**, the phase $\text{arg}(t)$ is wrapped using the modulo operation 
+$\text{arg}(t) \bmod 2\pi$, so that it resets to 0 whenever a full $2\pi$ rotation is reached. This keeps the numerical values bounded and results in the **sawtooth-shaped** `sinarg` signal often seen in practice [1].
 
----
 
 ## Common Frequency Profiles
 
@@ -42,8 +38,7 @@ This keeps the numerical values bounded and results in the **sawtooth-shaped** `
 - **Exponential chirp (as used in Betaflight):**  
   The frequency grows exponentially from the starting frequency $f_0$ to the ending frequency $f_1$ in the time $T$:  
   
-  $f(t) = f_0 \left(\frac{f_1}{f_0}\right)^{t/T} \quad
-  \text{arg}(t) = \frac{2\pi T f_0}{\ln(f_1/f_0)}\left[\left(\frac{f_1}{f_0}\right)^{t/T}-1\right]$
+  $f(t) = f_0 \left(\frac{f_1}{f_0}\right)^{t/T} \quad \text{arg}(t) = \frac{2\pi T f_0}{\ln(f_1/f_0)}\left[\left(\frac{f_1}{f_0}\right)^{t/T}-1\right]$
 
   These functions define the **phase trajectory** `arg(t)` used in simulations and in the `apply_rotfiltfilt` method for time-dependent frequency shifting of chirp signals [1].
 
@@ -54,15 +49,12 @@ This keeps the numerical values bounded and results in the **sawtooth-shaped** `
       style="float:center; margin-left:10px; margin-right:10px;">
   </p>
 
----
 
 ## Purpose and Application
 
 In frequency-domain system identification, chirp signals provide an **energy-efficient broadband excitation**.  
-The measured input and output signals can be used to estimate the system's transfer function over a continuous frequency range.  
-Compared to step or random excitation, chirps allow faster and more phase-consistent measurements of linear system dynamics [1].
+The measured input and output signals can be used to estimate the system's transfer function over a continuous frequency range. Compared to step or random excitation, chirps allow faster and more phase-consistent measurements of linear system dynamics [1].
 
----
 
 ## Lag Filter for Chirp Input Shaping
 
@@ -76,9 +68,8 @@ The filter is configured with a pole at **3 Hz** and a zero at **30 Hz**, yieldi
 H(s) = \frac{1 + s/\omega_z}{1 + s/\omega_p}
 ```
 
-where  
-$$\omega_z = 2\pi \cdot 30\ \text{rad/s}$$ represents the zero frequency and  
-$$\omega_p = 2\pi \cdot 3\ \text{rad/s}$$ represents the pole frequency.
+where $\omega_z = 2\pi \cdot 30\ \text{rad/s}$ represents the zero frequency and
+$\omega_p = 2\pi \cdot 3\ \text{rad/s}$ represents the pole frequency.
 
 The pole introduces the lag characteristic by reducing the magnitude for frequencies above its cutoff frequency. Conversely, the zero limits this attenuation by introducing magnitude amplification above its own cutoff frequency. However, since the pole frequency is lower than the zero frequency, the pole’s contribution dominates over the primary control bandwidth, resulting in an overall lag filter behavior.
 
@@ -91,7 +82,6 @@ It is important to note that in the Betaflight implementation, the pole frequenc
      style="float:center; margin-left:10px; margin-right:10px;">
 </p>
 
----
 
 ## References
 

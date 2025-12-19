@@ -1,13 +1,10 @@
 # Determination of the Transfer Functions
 
-For the calculation of the transfer functions, corresponding input and output signals were selected from the measurement data.  
-To reduce the influence of noise and disturbances, the functions [`apply_rotfiltfilt`](./ApplyRotRotfilt.md) and [`estimate_frequency_response`](./estimate_frequency_response.md) were used. (More information in [Function apply_rotfiltfilt](./ApplyRotfiltfilt.md) and [Function estimate_frequency_response](./estimate_frequency_response.md))
-The first function shifts the signal to the baseband and applies zero-phase filtering to suppress unwanted components, while the second performs the frequency response estimation using the Welch method with amplitude-correct scaling [1].  
+For the calculation of the transfer functions, corresponding input and output signals were selected from the measurement data. To reduce the influence of noise and disturbances, the functions [`apply_rotfiltfilt`](./ApplyRotRotfilt.md) and [`estimate_frequency_response`](./estimate_frequency_response.md) were used. (More information in [Function apply_rotfiltfilt](./ApplyRotfiltfilt.md) and [Function estimate_frequency_response](./estimate_frequency_response.md))
+The first function shifts the signal to the baseband and applies zero-phase filtering to suppress unwanted components, while the second performs the frequency response estimation using the Welch method with amplitude-correct scaling [1]. 
 
-Additionally, care was taken to use as few signals as possible from the closed loop, since noise in those signals is fed back and can therefore be amplified.  
-With these measures, a robust and noise-resistant estimation of the transfer functions could be achieved.
+Additionally, care was taken to use as few signals as possible from the closed loop, since noise in those signals is fed back and can therefore be amplified. With these measures, a robust and noise-resistant estimation of the transfer functions could be achieved.
 
----
 
 ## Measured Transfer Paths
 
@@ -33,7 +30,6 @@ These relationships make it possible to **reconstruct the plant transfer functio
      margin-top:20px;">
 </p>
 
----
 
 ## Compensation of Gyro Path Filters
 
@@ -46,7 +42,6 @@ $P_\text{real}(\omega) = \frac{P(\omega)}{G_{f}(\omega)}.$
 
 This step restores the unfiltered system dynamics of the motor and frame, while maintaining consistency with the measured closed-loop responses. [2]
 
----
 
 ## Coherence and Measurement Quality
 
@@ -60,11 +55,8 @@ $$S_{YY}(\omega) = Y(\omega) \cdot \overline{Y(\omega)}$$
 Using these spectra, the **magnitude-squared coherence** is obtained as $\gamma^2(f) = \frac{|S_{YU}(f)|^2}{S_{YY}(f)\,S_{UU}(f)}$.
 
 A high coherence $\gamma^2(f) \approx 1$ indicates a strong linear relationship between the input and output signals,  
-confirming that the frequency response estimation is reliable.  
-If the coherence is close to zero, it indicates a very weak or non-existent relationship between the signals.  
-Therefore, it serves as an indicator of an **inaccurate or noise-dominated frequency response estimate** at that frequency. [3]
+confirming that the frequency response estimation is reliable. If the coherence is close to zero, it indicates a very weak or non-existent relationship between the signals. Therefore, it serves as an indicator of an **inaccurate or noise-dominated frequency response estimate** at that frequency. [3]
 
----
 
 ## References
 

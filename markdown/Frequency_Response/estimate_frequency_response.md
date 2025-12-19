@@ -1,7 +1,6 @@
 # Estimate Frequency Response
 
-The `estimate_frequency_response` function estimates the **frequency response** and **coherence** between a measured input and output signal using the **Welch method** for spectral averaging.  
-It returns an amplitude-calibrated, single-sided frequency response with correct phase and energy scaling.
+The `estimate_frequency_response` function estimates the **frequency response** and **coherence** between a measured input and output signal using the **Welch method** for spectral averaging. It returns an amplitude-calibrated, single-sided frequency response with correct phase and energy scaling.
 
 As an example, consider a system excited by a random or chirp signal, where both input and output are measured to identify its linear dynamics.
 <p align="center">
@@ -11,7 +10,6 @@ As an example, consider a system excited by a random or chirp signal, where both
      style="float:center; margin-left:10px; margin-right:10px;">
 </p>
 
----
 
 ## Spectral Estimation and Theoretical Basis
 
@@ -21,8 +19,7 @@ In the frequency domain, the relation between input and output of a linear time-
 
 $$G(\omega) = \frac{Y(\omega)}{U(\omega)},$$
 
-where $U(\omega)$ and $Y(\omega)$ are the Fourier transforms of the input $u(t)$ and output $y(t)$.  
-This ratio describes how each frequency component of the input is scaled and phase-shifted by the system.
+where $U(\omega)$ and $Y(\omega)$ are the Fourier transforms of the input $u(t)$ and output $y(t)$. This ratio describes how each frequency component of the input is scaled and phase-shifted by the system.
 
 In practice, however, direct division of $Y(\omega)$ and $U(\omega)$ is sensitive to noise.  
 To obtain a more reliable estimate, we use averaged spectral quantities [1][2]:
@@ -43,7 +40,6 @@ This formulation provides a consistent estimate of the system’s amplitude and 
      style="float:center; margin-left:10px; margin-right:10px;">
 </p>
 
----
 
 ## The Welch Method for Averaging
 
@@ -56,8 +52,7 @@ The function implements the **Welch averaging method** [1], which provides a smo
    Each segment is multiplied by a window (for example Hann) to reduce spectral leakage.
 
 3. **FFT and normalization:**  
-   Each windowed segment is transformed using the FFT and normalized by  
-   $W = \sum w(n)/2$, ensuring correct amplitude calibration [1].
+   Each windowed segment is transformed using the FFT and normalized by $W = \sum w(n)/2$, ensuring correct amplitude calibration [1].
 
 4. **Power spectra formation:**  
    For each segment:
@@ -80,7 +75,6 @@ The function implements the **Welch averaging method** [1], which provides a smo
      style="float:center; margin-left:10px; margin-right:10px;">
 </p>
 
----
 
 ## Regularization and Robustness
 
@@ -90,7 +84,6 @@ $$G(\omega) = \frac{S_{yu}(\omega)}{S_{uu}(\omega) + \delta}$$
 
 This **regularized spectral inversion** improves numerical stability [2].
 
----
 
 ## References
 

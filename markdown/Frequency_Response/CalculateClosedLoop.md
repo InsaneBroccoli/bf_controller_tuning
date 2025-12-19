@@ -3,7 +3,6 @@
 The goal of the function `calculate_closed_loop` is to calculate the different parts of the complete closed-loop control system, including its transfer functions, sensitivity functions, compliance and controller effort. This allows us to analyze the different parts of the control system and understand how they interact to shape the overall system behavior.  
 This structure separates the control actions into an **inner loop** and an **outer loop**.
 
----
 
 ## Transfer Functions
 
@@ -25,7 +24,6 @@ $$L_{out}(\omega) = G_{yu}(\omega) \cdot C_{PI}(\omega)$$ $$\qquad G_{yw}(\omega
      margin-top:20px;">
 </p>
 
----
 
 ## Sensitivity
 
@@ -36,7 +34,6 @@ To calculate the sensitivity functions of the inner and outer loop, we use the f
 $$S_{in}(\omega) = \frac{1}{1+L_{in}(\omega)}$$
 $$S_{out}(\omega) = \frac{1}{1+L_{out}(\omega)}$$
 
----
 
 ## Controller Effort
 
@@ -46,7 +43,6 @@ The controller effort can be calculated using the following formula:
 
 $$SC(\omega) = C_{PI}(\omega) \cdot S_{out}(\omega)$$
 
----
 
 ## Compliance
 
@@ -56,7 +52,6 @@ The compliance can be calculated using the following formula:
 
 $$SP(\omega) = G_{yu}(\omega) \cdot S_{out}(\omega)$$
 
----
 
 ## References
 
