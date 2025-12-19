@@ -1,6 +1,6 @@
 # Gyro Spectrogram
 
-Spectrograms provide a powerful visualization of how gyro noise changes across both frequency and throttle. They display frequency on the horizontal axis, throttle percentage on the vertical axis, and use color intensity to show the strength of vibrations at each point.  This three-dimensional view makes it easy to identify noise patterns, understand how they evolve with motor speed, and evaluate filter effectiveness. 
+Spectrograms provide a powerful visualization of how gyro noise changes across both frequency and throttle. They display frequency on the horizontal axis, throttle percentage on the vertical axis and use color intensity to show the strength of vibrations at each point.  This three-dimensional view makes it easy to identify noise patterns, understand how they evolve with motor speed and evaluate filter effectiveness. 
 
 By comparing unfiltered and filtered spectrograms, you can see exactly which frequencies are problematic and how well your filter configuration addresses them. This makes spectrograms one of the most valuable tools for optimizing filter settings and achieving clean, responsive flight performance.
 
@@ -39,7 +39,7 @@ For example, if your logging frequency is 2 kHz, the cutoff frequency should be 
 
 
 
-After filtering, you want to see mostly darkblue colors except at very low frequencies where real control inputs occur. (See filtered plots in the figure above)
+After filtering, you want to see mostly dark blue colors except at very low frequencies where real control inputs occur. (See filtered plots in the figure above)
 
 ## Why Spectrograms Are Essential
 

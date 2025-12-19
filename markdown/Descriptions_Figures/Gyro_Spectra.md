@@ -14,7 +14,7 @@ Recommended filters:
 
 ## Spectra Information
 
-The gyro spectra are very important because they show how much noise and vibration the drone produces at different frequencies. This helps you understand which parts of the signal are useful for control and which parts need to be filtered out. By looking at the spectra, you can clearly see the motor harmonics, frame vibrations, and other noise peaks that could disturb the PID controller.
+The gyro spectra are very important because they show how much noise and vibration the drone produces at different frequencies. This helps you understand which parts of the signal are useful for control and which parts need to be filtered out. By looking at the spectra, you can clearly see the motor harmonics, frame vibrations and other noise peaks that could disturb the PID controller.
 When analyzing the spectra, you should pay attention to:
 
 <p align="center">
@@ -33,7 +33,7 @@ By combining the spectra with the filter settings, you can choose filters that k
 
 ## Axis Sum Spectra
 
-As described in the [flight overview documentation](./Flight_Overview.md), AxisSum represents the total output of the rate PID controller for each axis (roll, pitch, and yaw), combining all active control terms (P, I, D, and feedforward, if enabled). Here, in the frequency domain, the AxisSum spectra show at which frequencies the controller is working hardest.
+As described in the [flight overview documentation](./Flight_Overview.md), AxisSum represents the total output of the rate PID controller for each axis (roll, pitch and yaw), combining all active control terms (P, I, D and feedforward, if enabled). Here, in the frequency domain, the AxisSum spectra show at which frequencies the controller is working hardest.
 
 In the spectra, low amplitudes indicate the drone is tracking the setpoint with minimal correction, while higher amplitudes mean the controller is applying more effort to compensate for disturbances, tracking errors, or aggressive inputs. Spikes or elevated noise at specific frequencies often correspond to mechanical resonances, motor harmonics, or persistent vibrations. A generally high noise floor or persistent high levels can indicate overly aggressive gains, insufficient filtering, or mechanical issues.
 

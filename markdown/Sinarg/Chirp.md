@@ -45,7 +45,7 @@ This keeps the numerical values bounded and results in the **sawtooth-shaped** `
   $f(t) = f_0 \left(\frac{f_1}{f_0}\right)^{t/T} \quad
   \text{arg}(t) = \frac{2\pi T f_0}{\ln(f_1/f_0)}\left[\left(\frac{f_1}{f_0}\right)^{t/T}-1\right]$
 
-  These functions define the **phase trajectory** `arg(t)` used in simulations and in the `apply_rotfiltfilt` method for time-dependent frequency shifting of chirp signals[1].
+  These functions define the **phase trajectory** `arg(t)` used in simulations and in the `apply_rotfiltfilt` method for time-dependent frequency shifting of chirp signals [1].
 
  <p align="center">
   <img src="./Images/exp_chirp.png"
@@ -95,5 +95,5 @@ It is important to note that in the Betaflight implementation, the pole frequenc
 
 ## References
 
-[1] MathWorks, “chirp,” MATLAB Signal Processing Toolbox Documentation.
+[1] MathWorks, “chirp,” MATLAB Signal Processing Toolbox Documentation.  
     Available: https://ch.mathworks.com/help/signal/ref/chirp.html

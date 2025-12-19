@@ -24,7 +24,7 @@ $$G_{uw}(\omega) = \frac{C_{PI}(\omega)}{1 + G_{yu}(\omega)\,C_{PI}(\omega)}$$
 
 $$\Rightarrow P(\omega) = \frac{T(\omega)}{G_{wu}(\omega)}$$
 
-These relationships make it possible to **reconstruct the plant transfer function \( P(j\omega) \) from closed-loop measurement data** without opening the control loop during the experiment. [2]
+These relationships make it possible to **reconstruct the plant transfer function $P(j\omega)$ from closed-loop measurement data** without opening the control loop during the experiment. [2]
 <p align="center">
   <img src="./Images/Regelstrecke.png"
      alt="ZHAW Logo"

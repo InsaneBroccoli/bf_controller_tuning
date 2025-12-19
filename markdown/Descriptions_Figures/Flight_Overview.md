@@ -4,11 +4,11 @@ This figure provides an overview of some important signals recorded during the f
 
 ### Top subplot (Gyro)
 
-The angular rates for roll, pitch, and yaw are shown. You can clearly see the chirp patterns, where each axis is driven by a signal that slowly changes its frequency over time. These chirps help reveal how the system reacts to different frequencies.
+The angular rates for roll, pitch and yaw are shown. You can clearly see the chirp patterns, where each axis is driven by a signal that slowly changes its frequency over time. These chirps help reveal how the system reacts to different frequencies.
 
 ### Second subplot (AxisSum)
 
-The AxisSum plot gives you an overview of the output of the rate PID controller for roll, pitch, and yaw. Each signal represents the total control command generated for one axis by summing all active controller terms (P, I, D, and feedforward, if enabled). This signal is later mixed to the individual motors.
+The AxisSum plot gives you an overview of the output of the rate PID controller for roll, pitch and yaw. Each signal represents the total control command generated for one axis by summing all active controller terms (P, I, D and feedforward, if enabled). This signal is later mixed to the individual motors.
 
 AxisSum describes controller effort, not measured motion. Low amplitudes indicate that the aircraft is tracking the setpoint with little correction, while higher amplitudes mean the controller must apply stronger corrective action to compensate for disturbances, tracking errors, or aggressive inputs.
 

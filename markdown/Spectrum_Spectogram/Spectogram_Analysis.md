@@ -1,10 +1,10 @@
 # Spectrogram Estimation
 
 The function `estimate_spectrogram` extends the spectral estimation described in [Spectra Analysis](./Spectra_Analysis.md) by computing a **single-sided, amplitude-correct spectrogram** over an additional coordinate $y$.  
-This allows the frequency content of a signal to be analyzed not only over time, but also along another dimension, such as height, position, angle, or system state.
+This allows the frequency content of a signal to be analyzed not only over time but also along another dimension, such as height, position, angle, or system state.
 
 Instead of forming a single averaged spectrum, the algorithm groups all FFT segments into $N_{\text{res}}$ bins along the thrust axis and computes one spectrum per bin.  
-The amplitude calibration, FFT scaling, and DC/Nyquist correction follow the same method as in `estimate_spectra`.
+The amplitude calibration, FFT scaling and DC/Nyquist correction follow the same method as in `estimate_spectra`.
 
 
 ## Function Overview
@@ -20,9 +20,9 @@ Each FFT segment is assigned to one or more of these bins depending on its corre
 
 ---
 
-### 2. Segmentation, Windowing, and FFT
+### 2. Segmentation, Windowing and FFT
 
-Segmentation, windowing with a tapered analysis window (e.g., Hann), and amplitude-correct FFT scaling follow the same steps described in the [Spectra Analysis](./Spectra_Analysis.md) chapter. [2, pp. 455–457]
+Segmentation, windowing with a tapered analysis window (e.g., Hann) and amplitude-correct FFT scaling follow the same steps described in the [Spectra Analysis](./Spectra_Analysis.md) chapter. [2, pp. 455–457]
 
 Each segment produces a one-sided power vector:
 
@@ -43,13 +43,13 @@ The resulting segment spectrum is added to those bins, weighted by the number of
 
 $$P_{\text{avg}}(y_i, f) = \frac{1}{N_i} \sum_{k \in \mathcal{S}_i} P_{\text{seg},k}(f)$$
 
-where $N_i$ is the number of contributing segment-samples for bin $i$.
+where $N_i$ is the number of contributing segment samples for bin $i$.
 
 This creates a 2D matrix:
 
 $$P_{\text{avg}} \in \mathbb{R}^{N_{\text{res}} \times N_{\text{freq}}}$$
 
-representing the power spectrum as a function of both frequency and \( y \). [1, pp. 45–48][2, pp. 455–457]
+representing the power spectrum as a function of both frequency and $y$. [1, pp. 45–48][2, pp. 455–457]
 
 ---
 
