@@ -1,6 +1,6 @@
 # Step Response
 
-This plot gives you a clear picture of how the drone’s control system handles sudden changes, whether it’s a quick step in the setpoint (commanded value) or an unexpected disturbance. By looking at how the system reacts, you can see how quickly and accurately the quadcopter responds to commands. The shape and timing of the step response curve provide valuable feedback on your PID tuning and help you judge whether the controller is striking the right balance between speed, stability, and precision.
+This plot gives you a clear picture of how the drone’s control system handles sudden changes, whether it’s a quick step in the setpoint (commanded value) or an unexpected disturbance. By looking at how the system reacts, you can see how quickly and accurately the quadcopter responds to commands. The shape and timing of the step response curve provide valuable feedback on your PID tuning and help you judge whether the controller is striking the right balance between speed, stability and precision.
 
 <p align="center">
   <img src="./Images/Step_response_pitch_tuned.jpg"
@@ -11,7 +11,7 @@ This plot gives you a clear picture of how the drone’s control system handles 
 
 ## Tracking T - Interpretation & Tuning Relevance
 
-The tracking response shows how quickly and accurately the drone follows the step command. A good tracking curve rises steeply, reaches the target without excessive overshoot, and then holds stable.
+The tracking response shows how quickly and accurately the drone follows the step command. A good tracking curve rises steeply, reaches the target without excessive overshoot and then holds stable.
 
 **What matters for tuning**
 
@@ -22,7 +22,7 @@ The tracking response shows how quickly and accurately the drone follows the ste
 - **Settling time:** If the system takes too long to stabilize ⟶ increase D or fine-tune P
 - **Noise amplification:** Too much jitter in the response ⟶ reduce D or add filtering to gyro/D-term
 
-To build intuition for how P, I, and D values affect system behavior, consider checking out this [PID Controller Simulator](https://www.luisllamas.es/en/pid-controller-simulator/) as a guidance tool too.
+To build intuition for how P, I and D values affect system behavior, consider checking out this [PID Controller Simulator](https://www.luisllamas.es/en/pid-controller-simulator/) as a guidance tool too.
 
 If the measured and actual calculated values do not match, check if `do_compensate_iterm` is activated in main.
 

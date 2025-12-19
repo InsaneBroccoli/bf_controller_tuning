@@ -1,6 +1,6 @@
 # PID Controller Construction
 
-Before performing control-theoretic analysis on Betaflight PID loops, the PID gains must be converted from their Betaflight-specific representation into physically meaningful controller gains. Betaflight applies internal scaling factors to its P, I, and D terms, so the raw values shown in the configurator or CLI are not the actual gains used inside the control loop [1].
+Before performing control-theoretic analysis on Betaflight PID loops, the PID gains must be converted from their Betaflight-specific representation into physically meaningful controller gains. Betaflight applies internal scaling factors to its P, I and D terms, so the raw values shown in the configurator or CLI are not the actual gains used inside the control loop [1].
 
 To obtain correct controller behavior in simulations, frequency-domain models, or closed-loop analysis, these gains have to be rescaled and then used to construct discrete-time PI and D controllers.
 
@@ -33,16 +33,16 @@ The discrete-time controllers (with sample time $T_s$) are constructed as:
 
 ### PI Controller
 
-$$C_{PI} = K_p\ \cdot G_f + K_i \cdot T_s \cdot \frac{1}{1-z^{-1}}$$ 
+$$C_{PI} = K_p\ \cdot G_f + K_i \cdot T_s \cdot \frac{1}{1-z^{-1}}$$
 
 ### D Controller
 
-$$C_D = \frac{K_d}{T_s}(1 - z^{-1})$$  
+$$C_D = \frac{K_d}{T_s}(1 - z^{-1})$$
 
 The output of the implementation is:
 
-- **Cpi** — proportional + integral controller  
-- **Cd** — discrete derivative controller
+- **$C_{PI}$** — proportional + integral controller  
+- **$C_D$** — discrete derivative controller
 
 With these newly computed controllers, it becomes possible to predict how the system will respond when operated under the updated control gains. [2]
 

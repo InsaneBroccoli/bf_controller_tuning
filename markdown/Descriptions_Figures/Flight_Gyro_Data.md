@@ -1,6 +1,6 @@
 # Flight Gyro Data
 
-This plot gives an overview of the recorded gyro signals for the three axes, roll, pitch, and yaw during your flight. You can see the controller setpoints, as well as the unfiltered and filtered gyro signals. This visualizes the differences between the commanded values and the actual sensor data. 
+This plot gives an overview of the recorded gyro signals for the three axes, roll, pitch and yaw during your flight. You can see the controller setpoints, as well as the unfiltered and filtered gyro signals. This visualizes the differences between the commanded values and the actual sensor data. 
 
 <p align="center">
   <img src="./Images/flight_gyro_data.jpg"

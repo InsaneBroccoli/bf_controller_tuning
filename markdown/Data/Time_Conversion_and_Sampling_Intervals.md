@@ -6,9 +6,9 @@ Betaflight Blackbox logs record flight data on every iteration of the flight con
 
 ---
 
-**This document describes the analyst perspective**. So only what must be done when analyzing or decoding Betaflight Blackbox logs. For accurate log analysis, these raw timestamps must be converted into a usable time axis, and the actual sampling intervals between log entries must be calculated.
+**This document describes the analyst perspective**, outlining what must be done when analyzing or decoding Betaflight Blackbox logs. For accurate log analysis, these raw timestamps must be converted into a usable time axis and the actual sampling intervals between log entries must be calculated.
 
-The microsecond format is more efficient for the flight controller hardware and enables high-precision timing without loss of accuracy. All flight data, including PID corrections, RC commands, gyro readings, and motor outputs, is correlated to this timestamp.
+The microsecond format is more efficient for the flight controller hardware and enables high-precision timing without loss of accuracy. All flight data, including PID corrections, RC commands, gyro readings and motor outputs, is correlated to this timestamp.
 
 ---
 
@@ -20,7 +20,7 @@ Betaflight stores the raw microsecond timestamp directly in each log entry witho
 - **P-frames** (Predicted frames): Written between I-frames, storing only the differences from expected values.  Time is encoded using `PREDICT(STRAIGHT_LINE)`, meaning Betaflight assumes time increases linearly and only stores the delta from this prediction.
 - **S-frames** (Slow frames): Written every ~8 seconds, containing infrequently changing data. 
 
-The logger does not attempt to correct for timing variations — it simply records the actual `currentTimeUs` value at the moment of logging. Any timing irregularities (due to SD card latency, CPU load, or task scheduling) are preserved in the log as-is.
+The logger does not attempt to correct for timing variations, it simply records the actual `currentTimeUs` value at the time of logging. Any timing irregularities (due to SD card latency, CPU load or task scheduling) are preserved in the log.
 
 ---
 
@@ -28,7 +28,7 @@ The logger does not attempt to correct for timing variations — it simply recor
 
 When analyzing logs, you must account for the fact that Blackbox logging does not operate with a guaranteed constant sampling rate. The time intervals between consecutive log entries can vary due to several technical factors:
 
-- **Non-real-time scheduling**: Betaflight is not a hard real-time system.  Tasks such as gyro sampling, filtering, PID calculations, motor updates, telemetry, and OSD run with different priorities.  The Blackbox logger has relatively low priority and may be delayed. 
+- **Non-real-time scheduling**: Betaflight is not a hard real-time system. Tasks such as gyro sampling, filtering, PID calculations, motor updates, telemetry and OSD run with different priorities. The Blackbox logger has relatively low priority and may be delayed.
 
 - **SD card write latency**: SD card write operations introduce timing variations because internal flash memory processes require different amounts of time for each write cycle. 
 
@@ -68,14 +68,14 @@ Analyzing these sampling intervals enables several important evaluations:
 - **Determine the effective logging rate**  
   Verify whether Betaflight is logging at the intended rate (for example 1 kHz) or if the actual rate deviates. 
 
-- **Detect timing jitter**  
-  Identify variations in sampling time caused by SD card latency, CPU load, or scheduling behavior.
+- **Detect timing jitter**
+  Identify variations in sampling time caused by SD card latency, CPU load or scheduling behavior.
 
 - **Identify timing anomalies**  
   Large gaps in timestamps indicate delays or missing data due to SD card write operations or system load.
 
-- **Enable numerically correct analysis**  
-  Accurate sampling intervals are essential for correct FFT calculations, filter design, frequency analysis, and controller evaluation.  These methods rely on the true time base provided by the log. 
+- **Enable numerically correct analysis**
+  Accurate sampling intervals are essential for correct FFT calculations, filter design, frequency analysis and controller evaluation. These methods rely on the true time base provided by the log.
 
   ---
 

@@ -15,14 +15,14 @@ As an example, we consider a sine wave corrupted by noise which we will filter w
 
 ## Frequency Shifting to Baseband
 
-`apply_rotfiltfilt` uses a mathematical technique that allows us to shift the frequency content of a signal to a baseband (around 0 Hz), apply a low-pass filter, and then shift it back to its original frequency range. This process effectively removes high-frequency noise while maintaining the phase characteristics of the original signal [1].
+`apply_rotfiltfilt` uses a mathematical technique that allows us to shift the frequency content of a signal to a baseband (around 0 Hz), apply a low-pass filter and then shift it back to its original frequency range. This process effectively removes high-frequency noise while maintaining the phase characteristics of the original signal [1].
 
-So, first we define follow the principles of the Fourier shift theorem [1].
+First, we follow the principles of the Fourier shift theorem [1].
 
-$$e^{i2\pi\xi_0 t}\cdot f(t) \xleftrightarrow{\mathcal{F}} \hat{f}(\xi - \xi_0)$$
+$$e^{i2\pi \xi_0 t}\cdot f(t) \xleftrightarrow{\mathcal{F}} \hat{f}(\xi - \xi_0)$$
 
-In our case, however, the frequency shift $xi_0$ is **not constant** and it changes **over time**. This comes from the fact that we are dealing with a chirp signal, whose frequency varies continuously.  
-This means that the instantaneous frequency of the chirp is dynamically shifted to the baseband at every moment. So we have to use a **time-dependent phasor** $p(t) = e^{i\,\text{sinarg}(t)}$, where `sinarg` represents the **phase progression** of the carrier signal. More to this you can find in [Chirp Signal](../Sinarg/Chirp.md) documentation [2].
+In our case, however, the frequency shift $\xi_0$ is **not constant** and it changes **over time**. This comes from the fact that we are dealing with a chirp signal, whose frequency varies continuously.  
+This means that the instantaneous frequency of the chirp is dynamically shifted to the baseband at every moment. So we have to use a **time-dependent phasor** $p(t) = e^{i\,\text{sinarg}(t)}$, where `sinarg` represents the **phase progression** of the carrier signal. More on this can be found in the [Chirp Signal](../Sinarg/Chirp.md) documentation [2].
 
 By multiplying the input signal $x(t)$ with this phasor $p(t)$ or its complex conjugate $p^*(t)$, the signal shifts the negative and positive frequency components towards 0 Hz [1].
 
@@ -42,7 +42,7 @@ As you can see in the following spectrum plot, after this rotation step, the sig
 ## Baseband Filtering and Inverse Rotation
 
 Once the signal resides in the baseband, a **zero-phase low-pass filter** can be applied without distorting its timing or phase relationships [4][5].  
-First we have to create a suitable low-pass filter which lays within a small frequency range around 0 Hz. The newly created filter is then applied to both rotated signals $y_R(t)$ and $y_Q(t)$ using the `filtfilt` function in MATLAB, which performs forward and backward filtering to ensure zero-phase distortion [3].
+First we have to create a suitable low-pass filter which lies within a small frequency range around 0 Hz. The newly created filter is then applied to both rotated signals $y_R(t)$ and $y_Q(t)$ using the `filtfilt` function in MATLAB, which performs forward and backward filtering to ensure zero-phase distortion [3].
 
 As you can see in the following spectrum plot, after filtering, the high-frequency noise components have been effectively removed, leaving a clean signal centered around 0 Hz.
 
