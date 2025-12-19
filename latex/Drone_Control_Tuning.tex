@@ -427,7 +427,7 @@ In the mid-frequency range, the proportional gain sets the magnitude level
 
 At low frequencies, the integral term causes a slope of $-20\,\text{dB/decade}$
 \begin{equation}
-	|C_I(s)| = \frac{K_i}{\omega} = \frac{10}{\omega}
+	|C_I(\omega)| = \frac{K_i}{\omega} = \frac{10}{\omega}
 \end{equation}
 
 The corresponding lower corner frequency is
@@ -437,7 +437,7 @@ The corresponding lower corner frequency is
 
 The derivative term causes the slope of $+20\,\text{dB/decade}$ at high frequencies with
 \begin{equation}
-	|C_D(s)| = K_d\,\omega = 10\,\omega
+	|C_D(\omega)| = K_d\,\omega = 10\,\omega
 \end{equation}
 
 Accordingly, the upper corner frequency is given by
@@ -530,31 +530,31 @@ In the last step, we split the signal into several overlapping segments, as desc
 
 \subsubsection*{Spectrogram Simulation}
 
-To analyze how the frequency content of an input signal changes with both time and thrust, we developed a MATLAB simulation. In this script, we generated a noisy sinusoidal input signal with a slowly increasing instantaneous frequency, together with a varying thrust signal. The thrust is modeled as a sinusoid around a mean value of 2. To illustrate the effect of windowing, a Hann window was also applied to the full input signal, as shown in \autoref{fig:spectogram_input}.
+To analyze how the frequency content of an input signal changes with both time and thrust, we developed a MATLAB simulation. In this script, we generated a noisy sinusoidal input signal with a slowly increasing instantaneous frequency, together with a varying thrust signal. The thrust is modeled as a sinusoid around a mean value of 2. To illustrate the effect of windowing, a Hann window was also applied to the full input signal, as shown in \autoref{fig:spectrogram_input}.
 
 \begin{figure}[htbp]
 	\centering
 	\includegraphics[width=0.8\textwidth]{./Images/Simulations/Spectrogram_overview.png}
 	\caption{Input signal, windowed input signal and thrust over time}
-	\label{fig:spectogram_input}
+	\label{fig:spectrogram_input}
 \end{figure}
 
-In the next step, the input signal was divided into short, non-overlapping time windows. For each segment, we computed the fast Fourier transform (FFT) to obtain a local frequency spectrum. By arranging these spectra along the time axis, we created a time-frequency representation of the signal, as shown in \autoref{fig:spectogram_time}.
+In the next step, the input signal was divided into short, non-overlapping time windows. For each segment, we computed the fast Fourier transform (FFT) to obtain a local frequency spectrum. By arranging these spectra along the time axis, we created a time-frequency representation of the signal, as shown in \autoref{fig:spectrogram_time}.
 
 \begin{figure}[htbp]
 	\centering
 	\includegraphics[width=0.8\textwidth]{./Images/Simulations/Spectrogram_Time_Freq.png}
 	\caption{Spectrogram showing the amplitude over frequency and time}
-	\label{fig:spectogram_time}
+	\label{fig:spectrogram_time}
 \end{figure}
 
-To relate the spectral content to the thrust level, we assigned each segment the mean thrust value within its time interval. The corresponding spectra were then plotted over frequency and mean thrust, resulting in a spectrogram that shows how the frequency content varies with thrust for this example, as shown in \autoref{fig:spectogram_thrust}.
+To relate the spectral content to the thrust level, we assigned each segment the mean thrust value within its time interval. The corresponding spectra were then plotted over frequency and mean thrust, resulting in a spectrogram that shows how the frequency content varies with thrust for this example, as shown in \autoref{fig:spectrogram_thrust}.
 
 \begin{figure}[htbp]
 	\centering
 	\includegraphics[width=0.8\textwidth]{./Images/Simulations/Spectrogram_Thrust_Freq.png}
 	\caption{Spectrogram showing the amplitude over frequency and thrust}
-	\label{fig:spectogram_thrust}
+	\label{fig:spectrogram_thrust}
 \end{figure}
 
 \clearpage
@@ -639,13 +639,13 @@ When we analyze this plot, we look for three main things:
 	\label{fig:Spectra_tuning}
 \end{figure}
 
-We can see in this figure that our filter settings work well. The filtered signals have very little noise (much smoother lines) and no large resonances. Only the yaw axis has a small peak around 550 Hz, which is acceptable. The axis sum drops nicely and stays low after about 600 Hz, approximately where the motor frequencies end. This shows the drone is running smoothly with vibrations under control.
+We can see in this figure that our filter settings work well. The filtered signals have very little noise (much smoother lines) and no large resonances. Only the yaw axis has a small peak around 550 Hz, which is acceptable. The axis sum drops nicely and stays low after about 600 Hz, approximately where the motor frequencies end. This shows the drone is running smoothly with vibrations under control. 
 The vibrations are also visible in the \textbf{spectrogram} plots in \autoref{fig:Spectrograms_tuning}.
 Here, frequencies are plotted against thrust level and the color shows the signal intensity. Red equals much vibration, blue equals little vibration.
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=\textwidth]{./Images/Tuning_OvershootExpress/Spectrograms.jpg}
+	\includegraphics[width=0.9\textwidth]{./Images/Tuning_OvershootExpress/Spectrograms.jpg}
 	\caption{Spectrograms}
 	\label{fig:Spectrograms_tuning}
 \end{figure}
@@ -724,7 +724,7 @@ In our experience, the Gang of Four plots provided a clear and structured way to
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.898\textwidth]{./Images/Tuning_OvershootExpress/gang_of_four_pitch_tuned.jpg}
+	\includegraphics[width=0.65\textwidth]{./Images/Tuning_OvershootExpress/gang_of_four_pitch_tuned.jpg}
 	\caption{Gang of Four}
 	\label{fig:gangoffour_tuning}
 \end{figure}
