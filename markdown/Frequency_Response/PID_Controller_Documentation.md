@@ -21,8 +21,12 @@ $$PID = [K_p, K_i, K_d]$$
 
 the scaled PID values are obtained as:
 
-This step converts user-facing Betaflight PID values into controller gains suitable for analysis.
+```c
+PTERM_SCALE = 0.032029;
+ITERM_SCALE = 0.244381;
+DTERM_SCALE = 0.000529;
 
+```
 
 ## Construction of PI and D Controllers
 
