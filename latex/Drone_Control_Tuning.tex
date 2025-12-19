@@ -7,6 +7,7 @@
 \usepackage{placeins}
 % Load consolidated formatting from labstyle
 \usepackage{labstyle}
+\usepackage{cleveref}
 
 % Bibliography setup
 \usepackage[
@@ -53,14 +54,12 @@ methods.
 \clearpage
 
 \section{Preface}
-This document summarizes the results of our project thesis, which we worked on during the fall semester 2025 at
-the ZHAW School of Engineering. For us as systems engineering students, this project provided an ideal
-opportunity to apply advanced control theory and signal processing methods to a real, highly dynamic system. FPV
-drones present an interesting engineering challenge due to their highly dynamic behaviour and the need for
+This document summarizes the results of our project thesis, which we conducted during the fall semester 2025 at the ZHAW School of Engineering.
+ For us as systems engineering students, the project provided an ideal opportunity to apply advanced control theory and signal processing methods
+ to a highly mechatronic system. FPV drones present an interesting engineering challenge due to their highly dynamic behaviour and the need for
 precise control. This motivated us to investigate mathematical modeling, control engineering aspects and
 offline tuning methods aimed at improving flight performance. \par
-Our motivation was to translate the theoretical control concepts we learned over the past three years to a
-real, highly dynamic system. We also aimed to develop a tool that not only meets engineering standards but also
+Our motivation was to translate the theoretical concepts of control theory and signal processing that we learned over the past one and a half years into a real, highly dynamic system. We also aimed to develop a tool that not only meets engineering standards but also
 provides real value to the FPV community by replacing subjective tuning with objective data analysis. \par
 This work was carried out at the Institute of Mechatronic Systems (IMS) at the ZHAW School of Engineering. We
 would like to express our gratitude to our supervisor, Michael Peter, for his guidance and support throughout
@@ -83,7 +82,7 @@ The library is implemented in MATLAB and partially Python, providing tools for a
 
 Beyond software development, this project also encompasses the construction and flight testing of an FPV drone to validate the effectiveness of the proposed methods. By providing a structured, data-driven approach to tuning, this work aims to improve flight performance and reduce the barriers to achieving optimal control settings for both hobbyists and professionals.
 
-This document is structured as follows: \autoref{sec:Theory} provides the theoretical foundations of control systems and signal processing relevant to the tuning process. \autoref{sec:ChallengesAndMethodologicalApproach} details the methodological challenges and solutions developed during implementation, including simulations, drone construction and the code migration from MATLAB to Python. \autoref{sec:Results} presents the results obtained from simulations and flight tests. Finally, \autoref{sec:DiscussionAndNextSteps} discusses the findings and outlines future work planned for continuation in the bachelor thesis.
+This document is structured as follows: \autoref{sec:Theory} provides the theoretical foundations of control systems and signal processing relevant to the tuning process. \Cref{sec:ChallengesAndMethodologicalApproach} details the methodological challenges and solutions developed during implementation, including simulations, drone construction and the code migration from MATLAB to Python. \Cref{sec:Results} presents the results obtained from simulations and flight tests. Finally, \autoref{sec:DiscussionAndNextSteps} discusses the findings and outlines future work planned for continuation in the bachelor thesis.
 
 \clearpage
 
@@ -111,7 +110,7 @@ Based on the Betaflight source code, the gyro control system was reconstructed t
 
 For clarity, the control architecture is illustrated in a simplified form in \autoref{fig:bf_gyro_control}. The actual implementation includes additional signals, filters and controller elements that are not explicitly shown. Nevertheless, the simplified representation captures the essential structure required for analysis.
 
-The control system consists of two loops: an inner loop responsible for angular rate control based on gyroscope feedback and an outer loop performing angle control based on pilot stick inputs. Both loops incorporate filtering and control elements that directly affect the frequency response and stability characteristics of the system.
+The control system consists of an inner and an outer control loop. In the inner loop, the derivative term is calculated directly from the gyroscope signal and is used to improve damping by shaping the dynamic response.
 
 \begin{figure}[h]
 	\centering
