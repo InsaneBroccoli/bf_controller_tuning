@@ -55,8 +55,8 @@ methods.
 
 \section{Preface}
 This document summarizes the results of our project thesis, which we conducted during the fall semester 2025 at the ZHAW School of Engineering.
- For us as systems engineering students, the project provided an ideal opportunity to apply advanced control theory and signal processing methods
- to a highly mechatronic system. FPV drones present an interesting engineering challenge due to their highly dynamic behaviour and the need for
+For us as systems engineering students, the project provided an ideal opportunity to apply advanced control theory and signal processing methods
+to a highly mechatronic system. FPV drones present an interesting engineering challenge due to their highly dynamic behaviour and the need for
 precise control. This motivated us to investigate mathematical modeling, control engineering aspects and
 offline tuning methods aimed at improving flight performance. \par
 Our motivation was to translate the theoretical concepts of control theory and signal processing that we learned over the past one and a half years into a real, highly dynamic system. We also aimed to develop a tool that not only meets engineering standards but also
@@ -192,7 +192,7 @@ The recorded data logs provide two types of gyroscope signals: the signal \textt
 
 Transforming both signals into the frequency domain reveals the effect of the internal filters on the signal content. The filtered signal shows reduced high-frequency noise and attenuated frequency components, while the unfiltered signal contains stronger high-frequency noise and structural resonances.\parencite{bf_Spectra}
 
-The spectrogram extends this analysis by showing how the frequency content of the gyroscope signal changes with throttle. The signal is divided into overlapping segments, transformed using an FFT and averaged within discrete throttle bins \parencite{bf_Spectogram}.
+The spectrogram extends this analysis by showing how the frequency content of the gyroscope signal changes with throttle. The signal is divided into overlapping segments, transformed using an FFT and averaged within discrete throttle bins \parencite{bf_Spectrogram}.
 
 This representation helps to understand how resonances, noise levels and dominant frequency components change with throttle, giving insight into the system dynamics under different flight conditions.
 
@@ -517,7 +517,7 @@ In the next step, we compared the frequency spectrum of the signal with and with
 	\label{fig:spectra_window}
 \end{figure}
 
-In the last step, we split the signal into several overlapping segments, as described in the documentation \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/main/markdown/Spectrum_Spectogram/Spectra_Analysis.md}{Spectra Analysis}. By averaging across these segments, we were able to observe how this method reduces noise and stabilizes the resulting spectrum.
+In the last step, we split the signal into several overlapping segments, as described in the documentation \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/main/markdown/Spectrum_Spectrogram/Spectra_Analysis.md}{Spectra Analysis}. By averaging across these segments, we were able to observe how this method reduces noise and stabilizes the resulting spectrum.
 
 \begin{figure}[htbp]
 	\centering
@@ -534,7 +534,7 @@ To analyze how the frequency content of an input signal changes with both time a
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics[width=0.8\textwidth]{./Images/Simulations/Spectogram_overview.png}
+	\includegraphics[width=0.8\textwidth]{./Images/Simulations/Spectrogram_overview.png}
 	\caption{Input signal, windowed input signal and thrust over time}
 	\label{fig:spectogram_input}
 \end{figure}
@@ -543,7 +543,7 @@ In the next step, the input signal was divided into short, non-overlapping time 
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics[width=0.8\textwidth]{./Images/Simulations/Spectogram_Time_Freq.png}
+	\includegraphics[width=0.8\textwidth]{./Images/Simulations/Spectrogram_Time_Freq.png}
 	\caption{Spectrogram showing the amplitude over frequency and time}
 	\label{fig:spectogram_time}
 \end{figure}
@@ -552,7 +552,7 @@ To relate the spectral content to the thrust level, we assigned each segment the
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics[width=0.8\textwidth]{./Images/Simulations/Spectogram_Thrust_Freq.png}
+	\includegraphics[width=0.8\textwidth]{./Images/Simulations/Spectrogram_Thrust_Freq.png}
 	\caption{Spectrogram showing the amplitude over frequency and thrust}
 	\label{fig:spectogram_thrust}
 \end{figure}
@@ -669,7 +669,7 @@ For our initial flight, we configured a PT3 (third-order) filter with a cutoff o
 The yaw low-pass filter smooths the gyroscope signal by ignoring high-frequency noise. Since the yaw axis typically experiences less mechanical vibration than roll and pitch, the filter can often be configured less aggressively without compromising signal quality.
 For our setup, we retained the default Betaflight settings, as they provided good noise suppression without creating unnecessary delay.
 
-Further information about spectra and spectrograms can be found \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/main/markdown/Spectrum_Spectogram}{here}. Also consider looking at the \href{https://www.betaflight.com/docs/wiki/configurator/pid-tuning-tab}{Betaflight wiki page} for more information about Betaflight filters.
+Further information about spectra and spectrograms can be found \href{https://github.com/InsaneBroccoli/bf_controller_tuning/blob/main/markdown/Spectrum_Spectrogram}{here}. Also consider looking at the \href{https://www.betaflight.com/docs/wiki/configurator/pid-tuning-tab}{Betaflight wiki page} for more information about Betaflight filters.
 
 \subsubsection*{PID Tuning}
 After configuring the filter settings, we could move on to the PID tuning.
