@@ -4,7 +4,7 @@
 \usepackage[english]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage{csquotes}
-
+\usepackage{placeins}
 % Load consolidated formatting from labstyle
 \usepackage{labstyle}
 
@@ -1082,41 +1082,127 @@ The work completed during this project phase positions the bachelor thesis for f
 \begingroup
 \renewcommand{\listfigurename}{}
 \renewcommand{\addcontentsline}[3]{}
+\let\clearpage\relax
 \listoffigures
 \endgroup
 
-\vspace*{3\baselineskip}
+\clearpage
 
 \section{Appendix}
 \subsection{Project Management}
 \subsubsection*{Project Assignment}
+
+\paragraph{Titel}~\\
+Betaflight - Offline Controller Tuning
+
+\paragraph{Beschreibung}~\\
+Betaflight ist ein Open-Source Projekt, das sich auf die Regelung von FPV Quadcopter spezialisiert hat, dies insbesondere im Bereich von Race-Dronen. Die Firmware wird von einer grossen Community weiterentwickelt und ist auf vielen verschiedenen Hardware-Plattformen verfügbar. Betaflight ist die am häufigsten verwendete Firmware für FPV-Drohnen und wird von vielen Hobbyisten und Profis genutzt.
+
+Für die Flugperformace ist die Qualität der Raten-Regelung von entscheidender Bedeutung. Die Regler sind dafür verantwortlich, dass die Drohne stabil fliegt, Störungen wie Wind und Strömungsabrisse (Prop-Wash) unterdrückt und möglichst agil auf Steuerbefehle reagiert. Die Regler und Filter müssen daher sorgfältig getunt und abgestimmt werden, um eine optimale Flugperformance zu erzielen. FPV Piloten fliegen üblicherweise im ACRO mode, sprich das System ist Ratengeregelt und die Stickinputs des Piloten werden als Sollwerte auf den Ratenregler gegeben. Das Tuning dieser Regler geschieht in der Community im Allgemeinen durch Trial and Error. Das bedeutet, dass die Piloten die Reglerparameter anpassen und dann testen. Dies kann jedoch zeitaufwendig und frustrierend sein, da es oft schwierig ist, insbesondere für Leien, die richtigen Parameter zu finden.
+
+Bereits bestehend ist ein Proof of Concept, welches es ermöglicht die Raten-Regler offline basierend auf einem Messdaten-Modell der Drone zu tunen (basierend auf Chirp-Signal Experiment während dem Flug). Das Projekt soll auf diesem Proof of Concept aufbauen und die Methode des Offline Tunings für die Raten-Regler (Gyro) weiterentwickeln. Ziel ist es, eine vollständige, einfach erweiterbare und sauber implementierte Open-Source Libary zu entwickeln. Dies sowohl in MATLAB als auch in Python. Ausserdem soll für die Python Implementation eine ausführliche Dokumentation mit Beispielen für Anwender erstellt werden (Github Markdown Dokumentation). Das Ziel ist es, dass die Libary von der Community genutzt werden kann. Dies soll dazu beitragen, die Flugperformance der Drohnen zu verbessern und den Piloten eine einfachere Möglichkeit zu bieten, ihre Drohnen zu tunen.
+
+\paragraph{Studenten}~\\
+Bianchi Yuri (biancyur), Dort Janick (dortjan1), Jurietti Dario (juriedar)
+
+\paragraph{Betreuer}~\\
+Hauptbetreuer: Michael Peter (pmic)\\
+Nebenbetreuer: Prof.\ Dr.\ Ruprecht Altenburger (altb)
+
+\paragraph{Weitere Personen}~\\
+Camille Huber (hurc)
+
+\paragraph{Voraussetzungen}~\\
+\begin{itemize}
+	\item GRT, RT1
+	\item Zumindest eine Person ist im Besitz des Fernpiloten-Zeugnis A1/A3 (A2 optional jedoch empfohlen)
+	\item Genügend hohe Haftpflichtversicherung, muss von den Studierenden selbst organisiert werden
+	\item Erfahrung mit FPV Dronen (Bauen, Reparieren, Konfigurieren, Fliegen)
+	\item MATLAB, Python
+\end{itemize}
+
+\paragraph{Vereinbarung}~\\
+Die Vereinbarung wird zwischen dem Betreuer Michael Peter (pmic) und den Studierenden Yuri Bianchi (biancyur), Janick Dort (dortjan1) und Dario Jurietti (juriedar).
+
+Da es sich um eine dreier PA handelt wird das Projekt in drei separat bewertbare Teile aufteilt:
+\begin{itemize}
+	\item MATLAB Implementation
+	\item Python Implementation
+	\item Markdown Dokumentation mit Beispielen der Matlab und Python Implementation
+\end{itemize}
+
+\paragraph{Zeitplan}~\\
+Siehe: \href{https://intra.zhaw.ch/departemente/school-of-engineering/bachelorstudium/projekt-und-bachelorarbeiten}{intra.zhaw.ch}
+
+\begin{table}[H]
+	\centering
+	\begin{tabular}{ll}
+		\toprule
+		\textbf{Projektarbeit HS 25} &                                                              \\
+		\midrule
+		Ab 15.09.2025                & Ausgabe der Aufgabenstellung durch Dozierende an Studierende \\
+		Bis 19.12.2025 bis 18:00 Uhr & Abgabe der Projektarbeit in Complesis                        \\
+		03.02.2026                   & Prov.\ Notenfreischaltung für Studierende ab 18:00 Uhr       \\
+		27.02.2026                   & Def.\ Notenfreischaltung für Studierende ab 18:00 Uhr        \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+\paragraph{Arbeitsplatz}~\\
+TE 617
+
+\paragraph{Hardware}~\\
+\begin{itemize}
+	\item Hardware kann von Michael Peter und IMS bezogen werden
+	      \begin{itemize}
+		      \item 2 x 3.5 Zoll Dronen
+		      \item 2 x 5.0 Zoll Dronen
+	      \end{itemize}
+	\item Es können auch noch zwei weitere Dronen (1 x 3.5 Zoll, 1 x 5.0 Zoll) gebaut werden
+\end{itemize}
+
+\paragraph{Ergebnisdarstellung}~\\
+Ein Bericht im Umfang von 20--30 Seiten dokumentiert den Entwicklungsweg geeignet. Die Software wird in einem öffentlichen GitHub Repository abgelegt. Des weiteren soll eine Dokumentation mit Beispielen in Markdown erstellt werden. Die technische Dokumentation ist ebenso in Markdown zu verfassen.
+
+\paragraph{Fachgebiet}~\\
+\textbf{Primäres Fachgebiet:} Regelungstechnik und Advanced Control
+
+\textbf{Weitere Fachgebiete:}
+\begin{itemize}
+	\item Datenvisualisierung
+	\item Digitale Signalverarbeitung
+	\item Software Engineering
+\end{itemize}
+
+\paragraph{Verschiedenes}~\\
+\textbf{Studiengang:} Systemtechnik\\
+\textbf{Industriepartner:} Keiner\\
+\textbf{Institut/Zentren:} Institut für Mechatronische Systeme (IMS)\\
+\textbf{Interne Partner:} Keine
+
+\paragraph{Informationslink}~\\
+\url{https://github.com/pichim/bf_controller_tuning}
+
+\paragraph{Bemerkungen}~\\
+Grundsätzlich ist die Idee die PA aufbauend in einer BA zu erweitern.
+
+\paragraph{Sprache}~\\
+Deutsch / Englisch
+
+\paragraph{Studenten Detail}~\\
+\begin{itemize}
+	\item Yuri Bianchi (biancyur) -- Automatiker -- Leader, Pilot, Regelungstechnik \& Signalverarbeitung
+	\item Dario Jurietti (juriedar) -- Biolaborant -- Datenverarbeitung, Software
+	\item Janick Dort (dortjan1) -- Elektroplaner -- Datenverarbeitung, Pilot, Regelungstechnik \& Signalverarbeitung
+\end{itemize}
+
+Die Studenten haben schon PM 1--4 zusammen absolviert und sind ein eingespieltes Team.
+
 \clearpage
 
-% ---------- Aufgabenstellung Seite 1 ----------
-\begin{figure}[H]
-	\centering
-	\includegraphics[page=1,width=0.95\textwidth]{pdf/aufgabenstellung.pdf}
-\end{figure}
-
-\clearpage
-
-% ---------- Aufgabenstellung Seite 2 ----------
-\begin{figure}[H]
-	\centering
-	\includegraphics[page=2,width=0.95\textwidth]{pdf/aufgabenstellung.pdf}
-\end{figure}
-
-\clearpage
-
-% ---------- Aufgabenstellung Seite 3 ----------
-\begin{figure}[H]
-	\centering
-	\includegraphics[page=3,width=0.95\textwidth]{pdf/aufgabenstellung.pdf}
-\end{figure}
 \subsubsection*{Project Schedule — Version 0}
 
 This project schedule was created at the beginning of the project.
-
 \begin{figure}[htbp]
 	\centering
 	\includegraphics[width=0.75\textwidth]{./Images/Zeitplan_V00.png}
@@ -1133,6 +1219,7 @@ This project schedule was created prior to the first milestone meeting and appro
 	\caption{Project Schedule — Version 1}
 	\label{fig:Project Schedule — Version 1}
 \end{figure}
+
 \clearpage
 
 \subsubsection*{Project Schedule — Version 2}
