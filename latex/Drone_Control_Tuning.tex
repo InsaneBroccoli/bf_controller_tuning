@@ -639,7 +639,7 @@ When we analyze this plot, we look for three main things:
 	\label{fig:Spectra_tuning}
 \end{figure}
 
-We can see in this figure that our filter settings work well. The filtered signals have very little noise (much smoother lines) and no large resonances. Only the yaw axis has a small peak around 550 Hz, which is acceptable. The axis sum drops nicely and stays low after about 600 Hz, approximately where the motor frequencies end. This shows the drone is running smoothly with vibrations under control. 
+We can see in this figure that our filter settings work well. The filtered signals have very little noise (smoother lines) and no large resonances. Only the yaw axis has a small peak around 550 Hz, which is acceptable. The axis sum drops nicely and stays low after about 600 Hz, approximately where the motor frequencies end. This shows the drone is running smoothly with vibrations under control. 
 The vibrations are also visible in the \textbf{spectrogram} plots in \autoref{fig:Spectrograms_tuning}.
 Here, frequencies are plotted against thrust level and the color shows the signal intensity. Red equals much vibration, blue equals little vibration.
 
@@ -942,13 +942,13 @@ The flexibility of Python also allows for easier integration with other tools an
 \subsection{Python in MATLAB}
 
 In our initial porting attempt, we utilized MATLAB's built-in functionality to execute Python code directly from within the MATLAB environment.
-While this approach allowed us to access Python libraries and scripts, it introduced some challenges.
-One major issue was the frequent need for unit conversions between MATLAB and Python data types, which often led to subtle bugs and inconsistencies.
+While this approach allowed us to access Python libraries, it introduced some challenges.
+One major issue was the frequent need for unit conversions between MATLAB and Python data types, which often led to  bugs and inconsistencies.
 Additionally, we encountered differences in the implementation of certain algorithms, such as varying scaling conventions in the state-space representation of transfer functions.
 These discrepancies complicated the integration process and made it difficult to ensure consistent results across both platforms.
 Managing library dependencies and Python environments within MATLAB also proved cumbersome, especially when working across different operating systems or MATLAB versions.
 As a result, this method proved unreliable for our project's requirements.
-We ultimately decided to pursue a native Python implementation to avoid these integration issues and streamline the development workflow.
+We decided to pursue a native Python implementation to avoid these issues and streamline the development workflow.
 
 \subsection{Transferring the MATLAB Library to Python}
 
