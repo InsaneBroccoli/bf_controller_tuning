@@ -4,12 +4,11 @@ Spectrograms provide a powerful visualization of how gyro noise changes across b
 
 By comparing unfiltered and filtered spectrograms, you can see exactly which frequencies are problematic and how well your filter configuration addresses them. This makes spectrograms one of the most valuable tools for optimizing filter settings and achieving clean, responsive flight performance.
 
----
 
 ## Understanding Spectrogram Patterns
 
 <p align="center">
-  <img src="./Images/Gyro_Spectograms.jpg"
+  <img src="./Images/Gyro_Spectrograms.jpg"
      alt="Gyro spectrograms showing noise patterns across frequency and throttle"
      width="1000"
      style="float:center; margin-left:10px; margin-right:10px;">

@@ -11,7 +11,6 @@ As an example, we consider a sine wave corrupted by noise which we will filter w
      style="float:center; margin-left:10px; margin-right:10px;">
 </p>
 
----
 
 ## Frequency Shifting to Baseband
 
@@ -21,8 +20,7 @@ First, we follow the principles of the Fourier shift theorem [1].
 
 $$e^{i2\pi \xi_0 t}\cdot f(t) \xleftrightarrow{\mathcal{F}} \hat{f}(\xi - \xi_0)$$
 
-In our case, however, the frequency shift $\xi_0$ is **not constant** and it changes **over time**. This comes from the fact that we are dealing with a chirp signal, whose frequency varies continuously.  
-This means that the instantaneous frequency of the chirp is dynamically shifted to the baseband at every moment. So we have to use a **time-dependent phasor** $p(t) = e^{i\,\text{sinarg}(t)}$, where `sinarg` represents the **phase progression** of the carrier signal. More on this can be found in the [Chirp Signal](../Sinarg/Chirp.md) documentation [2].
+In our case, however, the frequency shift $\xi_0$ is **not constant** and it changes **over time**. This comes from the fact that we are dealing with a chirp signal, whose frequency varies continuously. This means that the instantaneous frequency of the chirp is dynamically shifted to the baseband at every moment. So we have to use a **time-dependent phasor** $p(t) = e^{i\,\text{sinarg}(t)}$, where `sinarg` represents the **phase progression** of the carrier signal. More on this can be found in the [Chirp Signal](../Sinarg/Chirp.md) documentation [2].
 
 By multiplying the input signal $x(t)$ with this phasor $p(t)$ or its complex conjugate $p^*(t)$, the signal shifts the negative and positive frequency components towards 0 Hz [1].
 
@@ -37,12 +35,10 @@ As you can see in the following spectrum plot, after this rotation step, the sig
      style="float:center; margin-left:10px; margin-right:10px;">
 </p>
 
----
 
 ## Baseband Filtering and Inverse Rotation
 
-Once the signal resides in the baseband, a **zero-phase low-pass filter** can be applied without distorting its timing or phase relationships [4][5].  
-First we have to create a suitable low-pass filter which lies within a small frequency range around 0 Hz. The newly created filter is then applied to both rotated signals $y_R(t)$ and $y_Q(t)$ using the `filtfilt` function in MATLAB, which performs forward and backward filtering to ensure zero-phase distortion [3].
+Once the signal resides in the baseband, a **zero-phase low-pass filter** can be applied without distorting its timing or phase relationships [4][5]. First we have to create a suitable low-pass filter which lies within a small frequency range around 0 Hz. The newly created filter is then applied to both rotated signals $y_R(t)$ and $y_Q(t)$ using the `filtfilt` function in MATLAB, which performs forward and backward filtering to ensure zero-phase distortion [3].
 
 As you can see in the following spectrum plot, after filtering, the high-frequency noise components have been effectively removed, leaving a clean signal centered around 0 Hz.
 
@@ -53,12 +49,10 @@ As you can see in the following spectrum plot, after filtering, the high-frequen
      style="float:center; margin-left:10px; margin-right:10px;">
 </p>
 
----
 
 ## Inverse Frequency Shift
 
-After the filtering in the baseband, the signal is **rotated back** to its original frequency range [1].  
-This is done by multiplying the filtered signals $y_R(t)$ and $y_Q(t)$ with their respective inverse phasors and then combining them back into a **real signal**:
+After the filtering in the baseband, the signal is **rotated back** to its original frequency range [1]. This is done by multiplying the filtered signals $y_R(t)$ and $y_Q(t)$ with their respective inverse phasors and then combining them back into a **real signal**:
 
 $$x_f(t)=\mathrm{Re}\{(\tfrac12\ \cdot(y_R(t)p^*(t)+y_Q(t)p(t)))\}$$
 
@@ -71,7 +65,6 @@ The result is a filtered version of the original signal $x(t)$, with high-freque
      style="float:center; margin-left:10px; margin-right:10px;">
 </p>
 
----
 
 ## References
 

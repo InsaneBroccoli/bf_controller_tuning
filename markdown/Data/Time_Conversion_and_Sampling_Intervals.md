@@ -10,7 +10,6 @@ Betaflight Blackbox logs record flight data on every iteration of the flight con
 
 The microsecond format is more efficient for the flight controller hardware and enables high-precision timing without loss of accuracy. All flight data, including PID corrections, RC commands, gyro readings and motor outputs, is correlated to this timestamp.
 
----
 
 ## What Betaflight Does Internally
 
@@ -22,7 +21,6 @@ Betaflight stores the raw microsecond timestamp directly in each log entry witho
 
 The logger does not attempt to correct for timing variations, it simply records the actual `currentTimeUs` value at the time of logging. Any timing irregularities (due to SD card latency, CPU load or task scheduling) are preserved in the log.
 
----
 
 ## Sampling Intervals from the Analyst Perspective
 
@@ -39,7 +37,7 @@ These variations mean that even when configured for a 1 kHz logging rate, the ac
 To visualize this effect, the figure below shows actual sampling intervals extracted from a real Betaflight Blackbox log.  You can clearly see the timing jitter around the target interval, as well as occasional larger spikes caused by SD card write latency and task scheduling delays.
 
 <p align="center">
-  <img src="../Descriptions_Figures/Images/evolution_time_flight.jpg"
+  <img src="../Descriptions_Figures/Images/evaluation_time_flight.jpg"
      alt="Original noisy signals"
      width="1000"
      style="float:center; margin-left:10px; margin-right: 10px;">
@@ -47,7 +45,6 @@ To visualize this effect, the figure below shows actual sampling intervals extra
   <em>Figure 1: Sampling intervals extracted and visualized using the analysis tool in this repository from a Betaflight Blackbox log configured for 2 kHz (500 μs target). The plot shows timing jitter and occasional larger delays caused by SD card writes and task scheduling. Mean: 500.21 μs, Median: 500.00 μs, Standard Deviation: 0.84 μs.</em>
 </p>
 
----
 
 ## Calculating Sampling Intervals
 
@@ -59,7 +56,6 @@ By calculating the time differences between consecutive log entries (Δt), the a
 
 These intervals represent the true time base of the recorded data and are essential for numerically correct analysis.
 
----
 
 ## Analysis Applications
 
@@ -77,7 +73,6 @@ Analyzing these sampling intervals enables several important evaluations:
 - **Enable numerically correct analysis**
   Accurate sampling intervals are essential for correct FFT calculations, filter design, frequency analysis and controller evaluation. These methods rely on the true time base provided by the log.
 
-  ---
 
 ## References and Sources
 

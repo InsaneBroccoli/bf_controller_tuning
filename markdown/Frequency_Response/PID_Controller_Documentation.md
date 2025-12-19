@@ -4,7 +4,6 @@ Before performing control-theoretic analysis on Betaflight PID loops, the PID ga
 
 To obtain correct controller behavior in simulations, frequency-domain models, or closed-loop analysis, these gains have to be rescaled and then used to construct discrete-time PI and D controllers.
 
----
 
 ## Betaflight PID Gain Scaling
 
@@ -13,7 +12,6 @@ To convert Betaflight PID values into physically meaningful controller gains, th
 
 This scaling comes **directly from Betaflight’s internal controller implementation** and ensures that the converted PID values correspond to real control gains [1].
 
----
 
 ## Scaling of New PID Gains
 
@@ -25,7 +23,6 @@ the scaled PID values are obtained as:
 
 This step converts user-facing Betaflight PID values into controller gains suitable for analysis.
 
----
 
 ## Construction of PI and D Controllers
 
@@ -46,7 +43,6 @@ The output of the implementation is:
 
 With these newly computed controllers, it becomes possible to predict how the system will respond when operated under the updated control gains. [2]
 
----
 
 ## References
 

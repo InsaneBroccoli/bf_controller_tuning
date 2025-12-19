@@ -91,7 +91,6 @@ $$A(f) = \sqrt{P_{\text{avg}}(f)}$$
 
 This form is used throughout the analysis for gyro data, filtered gyro signals and control-loop sums [1].
 
----
 
 ## References
 

@@ -6,7 +6,6 @@ Betaflight provides a **High Resolution Mode** for the Blackbox logger that impr
 
 The data is stored as integers. For example, a gyro value of 45.7°/s would lose decimal precision if stored directly as the integer 45. Multiplying by 10 first (resulting in 457) preserves one decimal place while maintaining integer storage.
 
----
 
 ## Affected Signals
 
@@ -31,7 +30,6 @@ Without this rescaling, all affected values would be 10 times too large and woul
 - faulty PID calculations
 - Overall, any frequency response analysis would be unusable
 
----
 
 ## Enabling High Resolution Mode
 
@@ -46,7 +44,6 @@ Check current setting with:
 get blackbox_high_resolution
 ```
 
----
 
 ## References and Sources
 
