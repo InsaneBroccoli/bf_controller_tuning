@@ -10,7 +10,7 @@ The function processes each signal column independently and performs the followi
 
 ### Mean Removal
 
-A global mean is removed from every signal. Additionally, each segment undergoes per-segment mean removal, which suppresses low-frequency drift and numerical bias. (DC components are therefore intentionally attenuated)
+A global mean is removed from every signal. Additionally, each segment undergoes per-segment mean removal, which suppresses low-frequency drift and numerical bias. (DC components are therefore intentionally attenuated.)
 
 ---
 
@@ -33,9 +33,9 @@ After windowing, the segment is ready for amplitude-correct spectral estimation.
 
 ### Segmentation with Overlap
 
-The input signal is divided into multiple analysis windows (segments) of length \($\text{Nest}$\). These segments can overlap to improve statistical stability and reduce variance in spectral estimates. A 50% overlap is widely recommended in the literature for Welch’s method [2, pp. 419–434], while overlaps of 75% are also frequently used in practical implementations to further reduce variance. Increasing overlap up to 100% can provide maximum variance reduction, as noted in frequency-domain FRF measurement techniques [1, pp. 62–63, 239].
+The input signal is divided into multiple analysis windows (segments) of length $\text{Nest}$. These segments can overlap to improve statistical stability and reduce variance in spectral estimates. A 50% overlap is widely recommended in the literature for Welch’s method [2, pp. 419–434], while overlaps of 75% are also frequently used in practical implementations to further reduce variance. Increasing overlap up to 100% can provide maximum variance reduction, as noted in frequency-domain FRF measurement techniques [1, pp. 62–63, 239].
 
-The number of overlapping samples is defined as \($\text{N}_{\text{Overlap}}$\). Accordingly, the shift between two consecutive segments is:
+The number of overlapping samples is defined as $\text{N}_{\text{Overlap}}$. Accordingly, the shift between two consecutive segments is:
 
 $$\text{N}_{\text{Shift}} = \text{Nest} - \text{N}_{\text{Overlap}}$$
 
@@ -89,7 +89,7 @@ To obtain single-sided amplitude spectra:
 
 $$A(f) = \sqrt{P_{\text{avg}}(f)}$$
 
-This form is used throughout the analysis for gyro data, filtered gyro signals, and control-loop sums [1].
+This form is used throughout the analysis for gyro data, filtered gyro signals and control-loop sums [1].
 
 ---
 

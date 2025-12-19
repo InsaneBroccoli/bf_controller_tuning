@@ -25,7 +25,7 @@ The measured controller transfer function is therefore compared with an analytic
 
 $$C_{PI,com}(ω) = C_{PI}(ω) / C_{PI,ana}(ω)$$
 
-This compensation factor represents the combined influence of dynamics that are not explicitly modeled, including the impact of I-Term Relax. The factor is subsequently applied to both the original analytical PI controller and the newly designed PI controller, resulting in the compensated controller transfer functions:
+This compensation factor represents the combined influence of dynamics that are not explicitly modeled, including the impact of I-Term Relax. The factor is then applied to both the original analytical PI controller and the newly designed PI controller, resulting in the compensated controller transfer functions:
 
 $$C_{PI,ana,new}(ω) = C_{PI,ana}(ω) · C_{PI,com}(ω)$$
 

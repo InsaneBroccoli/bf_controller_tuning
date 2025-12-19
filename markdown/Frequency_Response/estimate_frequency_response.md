@@ -53,7 +53,7 @@ The function implements the **Welch averaging method** [1], which provides a smo
    The signals are divided into short overlapping sections of length $N_\text{est}$ with overlap.
 
 2. **Windowing:**  
-   Each segment is multiplied by a window (e.g. Hann) to reduce spectral leakage.
+   Each segment is multiplied by a window (for example Hann) to reduce spectral leakage.
 
 3. **FFT and normalization:**  
    Each windowed segment is transformed using the FFT and normalized by  

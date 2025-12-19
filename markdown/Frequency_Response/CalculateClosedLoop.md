@@ -1,21 +1,21 @@
 # Closed-Loop Analysis
 
-The goal of the function `calculate_closed_loop` is to calculate the differnt parts of the complete closed-loop control system, including its transfer functions, sensitivity functions, compliance and controller effort. This allows us to analyze the different parts of the control system and understand how they interact to shape the overall system behavior.  
-This structure separates the control actions into an **inner loop** and an **outer loop**
+The goal of the function `calculate_closed_loop` is to calculate the different parts of the complete closed-loop control system, including its transfer functions, sensitivity functions, compliance and controller effort. This allows us to analyze the different parts of the control system and understand how they interact to shape the overall system behavior.  
+This structure separates the control actions into an **inner loop** and an **outer loop**.
 
 ---
 
 ## Transfer Functions
 
 The transfer functions describe how a signal is transformed as it passes through the different components of the control system.
-To calculate the transferfunction of the system, we have to split the control loop into an **inner** and an **outer** loop.
-First wie have to calculate the transferfunction of the inner loop (path from `u` to `y`). [1]
+To calculate the transfer function of the system, we have to split the control loop into an **inner** and an **outer** loop.
+First we have to calculate the transfer function of the inner loop (path from `u` to `y`). [1]
 
 $$L_{in}(\omega) = P(\omega) \cdot G_{f}(\omega)$$ $$\qquad G_{yu}(\omega) = \frac{L_{in}(\omega)}{1+L_{in}(\omega) \cdot G_{fD}(\omega) \cdot C_{D}(\omega)}$$
 
-With this Information we are able to calculate the hole closed loop system.
+With this information we are able to calculate the whole closed loop system.
 
-$$L_{out}(\omega) = G_{yu}(omega) \cdot C_{PI}(\omega)$$ $$\qquad G_{yw}(\omega) = \frac{L_{out}(\omega)}{1+L_{out}(\omega)}$$
+$$L_{out}(\omega) = G_{yu}(\omega) \cdot C_{PI}(\omega)$$ $$\qquad G_{yw}(\omega) = \frac{L_{out}(\omega)}{1+L_{out}(\omega)}$$
 
 <p align="center">
   <img src="./Images/Regelstrecke.png"

@@ -2,7 +2,7 @@
 
 This plot shows the timing accuracy of the flight controller throughout the entire flight. Each value represents the time difference between two logged samples, measured in microseconds. This allows you to see how stable and consistent the controller’s loop time was.
 
-A stable loop time is essential because the PID controller relies on consistent sampling intervals for correct operation. Variations in loop time can affect flight performance, and sudden spikes may indicate processor overload, logging delays, or sensor issues. 
+A stable loop time is essential because the PID controller relies on consistent sampling intervals for correct operation. Variations in loop time can affect flight performance and sudden spikes may indicate processor overload, logging delays, or sensor issues. 
 
 ## Loop Time Values
 
