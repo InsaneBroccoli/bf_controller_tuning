@@ -30,11 +30,11 @@ The discrete-time controllers (with sample time $T_s$) are constructed as:
 
 ### PI Controller
 
-$$C_{PI} = K_p\ \cdot G_f + K_i \cdot T_s \cdot \frac{1}{1-z^{-1}}$$
+$$C_{PI}(z) = K_p + K_i \cdot T_s \frac{z}{z-1}$$
 
 ### D Controller
 
-$$C_D = \frac{K_d}{T_s}(1 - z^{-1})$$
+$$C_D(z) = \frac{K_d}{T_s} \frac{1 - z^{-1}}{z^{-1}}$$
 
 The output of the implementation is:
 
