@@ -10,7 +10,7 @@ The workflow:
 1. Enable and configure the **chirp signal generator** in Betaflight ([see implementation below](#implementation-of-the-chirp-signal-generator-in-betaflight)).
 2. Perform flights with chirp excitation and log data (`.bbl` files).
 3. Convert `.bbl` files to `.csv` using the [Betaflight Blackbox Explorer]
-4. Use the MATLAB script [`bf_controller_tuning.m`](./bf_controller_tuning.m) together with the functions in [`lib/`](./lib) to:
+4. Use the MATLAB script [`main.m`](./main.m) together with the functions in [`lib/`](./lib) and the [`class`](./class) to:
    - Extract log data
    - Compute frequency responses and spectra
    - Display spectra and spectrograms
@@ -42,14 +42,6 @@ This generator outputs a signal that is added directly to currentPidSetpoint ins
 Because a typical rate-controlled closed-loop system exhibits differentiating behavior from `pidSetpoint` to `pidSum` at low frequencies (up to around 30 Hz), the chirp signal is shaped by a Lag Filter before being injected into the loop.
 
 In order to bring the `CHIRP` signal generator onto your drone, you must include it as a custom define while flashing the Betaflight 2025.12.xx Firmware. You can just type CHIRP into the Field under User Definitions (see picture below). After flashing the Firmware, the `CHIRP` mode appears in the modes tab.
-
-<p align="center">
-  <img src="./markdown/technical Documentation/Images/betaflight_firmware_flasher.png"
-     alt="Original noisy signals"
-     width="800"
-     style="float:center; margin-left:10px; margin-right:10px;">
-</p>
-
 
 It is recommended to assign the `CHIRP` mode to a non-momentary switch. During the first activation, the chirp is applied to the roll axis. After toggling the switch off and on, the signal is applied to the pitch axis and then to the yaw axis. After one full cycle it resets to the roll axis again. This allows repeated analysis of all axes as needed. The mode can be turned off and reactivated at any time.
 
