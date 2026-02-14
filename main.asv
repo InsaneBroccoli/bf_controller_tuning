@@ -44,7 +44,6 @@ resolution_factor_tf = 2;    % Window length for spectral analysis (seconds)
 overlap_tf = 0.9;              % Overlap factor for spectral analysis (0-1)
 gyro_tuning = gyro_tuning.calculate_transfer_func(resolution_factor_tf, overlap_tf);
 angle_tuning = angle_tuning.get_angle_data();
-angle_tuning = angle_tuning.calculate_Angle_trans(resolution_factor_tf, overlap_tf);
 %% Flight Analyser
 analysis_flight = flight_analyzer(data_flight.data, data_flight.ind, data_flight.Ts_log);
 
@@ -151,11 +150,8 @@ plotter.plot_Eval_Time();
 plotter.plot_Gyro_spectra(do_insert_legends);
 plotter.plot_Spectogram(3);
 
-%% Plot Gyro Tuning Data
+%% Plot Tuning Data
 plotter.plot_Bode_Plant(ind_ax);
 plotter.plot_Bode_Contr(ind_ax, do_insert_legends);
 plotter.plot_Gang_of_Four(do_insert_legends);
 plotter.plot_Step_Response(do_insert_legends);
-
-%% Plot Angle Tuning Data
-plotter.plot_angle_Data(ind_ax, do_insert_legends);
