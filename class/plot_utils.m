@@ -15,7 +15,8 @@ classdef plot_utils
     properties
         data_flight         % Objekt of Typ flight_data
         gyro_tuning         % Objekt of Typ flight_ctrl_tuning
-        analysis_flight     % Objekt of Typ flight_analyser        
+        analysis_flight     % Objekt of Typ flight_analyser 
+        angle_tuning
         do_insert_legends    (1,1) logical = true
         linewidth            (1,1) double  = 1.2
         colorOrder = get(0, 'DefaultAxesColorOrder')
@@ -25,11 +26,13 @@ classdef plot_utils
     
     end
     methods
-        function obj = plot_utils(data_flight, gyro_tuning, analysis_flight)
+        function obj = plot_utils(data_flight, gyro_tuning, analysis_flight, ...
+                angle_tuning)
             % Konstruktor: speichert die Objekte im Plot-Helper
             obj.data_flight      = data_flight;
             obj.gyro_tuning      = gyro_tuning;
             obj.analysis_flight  = analysis_flight;
+            obj.angle_tuning    =  angle_tuning;
         end
 
   %%
@@ -381,6 +384,67 @@ classdef plot_utils
             set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
 
         end
+%%
+    % =================================================================
+    %  FIGURE 10:
+    % =================================================================
+    %
+
+    function obj = plot_angle_Data(obj, ind_axis, do_insert_legends)
+        df = obj.data_flight;
+        at = obj.angle_tuning;
+
+        figure(10);clf;
+            set(gcf, 'Name', 'Angle Data');
+        subplot(2,1,1)
+        plot(df.time, df.data(:, df.ind.gyroADC(ind_axis)));
+        grid on;
+        title('Gyro Data')
+        xlabel('Time [s]');
+        ylabel('Angular Velocity');
+
+        subplot(2,1,2)
+        plot(df.time, rad2deg(df.data(:, df.ind.heading(ind_axis))));
+        hold on
+        plot(df.time, at.TargetAngle(:, ind_axis));
+        grid on;
+        title('Angle Output Data')
+        xlabel('Time [s]');
+        ylabel('Angle[deg]');
+        if do_insert_legends
+            legend('Output','Input');
+        end
+    end
+%%
+    % =================================================================
+        %  FIGURE 11: BODE PLOTS
+        % =================================================================
+        % Bode plot (Plant and Coherence) for selected axis
+        
+        function obj = plot_Bode_APlant(obj, ind_ax)
+            at = obj.angle_tuning;
+   
+            figure(expand_multiple_figure_nr(11, ind_ax));clf;
+            set(gcf, 'Name', ['Bode Plot - ', obj.axis_names{ind_ax}]);
+            opt = bode_plot_options('dB', 'linear', 'deg', 'Hz');
+
+            % --- Plant (Bode: magnitude + phase) ---
+            ax(1) = subplot('Position', obj.pos_bode(1,:));
+            bode(ax(1), at.P{ind_ax}, 'k', at.omega_bode, opt);
+            title(['Plant P - ', obj.axis_names{ind_ax}]);
+          
+            % --- Coherence (magnitude only) ---
+            ax(2) = subplot('Position', obj.pos_bode(2,:));
+            opt_coh = bode_plot_options('abs', 'linear', 'deg', 'Hz');
+
+            bodemag(ax(2), td.Coh{ind_ax}, td.omega_bode,'-k', opt_coh);
+            title(''); ylabel('Coherence'); ylim([0 1]);
+            linkaxes(ax, 'x'),xlim('auto'),
+            set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
+
+        end
+
+
 
     end
 end
