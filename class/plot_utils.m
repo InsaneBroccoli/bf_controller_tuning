@@ -271,7 +271,7 @@ classdef plot_utils
             td = obj.gyro_tuning;
    
             figure(expand_multiple_figure_nr(6, ind_ax));clf;
-            set(gcf, 'Name', ['Bode Plot - ', obj.axis_names{ind_ax}]);
+            set(gcf, 'Name', ['Bode Plot Angular Rate - ', obj.axis_names{ind_ax}]);
             opt = bode_plot_options('dB', 'linear', 'deg', 'Hz');
 
             % --- Plant (Bode: magnitude + phase) ---
@@ -302,7 +302,7 @@ classdef plot_utils
             opt = bode_plot_options('dB', 'linear', 'deg', 'Hz');
             
             figure(expand_multiple_figure_nr(7, ind_ax));clf;
-            set(gcf, 'Name', ['Bode Controller - ', obj.axis_names{ind_ax}]);
+            set(gcf, 'Name', ['Bode Controller Angular Rate - ', obj.axis_names{ind_ax}]);
             bode(td.Cpi{ind_ax}, td.Cpi_ana{ind_ax},td.Cd{ind_ax}, ...
                 td.Cd_ana{ind_ax}, td.omega_bode, opt)              
             if do_insert_legends
@@ -326,7 +326,7 @@ classdef plot_utils
             ind_ax = td.ind_ax;
 
             figure(expand_multiple_figure_nr(8, ind_ax))
-            set(gcf, 'Name', ['Gang of Four - ', obj.axis_names{ind_ax}]);
+            set(gcf, 'Name', ['Gang of Four Angular Rate - ', obj.axis_names{ind_ax}]);
             
             % --- T: Tracking ---------------
             ax(1) = subplot(2,2,1);
@@ -366,7 +366,7 @@ classdef plot_utils
             td = obj.gyro_tuning;
             
             figure(expand_multiple_figure_nr(9, td.ind_ax))
-            set(gcf, 'Name', ['Step Response - ', obj.axis_names{td.ind_ax}]);
+            set(gcf, 'Name', ['Step Response Angular Rate - ', obj.axis_names{td.ind_ax}]);
             % --- Step Response Plot ---
             ax(1) = subplot(2,1,1);
             plot(ax(1), td.step_time, td.step_resp_tra), grid on, ylabel('Gyro (deg/sec)')
@@ -425,7 +425,7 @@ classdef plot_utils
             at = obj.angle_tuning;
    
             figure(expand_multiple_figure_nr(11, ind_ax));clf;
-            set(gcf, 'Name', ['Bode Plot - ', obj.axis_names{ind_ax}]);
+            set(gcf, 'Name', ['Bode Plot Angle - ', obj.axis_names{ind_ax}]);
             opt = bode_plot_options('dB', 'linear', 'deg', 'Hz');
 
             % --- Plant (Bode: magnitude + phase) ---
@@ -437,11 +437,11 @@ classdef plot_utils
             ax(2) = subplot('Position', obj.pos_bode(2,:));
             opt_coh = bode_plot_options('abs', 'linear', 'deg', 'Hz');
 
-            bodemag(ax(2), td.Coh{ind_ax}, td.omega_bode,'-k', opt_coh);
+            bodemag(ax(2), at.Coh{ind_ax}, at.omega_bode,'-k', opt_coh);
             title(''); ylabel('Coherence'); ylim([0 1]);
             linkaxes(ax, 'x'),xlim('auto'),
             set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
-
+          
         end
 
 
