@@ -90,24 +90,37 @@ classdef angle_ctrl_tuning
             
                 % Check where the Chirp Signal was activated
                 ind_eval = get_ind_eval(dataf.data(:,dataf.ind.sinarg), ...
-                    dataf.data(:,dataf.ind.heading(ind_axis)));
+                    dataf.data(:,dataf.ind.gyroADC(ind_axis)));
 
                 sinarg_ax = sinarg_full;
                 sinarg_ax(~ind_eval) = 0;
 
                 % ----- Input signal: w (filtered setpoint for this axis) -----
-                w = dataf.data(:, dataf.ind.setpoint(ind_axis));
+                w = obj.TargetAngle(:, ind_axis);
                 inp = apply_rotfiltfilt(Glp, sinarg_ax, w);
 
                 % ----- Output y: Angle for this axis -----
-                y = dataf.data(:, dataf.ind.gyroADC(ind_axis));
+                y = dataf.data(:, dataf.ind.heading(ind_axis));
                 out_y = apply_rotfiltfilt(Glp, sinarg_ax, y);
 
                 % Calculate complementary sensitivity (T) and input-output responses
-                % T  , Gyw: w -> y
+                % T  , Gyw: Target Angle -> Current Angle
                 [T_ax, C_T_ax] = estimate_frequency_response( ...
                     inp(ind_eval), out_y(ind_eval), window, Noverlap, ...
                     Nest, dataf.Ts_log);
+
+                % Calculate control sensitivity (Represents total controller output response)
+                % SCw, Guw: Target Angle -> Current Angular Rate
+                u = dataf.data(:, dataf.ind.gyroADC);
+                out_u = apply_rotfiltfilt(Glp, sinarg_ax, u);
+                [Guw_ax, C_Guw_ax] = estimate_frequency_response( ...
+                    inp(ind_eval), out_u(ind_eval), window, Noverlap, ...
+                    Nest, dataf.Ts_log);
+
+                % Calculate plant response (indirect method: P = T/Guw for better noise immunity)
+                % P  , Gyu: Current Angular Rate -> Current Angle
+                P = T_ax / Guw_ax;
+
 
                 % Prepare frequency vector for Bode plotspara
                 omega_bode_ax = 2*pi*T_ax.Frequency;    % Convert Hz to rad/s
@@ -115,6 +128,8 @@ classdef angle_ctrl_tuning
                 % ----- Store for this axis -----
                 obj.T{ind_axis}   = T_ax;
                 obj.C_T{ind_axis} = C_T_ax;
+                obj.P{ind_axis} = P;
+                obj.Coh{ind_axis} = C_T_ax * C_Guw_ax;
                 obj.omega_bode = omega_bode_ax;
                 
             end

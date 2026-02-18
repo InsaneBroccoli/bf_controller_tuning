@@ -66,7 +66,7 @@ analysis_flight = analysis_flight.calculate_spectogram(resolution_factor_spectog
 %  Axis Selection: 1: roll, 2: pitch, 3: yaw
 % =========================================================================
 
-ind_ax = 2;     % keep it now until plot_utils is finished
+ind_ax = 1;     % keep it now until plot_utils is finished
 
 % I-term Relax on/off
 do_compensate_iterm = true;
@@ -159,3 +159,4 @@ plotter.plot_Step_Response(do_insert_legends);
 
 %% Plot Angle Tuning Data
 plotter.plot_angle_Data(ind_ax, do_insert_legends);
+plotter.plot_Bode_APlant(ind_ax);
