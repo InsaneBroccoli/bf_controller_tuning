@@ -15,12 +15,13 @@
 % and controller analysis.
 
 
-classdef angle_ctrl_tuning
+classdef angle_ctrl_tuning < handle
     properties
         data_flight     % Get all data and parameters
         gyro_tuning     % Get values of the inner cascade
         TargetAngle
-        % Neede in different function
+    
+        % Needed in different functions
         T
         Guw
         Gvw
@@ -31,7 +32,30 @@ classdef angle_ctrl_tuning
         C_Guw
         P_gef
         Coh
+    
+        % Filters / controller
+        Gf_ana
+        Gf_new
+        Cp_new
+        Cp_ana
+    
+        % store used cutoffs for step-response f_max
+        angle_fcut_ana
+        angle_fcut_new
+    
+        % analysis helpers
         omega_bode
+        Nest
+        step_time
+    
+        % closed-loop results
+        T_ana
+        T_ana_new
+        Se_ana
+        Se_ana_new
+    
+        % step response
+        step_resp_tra
     end
     methods
 
@@ -41,99 +65,160 @@ classdef angle_ctrl_tuning
             obj.gyro_tuning = gyro_tuning;
         end
 
-       function obj = get_angle_data(obj)
-            dataf = obj.data_flight;
-            angleLimit = 60;
-        
-            angleTarget = zeros(size(dataf.data,1), 2);   % prealloc
-        
-            for ind_axis = 1:2
-                InvmaxRcRate = 1 / getMaxRcRate(ind_axis, dataf.para.rates_type, ...
-                    dataf.para.rc_expo, dataf.para.rc_rates, dataf.para.rates);
-        
-                currentSetpoint = dataf.data(:, dataf.ind.setpoint(ind_axis));
-                angleTarget(:, ind_axis) = angleLimit .* currentSetpoint .* InvmaxRcRate;
-            end
-        
-            obj.TargetAngle = angleTarget;
-       end
        function obj = calculate_Angle_trans(obj, Nestfatra, koverlaptra)
-           dataf = obj.data_flight;
-
+            dataf = obj.data_flight;
+        
             % Analysis window parameters
-            Nest     = round(Nestfatra / dataf.Ts_log);    % Window length in samples
-            Noverlap = floor(koverlaptra * Nest);        % Overlap between windows
-            window   = hann(Nest, 'periodic');               % Hanning window for analysis
-
-            % Design linear filter for zero phase excitation filter (apply_rotfiltfilt)
-            Dlp = sqrt(3) / 2;    % Damping ratio
-            wlp = 2 * pi * 10;    % Cutoff frequency [rad/s]
-            Glp = c2d(tf(wlp^2, [1 2*Dlp*wlp wlp^2]), ...    % Discrete filter
-                    dataf.Ts_log, 'tustin');                   % Using Tustin transform
-
+            obj.Nest   = round(Nestfatra / dataf.Ts_log);
+            Noverlap   = floor(koverlaptra * obj.Nest);
+            window     = hann(obj.Nest, 'periodic');
+        
+            % Excitation filter
+            Dlp = sqrt(3) / 2;
+            wlp = 2 * pi * 10;
+            Glp = c2d(tf(wlp^2, [1 2*Dlp*wlp wlp^2]), dataf.Ts_log, 'tustin');
+        
             % Preallocate cells for 2 axes
-            n_axes = 2;
-            obj.T   = cell(1, n_axes);
-            obj.Guw = cell(1, n_axes);
-            obj.Gvw = cell(1, n_axes);
+            n_axes  = 2;
             obj.P   = cell(1, n_axes);
-            obj.Cpi = cell(1, n_axes);
-            obj.Cd  = cell(1, n_axes);
-            obj.C_T   = cell(1, n_axes);
-            obj.C_Guw = cell(1, n_axes);
-            obj.P_gef = cell(1, n_axes);
+            obj.C_T = cell(1, n_axes);
             obj.Coh = cell(1, n_axes);
-
-            sinarg_full = dataf.data(:, dataf.ind.sinarg);  % Copy Data to adjust it
-
-            for ind_axis = 1:n_axes       % Calculate Transferfunction for Roll, Pitch and Yaw
-            
-                % Check where the Chirp Signal was activated
-                ind_eval = get_ind_eval(dataf.data(:,dataf.ind.sinarg), ...
+        
+            % --- Define analysis filter once ---
+            fc = 50;  % Hz  (dein "Angle PT3")
+            obj.angle_fcut_ana = fc;
+            obj.Gf_ana = get_filter('pt3', fc, dataf.Ts_cntr);  % should be discrete
+            Cp_ana_ax = ss(dataf.para.levelPID(1)/10);
+        
+            sinarg_full = dataf.data(:, dataf.ind.sinarg);
+        
+            for ind_axis = 1:n_axes
+        
+                ind_eval = get_ind_eval( ...
+                    dataf.data(:,dataf.ind.sinarg), ...
                     dataf.data(:,dataf.ind.gyroADC(ind_axis)));
-
+        
                 sinarg_ax = sinarg_full;
                 sinarg_ax(~ind_eval) = 0;
-
-                % ----- Input signal: w (filtered setpoint for this axis) -----
-                w = obj.TargetAngle(:, ind_axis);
+        
+                % Input signal
+                w = dataf.data(:, dataf.ind.gyroADC(ind_axis));
                 inp = apply_rotfiltfilt(Glp, sinarg_ax, w);
-
-                % ----- Output y: Angle for this axis -----
+        
+                % Output signal (Angle)
                 y = dataf.data(:, dataf.ind.heading(ind_axis));
                 out_y = apply_rotfiltfilt(Glp, sinarg_ax, y);
-
-                % Calculate complementary sensitivity (T) and input-output responses
-                % T  , Gyw: Target Angle -> Current Angle
-                [T_ax, C_T_ax] = estimate_frequency_response( ...
-                    inp(ind_eval), out_y(ind_eval), window, Noverlap, ...
-                    Nest, dataf.Ts_log);
-
-                % Calculate control sensitivity (Represents total controller output response)
-                % SCw, Guw: Target Angle -> Current Angular Rate
-                u = dataf.data(:, dataf.ind.gyroADC);
-                out_u = apply_rotfiltfilt(Glp, sinarg_ax, u);
-                [Guw_ax, C_Guw_ax] = estimate_frequency_response( ...
-                    inp(ind_eval), out_u(ind_eval), window, Noverlap, ...
-                    Nest, dataf.Ts_log);
-
-                % Calculate plant response (indirect method: P = T/Guw for better noise immunity)
-                % P  , Gyu: Current Angular Rate -> Current Angle
-                P = T_ax / Guw_ax;
-
-
-                % Prepare frequency vector for Bode plotspara
-                omega_bode_ax = 2*pi*T_ax.Frequency;    % Convert Hz to rad/s
-
-                % ----- Store for this axis -----
-                obj.T{ind_axis}   = T_ax;
+        
+                % FRD estimate (this returns FRD on FFT-friendly grid)
+                [P_ax, C_T_ax] = estimate_frequency_response( ...
+                    inp(ind_eval), out_y(ind_eval), window, Noverlap, obj.Nest, dataf.Ts_log);
+        
                 obj.C_T{ind_axis} = C_T_ax;
-                obj.P{ind_axis} = P;
-                obj.Coh{ind_axis} = C_T_ax * C_Guw_ax;
-                obj.omega_bode = omega_bode_ax;
+                obj.Coh{ind_axis} = C_T_ax;
+                obj.omega_bode    = 2*pi*P_ax.Frequency;
+
+                  % Downsample to logging grid if necessary
+                if obj.Gf_ana.Ts < dataf.Ts_log
+                    obj.Gf_ana  = downsample_frd(obj.Gf_ana , dataf.Ts_log, P_ax.Frequency);
+                    Cp_ana_ax = downsample_frd(Cp_ana_ax, dataf.Ts_log, P_ax.Frequency);
+                end
                 
+                obj.Cp_ana{ind_axis} = Cp_ana_ax;
+                % Remove filter from identified response (keep FRD)
+                % obj.P{ind_axis} = P_ax / obj.Gf_ana;
+                obj.P{ind_axis} = P_ax;
             end
        end
 
+       function obj = calculate_new_controller(obj, P_new, default_parameters, para_new)
+
+            dataf = obj.data_flight;
+        
+            if default_parameters
+                P_new = dataf.para.levelPID(1);
+            end
+        
+            fprintf('   used P parameter Angle Control are:\n');
+            fprintf('      P: %d\n', dataf.para.levelPID(1));
+          
+            % Store new controller as discrete gain on Ts_log
+            Cp = tf(P_new/10, 1, dataf.Ts_log);   % diskrete TF
+            Cp = ss(Cp);                         % Umwandlung in Zustandsraum
+            obj.Cp_new = Cp;
+        
+            % New angle filter (PT3) on Ts_log
+            obj.Gf_new = get_filter('pt3', para_new.angle_lpf_hz, dataf.Ts_log);
+        end
+
+
+        function obj = get_tuning_data(obj, ind_ax)
+
+            gt    = obj.gyro_tuning;
+            dataf = obj.data_flight;
+        
+            % --- Axis pick ---
+            Tg = gt.T{ind_ax};     % FRD (inner loop complementary sensitivity)
+            Pg = obj.P{ind_ax};    % FRD (measured rate -> angle plant, filter removed)
+            
+            % --- Make FRDs consistent without resampling Tg/Pg (avoid Hz/rad/s traps) ---
+            Tg_frd = Tg;  Tg_frd.Ts = dataf.Ts_log;
+            Pg_frd = Pg;  Pg_frd.Ts = dataf.Ts_log;
+            
+            % Use the measured frequency grid (in Hz) and convert to rad/s ONLY for frd(sys,omega)
+            freqHz = Pg_frd.Frequency(:);     % Hz
+            omega  = 2*pi*freqHz;             % rad/s
+            
+            % Convert discrete models to FRD on the SAME omega grid
+            Cp_new_frd = frd(obj.Cp_new, omega);  Cp_new_frd.Ts = dataf.Ts_log;
+            Gf_new_frd = frd(obj.Gf_new, omega);  Gf_new_frd.Ts = dataf.Ts_log;
+            
+            % Old models also on the same grid (for fair comparison)
+            Cp_ana_frd = frd(obj.Cp_ana{ind_ax}, omega);  Cp_ana_frd.Ts = dataf.Ts_log;
+            Gf_ana_frd = frd(obj.Gf_ana, omega);         Gf_ana_frd.Ts = dataf.Ts_log;
+            
+            % --- OPTIONAL: if response looks "flipped", try a sign correction on Pg ---
+            % (use phase check instead of guessing if you want)
+            % If your step goes negative or phase looks wrong, uncomment:
+            % Pg_frd = -Pg_frd;
+            
+            % --- Closed loop (old) ---
+            L_ana  = Cp_ana_frd .* Tg_frd .* Gf_ana_frd .* Pg_frd;
+            Cl_ana = L_ana / (1 + L_ana);
+            S_ana  = 1 / (1 + L_ana);
+            
+            % --- Closed loop (new) using measured Pg (NOT Pg_test) ---
+            L_new      = Cp_new_frd .* Tg_frd .* Gf_new_frd .* Pg_frd;
+            Cl_ana_new = L_new / (1 + L_new);
+            S_ana_new  = 1 / (1 + L_new);
+            
+            % Store
+            obj.T_ana      = Cl_ana;
+            obj.T_ana_new  = Cl_ana_new;
+            obj.Se_ana     = S_ana;
+            obj.Se_ana_new = S_ana_new;
+
+        
+            % --- f_max choice for PT3 + cap to FRD max ---
+            f_nyq    = 1/(2*dataf.Ts_log);
+            f_cut    = obj.angle_fcut_ana;           % use analysis filter cutoff
+            f_frdmax = min([max(Pg.Frequency), max(Tg.Frequency)]);
+        
+            f_max = min([50, 0.25*f_nyq, f_frdmax]);
+        
+            % Time vector (consistent with Nest)
+            T_mean = 0.1 * [-1, 1] + (obj.Nest * dataf.Ts_log) / 2;
+            obj.step_time = (0:obj.Nest-1).' * dataf.Ts_log;
+        
+            % Step responses (FRD in -> your IFFT method works)
+            step_resp = [ ...
+                calculate_step_response_from_frd(Cl_ana    , f_max), ...
+                calculate_step_response_from_frd(Cl_ana_new, f_max) ];
+        
+            % Normalize around mean window
+            idx_mean = (obj.step_time > T_mean(1)) & (obj.step_time < T_mean(2));
+            step_resp_mean = mean(step_resp(idx_mean,:), 1);
+            obj.step_resp_tra = step_resp ./ step_resp_mean;
+        end
     end
+    
 end
