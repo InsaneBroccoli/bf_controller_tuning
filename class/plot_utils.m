@@ -15,7 +15,8 @@ classdef plot_utils
     properties
         data_flight         % Objekt of Typ flight_data
         gyro_tuning         % Objekt of Typ flight_ctrl_tuning
-        analysis_flight     % Objekt of Typ flight_analyser        
+        analysis_flight     % Objekt of Typ flight_analyser 
+        angle_tuning
         do_insert_legends    (1,1) logical = true
         linewidth            (1,1) double  = 1.2
         colorOrder = get(0, 'DefaultAxesColorOrder')
@@ -25,11 +26,13 @@ classdef plot_utils
     
     end
     methods
-        function obj = plot_utils(data_flight, gyro_tuning, analysis_flight)
+        function obj = plot_utils(data_flight, gyro_tuning, analysis_flight, ...
+                angle_tuning)
             % Konstruktor: speichert die Objekte im Plot-Helper
             obj.data_flight      = data_flight;
             obj.gyro_tuning      = gyro_tuning;
             obj.analysis_flight  = analysis_flight;
+            obj.angle_tuning    =  angle_tuning;
         end
 
   %%
@@ -268,7 +271,7 @@ classdef plot_utils
             td = obj.gyro_tuning;
    
             figure(expand_multiple_figure_nr(6, ind_ax));clf;
-            set(gcf, 'Name', ['Bode Plot - ', obj.axis_names{ind_ax}]);
+            set(gcf, 'Name', ['Bode Plot Angular Rate - ', obj.axis_names{ind_ax}]);
             opt = bode_plot_options('dB', 'linear', 'deg', 'Hz');
 
             % --- Plant (Bode: magnitude + phase) ---
@@ -299,7 +302,7 @@ classdef plot_utils
             opt = bode_plot_options('dB', 'linear', 'deg', 'Hz');
             
             figure(expand_multiple_figure_nr(7, ind_ax));clf;
-            set(gcf, 'Name', ['Bode Controller - ', obj.axis_names{ind_ax}]);
+            set(gcf, 'Name', ['Bode Controller Angular Rate - ', obj.axis_names{ind_ax}]);
             bode(td.Cpi{ind_ax}, td.Cpi_ana{ind_ax},td.Cd{ind_ax}, ...
                 td.Cd_ana{ind_ax}, td.omega_bode, opt)              
             if do_insert_legends
@@ -323,7 +326,7 @@ classdef plot_utils
             ind_ax = td.ind_ax;
 
             figure(expand_multiple_figure_nr(8, ind_ax))
-            set(gcf, 'Name', ['Gang of Four - ', obj.axis_names{ind_ax}]);
+            set(gcf, 'Name', ['Gang of Four Angular Rate - ', obj.axis_names{ind_ax}]);
             
             % --- T: Tracking ---------------
             ax(1) = subplot(2,2,1);
@@ -363,7 +366,7 @@ classdef plot_utils
             td = obj.gyro_tuning;
             
             figure(expand_multiple_figure_nr(9, td.ind_ax))
-            set(gcf, 'Name', ['Step Response - ', obj.axis_names{td.ind_ax}]);
+            set(gcf, 'Name', ['Step Response Angular Rate - ', obj.axis_names{td.ind_ax}]);
             % --- Step Response Plot ---
             ax(1) = subplot(2,1,1);
             plot(ax(1), td.step_time, td.step_resp_tra), grid on, ylabel('Gyro (deg/sec)')
@@ -381,6 +384,94 @@ classdef plot_utils
             set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
 
         end
+%%
+    % =================================================================
+    %  FIGURE 10:
+    % =================================================================
+    %
+
+    function obj = plot_angle_Data(obj, ind_axis, do_insert_legends)
+        df = obj.data_flight;
+        at = obj.angle_tuning;
+
+        figure(10);clf;
+            set(gcf, 'Name', 'Angle Data');
+        subplot(2,1,1)
+        plot(df.time, df.data(:, df.ind.gyroADC(ind_axis)));
+        hold on
+        plot(df.time, df.data(:, df.ind.setpoint(ind_axis)));
+        grid on;
+        title('Gyro Data')
+        xlabel('Time [s]');
+        ylabel('Angular Velocity');
+
+        subplot(2,1,2)
+        plot(df.time, rad2deg(df.data(:, df.ind.heading(ind_axis))));
+        % hold on
+        % plot(df.time, at.TargetAngle(:, ind_axis));
+        grid on;
+        title('Angle Output Data')
+        xlabel('Time [s]');
+        ylabel('Angle[deg]');
+        if do_insert_legends
+            legend('Output','Input');
+        end
+    end
+%%
+    % =================================================================
+        %  FIGURE 11: BODE PLOTS
+        % =================================================================
+        % Bode plot (Plant and Coherence) for selected axis
+        
+        function obj = plot_Bode_APlant(obj, ind_ax)
+            at = obj.angle_tuning;
+            
+   
+            figure(expand_multiple_figure_nr(11, ind_ax));clf;
+            set(gcf, 'Name', ['Bode Plot Angle - ', obj.axis_names{ind_ax}]);
+            opt = bode_plot_options('dB', 'linear', 'deg', 'Hz');
+
+            % --- Plant (Bode: magnitude + phase) ---
+            ax(1) = subplot('Position', obj.pos_bode(1,:));
+            bode(ax(1), at.P{ind_ax}, 'k', at.omega_bode, opt);
+            title(['Plant P - ', obj.axis_names{ind_ax}]);
+          
+            % --- Coherence (magnitude only) ---
+            ax(2) = subplot('Position', obj.pos_bode(2,:));
+            opt_coh = bode_plot_options('abs', 'linear', 'deg', 'Hz');
+
+            bodemag(ax(2), at.Coh{ind_ax}, at.omega_bode,'-k', opt_coh);
+            title(''); ylabel('Coherence'); ylim([0 1]);
+            linkaxes(ax, 'x'),xlim('auto'),
+            set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth)
+          
+        end
+
+
+         %%
+        % =================================================================
+        %  FIGURE 9: Step Response
+        % =================================================================
+        % Step Response of choicen axis
+
+        function obj = plot_Step_Response_Angle(obj, do_insert_legends)
+
+            at = obj.angle_tuning;
+            gt = obj.gyro_tuning;
+            
+            figure(expand_multiple_figure_nr(12, gt.ind_ax))
+            set(gcf, 'Name', ['Step Response Angular Rate - ', obj.axis_names{gt.ind_ax}]);
+            % --- Step Response Plot ---
+         
+            plot(at.step_time, at.step_resp_tra), grid on, ylabel('Gyro (deg/sec)')
+            if do_insert_legends, legend('actual calculated', ...
+                    'new calculated', 'location', 'best'), end
+            % ylim(ax(1), 'auto');
+            title(['Tracking T - ', obj.axis_names{gt.ind_ax}]);
+
+        end
+
+
 
     end
 end

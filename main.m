@@ -27,8 +27,8 @@ do_insert_legends = true;
 % =========================================================================
 
 log_folder = 'logs';
-flight_folder = '20251212';
-log_name = '06_20251212_OvershootExpress.TXT.csv';
+flight_folder = '20260223';
+log_name = '20260223_OvershootExpress.csv';
 file_path = fullfile(log_folder, flight_folder, log_name);
 
 data_flight = flight_data(file_path);
@@ -38,12 +38,19 @@ data_flight = data_flight.get_data();
 gyro_tuning = gyro_ctrl_tuning(data_flight.data, data_flight.ind, data_flight.Ts_log, ...
     data_flight.para, data_flight.Ts_cntr);
 
+angle_tuning = angle_ctrl_tuning(data_flight,gyro_tuning);
+
+
+%%
+
 resolution_factor_tf = 2;    % Window length for spectral analysis (seconds)
 overlap_tf = 0.9;              % Overlap factor for spectral analysis (0-1)
 gyro_tuning = gyro_tuning.calculate_transfer_func(resolution_factor_tf, overlap_tf);
-
+angle_tuning = angle_tuning.calculate_Angle_trans(resolution_factor_tf, overlap_tf);
 %% Flight Analyser
 analysis_flight = flight_analyzer(data_flight.data, data_flight.ind, data_flight.Ts_log);
+
+%%
 
 % Data for Spectra
 resolution_factor_spectra = 2;    % Window length for spectral analysis (seconds)
@@ -63,7 +70,7 @@ analysis_flight = analysis_flight.calculate_spectogram(resolution_factor_spectog
 %  Axis Selection: 1: roll, 2: pitch, 3: yaw
 % =========================================================================
 
-ind_ax = 2;     % keep it now until plot_utils is finished
+ind_ax = 1;     % keep it now until plot_utils is finished
 
 % I-term Relax on/off
 do_compensate_iterm = true;
@@ -110,6 +117,10 @@ para_new.dterm_notch_hz      = 0;       % frequency of dterm notch
 para_new.dterm_notch_cutoff  = 0;     % Cutoff frequency dterm notch
 para_new.yaw_lpf_hz          = 200;     % frequency of yaw lpf (pt1)
 
+% PT3 Angle Control
+
+para_new.angle_lpf_hz          = 50;     % frequency of Angle lpf (PT3)
+
 %--------------------------------------------------------------------------
 %  tune your PIDs here
 %--------------------------------------------------------------------------
@@ -133,11 +144,20 @@ switch ind_ax
         D_new       = 1;
 end
 
+P_Angle = 100;
+
 gyro_tuning = gyro_tuning.calculate_new_controller(ind_ax, P_new, I_new, D_new, ...
     default_parameters, para_new);
 gyro_tuning = gyro_tuning.get_tuning_data(do_compensate_iterm);
 
-plotter = plot_utils(data_flight, gyro_tuning, analysis_flight);
+angle_tuning = angle_tuning.calculate_new_controller(P_Angle, ...
+    default_parameters, para_new);
+
+angle_tuning = angle_tuning.get_tuning_data(ind_ax);
+
+%%
+
+plotter = plot_utils(data_flight, gyro_tuning, analysis_flight,angle_tuning);
 
 %% Plot Gyro Data
 plotter.plot_Gyro_Signal(do_insert_legends);
@@ -148,8 +168,13 @@ plotter.plot_Eval_Time();
 plotter.plot_Gyro_spectra(do_insert_legends);
 plotter.plot_Spectogram(3);
 
-%% Plot Tuning Data
+%% Plot Gyro Tuning Data
 plotter.plot_Bode_Plant(ind_ax);
 plotter.plot_Bode_Contr(ind_ax, do_insert_legends);
 plotter.plot_Gang_of_Four(do_insert_legends);
 plotter.plot_Step_Response(do_insert_legends);
+
+%% Plot Angle Tuning Data
+plotter.plot_angle_Data(ind_ax, do_insert_legends);
+plotter.plot_Bode_APlant(ind_ax);
+plotter.plot_Step_Response_Angle(do_insert_legends);
