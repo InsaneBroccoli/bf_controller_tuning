@@ -6,7 +6,7 @@ clc, clear variables
 addpath('../lib');
 
 %% 1. DEFINE FILE PATH
-file_path = '../20250908/20250908_flipmini_00.bbl.csv';
+file_path = '../logs/20250907/20250907_aosmini_00.bbl.csv';
 
 %% 2. READ THE ENTIRE FILE
 fprintf('Reading CSV file...\n');

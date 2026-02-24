@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from typing import List, Tuple
 from scipy.io import loadmat
 
-bbl_data_path = Path("../20250908/20250908_flipmini_00.bbl.csv")
+bbl_data_path = Path("./logs/20250907/20250907_aosmini_00.bbl.csv")
 
 
 @dataclass
@@ -186,12 +186,12 @@ def main():
     print(f"\nTotal execution time: {time_elapsed:.2f} seconds")
 
     # Verify results against MATLAB reference
-    output_data = Path("./testing/output.mat")
+    output_data = Path("./python/testing/output.mat")
     test_output(output_data, time_step, step_resp)
 
     plt.tight_layout()
     plt.show()
-
+    
 
 if __name__ == "__main__":
     main()
