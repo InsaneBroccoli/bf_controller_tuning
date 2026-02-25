@@ -27,8 +27,8 @@ do_insert_legends = true;
 % =========================================================================
 
 log_folder = 'logs';
-flight_folder = '20260223';
-log_name = '20260223_OvershootExpress.csv';
+flight_folder = '20251208';
+log_name = '01_20251208_OvershootExpress.csv';
 file_path = fullfile(log_folder, flight_folder, log_name);
 
 data_flight = flight_data(file_path);
@@ -39,9 +39,6 @@ gyro_tuning = gyro_ctrl_tuning(data_flight.data, data_flight.ind, data_flight.Ts
     data_flight.para, data_flight.Ts_cntr);
 
 angle_tuning = angle_ctrl_tuning(data_flight,gyro_tuning);
-
-
-%%
 
 resolution_factor_tf = 2;    % Window length for spectral analysis (seconds)
 overlap_tf = 0.9;              % Overlap factor for spectral analysis (0-1)
@@ -76,7 +73,7 @@ ind_ax = 1;     % keep it now until plot_utils is finished
 do_compensate_iterm = true;
 
 % Transfer Function
-Nestfatra = 2.0;                 % Window length for spectral analysis (seconds)
+Nestfatra = 5.0;                 % Window length for spectral analysis (seconds)
 koverlaptra = 0.9;               % Overlap factor for spectral analysis (0-1) 
 
 % New and old parameters are the same
@@ -118,7 +115,6 @@ para_new.dterm_notch_cutoff  = 0;     % Cutoff frequency dterm notch
 para_new.yaw_lpf_hz          = 200;     % frequency of yaw lpf (pt1)
 
 % PT3 Angle Control
-
 para_new.angle_lpf_hz          = 50;     % frequency of Angle lpf (PT3)
 
 %--------------------------------------------------------------------------

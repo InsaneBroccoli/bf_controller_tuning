@@ -1,0 +1,427 @@
+%==========================================================================
+% PLOT_UTILS - Betaflight Controller Analysis Visualization Class
+%==========================================================================
+% Purpose: 
+% This class provides visualization methods for analyzing quadcopter 
+% flight controller performance and tuning data.
+%
+% Author: [Janick Dort, Yuri Bianchi, Dario Jurietti]
+% Supervisor: [Michael Peter]
+% Date: [25.11.2025]
+%==========================================================================
+
+classdef plot_utils1
+
+    properties
+        data_flight         % Objekt of Typ flight_data
+        gyro_tuning         % Objekt of Typ flight_ctrl_tuning
+        analysis_flight     % Objekt of Typ flight_analyser 
+        angle_tuning
+        do_insert_legends    (1,1) logical = true
+        linewidth            (1,1) double  = 1.2
+        colorOrder = get(0, 'DefaultAxesColorOrder')
+        axis_names cell = {'Roll', 'Pitch', 'Yaw'}
+        pos_bode double = [0.1514+0.05, 0.5838-0.2, 0.7536, 0.3472+0.2; ...
+                           0.1514+0.05, 0.08,       0.7536, 0.2017] 
+    
+    end
+    methods
+        function obj = plot_utils1(legend)
+            % Konstruktor: speichert die Objekte im Plot-Helper
+            obj.do_insert_legends      = legend;
+        end
+        % =================================================================
+        %  FIGURE 1: Flight Data
+        % =================================================================
+        % Plot any Flight Data you want
+
+        function plotFlightData(obj, df, groups, figTitle)
+
+            nSubplots = length(groups);
+            fig = figure('Name', figTitle, ...
+             'NumberTitle','off');
+        
+            if nargin > 3
+                sgtitle(figTitle);   % Gesamt-Titel über allen Subplots
+            end
+        
+            indNames = fieldnames(df.ind);
+        
+            for i = 1:nSubplots
+                ax = subplot(nSubplots,1,i);
+                hold(ax,'on')
+        
+                idxList = groups{i}.idx;
+                legendEntries = strings(1, length(idxList));
+        
+                for k = 1:length(idxList)
+                    idx = idxList(k);
+        
+                    plot(ax, df.time, df.data(:, idx), ...
+                         'LineWidth', obj.linewidth);
+        
+                    for n = 1:length(indNames)
+                        if any(df.ind.(indNames{n}) == idx)
+                            legendEntries(k) = indNames{n};
+                            break
+                        end
+                    end
+                end
+        
+                grid(ax,'on')
+        
+                if obj.do_insert_legends
+                    legend(ax, legendEntries, 'Interpreter','none','Location','best');
+                end
+        
+                ylabel(ax, groups{i}.ylabel)
+        
+                if i == nSubplots
+                    xlabel(ax,'Time [s]');
+                end
+            end
+        end
+        
+%%
+        % =================================================================
+        %  FIGURE 3: Convert and evaluation time
+        % =================================================================
+
+        function obj = plot_Eval_Time(obj, time)
+
+            df = obj.data_flight;
+        
+            % ---- Figure Handling (immer gleiche Figure überschreiben) ----
+            fig = findobj('Type','figure','Name','Evaluation Time Flight');
+        
+            if isempty(fig)
+                fig = figure('Name','Evaluation Time Flight', ...
+                             'NumberTitle','off');
+            else
+                figure(fig);
+                clf(fig);
+            end
+        
+            % ---- Plot ----
+            delta_time_mus = diff(time)*1.0e6;
+        
+            plot(time(1:end-1), delta_time_mus)
+            grid on
+        
+            title(sprintf('Mean: %0.2f us, Median: %0.2f us, Std: %0.2f us', ...
+                  mean(delta_time_mus), ...
+                  median(delta_time_mus), ...
+                  std(delta_time_mus)))
+        
+            xlabel('Time (sec)')
+            ylabel('Ts log (us)')
+        
+            xlim([0, time(end)])
+        
+            set(findall(fig, 'type', 'line'), ...
+                'LineWidth', obj.linewidth)
+        end
+
+         %%
+        % =================================================================
+        %  FIGURE 4: GYRO SPECTRA
+        % =================================================================
+        % Generates spectral analysis plots for gyro data
+
+        function obj = plot_Gyro_spectra(obj, fa)
+
+            % ---- Figure Handling (Name-basiert) ----
+            figName = 'Gyro Spectra';
+            fig = findobj('Type','figure','Name', figName);
+        
+            if isempty(fig)
+                fig = figure('Name', figName, 'NumberTitle','off');
+            else
+                figure(fig);
+                clf(fig);
+            end
+        
+            % ---------- Subplot 1: Unfiltered gyro spectra ----------
+            ax(1) = subplot(3, 1, 1);
+            plot(ax(1), fa.freq_spectra, fa.spectra(:,1:3));
+            grid(ax(1),'on');
+            ylabel(ax(1),'Gyro (deg/s)');
+            set(ax(1),'YScale','log');
+            title(ax(1),'Unfiltered gyro magnitude spectra');
+            legend(ax(1), 'off');
+        
+            % ---------- Subplot 2: Filtered (ADC) gyro spectra ----------
+            ax(2) = subplot(3, 1, 2);
+            plot(ax(2), fa.freq_spectra, fa.spectra(:,4:6));
+            grid(ax(2),'on');
+            ylabel(ax(2),'Gyro (deg/s)');
+            set(ax(2),'YScale','log');
+            title(ax(2),'Filtered (ADC) gyro magnitude spectra');
+        
+            if obj.do_insert_legends
+                legend(ax(2), {'Roll','Pitch','Yaw'}, 'Location','northeast');
+            end
+        
+            % ---------- Subplot 3: Axis sum spectra ----------
+            ax(3) = subplot(3, 1, 3);
+            plot(ax(3), fa.freq_spectra, fa.spectra(:,7:9));
+            grid(ax(3),'on');
+            ylabel(ax(3),'AxisSum');
+            xlabel(ax(3),'Frequency (Hz)');
+            set(ax(3),'YScale','log');
+            title(ax(3),'Axis sum spectra');
+            legend(ax(3), 'off');
+        
+            % ---------- Link axes and Nyquist limit ----------
+            linkaxes(ax, 'x');
+        
+            nyq = 1/(2 * fa.Ts_log);
+            xlim([0, nyq]);
+        
+            % Optional uniform y-limits
+            try
+                ylim(ax, [1e-3 1e1]);
+            catch
+            end
+        
+            set(findall(fig, 'type', 'line'), 'LineWidth', obj.linewidth);
+        end
+        
+        
+        %%
+        % =================================================================
+        %  FIGURE 5: GYRO SPECTRA
+        % =================================================================
+        % Generates spectogram plots (Thrust and Frequency)
+
+        function obj = plot_Spectogram(obj, fa, num_spectrograms)
+
+            % ---- Figure Handling (Name-basiert) ----
+            figName = 'Gyro Spectrograms';
+            fig = findobj('Type','figure','Name', figName);
+        
+            if isempty(fig)
+                fig = figure('Name', figName, 'NumberTitle','off');
+            else
+                figure(fig);
+                clf(fig);
+            end
+        
+            sgtitle('Gyro Spectrograms')
+        
+            axes_labels = {'Roll', 'Pitch', 'Yaw'};
+            c_lim = [5e-2 3e0];
+            colormap('jet')
+        
+            % --- Unfiltered Spectrograms ---
+            for spectrogram_nr = 1:num_spectrograms
+                subplot(230 + spectrogram_nr)
+                qmesh = pcolor( ...
+                    fa.freq_spectogram{spectrogram_nr}, ...
+                    fa.throttle_all{spectrogram_nr}, ...
+                    fa.spectrogram_unf{spectrogram_nr});
+        
+                set(qmesh, 'EdgeColor', 'flat');
+                set(qmesh, 'LineWidth', obj.linewidth);
+        
+                if spectrogram_nr == 1
+                    ylabel('Throttle (%)')
+                end
+        
+                xlabel('Frequency (Hz)')
+                title([axes_labels{spectrogram_nr}, ' – without Filter'])
+                set(gca, 'ColorScale', 'log')
+                clim(c_lim)
+                ylim([0 100])
+            end
+        
+            % --- Filtered Spectrograms ---
+            for spectrogram_nr = 1:num_spectrograms
+                subplot(230 + spectrogram_nr + 3)
+                qmesh = pcolor( ...
+                    fa.freq_spectogram{spectrogram_nr}, ...
+                    fa.throttle_all{spectrogram_nr}, ...
+                    fa.spectrogram_fil{spectrogram_nr});
+        
+                set(qmesh, 'EdgeColor', 'flat');
+                set(qmesh, 'LineWidth', obj.linewidth);
+        
+                if spectrogram_nr == 1
+                    ylabel('Throttle (%)')
+                end
+        
+                xlabel('Frequency (Hz)')
+                title([axes_labels{spectrogram_nr}, ' – with Filter'])
+                set(gca, 'ColorScale', 'log')
+                clim(c_lim)
+                ylim([0 100])
+            end
+        end
+
+         %%
+        % =================================================================
+        %  FIGURE 6: BODE PLOTS
+        % =================================================================
+        % Bode plot (Plant and Coherence) for selected axis
+
+        function obj = plot_Bode_Plant(obj, td, ind_ax, customLabel)
+
+            if nargin < 4 || isempty(customLabel)
+                customLabel = 'Signal';   % oder '' wenn du gar nichts willst
+            end
+        
+            axisName = obj.axis_names{ind_ax};
+        
+            figName    = sprintf('Bode Plot %s - %s', customLabel, axisName);
+            plantTitle = sprintf('Plant P (%s) - %s', customLabel, axisName);
+        
+            % ---- Figure Handling (überschreiben wenn vorhanden) ----
+            fig = findobj('Type','figure','Name', figName);
+        
+            if isempty(fig)
+                fig = figure('Name', figName, 'NumberTitle','off');
+            else
+                figure(fig);
+                clf(fig);
+            end
+        
+            opt = bode_plot_options('dB', 'linear', 'deg', 'Hz');
+        
+            % --- Plant ---
+            ax(1) = subplot('Position', obj.pos_bode(1,:));
+            bode(ax(1), td.P{ind_ax}, 'k', td.omega_bode, opt);
+            title(ax(1), plantTitle);
+        
+            % --- Coherence ---
+            ax(2) = subplot('Position', obj.pos_bode(2,:));
+            opt_coh = bode_plot_options('abs', 'linear', 'deg', 'Hz');
+            bodemag(ax(2), td.Coh{ind_ax}, td.omega_bode, '-k', opt_coh);
+            title(ax(2), '');
+            ylabel(ax(2), 'Coherence');
+            ylim(ax(2), [0 1]);
+        
+            linkaxes(ax, 'x');
+            set(findall(fig, 'type', 'line'), 'LineWidth', obj.linewidth);
+        end
+
+        function obj = plot_Gang_of_Four(obj, td, label)
+        
+            if nargin < 3 || isempty(label)
+                label = 'Signal';
+            end
+        
+            ind_ax = td.ind_ax;
+        
+            % ---- Figure Handling (Name-basiert, refresh) ----
+            figName = sprintf('Gang of Four %s - %s', label, obj.axis_names{ind_ax});
+            fig = findobj('Type','figure','Name', figName);
+        
+            if isempty(fig)
+                fig = figure('Name', figName, 'NumberTitle','off');
+            else
+                figure(fig);
+                clf(fig);
+            end
+        
+            % ---- Bode Options ----
+            opt = bode_plot_options('dB', 'linear', 'deg', 'Hz');
+    
+        
+            % =========================
+            % --- Tracking T ---
+            % =========================
+            ax(1) = subplot(2,2,1);
+            bodemag(ax(1), td.CloLoAan.T, td.CloLoAanNew.T, td.T{ind_ax}, opt);
+            title('Tracking T');
+            if obj.do_insert_legends
+                legend('actual','new','measured','Location','best');
+            end
+        
+            % =========================
+            % --- Sensitivity S ---
+            % =========================
+            ax(2) = subplot(2,2,2);
+            bodemag(ax(2), td.CloLoAan.S, td.CloLoAanNew.S, opt);
+            title('Sensitivity S')
+        
+            % =========================
+            % --- Controller Effort SC ---
+            % =========================
+            ax(3) = subplot(2,2,3);
+            bodemag(ax(3), td.CloLoAan.SC, td.CloLoAanNew.SC, opt);
+            title('Controller Effort SC')
+        
+            % =========================
+            % --- Compliance SP ---
+            % =========================
+            ax(4) = subplot(2,2,4);
+            bodemag(ax(4), td.CloLoAan.SP, td.CloLoAanNew.SP, opt);
+            title('Compliance SP')
+        
+            % ---- Formatting ----
+            linkaxes(ax,'x');
+            xlim(ax(1),'auto');
+        
+            set(findall(fig,'type','line'),'LineWidth',obj.linewidth);
+        
+            sgtitle(sprintf('Gang of Four %s - %s', label, obj.axis_names{ind_ax}));
+        end
+
+        function obj = plot_Step_Response(obj, td, label, ylab)
+        
+            % td    = tuning object (gyro_ctrl_tuning oder angle_ctrl_tuning)
+            % label = frei wählbar, z.B. 'Gyro' oder 'Angle'
+            if nargin < 3 || isempty(label)
+                label = 'Signal';
+            end
+        
+            axName = obj.axis_names{td.ind_ax};
+        
+            % ---- Figure Handling (Name-basiert, refresh) ----
+            figName = sprintf('Step Response %s - %s', label, axName);
+            fig = findobj('Type','figure','Name', figName);
+        
+            if isempty(fig)
+                fig = figure('Name', figName, 'NumberTitle','off');
+            else
+                figure(fig);
+                clf(fig);
+            end
+        
+            % ---- Plot 1: Tracking ----
+            ax(1) = subplot(2,1,1);
+            plot(ax(1), td.step_time, td.step_resp_tra);
+            grid(ax(1), 'on');
+            ylabel(ax(1), ylab);
+            title(ax(1), sprintf('Tracking T - %s', axName));
+        
+            if obj.do_insert_legends
+                legend(ax(1), 'actual calculated', 'new calculated', 'measured', ...
+                       'Location', 'best');
+            end
+        
+            ylim(ax(1), 'auto');
+            yl = ylim(ax(1));
+            ylim(ax(1), [yl(1), yl(2)*1.05]);
+                    
+            % ---- Plot 2: Compliance ----
+            ax(2) = subplot(2,1,2);
+            plot(ax(2), td.step_time, td.step_resp_com);
+            grid(ax(2), 'on');
+            ylabel(ax(2), ylab);
+            xlabel(ax(2), 'Time (sec)');
+            title(ax(2), 'Compliance SP');
+            ylim(ax(2), 'auto');
+        
+            % ---- Formatting ----
+            linkaxes(ax, 'x');
+            xlim(ax(1), [0 0.5]);
+        
+            set(findall(fig, 'type', 'line'), 'LineWidth', obj.linewidth);
+        
+            sgtitle(sprintf('Step Response %s - %s', label, axName));
+        end
+
+    end
+
+end
