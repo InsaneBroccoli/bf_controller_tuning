@@ -20,7 +20,10 @@ addpath class/
 % Show Legends
 do_insert_legends = true;
 
-%% Load Data
+% Create Plotter Class
+plotter = plot_utils1(do_insert_legends);
+
+%% Loading Data
 
 % =========================================================================
 %  Define path to *.bbl.csv file for the 
@@ -31,23 +34,66 @@ flight_folder = '20251208';
 log_name = '01_20251208_OvershootExpress.csv';
 file_path = fullfile(log_folder, flight_folder, log_name);
 
-data_flight = flight_data(file_path);
+df = flight_data(file_path);
 % Load Data
-data_flight = data_flight.get_data();
+df = df.get_data();
 
-gyro_tuning = gyro_ctrl_tuning(data_flight.data, data_flight.ind, data_flight.Ts_log, ...
-    data_flight.para, data_flight.Ts_cntr);
 
-angle_tuning = angle_ctrl_tuning(data_flight,gyro_tuning);
+roll = 1; pitch = 2; yaw = 3;
+group1 = {
+    struct( ...
+        'idx', [df.ind.setpoint(roll), df.ind.gyroUnfilt(roll), df.ind.gyroADC(roll)], ...
+        'ylabel', 'Roll Rate [deg/s]' )
+
+    struct( ...
+        'idx', [df.ind.setpoint(pitch), df.ind.gyroUnfilt(pitch), df.ind.gyroADC(pitch)], ...
+        'ylabel', 'Pitch Rate [deg/s]' )
+
+    struct( ...
+        'idx', [df.ind.setpoint(yaw), df.ind.gyroUnfilt(yaw), df.ind.gyroADC(yaw)], ...
+        'ylabel', 'Yaw Rate [deg/s]' )
+};
+
+plotter.plotFlightData(df, group1,'Flight Gyro Data');
+
+ group2 = {
+        struct('idx', df.ind.gyroUnfilt(1:3), ...
+               'ylabel', 'Gyro (deg/s)', ...
+               'legend', ["Roll","Pitch","Yaw"])
+
+        struct('idx', df.ind.axisSum(1:3), ...
+               'ylabel', 'AxisSum', ...
+               'legend', ["Roll","Pitch","Yaw"])
+
+        struct('idx', df.ind.motor, ...
+               'ylabel', 'Motor', ...
+               'legend', ["Motor 1","Motor 2","Motor 3","Motor 4"])
+
+        struct('idx', df.ind.setpoint(4), ...
+               'ylabel', 'Throttle', ...
+               'legend', "Throttle")
+    };
+
+plotter.plotFlightData(df, group2,'Flight Overview');
+plotter.plot_Eval_Time(df.time);
+
+%% Get Bodeplots
+
+gyro_tuning = gyro_ctrl_tuning(df.data, df.ind, df.Ts_log, ...
+    df.para, df.Ts_cntr);
+
+angle_tuning = angle_ctrl_tuning(df,gyro_tuning);
 
 resolution_factor_tf = 2;    % Window length for spectral analysis (seconds)
 overlap_tf = 0.9;              % Overlap factor for spectral analysis (0-1)
 gyro_tuning = gyro_tuning.calculate_transfer_func(resolution_factor_tf, overlap_tf);
 angle_tuning = angle_tuning.calculate_Angle_trans(resolution_factor_tf, overlap_tf);
-%% Flight Analyser
-analysis_flight = flight_analyzer(data_flight.data, data_flight.ind, data_flight.Ts_log);
 
-%%
+plotter.plot_Bode_Plant(gyro_tuning, roll, 'Gyro');
+plotter.plot_Bode_Plant(angle_tuning, roll, 'Angle');
+
+%% Flight Analyser
+analysis_flight = flight_analyzer(df.data, df.ind, df.Ts_log);
 
 % Data for Spectra
 resolution_factor_spectra = 2;    % Window length for spectral analysis (seconds)
@@ -61,7 +107,11 @@ overlap_spectogram = 0.9;              % Overlap factor for spectral analysis (0
 analysis_flight = analysis_flight.calculate_spectogram(resolution_factor_spectogram, ...
     overlap_spectogram);
 
-%% Tuninig Data
+%% Plot Flight Analyser
+plotter.plot_Spectogram(analysis_flight, 3);
+plotter.plot_Gyro_spectra(analysis_flight);
+
+%% Gyro Tuning Data
 
 % =========================================================================
 %  Axis Selection: 1: roll, 2: pitch, 3: yaw
@@ -71,10 +121,6 @@ ind_ax = 1;     % keep it now until plot_utils is finished
 
 % I-term Relax on/off
 do_compensate_iterm = true;
-
-% Transfer Function
-Nestfatra = 5.0;                 % Window length for spectral analysis (seconds)
-koverlaptra = 0.9;               % Overlap factor for spectral analysis (0-1) 
 
 % New and old parameters are the same
 default_parameters = false; 
@@ -114,9 +160,6 @@ para_new.dterm_notch_hz      = 0;       % frequency of dterm notch
 para_new.dterm_notch_cutoff  = 0;     % Cutoff frequency dterm notch
 para_new.yaw_lpf_hz          = 200;     % frequency of yaw lpf (pt1)
 
-% PT3 Angle Control
-para_new.angle_lpf_hz          = 50;     % frequency of Angle lpf (PT3)
-
 %--------------------------------------------------------------------------
 %  tune your PIDs here
 %--------------------------------------------------------------------------
@@ -140,37 +183,19 @@ switch ind_ax
         D_new       = 1;
 end
 
-P_Angle = 100;
-
 gyro_tuning = gyro_tuning.calculate_new_controller(ind_ax, P_new, I_new, D_new, ...
     default_parameters, para_new);
 gyro_tuning = gyro_tuning.get_tuning_data(do_compensate_iterm);
 
+% plotter.plot_Bode_Contr(ind_ax, do_insert_legends);
+plotter.plot_Gang_of_Four(gyro_tuning,  'Gyro');
+plotter.plot_Step_Response(gyro_tuning,  'Gyro', 'Gyro (deg/sec)');
+
+%% Angle Tuning Data
+
+% PT3 Angle Control
+para_new.angle_lpf_hz = 50;     % frequency of Angle lpf (PT3)
+P_Angle = 100;
+
 angle_tuning = angle_tuning.calculate_new_controller(P_Angle, ...
     default_parameters, para_new);
-
-angle_tuning = angle_tuning.get_tuning_data(ind_ax);
-
-%%
-
-plotter = plot_utils(data_flight, gyro_tuning, analysis_flight,angle_tuning);
-
-%% Plot Gyro Data
-plotter.plot_Gyro_Signal(do_insert_legends);
-plotter.plot_Overview(do_insert_legends);
-plotter.plot_Eval_Time();
-
-%% Plot Flight Analyser
-plotter.plot_Gyro_spectra(do_insert_legends);
-plotter.plot_Spectogram(3);
-
-%% Plot Gyro Tuning Data
-plotter.plot_Bode_Plant(ind_ax);
-plotter.plot_Bode_Contr(ind_ax, do_insert_legends);
-plotter.plot_Gang_of_Four(do_insert_legends);
-plotter.plot_Step_Response(do_insert_legends);
-
-%% Plot Angle Tuning Data
-plotter.plot_angle_Data(ind_ax, do_insert_legends);
-plotter.plot_Bode_APlant(ind_ax);
-plotter.plot_Step_Response_Angle(do_insert_legends);

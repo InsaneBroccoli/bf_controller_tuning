@@ -350,7 +350,7 @@ classdef plot_utils
             bodemag(ax(4), td.CloLoAan.SP, td.CloLoAanNew.SP, td.omega_bode, opt); 
             title('Compliance SP')
         
-            linkaxes(ax, 'x'),xlim('auto'),,
+            linkaxes(ax, 'x'),xlim('auto'),
             set(findall(gcf, 'type', 'line'), 'linewidth', obj.linewidth);
             sgtitle(['Gang of Four - ', obj.axis_names{ind_ax}]);
         end
