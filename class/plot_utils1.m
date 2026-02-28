@@ -30,8 +30,9 @@ classdef plot_utils1
             % Konstruktor: speichert die Objekte im Plot-Helper
             obj.do_insert_legends      = legend;
         end
+        
         % =================================================================
-        %  FIGURE 1: Flight Data
+        %  FIGURE FLIGHT DATA
         % =================================================================
         % Plot any Flight Data you want
 
@@ -40,42 +41,54 @@ classdef plot_utils1
             nSubplots = length(groups);
             fig = figure('Name', figTitle, ...
              'NumberTitle','off');
-        
+
             if nargin > 3
                 sgtitle(figTitle);   % Gesamt-Titel über allen Subplots
             end
-        
+
             indNames = fieldnames(df.ind);
-        
+
             for i = 1:nSubplots
                 ax = subplot(nSubplots,1,i);
                 hold(ax,'on')
-        
+
                 idxList = groups{i}.idx;
-                legendEntries = strings(1, length(idxList));
-        
-                for k = 1:length(idxList)
-                    idx = idxList(k);
-        
-                    plot(ax, df.time, df.data(:, idx), ...
-                         'LineWidth', obj.linewidth);
-        
-                    for n = 1:length(indNames)
-                        if any(df.ind.(indNames{n}) == idx)
-                            legendEntries(k) = indNames{n};
-                            break
+                
+                % Check if custom legend is provided in the group
+                if isfield(groups{i}, 'legend')
+                    legendEntries = groups{i}.legend;
+                else
+                    % Fall back to auto-generating from field names
+                    legendEntries = strings(1, length(idxList));
+                    for k = 1:length(idxList)
+                        idx = idxList(k);
+                        for n = 1:length(indNames)
+                            if any(df.ind.(indNames{n}) == idx)
+                                legendEntries(k) = indNames{n};
+                                break
+                            end
                         end
                     end
                 end
-        
+                
+                % Plot the data
+                for k = 1:length(idxList)
+                    idx = idxList(k);
+                    plot(ax, df.time, df.data(:, idx), ...
+                 'LineWidth', obj.linewidth);
+                end
+
                 grid(ax,'on')
-        
+                
+                % Set x-axis limits to actual data range
+                xlim(ax, [df.time(1), df.time(end)]);
+
                 if obj.do_insert_legends
                     legend(ax, legendEntries, 'Interpreter','none','Location','best');
                 end
-        
+
                 ylabel(ax, groups{i}.ylabel)
-        
+
                 if i == nSubplots
                     xlabel(ax,'Time [s]');
                 end
@@ -84,7 +97,7 @@ classdef plot_utils1
         
 %%
         % =================================================================
-        %  FIGURE 3: Convert and evaluation time
+        %  FIGURE CONVERT AND EVALUATION TIME
         % =================================================================
 
         function obj = plot_Eval_Time(obj, time)
@@ -106,6 +119,14 @@ classdef plot_utils1
             delta_time_mus = diff(time)*1.0e6;
         
             plot(time(1:end-1), delta_time_mus)
+
+            hold on
+            % Draw dashed line at mean value
+            mean_val = mean(delta_time_mus);
+            yline(mean_val, '--', sprintf('Mean'), ...
+            'LineWidth', obj.linewidth, 'Color', 'k', 'LabelHorizontalAlignment', 'left');
+            hold off
+
             grid on
         
             title(sprintf('Mean: %0.2f us, Median: %0.2f us, Std: %0.2f us', ...
@@ -124,7 +145,7 @@ classdef plot_utils1
 
          %%
         % =================================================================
-        %  FIGURE 4: GYRO SPECTRA
+        %  FIGURE GYRO SPECTRA
         % =================================================================
         % Generates spectral analysis plots for gyro data
 
@@ -148,7 +169,7 @@ classdef plot_utils1
             ylabel(ax(1),'Gyro (deg/s)');
             set(ax(1),'YScale','log');
             title(ax(1),'Unfiltered gyro magnitude spectra');
-            legend(ax(1), 'off');
+            legend(ax(1), {'Roll','Pitch','Yaw'}, 'Location','northeast');
         
             % ---------- Subplot 2: Filtered (ADC) gyro spectra ----------
             ax(2) = subplot(3, 1, 2);
@@ -170,7 +191,7 @@ classdef plot_utils1
             xlabel(ax(3),'Frequency (Hz)');
             set(ax(3),'YScale','log');
             title(ax(3),'Axis sum spectra');
-            legend(ax(3), 'off');
+            legend(ax(3), {'Roll','Pitch','Yaw'}, 'Location','northeast');
         
             % ---------- Link axes and Nyquist limit ----------
             linkaxes(ax, 'x');
@@ -190,7 +211,7 @@ classdef plot_utils1
         
         %%
         % =================================================================
-        %  FIGURE 5: GYRO SPECTRA
+        %  FIGURE GYRO SPECTROGRAMS
         % =================================================================
         % Generates spectogram plots (Thrust and Frequency)
 
@@ -258,9 +279,9 @@ classdef plot_utils1
             end
         end
 
-         %%
+        %%
         % =================================================================
-        %  FIGURE 6: BODE PLOTS
+        %  FIGURE BODE PLOTS
         % =================================================================
         % Bode plot (Plant and Coherence) for selected axis
 
@@ -269,41 +290,44 @@ classdef plot_utils1
             if nargin < 4 || isempty(customLabel)
                 customLabel = 'Signal';   % oder '' wenn du gar nichts willst
             end
-        
+
             axisName = obj.axis_names{ind_ax};
-        
+
             figName    = sprintf('Bode Plot %s - %s', customLabel, axisName);
             plantTitle = sprintf('Plant P (%s) - %s', customLabel, axisName);
-        
+
             % ---- Figure Handling (überschreiben wenn vorhanden) ----
             fig = findobj('Type','figure','Name', figName);
-        
+
             if isempty(fig)
                 fig = figure('Name', figName, 'NumberTitle','off');
             else
                 figure(fig);
                 clf(fig);
             end
-        
+
             opt = bode_plot_options('dB', 'linear', 'deg', 'Hz');
-        
+
             % --- Plant ---
             ax(1) = subplot('Position', obj.pos_bode(1,:));
             bode(ax(1), td.P{ind_ax}, 'k', td.omega_bode, opt);
-            title(ax(1), plantTitle);
-        
+            title(plantTitle);
+
             % --- Coherence ---
             ax(2) = subplot('Position', obj.pos_bode(2,:));
             opt_coh = bode_plot_options('abs', 'linear', 'deg', 'Hz');
             bodemag(ax(2), td.Coh{ind_ax}, td.omega_bode, '-k', opt_coh);
-            title(ax(2), '');
-            ylabel(ax(2), 'Coherence');
+            title('');  % Remove auto-generated title
+            ylabel(ax(2), 'Coherence (abs)');
             ylim(ax(2), [0 1]);
-        
+
             linkaxes(ax, 'x');
             set(findall(fig, 'type', 'line'), 'LineWidth', obj.linewidth);
         end
 
+        % =================================================================
+        %  FIGURE GANG OF FOUR
+        % =================================================================
         function obj = plot_Gang_of_Four(obj, td, label)
         
             if nargin < 3 || isempty(label)
@@ -343,6 +367,9 @@ classdef plot_utils1
             ax(2) = subplot(2,2,2);
             bodemag(ax(2), td.CloLoAan.S, td.CloLoAanNew.S, opt);
             title('Sensitivity S')
+            if obj.do_insert_legends
+                legend('new','measured','Location','northwest');
+            end
         
             % =========================
             % --- Controller Effort SC ---
@@ -350,6 +377,9 @@ classdef plot_utils1
             ax(3) = subplot(2,2,3);
             bodemag(ax(3), td.CloLoAan.SC, td.CloLoAanNew.SC, opt);
             title('Controller Effort SC')
+            if obj.do_insert_legends
+                legend('new','measured','Location','northwest');
+            end
         
             % =========================
             % --- Compliance SP ---
@@ -357,6 +387,9 @@ classdef plot_utils1
             ax(4) = subplot(2,2,4);
             bodemag(ax(4), td.CloLoAan.SP, td.CloLoAanNew.SP, opt);
             title('Compliance SP')
+            if obj.do_insert_legends
+                legend('new','measured','Location','southwest');
+            end
         
             % ---- Formatting ----
             linkaxes(ax,'x');
@@ -367,6 +400,9 @@ classdef plot_utils1
             sgtitle(sprintf('Gang of Four %s - %s', label, obj.axis_names{ind_ax}));
         end
 
+        % =================================================================
+        %  FIGURE STEP RESPONSE
+        % =================================================================
         function obj = plot_Step_Response(obj, td, label, ylab)
         
             % td    = tuning object (gyro_ctrl_tuning oder angle_ctrl_tuning)
