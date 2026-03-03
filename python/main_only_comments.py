@@ -32,7 +32,7 @@ from py_lib.pidtuninglib import header_info  # For parameter handling
 from py_lib.flight_data import FlightData
 from py_lib.gyro_ctrl_tuning import GyroCtrlTuning
 from py_lib.flight_analyzer import FlightAnalyzer
-from py_lib.plot_utils import PlotUtils
+from py_lib.plot_utils1 import PlotUtils
 
 
 def main():

@@ -27,8 +27,8 @@ do_insert_legends = true;
 % =========================================================================
 
 log_folder = 'logs';
-flight_folder = '20251212';
-log_name = '06_20251212_OvershootExpress.TXT.csv';
+flight_folder = '20251208';
+log_name = '01_20251208_OvershootExpress.csv';
 file_path = fullfile(log_folder, flight_folder, log_name);
 
 data_flight = flight_data(file_path);
