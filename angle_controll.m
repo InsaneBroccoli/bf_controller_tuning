@@ -174,11 +174,32 @@ fc = 50;  % Hz  (dein "Angle PT3")
 angle_fcut_ana = fc;
 Gf_ana = get_filter('pt3', fc, Ts_cntr);  % should be discrete
 
-C_Angle = C_P_Angle_frd * Gf_ana;
+C_Angle_ana = C_P_Angle_frd * Gf_ana;
+C_Angle_ana = downsample_frd(C_Angle_ana, Ts_log, T_ax.Frequency);
 
+% Calculate the Transferfunction with this Controller
+T_ana = (C_Angle_ana * T_gy * P_angle)/(1+ C_Angle_ana * T_gy * P_angle);
+
+%% Lets start Tuning
+
+% Add the Parameters
+P_new = 100;            % Gain 
+angle_lpf_hz = 50;      % Cut off Frequency
+
+C_P_Angle_new_frd = frd( P_new * 0.1 *ones(size(f)), f, Ts_cntr );
+Gf_new = get_filter('pt3', angle_lpf_hz, Ts_cntr);  % should be discrete
+
+C_Angle_new = C_P_Angle_new_frd * Gf_ana;
+C_Angle_new = downsample_frd(C_Angle_new, Ts_log, T_ax.Frequency);
+
+% Calculate the new Transferfunction with the new Parameters
+T_new = (C_Angle_new * T_gy * P_angle)/(1+ C_Angle_new * T_gy * P_angle);
+
+%% Lets Plot the figures
 % Bodeplot of the hole system
 figure(3)
-bode(T_ax);grid on;
+bode(T_ax, T_ana, T_new);grid on;
+legend('Measured','Calculated','New Calculated','Location','best')
 title('Measured Transferfunction System');
 
 % Bodeplot of the plant angle
@@ -189,25 +210,29 @@ title('Measured Plant Angle');
 
 % Bodeplot of the Controller
 figure(5)
-bode(Cp_ax, C_Angle); grid on;
+bode(Cp_ax, C_Angle_ana); grid on;
 legend('Indirect','Simulation','Location','best');
 title('Measured Controller Plant');
 
-
+% Bodeplot of the Gyro Loop
 figure(6)
 bode(T_gy, G_cv); grid on;
 title('Measured Transferfunction Gyro Loop')
 
-% Calculate Measured Step Response
+%% Calculate Measured Step Response
 fmax = 600;     % Not sure which value I should choose so YOLO
 
 step_time = (0:Nest-1).*Ts_log;                 % Time vector [s]
 T_mean = 0.1 * [-1, 1] + (Nest * Ts_log) / 2;    % Analysis window [s]
 
-step_resp_meas = calculate_step_response_from_frd(T_ax, fmax);
+step_resp = [calculate_step_response_from_frd(T_ax , fmax), ...    % Used parameters
+             calculate_step_response_from_frd(T_ana, fmax), ...    % New parameters
+             calculate_step_response_from_frd(T_new, fmax)];  
 
-step_resp_mean = mean(step_resp_meas(step_time > T_mean(1) & step_time < T_mean(2),:));
-step_resp_meas = step_resp_meas / step_resp_mean;
+step_resp_mean = mean(step_resp(step_time > T_mean(1) & step_time < T_mean(2),:));
+step_resp_meas = step_resp ./ step_resp_mean;
+
+
 
 figure(7)
 plot(step_time, step_resp_meas);grid on;
