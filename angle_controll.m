@@ -115,7 +115,7 @@ xlabel('Time [s]'); ylabel('deg/s  [°/s]');
 %% Lets Measure the Transferfunction and such kind of things
 
 % Pararmeters
-Nest = round(2 / Ts_log);               % Window length in samples
+Nest = round(15 / Ts_log);               % Window length in samples
 Noverlap = floor(0.9 * Nest);           % Overlap between windows
 window   = hann(Nest, 'periodic');  % Hanning window for analysis
 
