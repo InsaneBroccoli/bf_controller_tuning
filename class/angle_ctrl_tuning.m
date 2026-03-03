@@ -106,7 +106,7 @@ classdef angle_ctrl_tuning < handle
                 inp = apply_rotfiltfilt(Glp, sinarg_ax, w);
         
                 % Output signal (Angle)
-                y = dataf.data(:, dataf.ind.heading(ind_axis));
+                y = dataf.data(:, dataf.ind.heading(ind_axis))*100;
                 out_y = apply_rotfiltfilt(Glp, sinarg_ax, y);
         
                 % FRD estimate (this returns FRD on FFT-friendly grid)
