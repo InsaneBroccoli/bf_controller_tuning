@@ -10,7 +10,6 @@ Supervisor: [Michael Peter]
 Date: [28.02.2026]
 ==========================================================================
 """
-# %%
 
 import numpy as np
 from pathlib import Path
@@ -186,7 +185,7 @@ def main():
     print("="*70)
     
     # Axis selection: 0=roll, 1=pitch, 2=yaw
-    ind_ax = 1
+    ind_ax = 0
     
     # I-term compensation
     do_compensate_iterm = True
