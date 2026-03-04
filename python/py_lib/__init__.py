@@ -22,7 +22,7 @@ __author__ = 'Janick Dort, Yuri Bianchi, Dario Jurietti'
 from .flight_data import FlightData, ColumnIndices
 from .flight_analyzer import FlightAnalyzer
 from .gyro_ctrl_tuning import GyroCtrlTuning
-from .plot_utils1 import PlotUtils
+from .plot_utils import PlotUtils
 from .pidtuninglib import header_info
 
 __all__ = [

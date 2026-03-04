@@ -10,6 +10,7 @@ Supervisor: [Michael Peter]
 Date: [28.02.2026]
 ==========================================================================
 """
+# %%
 
 import numpy as np
 from pathlib import Path
@@ -17,7 +18,7 @@ from pathlib import Path
 from py_lib.flight_data import FlightData
 from py_lib.flight_analyzer import FlightAnalyzer
 from py_lib.gyro_ctrl_tuning import GyroCtrlTuning
-from py_lib.plot_utils1 import PlotUtils
+from py_lib.plot_utils import PlotUtils
 from py_lib.pidtuninglib import header_info
 
 
@@ -54,7 +55,7 @@ def main():
     df = df.get_data()
     
     print(f"Data loaded: {len(df.time)} samples, Ts_log = {df.Ts_log*1000:.3f} ms")
-    
+    # %%
     # =========================================================================
     # Plot Flight Data
     # =========================================================================
@@ -109,6 +110,7 @@ def main():
     plotter.plot_flight_data(df, group2, 'Flight Overview')
     plotter.plot_eval_time(df.time)
     
+    # %%
     # =========================================================================
     # Get Bode Plots
     # =========================================================================
@@ -133,6 +135,7 @@ def main():
     # Plot Bode diagrams
     plotter.plot_bode_plant(gyro_tuning, roll, 'Gyro')
     
+    # %%
     # =========================================================================
     # Flight Analyzer
     # =========================================================================
@@ -173,6 +176,7 @@ def main():
     plotter.plot_spectrogram(analysis_flight, 3)
     plotter.plot_gyro_spectra(analysis_flight)
     
+    # %%
     # =========================================================================
     # Gyro Tuning
     # =========================================================================
