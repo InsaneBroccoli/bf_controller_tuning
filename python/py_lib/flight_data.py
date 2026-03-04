@@ -146,7 +146,7 @@ class FlightData:
         debug = []
         
         for idx, col in enumerate(columns):
-            if col == 'time (us)':
+            if col == 'time' or col == 'time (us)':
                 ind.time = idx
             elif 'gyroUnfilt' in col:
                 gyro_unfilt.append(idx)

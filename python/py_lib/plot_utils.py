@@ -259,7 +259,9 @@ class PlotUtils:
         
         # Phase plot
         ax2 = fig.add_subplot(gs[1], sharex=ax1)
-        ax2.semilogx(freq_hz, phase * 180 / np.pi, 'k', linewidth=self.linewidth)
+        phase_deg = phase * 180 / np.pi
+        phase_wrapped = np.mod(phase_deg + 180, 360) - 180  # Wrap to [-180, 180]
+        ax2.semilogx(freq_hz, phase_wrapped, 'k', linewidth=self.linewidth)
         ax2.grid(True, which='both', alpha=0.3)
         ax2.set_ylabel('Phase (deg)')
         
