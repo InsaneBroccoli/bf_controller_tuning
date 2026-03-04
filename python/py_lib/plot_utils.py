@@ -55,7 +55,7 @@ class PlotUtils:
             Figure title
         """
         n_subplots = len(groups)
-        fig, axes = plt.subplots(n_subplots, 1, figsize=(12, 3*n_subplots))
+        fig, axes = plt.subplots(n_subplots, 1, figsize=(8, 6))
         
         if n_subplots == 1:
             axes = [axes]
@@ -100,7 +100,7 @@ class PlotUtils:
         """
         delta_time_us = np.diff(time) * 1.0e6
         
-        fig, ax = plt.subplots(figsize=(12, 5))
+        fig, ax = plt.subplots(figsize=(8, 6))
         
         ax.plot(time[:-1], delta_time_us)
         
@@ -134,7 +134,7 @@ class PlotUtils:
         fa : FlightAnalyzer
             Flight analyzer object
         """
-        fig, axes = plt.subplots(3, 1, figsize=(12, 10))
+        fig, axes = plt.subplots(3, 1, figsize=(8, 6))
         
         # Unfiltered gyro spectra
         axes[0].plot(fa.freq_spectra, fa.spectra[:, 0:3])
@@ -187,7 +187,7 @@ class PlotUtils:
         num_spectrograms : int
             Number of axes to plot
         """
-        fig = plt.figure(figsize=(15, 10))
+        fig = plt.figure(figsize=(8, 6))
         axes_labels = ['Roll', 'Pitch', 'Yaw']
         c_lim = [5e-2, 3e0]
         
@@ -250,7 +250,7 @@ class PlotUtils:
         """
         axis_name = self.axis_names[ind_ax]
         
-        fig = plt.figure(figsize=(12, 10))
+        fig = plt.figure(figsize=(8, 6))
         gs = GridSpec(3, 1, height_ratios=[2, 2, 1])
         
         # Magnitude plot
@@ -297,14 +297,14 @@ class PlotUtils:
         ind_ax = td.ind_ax
         axis_name = self.axis_names[ind_ax]
         
-        fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+        fig, axes = plt.subplots(2, 2, figsize=(8, 6))
         fig.suptitle(f'Gang of Four {label} - {axis_name}', fontsize=14, fontweight='bold')
         
         # Tracking T
         ax = axes[0, 0]
         for sys, style, lbl in [
-            (td.CloLoAan.T, '-', 'actual'),
-            (td.CloLoAanNew.T, '--', 'new'),
+            (td.CloLoAan.T, '--', 'actual'),
+            (td.CloLoAanNew.T, '-', 'new'),
             (td.T[ind_ax], ':', 'measured')
         ]:
             mag, _, omega = ct.bode(sys, plot=False)
@@ -319,8 +319,8 @@ class PlotUtils:
         # Sensitivity S
         ax = axes[0, 1]
         for sys, style, lbl in [
-            (td.CloLoAan.S, '-', 'actual'),
-            (td.CloLoAanNew.S, '--', 'new')
+            (td.CloLoAan.S, '--', 'actual'),
+            (td.CloLoAanNew.S, '-', 'new')
         ]:
             mag, _, omega = ct.bode(sys, plot=False)
             freq_hz = omega / (2 * np.pi)
@@ -334,8 +334,8 @@ class PlotUtils:
         # Controller Effort SC
         ax = axes[1, 0]
         for sys, style, lbl in [
-            (td.CloLoAan.SC, '-', 'actual'),
-            (td.CloLoAanNew.SC, '--', 'new')
+            (td.CloLoAan.SC, '--', 'actual'),
+            (td.CloLoAanNew.SC, '-', 'new')
         ]:
             mag, _, omega = ct.bode(sys, plot=False)
             freq_hz = omega / (2 * np.pi)
@@ -350,8 +350,8 @@ class PlotUtils:
         # Compliance SP
         ax = axes[1, 1]
         for sys, style, lbl in [
-            (td.CloLoAan.SP, '-', 'actual'),
-            (td.CloLoAanNew.SP, '--', 'new')
+            (td.CloLoAan.SP, '--', 'actual'),
+            (td.CloLoAanNew.SP, '-', 'new')
         ]:
             mag, _, omega = ct.bode(sys, plot=False)
             freq_hz = omega / (2 * np.pi)
@@ -381,13 +381,13 @@ class PlotUtils:
         """
         axis_name = self.axis_names[td.ind_ax]
         
-        fig, axes = plt.subplots(2, 1, figsize=(12, 8))
+        fig, axes = plt.subplots(2, 1, figsize=(8, 6))
         fig.suptitle(f'Step Response {label} - {axis_name}', fontsize=14, fontweight='bold')
         
         # Tracking
         ax = axes[0]
-        ax.plot(td.step_time, td.step_resp_tra[:, 0], '-', label='actual calculated')
-        ax.plot(td.step_time, td.step_resp_tra[:, 1], '--', label='new calculated')
+        ax.plot(td.step_time, td.step_resp_tra[:, 0], '--', label='actual calculated')
+        ax.plot(td.step_time, td.step_resp_tra[:, 1], '-', label='new calculated')
         ax.plot(td.step_time, td.step_resp_tra[:, 2], ':', label='measured')
         ax.grid(True)
         ax.set_ylabel(ylab)
@@ -398,8 +398,8 @@ class PlotUtils:
         
         # Compliance
         ax = axes[1]
-        ax.plot(td.step_time, td.step_resp_com[:, 0], '-', label='actual calculated')
-        ax.plot(td.step_time, td.step_resp_com[:, 1], '--', label='new calculated')
+        ax.plot(td.step_time, td.step_resp_com[:, 0], '--', label='actual calculated')
+        ax.plot(td.step_time, td.step_resp_com[:, 1], '-', label='new calculated')
         ax.grid(True)
         ax.set_ylabel(ylab)
         ax.set_xlabel('Time (s)')
