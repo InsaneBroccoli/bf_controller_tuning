@@ -106,8 +106,10 @@ class PlotUtils:
         
         # Mean line
         mean_val = np.mean(delta_time_us)
-        ax.axhline(mean_val, color='k', linestyle='--', linewidth=self.linewidth,
-                   label=f'Mean: {mean_val:.2f} μs')
+        ax.axhline(mean_val, color='k', linestyle='--', linewidth=self.linewidth)
+        ax.text(time[0], mean_val, 'Mean',
+                ha='left', va='bottom',
+                fontsize=9, color='k')
         
         ax.grid(True)
         ax.set_title(f'Mean: {np.mean(delta_time_us):.2f} μs, '
@@ -135,26 +137,29 @@ class PlotUtils:
         fig, axes = plt.subplots(3, 1, figsize=(12, 10))
         
         # Unfiltered gyro spectra
-        axes[0].loglog(fa.freq_spectra, fa.spectra[:, :3])
-        axes[0].grid(True)
+        axes[0].plot(fa.freq_spectra, fa.spectra[:, 0:3])
+        axes[0].grid(True, which='both', alpha=0.3)
         axes[0].set_ylabel('Gyro (deg/s)')
+        axes[0].set_yscale('log')
         axes[0].set_title('Unfiltered gyro magnitude spectra')
         axes[0].legend(['Roll', 'Pitch', 'Yaw'], loc='upper right')
         
         # Filtered gyro spectra
-        axes[1].loglog(fa.freq_spectra, fa.spectra[:, 3:6])
-        axes[1].grid(True)
+        axes[1].plot(fa.freq_spectra, fa.spectra[:, 3:6])
+        axes[1].grid(True, which='both', alpha=0.3)
         axes[1].set_ylabel('Gyro (deg/s)')
+        axes[1].set_yscale('log')
         axes[1].set_title('Filtered (ADC) gyro magnitude spectra')
         
         if self.do_insert_legends:
             axes[1].legend(['Roll', 'Pitch', 'Yaw'], loc='upper right')
         
         # Axis sum spectra
-        axes[2].loglog(fa.freq_spectra, fa.spectra[:, 6:9])
-        axes[2].grid(True)
+        axes[2].plot(fa.freq_spectra, fa.spectra[:, 6:9])
+        axes[2].grid(True, which='both', alpha=0.3)
         axes[2].set_ylabel('AxisSum')
         axes[2].set_xlabel('Frequency (Hz)')
+        axes[2].set_yscale('log')
         axes[2].set_title('Axis sum spectra')
         axes[2].legend(['Roll', 'Pitch', 'Yaw'], loc='upper right')
         
