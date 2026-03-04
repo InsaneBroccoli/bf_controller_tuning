@@ -26,7 +26,7 @@
 % u: control input (total PID output)
 % v: PI controller output
 
-classdef gyro_ctrl_tuning
+classdef gyro_ctrl_tuning < handle
     properties       
         % Raw flight data inputs
 
