@@ -30,8 +30,8 @@ plotter = plot_utils(do_insert_legends);
 % =========================================================================
 
 log_folder = 'logs';
-flight_folder = '20251208';
-log_name = '01_20251208_OvershootExpress.csv';
+flight_folder = '20260304';
+log_name = '20260304_flipmini.csv';
 file_path = fullfile(log_folder, flight_folder, log_name);
 
 df = flight_data(file_path);
@@ -75,6 +75,19 @@ plotter.plotFlightData(df, group1,'Flight Gyro Data');
     };
 
 plotter.plotFlightData(df, group2,'Flight Overview');
+
+ group3 = {
+        struct('idx', [df.ind.currentAngle(1:2), df.ind.heading(1:2)], ...
+               'ylabel', 'Current Angle [°]', ...
+               'legend', ["Roll Current","Pitch Current","Roll Heading","Pitch Heading"])
+
+        struct('idx', df.ind.angleTarget(1:2), ...
+               'ylabel', 'Target Angle [°]', ...
+               'legend', ["Roll","Pitch"])
+
+    };
+
+plotter.plotFlightData(df, group3,'Target Overview');
 plotter.plot_Eval_Time(df.time);
 
 %% Get Bodeplots
@@ -87,10 +100,16 @@ angle_tuning = angle_ctrl_tuning(df,gyro_tuning);
 resolution_factor_tf = 2;    % Window length for spectral analysis (seconds)
 overlap_tf = 0.9;              % Overlap factor for spectral analysis (0-1)
 gyro_tuning = gyro_tuning.calculate_transfer_func(resolution_factor_tf, overlap_tf);
-angle_tuning = angle_tuning.calculate_Angle_trans(resolution_factor_tf, overlap_tf);
 
-plotter.plot_Bode_Plant(gyro_tuning, roll, 'Gyro');
-plotter.plot_Bode_Plant(angle_tuning, roll, 'Angle');
+resolution_factor_at = 15;    % Window length for spectral analysis (seconds)
+overlap_at = 0.9;              % Overlap factor for spectral analysis (0-1)
+angle_tuning = angle_tuning.calculate_Angle_trans(overlap_at, overlap_at);
+
+% Options (gyro_tuning/angle_tuning, roll/pitch/yaw, 'Gyro'/'Angle', ...
+% 'Plant'/'Complementary Sensitivity'/'Controller')
+
+plotter.plot_Bode_Plant(gyro_tuning, roll, 'Gyro', 'Plant');
+plotter.plot_Bode_Plant(angle_tuning, roll, 'Angle', 'Complementary Sensitivity');
 
 %% Flight Analyser
 analysis_flight = flight_analyzer(df.data, df.ind, df.Ts_log);
@@ -193,9 +212,12 @@ plotter.plot_Step_Response(gyro_tuning,  'Gyro', 'Gyro (deg/sec)');
 
 %% Angle Tuning Data
 
+% Old PT3
+para.angle_lpf_hz = 50;     % frequency of Angle lpf (PT3)
+
 % PT3 Angle Control
 para_new.angle_lpf_hz = 50;     % frequency of Angle lpf (PT3)
 P_Angle = 100;
 
-angle_tuning = angle_tuning.calculate_new_controller(P_Angle, ...
-    default_parameters, para_new);
+angle_tuning = angle_tuning.calculate_new_controller(ind_ax, P_Angle, ...
+    default_parameters, para_new, para);
