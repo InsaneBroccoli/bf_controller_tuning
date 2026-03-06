@@ -51,15 +51,15 @@ classdef gyro_ctrl_tuning < handle
         PID
         para_used
         omega_bode
-        C_T
-        C_Guw
+        Coh_T
+        Coh_C
         throttle_avg
         Cpi_ana_new
         Gf_ana_new
         Cd_ana_new
         Nest
         ind_ax
-        Coh
+        Coh_P
         CloLoAan
         CloLoAanNew
         step_time
@@ -101,10 +101,10 @@ classdef gyro_ctrl_tuning < handle
             obj.P   = cell(1, n_axes);
             obj.Cpi = cell(1, n_axes);
             obj.Cd  = cell(1, n_axes);
-            obj.C_T   = cell(1, n_axes);
-            obj.C_Guw = cell(1, n_axes);
+            obj.Coh_T   = cell(1, n_axes);
+            obj.Coh_C = cell(1, n_axes);
             obj.P_gef = cell(1, n_axes);
-            obj.Coh = cell(1, n_axes);
+            obj.Coh_T = cell(1, n_axes);
 
             sinarg_full = obj.data(:, obj.ind.sinarg);  % Copy Data to adjust it
 
@@ -167,8 +167,8 @@ classdef gyro_ctrl_tuning < handle
                 obj.Cpi{ind_axis} = Cpi_ax;
                 obj.Cd{ind_axis}  = Cd_ax;
                 obj.omega_bode = omega_bode_ax;
-                obj.C_T{ind_axis} = C_T_ax;
-                obj.C_Guw{ind_axis} = C_Guw_ax;
+                obj.Coh_T{ind_axis} = C_T_ax;
+                obj.Coh_C{ind_axis} = C_Guw_ax;
             
                 
                 % Analytical controller transfer functions for this axis
@@ -188,7 +188,7 @@ classdef gyro_ctrl_tuning < handle
                 obj.PID{ind_axis} = PID_ax;
                 obj.para_used{ind_axis} = para_used_ax;  
                 obj.P{ind_axis} = P_gef_ax / Gf_ana_ax;
-                obj.Coh{ind_axis} = C_T_ax * C_Guw_ax;
+                obj.Coh_P{ind_axis} = C_T_ax * C_Guw_ax;
                
             end
         end

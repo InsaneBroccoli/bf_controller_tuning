@@ -285,16 +285,12 @@ classdef plot_utils
         % =================================================================
         % Bode plot (Plant and Coherence) for selected axis
 
-        function obj = plot_Bode_Plant(obj, td, ind_ax, customLabel)
-
-            if nargin < 4 || isempty(customLabel)
-                customLabel = 'Signal';   % oder '' wenn du gar nichts willst
-            end
+        function obj = plot_Bode_Plant(obj, td, ind_ax, customLabel, G)
 
             axisName = obj.axis_names{ind_ax};
 
-            figName    = sprintf('Bode Plot %s - %s', customLabel, axisName);
-            plantTitle = sprintf('Plant P (%s) - %s', customLabel, axisName);
+            figName    = sprintf('Bode Plot %s %s - %s', G, customLabel, axisName);
+            plantTitle = sprintf('%s (%s) - %s', G, customLabel, axisName);
 
             % ---- Figure Handling (überschreiben wenn vorhanden) ----
             fig = findobj('Type','figure','Name', figName);
@@ -310,13 +306,28 @@ classdef plot_utils
 
             % --- Plant ---
             ax(1) = subplot('Position', obj.pos_bode(1,:));
-            bode(ax(1), td.P{ind_ax}, 'k', td.omega_bode, opt);
+            if strcmp(G, 'Plant')
+                bode(ax(1), td.P{ind_ax}, 'k', td.omega_bode, opt);
+            elseif strcmp(G, 'Complementary Sensitivity')
+                bode(ax(1), td.T{ind_ax}, 'k', td.omega_bode, opt)
+            elseif strcmp(G, 'Controller')
+                bode(ax(1), td.C{ind_ax}, 'k', td.omega_bode, opt)
+            end
+
             title(plantTitle);
+
+            
 
             % --- Coherence ---
             ax(2) = subplot('Position', obj.pos_bode(2,:));
             opt_coh = bode_plot_options('abs', 'linear', 'deg', 'Hz');
-            bodemag(ax(2), td.Coh{ind_ax}, td.omega_bode, '-k', opt_coh);
+            if strcmp(G, 'Plant')
+                bodemag(ax(2), td.Coh_P{ind_ax}, td.omega_bode, '-k', opt_coh);
+            elseif strcmp(G, 'Complementary Sensitivity')
+                bodemag(ax(2), td.Coh_T{ind_ax}, td.omega_bode, '-k', opt_coh);
+            elseif strcmp(G, 'Controller')
+                bodemag(ax(2), td.Coh_C{ind_ax}, td.omega_bode, '-k', opt_coh);
+            end
             title('');  % Remove auto-generated title
             ylabel(ax(2), 'Coherence (abs)');
             ylim(ax(2), [0 1]);
