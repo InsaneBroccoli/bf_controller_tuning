@@ -237,7 +237,7 @@ class GyroCtrlTuning:
                 self.Nest,
                 self.Ts_log
             )
-            
+     
             # Calculate plant response (indirect method)
             P_gef_ax = T_ax / Guw_ax
             
@@ -448,7 +448,7 @@ class GyroCtrlTuning:
                 self.Gf_ana_new,
                 self.Cd_ana_new
             )
-            
+
             CL_ana.T = CL_ana_.T
             CL_ana_new.T = CL_ana_new_.T
         

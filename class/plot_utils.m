@@ -368,7 +368,7 @@ classdef plot_utils
             bodemag(ax(2), td.CloLoAan.S, td.CloLoAanNew.S, opt);
             title('Sensitivity S')
             if obj.do_insert_legends
-                legend('new','measured','Location','northwest');
+                legend('measured','new','Location','northwest');
             end
         
             % =========================
@@ -378,7 +378,7 @@ classdef plot_utils
             bodemag(ax(3), td.CloLoAan.SC, td.CloLoAanNew.SC, opt);
             title('Controller Effort SC')
             if obj.do_insert_legends
-                legend('new','measured','Location','northwest');
+                legend('measured','new','Location','northwest');
             end
         
             % =========================
@@ -388,7 +388,7 @@ classdef plot_utils
             bodemag(ax(4), td.CloLoAan.SP, td.CloLoAanNew.SP, opt);
             title('Compliance SP')
             if obj.do_insert_legends
-                legend('new','measured','Location','southwest');
+                legend('measured','new','Location','southwest');
             end
         
             % ---- Formatting ----

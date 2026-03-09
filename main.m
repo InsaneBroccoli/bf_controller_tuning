@@ -30,8 +30,8 @@ plotter = plot_utils(do_insert_legends);
 % =========================================================================
 
 log_folder = 'logs';
-flight_folder = '20251208';
-log_name = '01_20251208_OvershootExpress.csv';
+flight_folder = '20251212';
+log_name = '06_20251212_OvershootExpress.TXT.csv';
 file_path = fullfile(log_folder, flight_folder, log_name);
 
 df = flight_data(file_path);
