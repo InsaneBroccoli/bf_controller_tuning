@@ -296,74 +296,50 @@ class PlotUtils:
         """
         ind_ax = td.ind_ax
         axis_name = self.axis_names[ind_ax]
-        
+
         fig, axes = plt.subplots(2, 2, figsize=(8, 6))
         fig.suptitle(f'Gang of Four {label} - {axis_name}', fontsize=14, fontweight='bold')
-        
+
+        def plot_frd(ax, systems, title, xlabel=None):
+            for sys, style, lbl in systems:
+                mag, _, omega = ct.bode(sys, plot=False)
+                freq_hz = omega / (2 * np.pi)
+                ax.semilogx(freq_hz, 20 * np.log10(mag), style, linewidth=self.linewidth, label=lbl)
+            ax.grid(True, which='both', alpha=0.3)
+            ax.set_ylabel('Magnitude (dB)')
+            ax.set_title(title)
+            if xlabel:
+                ax.set_xlabel(xlabel)
+            if self.do_insert_legends:
+                ax.legend(loc='best')
+
         # Tracking T
-        ax = axes[0, 0]
-        for sys, style, lbl in [
-            (td.CloLoAan.T, '--', 'actual'),
-            (td.CloLoAanNew.T, '-', 'new'),
-            (td.T[ind_ax], ':', 'measured')
-        ]:
-            mag, _, omega = ct.bode(sys, plot=False)
-            freq_hz = omega / (2 * np.pi)
-            ax.semilogx(freq_hz, 20 * np.log10(mag), style, linewidth=self.linewidth, label=lbl)
-        ax.grid(True, which='both', alpha=0.3)
-        ax.set_ylabel('Magnitude (dB)')
-        ax.set_title('Tracking T')
-        if self.do_insert_legends:
-            ax.legend(loc='best')
-        
+        plot_frd(axes[0, 0], [
+            (td.CloLoAan.T,    '--', 'actual'),
+            (td.CloLoAanNew.T, '-',  'new'),
+            (td.T[ind_ax],     ':',  'measured'),
+        ], title='Tracking T')
+
         # Sensitivity S
-        ax = axes[0, 1]
-        for sys, style, lbl in [
-            (td.CloLoAan.S, '--', 'actual'),
-            (td.CloLoAanNew.S, '-', 'new')
-        ]:
-            mag, _, omega = ct.bode(sys, plot=False)
-            freq_hz = omega / (2 * np.pi)
-            ax.semilogx(freq_hz, 20 * np.log10(mag), style, linewidth=self.linewidth, label=lbl)
-        ax.grid(True, which='both', alpha=0.3)
-        ax.set_ylabel('Magnitude (dB)')
-        ax.set_title('Sensitivity S')
-        if self.do_insert_legends:
-            ax.legend(loc='best')
-        
+        plot_frd(axes[0, 1], [
+            (td.CloLoAan.S,    '--', 'actual'),
+            (td.CloLoAanNew.S, '-',  'new'),
+        ], title='Sensitivity S')
+
         # Controller Effort SC
-        ax = axes[1, 0]
-        for sys, style, lbl in [
-            (td.CloLoAan.SC, '--', 'actual'),
-            (td.CloLoAanNew.SC, '-', 'new')
-        ]:
-            mag, _, omega = ct.bode(sys, plot=False)
-            freq_hz = omega / (2 * np.pi)
-            ax.semilogx(freq_hz, 20 * np.log10(mag), style, linewidth=self.linewidth, label=lbl)
-        ax.grid(True, which='both', alpha=0.3)
-        ax.set_ylabel('Magnitude (dB)')
-        ax.set_xlabel('Frequency (Hz)')
-        ax.set_title('Controller Effort SC')
-        if self.do_insert_legends:
-            ax.legend(loc='best')
-        
+        plot_frd(axes[1, 0], [
+            (td.CloLoAan.SC,    '--', 'actual'),
+            (td.CloLoAanNew.SC, '-',  'new'),
+        ], title='Controller Effort SC', xlabel='Frequency (Hz)')
+
         # Compliance SP
-        ax = axes[1, 1]
-        for sys, style, lbl in [
-            (td.CloLoAan.SP, '--', 'actual'),
-            (td.CloLoAanNew.SP, '-', 'new')
-        ]:
-            mag, _, omega = ct.bode(sys, plot=False)
-            freq_hz = omega / (2 * np.pi)
-            ax.semilogx(freq_hz, 20 * np.log10(mag), style, linewidth=self.linewidth, label=lbl)
-        ax.grid(True, which='both', alpha=0.3)
-        ax.set_ylabel('Magnitude (dB)')
-        ax.set_xlabel('Frequency (Hz)')
-        ax.set_title('Compliance SP')
-        if self.do_insert_legends:
-            ax.legend(loc='best')
-        
+        plot_frd(axes[1, 1], [
+            (td.CloLoAan.SP,    '--', 'actual'),
+            (td.CloLoAanNew.SP, '-',  'new'),
+        ], title='Compliance SP', xlabel='Frequency (Hz)')
+
         plt.tight_layout()
+
     
     # ======================================================================
     # Figure Step Response

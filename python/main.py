@@ -43,8 +43,8 @@ def main():
     # =========================================================================
     
     log_folder = 'logs'
-    flight_folder = '20251208'
-    log_name = '01_20251208_OvershootExpress.csv'
+    flight_folder = '20251212'
+    log_name = '06_20251212_OvershootExpress.TXT.csv'
     file_path = Path(log_folder) / flight_folder / log_name
     
     print(f"\nLoading flight log: {file_path}")
