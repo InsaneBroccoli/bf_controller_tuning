@@ -1,0 +1,277 @@
+
+# version
+# Betaflight / STM32H743 (H743) 2026.6.0-alpha Mar  2 2026 / 10:46:40 (norevision) MSP API: 1.48
+# config rev: f932625
+
+# start the command batch
+batch start
+
+# reset configuration to default settings
+defaults nosave
+
+board_name MATEKH743
+manufacturer_id MTKS
+mcu_id 002600213230510f34353331
+signature 
+
+# name: aosmini
+
+# dma
+dma ADC 1 8
+# ADC 1: DMA2 Stream 0 Request 9
+dma ADC 3 9
+# ADC 3: DMA2 Stream 1 Request 115
+dma TIMUP 1 0
+# TIMUP 1: DMA1 Stream 0 Request 15
+dma TIMUP 2 0
+# TIMUP 2: DMA1 Stream 0 Request 22
+dma TIMUP 3 2
+# TIMUP 3: DMA1 Stream 2 Request 27
+dma TIMUP 4 1
+# TIMUP 4: DMA1 Stream 1 Request 32
+dma TIMUP 5 0
+# TIMUP 5: DMA1 Stream 0 Request 59
+dma TIMUP 8 0
+# TIMUP 8: DMA1 Stream 0 Request 51
+dma pin B01 0
+# pin B01: DMA1 Stream 0 Request 26
+dma pin A00 0
+# pin A00: DMA1 Stream 0 Request 55
+dma pin A01 0
+# pin A01: DMA1 Stream 0 Request 56
+dma pin A02 0
+# pin A02: DMA1 Stream 0 Request 57
+dma pin A03 0
+# pin A03: DMA1 Stream 0 Request 58
+dma pin D12 0
+# pin D12: DMA1 Stream 0 Request 29
+dma pin D13 0
+# pin D13: DMA1 Stream 0 Request 30
+dma pin A08 0
+# pin A08: DMA1 Stream 0 Request 11
+
+# feature
+feature GPS
+feature TELEMETRY
+feature OSD
+
+# serial
+serial UART2 2 115200 57600 0 115200
+serial UART4 131073 115200 57600 0 115200
+serial UART7 128 115200 57600 0 2000000
+
+# beacon
+beacon RX_LOST
+beacon RX_SET
+
+# aux
+aux 0 0 0 1900 2100 0 0
+aux 1 1 2 1900 2100 0 0
+aux 2 2 2 900 1100 0 0
+aux 3 55 3 1900 2100 1 0
+aux 4 55 0 1900 2100 1 0
+aux 5 56 3 900 1100 0 0
+aux 6 27 4 1900 2100 1 0
+aux 7 27 0 1900 2100 1 0
+aux 8 27 1 1900 2100 1 0
+aux 9 13 5 1900 2100 1 0
+aux 10 13 0 900 1100 1 0
+aux 11 26 5 1900 2100 1 0
+aux 12 26 0 1900 2100 1 0
+aux 13 36 1 1900 2100 0 0
+
+# master
+set gyro_lpf1_static_hz = 0
+set gyro_lpf2_type = PT3
+set gyro_lpf2_static_hz = 800
+set dyn_notch_count = 2
+set dyn_notch_q = 500
+set gyro_lpf1_dyn_min_hz = 0
+set gyro_lpf1_dyn_max_hz = 0
+set acc_calibration = -4,25,92,1
+set rssi_channel = 12
+set rc_smoothing_auto_factor = 45
+set rc_smoothing_auto_factor_throttle = 45
+set blackbox_sample_rate = 1/2
+set blackbox_device = SERIAL
+set blackbox_high_resolution = ON
+set dshot_bidir = ON
+set motor_pwm_protocol = DSHOT300
+set motor_poles = 12
+set motor_output_reordering = 3,2,1,0,4,5,6,7
+set failsafe_switch_mode = STAGE2
+set failsafe_procedure = GPS-RESCUE
+set align_board_yaw = -90
+set small_angle = 180
+set gps_ublox_use_galileo = ON
+set gps_rescue_allow_arming_without_fix = ON
+set yaw_deadband = 5
+set pid_process_denom = 2
+set simplified_gyro_filter = OFF
+set osd_warn_bitmask = 8061
+set osd_rssi_pos = 2608
+set osd_flymode_pos = 2652
+set osd_mah_drawn_pos = 3688
+set osd_gps_speed_pos = 2640
+set osd_gps_lon_pos = 3203
+set osd_gps_lat_pos = 2191
+set osd_gps_sats_pos = 3592
+set osd_home_dir_pos = 2270
+set osd_home_dist_pos = 3624
+set osd_altitude_pos = 2672
+set osd_pidrate_profile_pos = 2685
+set osd_warnings_pos = 2488
+set osd_avg_cell_voltage_pos = 3656
+set osd_disarmed_pos = 2682
+set osd_pid_profile_name_pos = 2683
+set debug_mode = CHIRP
+set displayport_msp_fonts = 0,0,0,0
+set craft_name = aosmini
+set pilot_name = pichim
+
+profile 0
+
+# profile 0
+set profile_name = Gut
+set dterm_lpf1_dyn_min_hz = 0
+set dterm_lpf1_dyn_max_hz = 0
+set dterm_lpf1_static_hz = 0
+set dterm_lpf2_type = PT3
+set dterm_lpf2_static_hz = 120
+set vbat_sag_compensation = 80
+set anti_gravity_gain = 140
+set iterm_relax_cutoff = 13
+set pidsum_limit = 800
+set pidsum_limit_yaw = 600
+set yaw_lowpass_hz = 200
+set p_pitch = 58
+set i_pitch = 98
+set d_pitch = 44
+set f_pitch = 0
+set p_roll = 33
+set i_roll = 52
+set d_roll = 26
+set f_roll = 0
+set p_yaw = 42
+set i_yaw = 65
+set d_yaw = 3
+set f_yaw = 0
+set angle_feedforward = 0
+set d_max_roll = 0
+set d_max_pitch = 0
+set thrust_linear = 40
+set dyn_idle_min_rpm = 25
+set simplified_pids_mode = OFF
+set simplified_dterm_filter = OFF
+set tpa_mode = PD
+set tpa_rate = 50
+set tpa_breakpoint = 1400
+
+profile 1
+
+# profile 1
+set profile_name = Gut
+set dterm_lpf1_dyn_min_hz = 0
+set dterm_lpf1_dyn_max_hz = 0
+set dterm_lpf1_static_hz = 0
+set dterm_lpf2_type = PT3
+set dterm_lpf2_static_hz = 120
+set vbat_sag_compensation = 80
+set anti_gravity_gain = 140
+set iterm_relax_cutoff = 13
+set pidsum_limit = 800
+set pidsum_limit_yaw = 600
+set yaw_lowpass_hz = 200
+set p_pitch = 58
+set i_pitch = 98
+set d_pitch = 44
+set f_pitch = 0
+set p_roll = 33
+set i_roll = 52
+set d_roll = 26
+set f_roll = 0
+set p_yaw = 42
+set i_yaw = 65
+set d_yaw = 3
+set f_yaw = 0
+set d_max_roll = 0
+set d_max_pitch = 0
+set thrust_linear = 40
+set dyn_idle_min_rpm = 25
+set simplified_pids_mode = OFF
+set simplified_dterm_filter = OFF
+set tpa_mode = PD
+set tpa_rate = 50
+set tpa_breakpoint = 1400
+
+profile 2
+
+# profile 2
+set profile_name = Schlecht
+set dterm_lpf1_dyn_min_hz = 0
+set dterm_lpf1_dyn_max_hz = 0
+set dterm_lpf1_static_hz = 0
+set dterm_lpf2_type = PT3
+set dterm_lpf2_static_hz = 120
+set vbat_sag_compensation = 80
+set anti_gravity_gain = 140
+set iterm_relax = OFF
+set iterm_relax_cutoff = 13
+set pidsum_limit = 800
+set pidsum_limit_yaw = 600
+set yaw_lowpass_hz = 200
+set p_pitch = 23
+set i_pitch = 78
+set d_pitch = 4
+set f_pitch = 0
+set p_roll = 13
+set i_roll = 42
+set d_roll = 2
+set f_roll = 0
+set p_yaw = 13
+set i_yaw = 117
+set f_yaw = 0
+set d_max_roll = 0
+set d_max_pitch = 0
+set thrust_linear = 40
+set dyn_idle_min_rpm = 25
+set simplified_pids_mode = OFF
+set simplified_dterm_filter = OFF
+set tpa_mode = PD
+set tpa_rate = 50
+set tpa_breakpoint = 1400
+
+profile 3
+
+# restore original profile selection
+profile 0
+
+rateprofile 0
+
+# rateprofile 0
+set thr_mid = 20
+set thr_expo = 30
+set thr_hover = 20
+set roll_rc_rate = 15
+set pitch_rc_rate = 15
+set yaw_rc_rate = 15
+set roll_expo = 60
+set pitch_expo = 60
+set yaw_expo = 52
+set roll_srate = 70
+set pitch_srate = 70
+set yaw_srate = 60
+set throttle_limit_type = SCALE
+set throttle_limit_percent = 80
+
+rateprofile 1
+
+rateprofile 2
+
+rateprofile 3
+
+# restore original rateprofile selection
+rateprofile 0
+
+# save configuration
+save
