@@ -1,7 +1,7 @@
 
 # version
-# Betaflight / STM32H743 (H743) 2025.12.2 Feb 26 2026 / 11:46:56 (norevision) MSP API: 1.47
-# config rev: e378347
+# Betaflight / STM32H743 (H743) 2026.6.0-alpha Mar  9 2026 / 11:54:38 (norevision) MSP API: 1.48
+# config rev: f932625
 
 # start the command batch
 batch start
@@ -51,6 +51,7 @@ dma pin A08 0
 # pin A08: DMA1 Stream 0 Request 11
 
 # feature
+feature -AIRMODE
 feature GPS
 feature TELEMETRY
 feature OSD
@@ -67,19 +68,18 @@ beacon RX_SET
 # aux
 aux 0 0 0 1900 2100 0 0
 aux 1 1 2 1900 2100 0 0
-aux 2 2 2 900 1100 0 0
-aux 3 27 4 1900 2100 1 0
-aux 4 27 0 1900 2100 1 0
-aux 5 27 1 1900 2100 1 0
-aux 6 55 3 1900 2100 1 0
-aux 7 55 0 1900 2100 1 0
-aux 8 13 5 1900 2100 1 0
-aux 9 13 0 900 1100 1 0
-aux 10 26 5 1900 2100 1 0
-aux 11 26 0 1900 2100 1 0
-aux 12 35 3 900 1100 1 0
-aux 13 35 0 1900 2100 1 0
-aux 14 36 1 1900 2100 0 0
+aux 2 3 2 900 1600 0 0
+aux 3 55 3 1900 2100 1 0
+aux 4 55 0 1900 2100 1 0
+aux 5 56 2 900 1100 0 0
+aux 6 27 4 1900 2100 1 0
+aux 7 27 0 1900 2100 1 0
+aux 8 27 1 1900 2100 1 0
+aux 9 13 5 1900 2100 1 0
+aux 10 13 0 900 1100 1 0
+aux 11 26 5 1900 2100 1 0
+aux 12 26 0 1900 2100 1 0
+aux 13 36 1 1900 2100 0 0
 
 # master
 set gyro_lpf1_static_hz = 0
@@ -129,6 +129,7 @@ set debug_mode = CHIRP
 set displayport_msp_fonts = 0,0,0,0
 set craft_name = aosmini
 set pilot_name = pichim
+set ap_alt_chirp_ampl = 2000
 
 profile 0
 
