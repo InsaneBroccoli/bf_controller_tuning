@@ -56,6 +56,7 @@ class PlotUtils:
         """
         n_subplots = len(groups)
         fig, axes = plt.subplots(n_subplots, 1, figsize=(8, 6))
+        fig.canvas.manager.set_window_title('Flight Gyro Data')
         
         if n_subplots == 1:
             axes = [axes]
@@ -81,7 +82,7 @@ class PlotUtils:
             ax.set_ylabel(group['ylabel'])
             
             if self.do_insert_legends:
-                ax.legend(loc='best')
+                ax.legend(loc='upper right')
             
             if i == n_subplots - 1:
                 ax.set_xlabel('Time [s]')
@@ -101,6 +102,7 @@ class PlotUtils:
         delta_time_us = np.diff(time) * 1.0e6
         
         fig, ax = plt.subplots(figsize=(8, 6))
+        fig.canvas.manager.set_window_title('Evaluation Time Analysis')
         
         ax.plot(time[:-1], delta_time_us)
         
@@ -119,9 +121,6 @@ class PlotUtils:
         ax.set_ylabel('Ts log (μs)')
         ax.set_xlim([0, time[-1]])
         
-        if self.do_insert_legends:
-            ax.legend()
-        
         plt.tight_layout()
     
     # ======================================================================
@@ -135,6 +134,7 @@ class PlotUtils:
             Flight analyzer object
         """
         fig, axes = plt.subplots(3, 1, figsize=(8, 6))
+        fig.canvas.manager.set_window_title('Gyro Spectra')
         
         # Unfiltered gyro spectra
         axes[0].plot(fa.freq_spectra, fa.spectra[:, 0:3])
@@ -188,6 +188,7 @@ class PlotUtils:
             Number of axes to plot
         """
         fig = plt.figure(figsize=(8, 6))
+        fig.canvas.manager.set_window_title('Gyro Spectrograms')
         axes_labels = ['Roll', 'Pitch', 'Yaw']
         c_lim = [5e-2, 3e0]
         
@@ -251,6 +252,7 @@ class PlotUtils:
         axis_name = self.axis_names[ind_ax]
         
         fig = plt.figure(figsize=(8, 6))
+        fig.canvas.manager.set_window_title(f'Bode Plot {custom_label} - {axis_name}')
         gs = GridSpec(3, 1, height_ratios=[2, 2, 1])
         
         # Magnitude plot
@@ -298,13 +300,15 @@ class PlotUtils:
         axis_name = self.axis_names[ind_ax]
 
         fig, axes = plt.subplots(2, 2, figsize=(8, 6))
+        fig.canvas.manager.set_window_title(f'Gang of Four - {axis_name}')
         fig.suptitle(f'Gang of Four {label} - {axis_name}', fontsize=14, fontweight='bold')
 
         def plot_frd(ax, systems, title, xlabel=None):
             for sys, style, lbl in systems:
                 mag, _, omega = ct.bode(sys, plot=False)
                 freq_hz = omega / (2 * np.pi)
-                ax.semilogx(freq_hz, 20 * np.log10(mag), style, linewidth=self.linewidth, label=lbl)
+                mag_db = 20 * np.log10(mag.squeeze())
+                ax.semilogx(freq_hz, mag_db, style, linewidth=self.linewidth, label=lbl)
             ax.grid(True, which='both', alpha=0.3)
             ax.set_ylabel('Magnitude (dB)')
             ax.set_title(title)
@@ -358,6 +362,7 @@ class PlotUtils:
         axis_name = self.axis_names[td.ind_ax]
         
         fig, axes = plt.subplots(2, 1, figsize=(8, 6))
+        fig.canvas.manager.set_window_title(f'Step Response - {axis_name}')
         fig.suptitle(f'Step Response {label} - {axis_name}', fontsize=14, fontweight='bold')
         
         # Tracking
