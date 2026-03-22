@@ -142,11 +142,11 @@ para_new.gyro_soft_type      = 0;       % type of gyro lpf 1
 para_new.gyro_lowpass_dyn_hz = [0, 0];  % dyn gyro lpf overwrites gyro_lowpass_hz
 para_new.gyro_lowpass2_hz    = 800;     % frequency of gyro lpf 2
 para_new.gyro_soft2_type     = 0;       % type of gyro lpf 2
-para_new.gyro_notch_hz       = [0, 0];  % frequency of gyro notch 1 and 2
+para_new.gyro_notch_hz       = [100, 0];  % frequency of gyro notch 1 and 2
 
 % Gyro notch cutoff: either computed from D and center frequency or set manually
 % para_new.gyro_notch_cutoff   = get_fcut_from_D_and_fcenter([0.0, 0.00], para_new.gyro_notch_hz); % damping of gyro notch 1 and 
-para_new.gyro_notch_cutoff   = [0, 0]; % % Cutoff frequency gyro notch 1 and 2
+para_new.gyro_notch_cutoff   = [120, 0]; % % Cutoff frequency gyro notch 1 and 2
 
 para_new.dterm_lpf_hz        = 0;       % frequency of dterm lpf 1
 para_new.dterm_filter_type   = 0;       % type of dterm lpf 1
