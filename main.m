@@ -101,9 +101,9 @@ resolution_factor_tf = 2;    % Window length for spectral analysis (seconds)
 overlap_tf = 0.9;              % Overlap factor for spectral analysis (0-1)
 gyro_tuning = gyro_tuning.calculate_transfer_func(resolution_factor_tf, overlap_tf);
 
-resolution_factor_at = 15;    % Window length for spectral analysis (seconds)
+resolution_factor_at = 5;    % Window length for spectral analysis (seconds)
 overlap_at = 0.9;              % Overlap factor for spectral analysis (0-1)
-angle_tuning = angle_tuning.calculate_Angle_trans(overlap_at, overlap_at);
+angle_tuning = angle_tuning.calculate_Angle_trans(resolution_factor_at, overlap_at);
 
 % Options (gyro_tuning/angle_tuning, roll/pitch/yaw, 'Gyro'/'Angle', ...
 % 'Plant'/'Complementary Sensitivity'/'Controller')
@@ -121,7 +121,7 @@ analysis_flight = analysis_flight.calculate_spectra(resolution_factor_spectra, .
     overlap_spectra);
 
 % Data for Spectogram
-resolution_factor_spectogram = 0.2;    % Window length for spectral analysis (seconds)
+resolution_factor_spectogram = 2;    % Window length for spectral analysis (seconds)
 overlap_spectogram = 0.9;              % Overlap factor for spectral analysis (0-1)
 analysis_flight = analysis_flight.calculate_spectogram(resolution_factor_spectogram, ...
     overlap_spectogram);
@@ -221,3 +221,7 @@ P_Angle = 100;
 
 angle_tuning = angle_tuning.calculate_new_controller(ind_ax, P_Angle, ...
     default_parameters, para_new, para);
+angle_tuning = angle_tuning.get_tuning_data();
+
+plotter.plot_Gang_of_Four(angle_tuning,  'Angle');
+plotter.plot_Step_Response(angle_tuning,  'Angle', 'Angle (deg)');

@@ -60,8 +60,8 @@ classdef gyro_ctrl_tuning < handle
         Nest
         ind_ax
         Coh_P
-        CloLoAan
-        CloLoAanNew
+        CL_ana
+        CL_ana_new
         step_time
         step_resp_tra
         step_resp_com
@@ -285,8 +285,8 @@ classdef gyro_ctrl_tuning < handle
         function obj = get_tuning_data(obj, do_compensate_iterm)
             % --- Calculate Closed Loop Responses ---
             % Generate closed loop responses for both current and new parameters
-            CL_ana     = calculate_closed_loop(obj.Cpi_ana{obj.ind_ax}    , tf(1,1,obj.Ts_log), obj.P{obj.ind_ax}, obj.Gf_ana{obj.ind_ax}, obj.Cd_ana{obj.ind_ax});
-            CL_ana_new = calculate_closed_loop(obj.Cpi_ana_new, tf(1,1,obj.Ts_log), obj.P{obj.ind_ax}, obj.Gf_ana_new, obj.Cd_ana_new);
+            obj.CL_ana     = calculate_closed_loop(obj.Cpi_ana{obj.ind_ax}    , tf(1,1,obj.Ts_log), obj.P{obj.ind_ax}, obj.Gf_ana{obj.ind_ax}, obj.Cd_ana{obj.ind_ax});
+            obj.CL_ana_new = calculate_closed_loop(obj.Cpi_ana_new, tf(1,1,obj.Ts_log), obj.P{obj.ind_ax}, obj.Gf_ana_new, obj.Cd_ana_new);
 
             % Apply I-term compensation if enabled
             if do_compensate_iterm
@@ -309,14 +309,13 @@ classdef gyro_ctrl_tuning < handle
                     obj.Cd_ana_new);
     
                 % Update complementary sensitivity (nur T überschreiben)
-                CL_ana.T     = CL_ana_.T;
-                CL_ana_new.T = CL_ana_new_.T;
+                obj.CL_ana.T     = CL_ana_.T;
+                obj.CL_ana_new.T = CL_ana_new_.T;
                 
             end
             
             % Store final closed loop responses
-            obj.CloLoAan = CL_ana;
-            obj.CloLoAanNew = CL_ana_new;
+   
             
             % =============================================================
             %  Step Response Analysis
@@ -339,8 +338,8 @@ classdef gyro_ctrl_tuning < handle
             
             % --- Tracking Performance Analysis ---
             % Calculate step responses for setpoint tracking
-            step_resp = [calculate_step_response_from_frd(CL_ana.T    , f_max), ...    % Used parameters
-                         calculate_step_response_from_frd(CL_ana_new.T, f_max), ...    % New parameters
+            step_resp = [calculate_step_response_from_frd(obj.CL_ana.T    , f_max), ...    % Used parameters
+                         calculate_step_response_from_frd(obj.CL_ana_new.T, f_max), ...    % New parameters
                          calculate_step_response_from_frd(obj.T{obj.ind_ax}, f_max)];       % Measured response
 
             % Normalize responses around their mean values
@@ -351,8 +350,8 @@ classdef gyro_ctrl_tuning < handle
            
             % --- Disturbance Rejection Analysis ---
             % Calculate responses to disturbance inputs
-            step_resp = [calculate_step_response_from_frd(CL_ana.SP    , f_max), ...    % Used parameters
-                         calculate_step_response_from_frd(CL_ana_new.SP, f_max)];       % New parameters
+            step_resp = [calculate_step_response_from_frd(obj.CL_ana.SP    , f_max), ...    % Used parameters
+                         calculate_step_response_from_frd(obj.CL_ana_new.SP, f_max)];       % New parameters
             
             % Center responses around their mean
             step_resp_mean = mean(step_resp(obj.step_time > T_mean(1) & obj.step_time < T_mean(2),:));
