@@ -56,7 +56,7 @@ class PlotUtils:
         """
         n_subplots = len(groups)
         fig, axes = plt.subplots(n_subplots, 1, figsize=(8, 6))
-        fig.canvas.manager.set_window_title('Flight Gyro Data')
+        fig.canvas.manager.set_window_title(fig_title)
         
         if n_subplots == 1:
             axes = [axes]

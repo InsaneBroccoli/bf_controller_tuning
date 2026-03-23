@@ -6,7 +6,7 @@ Betaflight Controller Tuning Analysis Script
 Purpose: Analyzes flight logs and tunes PID controllers for a quadcopter
 
 Author: [Janick Dort, Yuri Bianchi, Dario Jurietti]
-Supervisor: [Michael Peter]
+Supervisors: [Michael Peter, Ruprecht Altenburger]
 Date: [28.02.2026]
 ==========================================================================
 """
@@ -187,7 +187,11 @@ def main():
     print("Controller Tuning")
     print("="*70)
     
-    # Axis selection: 0=roll, 1=pitch, 2=yaw
+    # Axis selection: 
+    # 0 = roll 
+    # 1 = pitch 
+    # 2 = yaw
+    
     ind_ax = 0
     
     # I-term compensation
