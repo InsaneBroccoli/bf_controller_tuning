@@ -33,6 +33,9 @@ classdef angle_ctrl_tuning < handle
         % Filters / controller
         C_ana_new
         C_ana
+
+        % Axis
+        ind_ax
     
     
         % analysis helpers
@@ -41,15 +44,12 @@ classdef angle_ctrl_tuning < handle
         step_time
     
         % closed-loop results
-        T_ana
-        T_ana_new
-        S_ana
-        S_ana_new
-        L_ana
-        L_ana_new
+        CL_ana
+        CL_ana_new
     
         % step response
         step_resp_tra
+        step_resp_com
     end
     methods
 
@@ -174,26 +174,24 @@ classdef angle_ctrl_tuning < handle
             
             C_Angle_ana = C_P_Angle_frd_old * Gf_ana_old;
             obj.C_ana = downsample_frd(C_Angle_ana, dataf.Ts_log, obj.T{ind_ax}.Frequency);
+
+            obj.ind_ax = ind_ax;
   
         end
 
 
-        function obj = get_tuning_data(obj, ind_ax)
+        function obj = get_tuning_data(obj)
 
             dataf = obj.data_flight;
             
 
             % Function has to be done!!
 
-            % --- Closed loop (old) ---
-            obj.L_ana  = obj.C_ana .* obj.T_gy{ind_ax} .* obj.P{ind_ax};
-            obj.T_ana = obj.L_ana / (1 + obj.L_ana);
-            obj.S_ana  = 1 / (1 + obj.L_ana);
+            obj.CL_ana = calculate_closed_loop_angle(obj.C_ana, ...
+                obj.T_gy{obj.ind_ax}, obj.P{obj.ind_ax});
 
-            % --- Closed loop (new) using measured Pg (NOT Pg_test) ---
-            obj.L_ana_new      = obj.C_ana_new .* obj.T_gy{ind_ax} .* obj.P{ind_ax};
-            obj.T_ana_new = obj.L_ana_new  / (1 + obj.L_ana_new );
-            obj.S_ana_new  = 1 / (1 + obj.L_ana_new);
+            obj.CL_ana_new = calculate_closed_loop_angle(obj.C_ana_new, ...
+                obj.T_gy{obj.ind_ax}, obj.P{obj.ind_ax});
         
             f_max = 500;
         
@@ -202,14 +200,24 @@ classdef angle_ctrl_tuning < handle
             obj.step_time = (0:obj.Nest-1).' * dataf.Ts_log;
         
             % Step responses
-            step_resp = [calculate_step_response_from_frd(obj.T{ind_ax} , f_max), ...    % Measured Transferfunction
-                        calculate_step_response_from_frd(obj.T_ana, f_max), ...    % Old parameters
-                        calculate_step_response_from_frd(obj.T_ana_new, f_max)];  % New parameters
+            step_resp = [calculate_step_response_from_frd(obj.T{obj.ind_ax} , f_max), ...    % Measured Transferfunction
+                        calculate_step_response_from_frd(obj.CL_ana.T, f_max), ...    % Old parameters
+                        calculate_step_response_from_frd(obj.CL_ana_new.T, f_max)];  % New parameters
         
             % Normalize around mean window
             idx_mean = (obj.step_time > T_mean(1)) & (obj.step_time < T_mean(2));
             step_resp_mean = mean(step_resp(idx_mean,:), 1);
             obj.step_resp_tra = step_resp ./ step_resp_mean;
+
+            % --- Disturbance Rejection Analysis ---
+            % Calculate responses to disturbance inputs
+            obj.step_resp_com = [calculate_step_response_from_frd(obj.CL_ana.SP    , f_max), ...    % Used parameters
+                         calculate_step_response_from_frd(obj.CL_ana_new.SP, f_max)];       % New parameters
+            
+            % Center responses around their mean
+            step_resp_mean = mean(obj.step_resp_com(obj.step_time > T_mean(1) & obj.step_time < T_mean(2),:));
+            obj.step_resp_com = obj.step_resp_com - step_resp_mean;
+
         end
     end
     

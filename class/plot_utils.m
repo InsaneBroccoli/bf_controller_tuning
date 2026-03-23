@@ -335,7 +335,7 @@ classdef plot_utils
             linkaxes(ax, 'x');
             set(findall(fig, 'type', 'line'), 'LineWidth', obj.linewidth);
         end
-
+%%
         % =================================================================
         %  FIGURE GANG OF FOUR
         % =================================================================
@@ -366,7 +366,7 @@ classdef plot_utils
             % --- Tracking T ---
             % =========================
             ax(1) = subplot(2,2,1);
-            bodemag(ax(1), td.CloLoAan.T, td.CloLoAanNew.T, td.T{ind_ax}, opt);
+            bodemag(ax(1), td.CL_ana.T, td.CL_ana_new.T, td.T{ind_ax}, opt);
             title('Tracking T');
             if obj.do_insert_legends
                 legend('actual','new','measured','Location','best');
@@ -376,7 +376,7 @@ classdef plot_utils
             % --- Sensitivity S ---
             % =========================
             ax(2) = subplot(2,2,2);
-            bodemag(ax(2), td.CloLoAan.S, td.CloLoAanNew.S, opt);
+            bodemag(ax(2), td.CL_ana.S, td.CL_ana_new.S, opt);
             title('Sensitivity S')
             if obj.do_insert_legends
                 legend('new','measured','Location','northwest');
@@ -386,7 +386,7 @@ classdef plot_utils
             % --- Controller Effort SC ---
             % =========================
             ax(3) = subplot(2,2,3);
-            bodemag(ax(3), td.CloLoAan.SC, td.CloLoAanNew.SC, opt);
+            bodemag(ax(3), td.CL_ana.SC, td.CL_ana_new.SC, opt);
             title('Controller Effort SC')
             if obj.do_insert_legends
                 legend('new','measured','Location','northwest');
@@ -396,7 +396,7 @@ classdef plot_utils
             % --- Compliance SP ---
             % =========================
             ax(4) = subplot(2,2,4);
-            bodemag(ax(4), td.CloLoAan.SP, td.CloLoAanNew.SP, opt);
+            bodemag(ax(4), td.CL_ana.SP, td.CL_ana_new.SP, opt);
             title('Compliance SP')
             if obj.do_insert_legends
                 legend('new','measured','Location','southwest');
@@ -410,7 +410,7 @@ classdef plot_utils
         
             sgtitle(sprintf('Gang of Four %s - %s', label, obj.axis_names{ind_ax}));
         end
-
+%%
         % =================================================================
         %  FIGURE STEP RESPONSE
         % =================================================================
