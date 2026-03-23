@@ -19,6 +19,8 @@ from py_lib.flight_analyzer import FlightAnalyzer
 from py_lib.gyro_ctrl_tuning import GyroCtrlTuning
 from py_lib.plot_utils import PlotUtils
 from py_lib.pidtuninglib import header_info
+import matplotlib.pyplot as plt
+
 
 
 def main():
@@ -241,7 +243,7 @@ def main():
         ind_ax, P_new, I_new, D_new,
         default_parameters, para_new
     )
-    
+
     # Get tuning data
     gyro_tuning = gyro_tuning.get_tuning_data(do_compensate_iterm)
     
