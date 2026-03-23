@@ -172,12 +172,12 @@ def main():
     plt.title("measured altitude")
     # Define sampling periods for control loop and logging
     Ts = 1 / 100  # Base sampling period (10ms)
-    Ts_cntr = 2 * Ts  # Control loop period
-    Ts_log = 2 * Ts_cntr  # Logging period
+    Ts_cntr = Ts  # Control loop period
+    Ts_log = 1 / 2000  # Logging period
 
     # Welch method parameters for frequency response estimation
     f_max_hz = 1 / (2 * Ts_log)
-    Nest = round(44.0 / Ts_log)  # FFT window size
+    Nest = round(10.0 / Ts_log)  # FFT window size
     koverlap = 0.9
     Noverlap = int(koverlap * Nest)  # Window overlap
     window = signal.windows.hann(Nest, sym=False)
