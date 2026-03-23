@@ -28,16 +28,16 @@ addpath(genpath("../logs/"));
 % file_path = fullfile(log_folder, flight_folder, log_name);
 
 %  Chrip Amplitude 400
-log_folder = '../logs';
-flight_folder = '20260323';
-log_name = 'A400.TXT.csv';
-file_path = fullfile(log_folder, flight_folder, log_name);
+% log_folder = '../logs';
+% flight_folder = '20260323';
+% log_name = 'A400.TXT.csv';
+% file_path = fullfile(log_folder, flight_folder, log_name);
 
 % Chrip Amplitude 800
-% log_folder = '../logs';
-% flight_folder = '20260317';
-% log_name = 'LOG077.TXT.csv';
-% file_path = fullfile(log_folder, flight_folder, log_name);
+log_folder = '../logs';
+flight_folder = '20260317';
+log_name = 'LOG077.TXT.csv';
+file_path = fullfile(log_folder, flight_folder, log_name);
 
 % log_folder = '../logs';
 % flight_folder = '20260317';
@@ -52,11 +52,11 @@ file_path = fullfile(log_folder, flight_folder, log_name);
 mat_path = fullfile(folder, base + ".mat");
 
 try
-  S = load(mat_path);
-  data = S.data;
+    S = load(mat_path);
+    data = S.data;
 catch
-  data = readmatrix(file_path, "NumHeaderLines", Nheader);
-  save(mat_path, "data");
+    data = readmatrix(file_path, "NumHeaderLines", Nheader);
+    save(mat_path, "data");
 end
 
 Ts      = 1 / 100;     % Althold loop period [s]
@@ -74,25 +74,13 @@ meas_alt = data(:, ind.debug(4));
 set_alt  = data(:, ind.debug(5));
 
 if (sinarg(1) ~= 0)
-  disp("altered data")
-  idx = sinarg == 0;
-  idx = find(movsum(idx, 100) == 100, 1);
-  sinarg(idx:end) = sinarg(idx:end) - sinarg(idx:end);
-  
-  idx = find(sinarg == 0, 1);
-  sinarg(1:idx - 1) = sinarg(1:idx - 1) - sinarg(1);
-  
-  idx = set_alt == 0;
-  idx = find(movsum(idx, 100) == 100, 1);
-  set_alt(idx:end) = set_alt(idx:end) - set_alt(idx:end);
-  
-  idx = find(set_alt == 0, 1);
-  set_alt(1:idx - 1) = set_alt(1:idx - 1) - set_alt(1);
+    disp("altered data")
+    sinarg = fix_signal(sinarg);
+    set_alt = fix_signal(set_alt);
 end
 
-idx = find(meas_alt ~= 0, 1);
-disp(idx)
-meas_alt(idx:end) = meas_alt(idx:end) - meas_alt(idx);
+idx = find(sinarg ~= 0, 1);
+meas_alt = fix_startalt(meas_alt, idx);
 
 % Extract motor signals
 motor1 = data(:, ind.motor(1));
