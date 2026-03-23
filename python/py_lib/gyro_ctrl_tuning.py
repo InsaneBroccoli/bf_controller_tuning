@@ -11,12 +11,16 @@ Date: [28.02.2026]
 ==========================================================================
 """
 
+import sys
+
 import numpy as np
 import control as ct
 from scipy.signal import hann
 from typing import Optional, List
 import warnings
 import time
+import matplotlib.pyplot as plt
+import copy
 
 from .pidtuninglib import (
     header_info,
@@ -247,7 +251,7 @@ class GyroCtrlTuning:
             
             # Frequency vector for Bode plots
             omega_bode_ax = 2 * np.pi * T_ax.omega / (2 * np.pi)
-            
+
             # Store results
             self.T[ind_axis] = T_ax
             self.Guw[ind_axis] = Guw_ax
@@ -428,7 +432,7 @@ class GyroCtrlTuning:
             self.Gf_ana_new,
             self.Cd_ana_new
         )
-        
+
         # Apply I-term compensation if enabled
         if do_compensate_iterm:
             Cpi_com = self.Cpi[self.ind_ax] / self.Cpi_ana[self.ind_ax]
@@ -450,7 +454,7 @@ class GyroCtrlTuning:
             )
 
             CL_ana.T = CL_ana_.T
-            CL_ana_new.T = CL_ana_new_.T
+            CL_ana_new.T = CL_ana_new_.T    
         
         self.CloLoAan = CL_ana
         self.CloLoAanNew = CL_ana_new
@@ -466,11 +470,11 @@ class GyroCtrlTuning:
         
         # Tracking performance
         step_resp = np.column_stack([
-            calculate_step_response_from_frd(CL_ana.T, f_max),
-            calculate_step_response_from_frd(CL_ana_new.T, f_max),
-            calculate_step_response_from_frd(self.T[self.ind_ax], f_max)
-        ])
-        
+            calculate_step_response_from_frd(copy.deepcopy(CL_ana.T), f_max),
+            calculate_step_response_from_frd(copy.deepcopy(CL_ana_new.T), f_max),
+            calculate_step_response_from_frd(copy.deepcopy(self.T[self.ind_ax]), f_max)
+      ])
+
         # Normalize
         mask = (self.step_time > T_mean[0]) & (self.step_time < T_mean[1])
         step_resp_mean = np.mean(step_resp[mask, :], axis=0)
@@ -479,8 +483,8 @@ class GyroCtrlTuning:
         
         # Disturbance rejection
         step_resp = np.column_stack([
-            calculate_step_response_from_frd(CL_ana.SP, f_max),
-            calculate_step_response_from_frd(CL_ana_new.SP, f_max)
+            calculate_step_response_from_frd(copy.deepcopy(CL_ana.SP), f_max),
+            calculate_step_response_from_frd(copy.deepcopy(CL_ana_new.SP), f_max)
         ])
         
         step_resp_mean = np.mean(step_resp[mask, :], axis=0)
@@ -488,5 +492,5 @@ class GyroCtrlTuning:
         self.step_resp_com = step_resp
         
         print(f'Tuning data calculation time: {time.time() - start_time:.3f}s')
-        
+
         return self
