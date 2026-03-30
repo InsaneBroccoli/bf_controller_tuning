@@ -10,10 +10,10 @@ addpath(genpath("../logs/"));
 % file_path = fullfile(log_folder, flight_folder, log_name);
 
 %  Chrip Amplitude 200
-% log_folder = '../logs';
-% flight_folder = '20260323';
-% log_name = 'A200.TXT.csv';
-% file_path = fullfile(log_folder, flight_folder, log_name);
+log_folder = '../logs';
+flight_folder = '20260323';
+log_name = 'A200.TXT.csv';
+file_path = fullfile(log_folder, flight_folder, log_name);
 
 %  Chrip Amplitude 250
 % log_folder = '../logs';
@@ -34,14 +34,19 @@ addpath(genpath("../logs/"));
 % file_path = fullfile(log_folder, flight_folder, log_name);
 
 % Chrip Amplitude 800
-log_folder = '../logs';
-flight_folder = '20260317';
-log_name = 'LOG077.TXT.csv';
-file_path = fullfile(log_folder, flight_folder, log_name);
+% log_folder = '../logs';
+% flight_folder = '20260317';
+% log_name = 'LOG077.TXT.csv';
+% file_path = fullfile(log_folder, flight_folder, log_name);
 
 % log_folder = '../logs';
 % flight_folder = '20260317';
-% log_name = 'LOG075.TXT.csv';
+% log_name = 'LOG070.TXT.csv';
+% file_path = fullfile(log_folder, flight_folder, log_name);
+
+% log_folder = '../logs';
+% flight_folder = '20260316';
+% log_name = 'LOG070.TXT.csv';
 % file_path = fullfile(log_folder, flight_folder, log_name);
 
 % --- Load and Process Flight Log Data ---
@@ -90,22 +95,22 @@ motor4 = data(:, ind.motor(4));
 
 % --- Figure 1: Raw signal inspection (full flight) ---
 figure(1)
-subplot(411)
-plot(time, sinarg); grid on;
-title('Chirp Signal (sinarg)');
-xlabel('Time [s]'); ylabel('Amplitude');
+% subplot(411)
+% plot(time, sinarg); grid on;
+% title('Chirp Signal (sinarg)');
+% xlabel('Time [s]'); ylabel('Amplitude');
 
-subplot(412)
+subplot(311)
 plot(time, set_alt); grid on;
 title('Set Altitude');
 xlabel('Time [s]'); ylabel('Altitude offset [cm]');
 
-subplot(413)
+subplot(312)
 plot(time, meas_alt); grid on;
 title('Measured Altitude');
 xlabel('Time [s]'); ylabel('Altitude offset [cm]');
 
-subplot(414)
+subplot(313)
 plot(time, motor1, time, motor2, time, motor3, time, motor4); grid on;
 legend('M1', 'M2', 'M3', 'M4', 'Location', 'best');
 title('Motor Commands');
@@ -129,10 +134,16 @@ plot(time(idx), meas_alt(idx)); grid on;
 title('Measured Altitude (chirp window)');
 xlabel('Time [s]'); ylabel('Altitude offset [cm]');
 
+% subplot(313)
+% plot(time(idx), sinarg(idx)); grid on;
+% title('Chirp Signal (chirp window)');
+% xlabel('Time [s]'); ylabel('Amplitude');
+
 subplot(313)
-plot(time(idx), sinarg(idx)); grid on;
-title('Chirp Signal (chirp window)');
-xlabel('Time [s]'); ylabel('Amplitude');
+plot(time(idx), motor1(idx), time(idx), motor2(idx), time(idx), motor3(idx), time(idx), motor4(idx)); grid on;
+legend('M1', 'M2', 'M3', 'M4', 'Location', 'best');
+title('Motor Commands');
+xlabel('Time [s]'); ylabel('Throttle');
 
 %% Estimate Transfer Function
 
