@@ -30,6 +30,7 @@ plotter = plot_utils(do_insert_legends);
 % =========================================================================
 
 log_folder = 'logs';
+
 flight_folder = '20260402';
 log_name = 'Angle_Flipmini.TXT.csv';
 file_path = fullfile(log_folder, flight_folder, log_name);
@@ -94,6 +95,7 @@ plotter.plot_Eval_Time(df.time);
 
 gyro_tuning = gyro_ctrl_tuning(df);
 
+
 resolution_factor_tuning = 2;    % Window length for spectral analysis (seconds)
 overlap_tuning = 0.9;              % Overlap factor for spectral analysis (0-1)
 gyro_tuning = gyro_tuning.calculate_transfer_func(resolution_factor_tuning, overlap_tuning);
@@ -102,6 +104,7 @@ gyro_tuning = gyro_tuning.calculate_transfer_func(resolution_factor_tuning, over
 % 'Plant'/'Complementary Sensitivity'/'Controller')
 
 plotter.plot_Bode_Plant(gyro_tuning, roll, 'Gyro', 'Plant');
+
 
 %% Flight Analyser
 analysis_flight = flight_analyzer(df.data, df.ind, df.Ts_log);

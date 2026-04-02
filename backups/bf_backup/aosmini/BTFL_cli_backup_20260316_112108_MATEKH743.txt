@@ -1,0 +1,48 @@
+
+# version
+# Betaflight / STM32H743 (H743) 2026.6.0-alpha Mar 16 2026 / 11:14:19 (norevision) MSP API: 1.48
+# config rev: f932625
+
+# start the command batch
+batch start
+
+# reset configuration to default settings
+defaults nosave
+
+board_name MATEKH743
+manufacturer_id MTKS
+mcu_id 002600213230510f34353331
+signature 
+
+# feature
+feature TELEMETRY
+feature LED_STRIP
+feature OSD
+
+# master
+set acc_calibration = -1,-3,160,1
+
+profile 0
+
+profile 1
+
+profile 2
+
+profile 3
+
+# restore original profile selection
+profile 0
+
+rateprofile 0
+
+rateprofile 1
+
+rateprofile 2
+
+rateprofile 3
+
+# restore original rateprofile selection
+rateprofile 0
+
+# save configuration
+save

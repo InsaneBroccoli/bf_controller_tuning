@@ -62,7 +62,7 @@ title('Compare Angle Rate and Current Setpoint');
 xlabel('Time [s]'); ylabel('deg/s [°/s]');
 
 subplot(313)
-plot(time, data(:,angleTarget(axis))*0.1,'-b');grid on;
+plot(time, data(:,sinarg),'-b');grid on;
 title('Target Angle');
 xlabel('Time [s]'); ylabel('deg [°]');
 
@@ -112,6 +112,7 @@ subplot(414)
 plot(time(idx), tdata(idx,ind.gyroADC(axis)),'-b');grid on;
 title('Gyro ADC');
 xlabel('Time [s]'); ylabel('deg/s  [°/s]');
+
 %% Lets Measure the Transferfunction and such kind of things
 
 % Pararmeters
