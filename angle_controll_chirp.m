@@ -1,12 +1,12 @@
-% Initialize workspace
+%% Start
 clc, clear variables, close all
 addpath(genpath('lib'));
 addpath logs/
 
 % Add file information
 log_folder = 'logs';
-flight_folder = '20260302';
-log_name = '20260302_flipmini.csv';
+flight_folder = '20251212';
+log_name = '06_20251212_OvershootExpress.TXT.csv';
 file_path = fullfile(log_folder, flight_folder, log_name);
 
 
@@ -36,54 +36,35 @@ time = (data(:,ind.time) - data(1,ind.time)) * 1.0e-6;
 % Define numbers of axis
 axis = 1;       %roll = 1; pitch = 2;
 
-% Define debugs
-sinarg = ind.debug(1);
-currentAngle = [ind.debug(2), ind.debug(5)];
-angleTarget = [ind.debug(3), ind.debug(6)];
-angleRate = [ind.debug(4), ind.debug(7)];
 
-% Check if debugs are simular to already definded logs
-figure(1)
-% Compare Heading and current Angle
-subplot(311)
-plot(time, data(:, currentAngle(axis)) * 0.1, '-b');
-hold on
-plot(time, data(:, ind.heading(axis))*100,'-r');grid on;
-legend('Current Angle','Heading','Location','best');
-title('Compare Current Anlge and Heading');
-xlabel('Time [s]'); ylabel('deg [°]');
+%% Creation of Chirpsignal
+sinarg_idx = ind.debug(1);
+sinarg_ax  = data(:, sinarg_idx) / 5e3;   % phase-like signal
 
-subplot(312)
-plot(time, data(:,angleRate(axis))*0.1,'-b');
-hold on
-plot(time, data(:, ind.setpoint(axis))*0.1,'-r');grid on;
-legend('Angle Rate','Setpoint','Location','best');
-title('Compare Angle Rate and Current Setpoint');
-xlabel('Time [s]'); ylabel('deg/s [°/s]');
+switch axis
+    case 1
+        A = para.chirp_amplitude_roll;
+    case 2
+        A = para.chirp_amplitude_pitch;
+    case 3
+        A = para.chirp_amplitude_yaw;
+    otherwise
+        error('Unknown axis.');
+end
 
-subplot(313)
-plot(time, data(:,sinarg),'-b');grid on;
-title('Target Angle');
-xlabel('Time [s]'); ylabel('deg [°]');
-
-% Delete everthing and just leave the chirp
-tdata(:,:) = data(:,:);
-
-% Scaling of data
-tdata(:, sinarg) = tdata(:, sinarg) / 5e3;
-tdata(:, currentAngle(axis)) = tdata(:,currentAngle(axis))*0.1;
-tdata(:, ind.setpoint(axis)) = tdata(:,ind.setpoint(axis))*0.1;
-tdata(:,angleRate(axis)) =  tdata(:,angleRate(axis))*0.1;
-tdata(:,angleTarget(axis)) =  tdata(:,angleTarget(axis))*0.1;
-tdata(:, ind.heading(axis)) = tdata(:, ind.heading(axis))*100;
-tdata(:, ind.gyroADC(axis)) = tdata(:, ind.gyroADC(axis))*0.1;
-
-% Create logical mask for desired time window
-ind_eval = get_ind_eval(tdata(:,sinarg), tdata(:,ind.gyroADC(axis)));
+% Detect active chirp interval
+ind_eval = get_ind_eval(sinarg_ax, data(:, ind.gyroADC(axis)));
 idx = ind_eval;
 
-sinarg_ax = tdata(:, sinarg);
-sinarg_ax(~ind_eval) = 0;
+% Reconstruct chirp input
+chirp = zeros(size(sinarg_ax));
+chirp(ind_eval) = A * cos(sinarg_ax(ind_eval));
+
+figure(11)
+plot(time, chirp);
+
+
+%%
 
 % Check if only the chirpsignal is not zero
 figure(2)
@@ -112,7 +93,6 @@ subplot(414)
 plot(time(idx), tdata(idx,ind.gyroADC(axis)),'-b');grid on;
 title('Gyro ADC');
 xlabel('Time [s]'); ylabel('deg/s  [°/s]');
-
 %% Lets Measure the Transferfunction and such kind of things
 
 % Pararmeters
