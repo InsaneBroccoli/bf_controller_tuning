@@ -183,15 +183,13 @@ classdef angle_ctrl_tuning < handle
         function obj = get_tuning_data(obj)
 
             dataf = obj.data_flight;
+            gyro = obj.gyro_tuning;
             
-
-            % Function has to be done!!
-
             obj.CL_ana = calculate_closed_loop_angle(obj.C_ana, ...
-                obj.T_gy{obj.ind_ax}, obj.P{obj.ind_ax});
-
+                gyro.CL_ana.T, obj.P{obj.ind_ax});
+            
             obj.CL_ana_new = calculate_closed_loop_angle(obj.C_ana_new, ...
-                obj.T_gy{obj.ind_ax}, obj.P{obj.ind_ax});
+                gyro.CL_ana_new.T, obj.P{obj.ind_ax});
         
             f_max = 500;
         

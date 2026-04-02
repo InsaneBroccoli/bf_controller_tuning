@@ -379,7 +379,7 @@ classdef plot_utils
             bodemag(ax(2), td.CL_ana.S, td.CL_ana_new.S, opt);
             title('Sensitivity S')
             if obj.do_insert_legends
-                legend('new','measured','Location','northwest');
+                legend('actual','new','Location','northwest');
             end
         
             % =========================
@@ -389,7 +389,7 @@ classdef plot_utils
             bodemag(ax(3), td.CL_ana.SC, td.CL_ana_new.SC, opt);
             title('Controller Effort SC')
             if obj.do_insert_legends
-                legend('new','measured','Location','northwest');
+                legend('actual','new','Location','northwest');
             end
         
             % =========================
@@ -399,7 +399,7 @@ classdef plot_utils
             bodemag(ax(4), td.CL_ana.SP, td.CL_ana_new.SP, opt);
             title('Compliance SP')
             if obj.do_insert_legends
-                legend('new','measured','Location','southwest');
+                legend('actual','new','Location','southwest');
             end
         
             % ---- Formatting ----
@@ -435,7 +435,8 @@ classdef plot_utils
                 clf(fig);
             end
         
-            % ---- Plot 1: Tracking ----
+            % ---- Plot 1: Tracking 
+            ----
             ax(1) = subplot(2,1,1);
             set(ax(1), 'XScale','linear', 'YScale','linear');
             plot(ax(1), td.step_time, td.step_resp_tra);

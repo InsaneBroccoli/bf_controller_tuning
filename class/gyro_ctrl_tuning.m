@@ -28,15 +28,9 @@
 
 classdef gyro_ctrl_tuning < handle
     properties       
-        % Raw flight data inputs
-
-        time             % Time vector [s]
-        data             % Flgiht data
-        ind              % Columns
-        para             % para
-        Ts_log           % Logging Time [s]
-        Ts_cntr
-
+        
+        data_flight     % Get all data and parameters
+        
         % Neede in different function
          T
         Guw
@@ -72,18 +66,15 @@ classdef gyro_ctrl_tuning < handle
     end
 
      methods
-         function obj = gyro_ctrl_tuning(data, ind, Ts_log, para, Ts_cntr)
-            obj.data = data;
-            obj.ind = ind;
-            obj.Ts_log = Ts_log;
-            obj.para = para;
-            obj.Ts_cntr = Ts_cntr;
+         function obj = gyro_ctrl_tuning(data_flight)
+            obj.data_flight = data_flight;
 
         end
         function obj = calculate_transfer_func(obj, Nestfatra, koverlaptra)
+            dataf = obj.data_flight;
 
             % Analysis window parameters
-            obj.Nest     = round(Nestfatra / obj.Ts_log);    % Window length in samples
+            obj.Nest     = round(Nestfatra / dataf.Ts_log);    % Window length in samples
             Noverlap = floor(koverlaptra * obj.Nest);        % Overlap between windows
             window   = hann(obj.Nest, 'periodic');               % Hanning window for analysis
             
@@ -91,7 +82,7 @@ classdef gyro_ctrl_tuning < handle
             Dlp = sqrt(3) / 2;    % Damping ratio
             wlp = 2 * pi * 10;    % Cutoff frequency [rad/s]
             Glp = c2d(tf(wlp^2, [1 2*Dlp*wlp wlp^2]), ...    % Discrete filter
-                    obj.Ts_log, 'tustin');                   % Using Tustin transform
+                    dataf.Ts_log, 'tustin');                   % Using Tustin transform
 
             % Preallocate cells for 3 axes
             n_axes = 3;
@@ -106,45 +97,45 @@ classdef gyro_ctrl_tuning < handle
             obj.P_gef = cell(1, n_axes);
             obj.Coh_T = cell(1, n_axes);
 
-            sinarg_full = obj.data(:, obj.ind.sinarg);  % Copy Data to adjust it
+            sinarg_full = dataf.data(:, dataf.ind.sinarg);  % Copy Data to adjust it
 
             for ind_axis = 1:n_axes       % Calculate Transferfunction for Roll, Pitch and Yaw
             
-                ind_eval = get_ind_eval(obj.data(:,obj.ind.sinarg), obj.data(:,obj.ind.gyroADC(ind_axis)));
+                ind_eval = get_ind_eval(dataf.data(:,dataf.ind.sinarg), dataf.data(:,dataf.ind.gyroADC(ind_axis)));
                 
                 sinarg_ax = sinarg_full;
                 sinarg_ax(~ind_eval) = 0;
 
                 % Calculate average throttle
-                obj.throttle_avg = median(obj.data(ind_eval,obj.ind.setpoint(4))) / 1.0e3;
+                obj.throttle_avg = median(dataf.data(ind_eval,dataf.ind.setpoint(4))) / 1.0e3;
 
                 
                  % ----- Input signal: w (filtered setpoint for this axis) -----
-                w = obj.data(:, obj.ind.setpoint(ind_axis));
+                w = dataf.data(:, dataf.ind.setpoint(ind_axis));
                 inp = apply_rotfiltfilt(Glp, sinarg_ax, w);
                 
                 % ----- Output y: filtered gyro for this axis -----
-                y = obj.data(:, obj.ind.gyroADC(ind_axis));
+                y = dataf.data(:, dataf.ind.gyroADC(ind_axis));
                 out_y = apply_rotfiltfilt(Glp, sinarg_ax, y);
 
                 % Calculate complementary sensitivity (T) and input-output responses
                 % T  , Gyw: w -> y
                 [T_ax, C_T_ax] = estimate_frequency_response( ...
-                    inp(ind_eval), out_y(ind_eval), window, Noverlap, obj.Nest, obj.Ts_log);
+                    inp(ind_eval), out_y(ind_eval), window, Noverlap, obj.Nest, dataf.Ts_log);
                             
                 % Calculate control sensitivity (Represents total controller output response)
                 % SCw, Guw: w -> u
-                u = obj.data(:, obj.ind.axisSum(ind_axis));
+                u = dataf.data(:, dataf.ind.axisSum(ind_axis));
                 out_u = apply_rotfiltfilt(Glp, sinarg_ax, u);
                 [Guw_ax, C_Guw_ax] = estimate_frequency_response( ...
-                    inp(ind_eval), out_u(ind_eval), window, Noverlap, obj.Nest, obj.Ts_log);
+                    inp(ind_eval), out_u(ind_eval), window, Noverlap, obj.Nest, dataf.Ts_log);
                 
                 % Calculate PI controller response (v is the output of just the PI portion of controller)
                 % Gvw: w -> v
-                v = obj.data(:, obj.ind.axisSumPI(ind_axis));
+                v = dataf.data(:, dataf.ind.axisSumPI(ind_axis));
                 out_v = apply_rotfiltfilt(Glp, sinarg_ax, v);
                 [Gvw_ax, ~] = estimate_frequency_response( ...
-                    inp(ind_eval), out_v(ind_eval), window, Noverlap, obj.Nest, obj.Ts_log);
+                    inp(ind_eval), out_v(ind_eval), window, Noverlap, obj.Nest, dataf.Ts_log);
                 
                 % Calculate plant response (indirect method: P = T/Guw for better noise immunity)
                 % P  , Gyu: u -> y
@@ -173,13 +164,13 @@ classdef gyro_ctrl_tuning < handle
                 
                 % Analytical controller transfer functions for this axis
                 [Cpi_ana_ax, Cd_ana_ax, Gf_ana_ax, PID_ax, para_used_ax] = ...
-                    calculate_transfer_functions(obj.para, ind_axis, obj.throttle_avg, obj.Ts_cntr);
+                    calculate_transfer_functions(dataf.para, ind_axis, obj.throttle_avg, dataf.Ts_cntr);
     
                  % Downsample to logging grid if necessary
-                if Gf_ana_ax.Ts < obj.Ts_log
-                    Gf_ana_ax  = downsample_frd(Gf_ana_ax , obj.Ts_log, P_gef_ax.Frequency);
-                    Cpi_ana_ax = downsample_frd(Cpi_ana_ax, obj.Ts_log, P_gef_ax.Frequency);
-                    Cd_ana_ax  = downsample_frd(Cd_ana_ax , obj.Ts_log, P_gef_ax.Frequency);
+                if Gf_ana_ax.Ts < dataf.Ts_log
+                    Gf_ana_ax  = downsample_frd(Gf_ana_ax , dataf.Ts_log, P_gef_ax.Frequency);
+                    Cpi_ana_ax = downsample_frd(Cpi_ana_ax, dataf.Ts_log, P_gef_ax.Frequency);
+                    Cd_ana_ax  = downsample_frd(Cd_ana_ax , dataf.Ts_log, P_gef_ax.Frequency);
                 end
                  % Store results per axis
                 obj.Gf_ana{ind_axis}  = Gf_ana_ax;
@@ -195,6 +186,9 @@ classdef gyro_ctrl_tuning < handle
 
          function obj = calculate_new_controller(obj, ind_ax, P_new, I_new, ...
                  D_new, default_parameters, para_new)
+
+             dataf = obj.data_flight;
+
             tic
             
             % Initialize axis names for reporting
@@ -202,8 +196,8 @@ classdef gyro_ctrl_tuning < handle
 
             % Handle default parameter case
             if default_parameters
-                 para_new = obj.para;
-                 pid_vec = obj.para.(pid_axis{ind_ax});
+                 para_new = dataf.para;
+                 pid_vec = dataf.para.(pid_axis{ind_ax});
 
                  % Use existing parameters
                  P_new = pid_vec(1);    % Current P gain
@@ -214,7 +208,7 @@ classdef gyro_ctrl_tuning < handle
             % Display used PID configuration
             fprintf('   used PID parameters are:\n');
             fprintf(['      ', pid_axis{ind_ax}, ':  %d, %d, %d\n'], ...
-                obj.para.(pid_axis{ind_ax})(1:3));
+                dataf.para.(pid_axis{ind_ax})(1:3));
             
             % Display all used parameters (from para_used for this axis)
             pu = obj.para_used{ind_ax};          % struct with used parameters for this axis
@@ -259,7 +253,7 @@ classdef gyro_ctrl_tuning < handle
             % --- Generate New Transfer Functions ---
             % Calculate analytical transfer functions with new parameters
             [obj.Cpi_ana_new, obj.Cd_ana_new, obj.Gf_ana_new, PID_new, para_used_new] = ...
-                calculate_transfer_functions(para_new, ind_ax, obj.throttle_avg, obj.Ts_cntr);
+                calculate_transfer_functions(para_new, ind_ax, obj.throttle_avg, dataf.Ts_cntr);
             
             % Display new parameter values
             para_used_fieldnames_new = fieldnames(para_used_new);
@@ -274,19 +268,21 @@ classdef gyro_ctrl_tuning < handle
             
             % --- Process Transfer Functions ---
             % Downsample analytical controller transferfunction and convert to frd objects
-            if obj.Gf_ana_new.Ts < obj.Ts_log % by using Gf_ana.Ts we secure that we do this only once
-                obj.Gf_ana_new  = downsample_frd(obj.Gf_ana_new , obj.Ts_log, obj.P_gef{ind_ax}.Frequency);
-                obj.Cpi_ana_new = downsample_frd(obj.Cpi_ana_new, obj.Ts_log, obj.P_gef{ind_ax}.Frequency);
-                obj.Cd_ana_new  = downsample_frd(obj.Cd_ana_new , obj.Ts_log, obj.P_gef{ind_ax}.Frequency);
+            if obj.Gf_ana_new.Ts < dataf.Ts_log % by using Gf_ana.Ts we secure that we do this only once
+                obj.Gf_ana_new  = downsample_frd(obj.Gf_ana_new , dataf.Ts_log, obj.P_gef{ind_ax}.Frequency);
+                obj.Cpi_ana_new = downsample_frd(obj.Cpi_ana_new, dataf.Ts_log, obj.P_gef{ind_ax}.Frequency);
+                obj.Cd_ana_new  = downsample_frd(obj.Cd_ana_new , dataf.Ts_log, obj.P_gef{ind_ax}.Frequency);
             end
             obj.ind_ax = ind_ax;
         end
 
         function obj = get_tuning_data(obj, do_compensate_iterm)
+
+            dataf = obj.data_flight;
             % --- Calculate Closed Loop Responses ---
             % Generate closed loop responses for both current and new parameters
-            obj.CL_ana     = calculate_closed_loop(obj.Cpi_ana{obj.ind_ax}    , tf(1,1,obj.Ts_log), obj.P{obj.ind_ax}, obj.Gf_ana{obj.ind_ax}, obj.Cd_ana{obj.ind_ax});
-            obj.CL_ana_new = calculate_closed_loop(obj.Cpi_ana_new, tf(1,1,obj.Ts_log), obj.P{obj.ind_ax}, obj.Gf_ana_new, obj.Cd_ana_new);
+            obj.CL_ana     = calculate_closed_loop(obj.Cpi_ana{obj.ind_ax}    , tf(1,1,dataf.Ts_log), obj.P{obj.ind_ax}, obj.Gf_ana{obj.ind_ax}, obj.Cd_ana{obj.ind_ax});
+            obj.CL_ana_new = calculate_closed_loop(obj.Cpi_ana_new, tf(1,1,dataf.Ts_log), obj.P{obj.ind_ax}, obj.Gf_ana_new, obj.Cd_ana_new);
 
             % Apply I-term compensation if enabled
             if do_compensate_iterm
@@ -296,14 +292,14 @@ classdef gyro_ctrl_tuning < handle
                 % Recalculate closed loop responses with compensation
                 CL_ana_ = calculate_closed_loop( ...
                     obj.Cpi_ana{obj.ind_ax} * Cpi_com, ...
-                    tf(1,1,obj.Ts_log), ...
+                    tf(1,1,dataf.Ts_log), ...
                     obj.P{obj.ind_ax}, ...
                     obj.Gf_ana{obj.ind_ax}, ...
                     obj.Cd_ana{obj.ind_ax});
     
                 CL_ana_new_ = calculate_closed_loop( ...
                     obj.Cpi_ana_new * Cpi_com, ...
-                    tf(1,1,obj.Ts_log), ...
+                    tf(1,1,dataf.Ts_log), ...
                     obj.P{obj.ind_ax}, ...
                     obj.Gf_ana_new, ...
                     obj.Cd_ana_new);
@@ -330,11 +326,11 @@ classdef gyro_ctrl_tuning < handle
 
             % --- Configure Analysis Parameters ---
             % Set frequency limit based on notch filter settings
-            f_max = min([obj.para.dyn_notch_min_hz, obj.para.gyro_rpm_notch_min]);
+            f_max = min([dataf.para.dyn_notch_min_hz, dataf.para.gyro_rpm_notch_min]);
 
             % Define time window for response analysis
-            T_mean = 0.1 * [-1, 1] + (obj.Nest * obj.Ts_log) / 2;    % Analysis window [s]
-            obj.step_time = (0:obj.Nest-1).'*obj.Ts_log;                 % Time vector [s]
+            T_mean = 0.1 * [-1, 1] + (obj.Nest * dataf.Ts_log) / 2;    % Analysis window [s]
+            obj.step_time = (0:obj.Nest-1).'*dataf.Ts_log;                 % Time vector [s]
             
             % --- Tracking Performance Analysis ---
             % Calculate step responses for setpoint tracking
