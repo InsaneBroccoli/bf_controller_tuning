@@ -30,8 +30,9 @@ plotter = plot_utils(do_insert_legends);
 % =========================================================================
 
 log_folder = 'logs';
-flight_folder = '20260401';
-log_name = 'Flipmini_Acro.csv';
+
+flight_folder = '20260402';
+log_name = 'Angle_Flipmini.TXT.csv';
 file_path = fullfile(log_folder, flight_folder, log_name);
 
 df = flight_data(file_path);
@@ -75,22 +76,35 @@ plotter.plotFlightData(df, group1,'Flight Gyro Data');
     };
 
 plotter.plotFlightData(df, group2,'Flight Overview');
+
+ group3 = {
+        struct('idx', [df.ind.currentAngle(1:2), df.ind.heading(1:2)], ...
+               'ylabel', 'Current Angle [°]', ...
+               'legend', ["Roll Current","Pitch Current","Roll Heading","Pitch Heading"])
+
+        struct('idx', df.ind.angleTarget(1:2), ...
+               'ylabel', 'Target Angle [°]', ...
+               'legend', ["Roll","Pitch"])
+
+    };
+
+plotter.plotFlightData(df, group3,'Target Overview');
 plotter.plot_Eval_Time(df.time);
 
 %% Get Bodeplots
 
-gyro_tuning = gyro_ctrl_tuning(df.data, df.ind, df.Ts_log, ...
-    df.para, df.Ts_cntr);
+gyro_tuning = gyro_ctrl_tuning(df);
 
-%angle_tuning = angle_ctrl_tuning(df,gyro_tuning);
 
-resolution_factor_tf = 2;    % Window length for spectral analysis (seconds)
-overlap_tf = 0.9;              % Overlap factor for spectral analysis (0-1)
-gyro_tuning = gyro_tuning.calculate_transfer_func(resolution_factor_tf, overlap_tf);
-%angle_tuning = angle_tuning.calculate_Angle_trans(resolution_factor_tf, overlap_tf);
+resolution_factor_tuning = 2;    % Window length for spectral analysis (seconds)
+overlap_tuning = 0.9;              % Overlap factor for spectral analysis (0-1)
+gyro_tuning = gyro_tuning.calculate_transfer_func(resolution_factor_tuning, overlap_tuning);
 
-plotter.plot_Bode_Plant(gyro_tuning, roll, 'Gyro');
-%plotter.plot_Bode_Plant(angle_tuning, roll, 'Angle');
+% Options (gyro_tuning/angle_tuning, roll/pitch/yaw, 'Gyro'/'Angle', ...
+% 'Plant'/'Complementary Sensitivity'/'Controller')
+
+plotter.plot_Bode_Plant(gyro_tuning, roll, 'Gyro', 'Plant');
+
 
 %% Flight Analyser
 analysis_flight = flight_analyzer(df.data, df.ind, df.Ts_log);
@@ -102,7 +116,7 @@ analysis_flight = analysis_flight.calculate_spectra(resolution_factor_spectra, .
     overlap_spectra);
 
 % Data for Spectogram
-resolution_factor_spectogram = 0.2;    % Window length for spectral analysis (seconds)
+resolution_factor_spectogram = 2;    % Window length for spectral analysis (seconds)
 overlap_spectogram = 0.9;              % Overlap factor for spectral analysis (0-1)
 analysis_flight = analysis_flight.calculate_spectogram(resolution_factor_spectogram, ...
     overlap_spectogram);
@@ -123,7 +137,7 @@ ind_ax = 1;     % keep it now until plot_utils is finished
 do_compensate_iterm = true;
 
 % New and old parameters are the same
-default_parameters = false; 
+default_parameters_gyro = false; 
 
 % =========================================================================
 %  First flight: Parameters
@@ -151,7 +165,7 @@ para_new.gyro_notch_cutoff   = [0, 0]; % % Cutoff frequency gyro notch 1 and 2
 para_new.dterm_lpf_hz        = 0;       % frequency of dterm lpf 1
 para_new.dterm_filter_type   = 0;       % type of dterm lpf 1
 para_new.dterm_lpf_dyn_hz    = [0, 0];  % dyn dterm lpf overwrites dterm_lpf_hz
-para_new.dterm_lpf2_hz       = 102;     % frequency of dterm lpf 2
+para_new.dterm_lpf2_hz       = 140;     % frequency of dterm lpf 2
 para_new.dterm_filter2_type  = 3;       % type of dterm lpf 2
 para_new.dterm_notch_hz      = 0;       % frequency of dterm notch
 
@@ -170,9 +184,9 @@ para_new.yaw_lpf_hz          = 200;     % frequency of yaw lpf (pt1)
 
 switch ind_ax
     case 1 % Roll PID values [default: 45, 80, 30]
-        P_new       = 38;
-        I_new       = 80;
-        D_new       = 27;
+        P_new       = 46;
+        I_new       = 74;
+        D_new       = 30;
     case 2 % Pitch PID values [default: 47, 84, 34]
         P_new       = 49;
         I_new       = 96;
@@ -184,7 +198,7 @@ switch ind_ax
 end
 
 gyro_tuning = gyro_tuning.calculate_new_controller(ind_ax, P_new, I_new, D_new, ...
-    default_parameters, para_new);
+    default_parameters_gyro, para_new);
 gyro_tuning = gyro_tuning.get_tuning_data(do_compensate_iterm);
 
 % plotter.plot_Bode_Contr(ind_ax, do_insert_legends);
@@ -193,9 +207,23 @@ plotter.plot_Step_Response(gyro_tuning,  'Gyro', 'Gyro (deg/sec)');
 
 %% Angle Tuning Data
 
+angle_tuning = angle_ctrl_tuning(df,gyro_tuning);
+angle_tuning = angle_tuning.calculate_Angle_trans(resolution_factor_tuning, overlap_tuning);
+
+plotter.plot_Bode_Plant(angle_tuning, roll, 'Angle', 'Complementary Sensitivity');
+
+% Old PT3
+para.angle_lpf_hz = 50;     % frequency of Angle lpf (PT3) (Check if we can add this to logfile)
+
+default_parameters_angle = false;
+
 % PT3 Angle Control
 para_new.angle_lpf_hz = 50;     % frequency of Angle lpf (PT3)
 P_Angle = 100;
 
-angle_tuning = angle_tuning.calculate_new_controller(P_Angle, ...
-    default_parameters, para_new);
+angle_tuning = angle_tuning.calculate_new_controller(ind_ax, P_Angle, ...
+    default_parameters_angle, para_new, para);
+angle_tuning = angle_tuning.get_tuning_data();
+
+plotter.plot_Gang_of_Four(angle_tuning,  'Angle');
+plotter.plot_Step_Response(angle_tuning,  'Angle', 'Angle (deg)');

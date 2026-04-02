@@ -55,6 +55,14 @@ classdef flight_data
             % Expand obj.indices for additional data columns
             obj.ind.axisSumPI = ind_cntr + (1:3);
             obj.ind.sinarg = obj.ind.debug(1);
+            % Current version
+            obj.ind.currentAngle = [obj.ind.debug(2), obj.ind.debug(5)];
+            obj.ind.angleTarget = [obj.ind.debug(3), obj.ind.debug(6)];
+            obj.ind.angleRate = [obj.ind.debug(4), obj.ind.debug(7)];
+            
+            % New Verion in the future
+            % obj.ind.currentAngle = [obj.ind.debug(2), obj.ind.debug(4)];
+            % obj.ind.angleTarget = [obj.ind.debug(3), obj.ind.debug(5)];
             
             % Convert microseconds to seconds for time vector
             obj.time = (obj.data(:,obj.ind.time) - obj.data(1,obj.ind.time)) * 1.0e-6;
@@ -62,13 +70,18 @@ classdef flight_data
             % Unscale highResolutionGain
             if obj.para.blackbox_high_resolution
                 blackbox_high_resolution_scale = 10.0;
-                ind_bb_high_res = [obj.ind.gyroADC, obj.ind.gyroUnfilt, obj.ind.rcCommand, obj.ind.setpoint(1:3)];
+                ind_bb_high_res = [obj.ind.gyroADC, obj.ind.gyroUnfilt, ...
+                    obj.ind.rcCommand, obj.ind.setpoint(1:3), obj.ind.currentAngle(1:2), ...
+                    obj.ind.angleTarget(1:2)];
                 obj.data(:, ind_bb_high_res) = 1.0 / blackbox_high_resolution_scale * obj.data(:, ind_bb_high_res);
             end
             
             % Unscale and remap sinarg
             sinargScale = 5.0e3;
             obj.data(:,obj.ind.sinarg) = 1.0 / sinargScale * obj.data(:,obj.ind.sinarg);
+
+            % Unscale and remap heading
+            obj.data(:,obj.ind.heading(1:3)) = obj.data(:,obj.ind.heading(1:3)) * 100;
                         
             % Create an additional entry for the pi sum
             obj.data = [obj.data, obj.data(:,obj.ind.axisP) + obj.data(:,obj.ind.axisI)];

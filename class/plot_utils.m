@@ -285,16 +285,12 @@ classdef plot_utils
         % =================================================================
         % Bode plot (Plant and Coherence) for selected axis
 
-        function obj = plot_Bode_Plant(obj, td, ind_ax, customLabel)
-
-            if nargin < 4 || isempty(customLabel)
-                customLabel = 'Signal';   % oder '' wenn du gar nichts willst
-            end
+        function obj = plot_Bode_Plant(obj, td, ind_ax, customLabel, G)
 
             axisName = obj.axis_names{ind_ax};
 
-            figName    = sprintf('Bode Plot %s - %s', customLabel, axisName);
-            plantTitle = sprintf('Plant P (%s) - %s', customLabel, axisName);
+            figName    = sprintf('Bode Plot %s %s - %s', G, customLabel, axisName);
+            plantTitle = sprintf('%s (%s) - %s', G, customLabel, axisName);
 
             % ---- Figure Handling (überschreiben wenn vorhanden) ----
             fig = findobj('Type','figure','Name', figName);
@@ -310,13 +306,28 @@ classdef plot_utils
 
             % --- Plant ---
             ax(1) = subplot('Position', obj.pos_bode(1,:));
-            bode(ax(1), td.P{ind_ax}, 'k', td.omega_bode, opt);
+            if strcmp(G, 'Plant')
+                bode(ax(1), td.P{ind_ax}, 'k', td.omega_bode, opt);
+            elseif strcmp(G, 'Complementary Sensitivity')
+                bode(ax(1), td.T{ind_ax}, 'k', td.omega_bode, opt)
+            elseif strcmp(G, 'Controller')
+                bode(ax(1), td.C{ind_ax}, 'k', td.omega_bode, opt)
+            end
+
             title(plantTitle);
+
+            
 
             % --- Coherence ---
             ax(2) = subplot('Position', obj.pos_bode(2,:));
             opt_coh = bode_plot_options('abs', 'linear', 'deg', 'Hz');
-            bodemag(ax(2), td.Coh{ind_ax}, td.omega_bode, '-k', opt_coh);
+            if strcmp(G, 'Plant')
+                bodemag(ax(2), td.Coh_P{ind_ax}, td.omega_bode, '-k', opt_coh);
+            elseif strcmp(G, 'Complementary Sensitivity')
+                bodemag(ax(2), td.Coh_T{ind_ax}, td.omega_bode, '-k', opt_coh);
+            elseif strcmp(G, 'Controller')
+                bodemag(ax(2), td.Coh_C{ind_ax}, td.omega_bode, '-k', opt_coh);
+            end
             title('');  % Remove auto-generated title
             ylabel(ax(2), 'Coherence (abs)');
             ylim(ax(2), [0 1]);
@@ -324,7 +335,7 @@ classdef plot_utils
             linkaxes(ax, 'x');
             set(findall(fig, 'type', 'line'), 'LineWidth', obj.linewidth);
         end
-
+%%
         % =================================================================
         %  FIGURE GANG OF FOUR
         % =================================================================
@@ -355,7 +366,7 @@ classdef plot_utils
             % --- Tracking T ---
             % =========================
             ax(1) = subplot(2,2,1);
-            bodemag(ax(1), td.CloLoAan.T, td.CloLoAanNew.T, td.T{ind_ax}, opt);
+            bodemag(ax(1), td.CL_ana.T, td.CL_ana_new.T, td.T{ind_ax}, opt);
             title('Tracking T');
             if obj.do_insert_legends
                 legend('actual','new','measured','Location','best');
@@ -365,30 +376,30 @@ classdef plot_utils
             % --- Sensitivity S ---
             % =========================
             ax(2) = subplot(2,2,2);
-            bodemag(ax(2), td.CloLoAan.S, td.CloLoAanNew.S, opt);
+            bodemag(ax(2), td.CL_ana.S, td.CL_ana_new.S, opt);
             title('Sensitivity S')
             if obj.do_insert_legends
-                legend('new','measured','Location','northwest');
+                legend('actual','new','Location','northwest');
             end
         
             % =========================
             % --- Controller Effort SC ---
             % =========================
             ax(3) = subplot(2,2,3);
-            bodemag(ax(3), td.CloLoAan.SC, td.CloLoAanNew.SC, opt);
+            bodemag(ax(3), td.CL_ana.SC, td.CL_ana_new.SC, opt);
             title('Controller Effort SC')
             if obj.do_insert_legends
-                legend('new','measured','Location','northwest');
+                legend('actual','new','Location','northwest');
             end
         
             % =========================
             % --- Compliance SP ---
             % =========================
             ax(4) = subplot(2,2,4);
-            bodemag(ax(4), td.CloLoAan.SP, td.CloLoAanNew.SP, opt);
+            bodemag(ax(4), td.CL_ana.SP, td.CL_ana_new.SP, opt);
             title('Compliance SP')
             if obj.do_insert_legends
-                legend('new','measured','Location','southwest');
+                legend('actual','new','Location','southwest');
             end
         
             % ---- Formatting ----
@@ -399,7 +410,7 @@ classdef plot_utils
         
             sgtitle(sprintf('Gang of Four %s - %s', label, obj.axis_names{ind_ax}));
         end
-
+%%
         % =================================================================
         %  FIGURE STEP RESPONSE
         % =================================================================
@@ -424,7 +435,8 @@ classdef plot_utils
                 clf(fig);
             end
         
-            % ---- Plot 1: Tracking ----
+            % ---- Plot 1: Tracking 
+            ----
             ax(1) = subplot(2,1,1);
             set(ax(1), 'XScale','linear', 'YScale','linear');
             plot(ax(1), td.step_time, td.step_resp_tra);
