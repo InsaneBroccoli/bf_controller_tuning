@@ -3,58 +3,18 @@ clc, clear variables, close all
 addpath("../lib/");
 addpath(genpath("../logs/"));
 
-%  Chrip Amplitude 100
-% log_folder = '../logs';
-% flight_folder = '20260323';
-% log_name = 'A100.TXT.csv';
-% file_path = fullfile(log_folder, flight_folder, log_name);
-
-%  Chrip Amplitude 200
+% Add file information
 log_folder = '../logs';
-flight_folder = '20260323';
-log_name = 'A200.TXT.csv';
+flight_folder = '20260331';
+log_name = 'LOG090.TXT.csv';
 file_path = fullfile(log_folder, flight_folder, log_name);
-
-%  Chrip Amplitude 250
-% log_folder = '../logs';
-% flight_folder = '20260323';
-% log_name = 'A250.TXT.csv';
-% file_path = fullfile(log_folder, flight_folder, log_name);
-
-%  Chrip Amplitude 300
-% log_folder = '../logs';
-% flight_folder = '20260323';
-% log_name = 'A300.TXT.csv';
-% file_path = fullfile(log_folder, flight_folder, log_name);
-
-%  Chrip Amplitude 400
-% log_folder = '../logs';
-% flight_folder = '20260323';
-% log_name = 'A400.TXT.csv';
-% file_path = fullfile(log_folder, flight_folder, log_name);
-
-% Chrip Amplitude 800
-% log_folder = '../logs';
-% flight_folder = '20260317';
-% log_name = 'LOG077.TXT.csv';
-% file_path = fullfile(log_folder, flight_folder, log_name);
-
-% log_folder = '../logs';
-% flight_folder = '20260317';
-% log_name = 'LOG070.TXT.csv';
-% file_path = fullfile(log_folder, flight_folder, log_name);
-
-% log_folder = '../logs';
-% flight_folder = '20260316';
-% log_name = 'LOG070.TXT.csv';
-% file_path = fullfile(log_folder, flight_folder, log_name);
 
 % --- Load and Process Flight Log Data ---
 [para, Nheader, ind, ind_cntr] = extract_header_information(file_path);
 
 % Load data from CSV or cached MAT file for faster processing
 [folder, base, ~] = fileparts(file_path);
-mat_path = fullfile(folder, base + ".mat");
+mat_path = fullfile(folder, [base '.mat']);
 
 try
   S = load(mat_path);
@@ -71,111 +31,146 @@ Ts_log  = para.frameIntervalPDenom * Ts_cntr; % Logging period [s]
 % Get a usable time vector
 time = (data(:, ind.time) - data(1, ind.time)) * 1.0e-6;
 
-% Extract debug signals
-sinarg   = data(:, ind.debug(1)) / 5e3;
-exec_c   = data(:, ind.debug(2));
-fchirp   = data(:, ind.debug(3));
-meas_alt = data(:, ind.debug(4));
-set_alt  = data(:, ind.debug(5));
-
-if (sinarg(1) ~= 0)
-  disp("altered data")
-  sinarg = fix_signal(sinarg);
-  set_alt = fix_signal(set_alt);
-end
-
-idx = find(sinarg ~= 0, 1);
-meas_alt = fix_startalt(meas_alt, idx);
-
-% Extract motor signals and compute mean throttle
-motor1 = data(:, ind.motor(1));
-motor2 = data(:, ind.motor(2));
-motor3 = data(:, ind.motor(3));
-motor4 = data(:, ind.motor(4));
-motor_mean = mean([motor1, motor2, motor3, motor4], 2);
+% Define debug signals (see althold-chirp-debug-signals.md)
+%   [0] sinarg           - chirp window          (x 5e3)
+%   [1] exc              - excitation             (x 1000)
+%   [2] fchirp           - chirp frequency        (x 100)
+%   [3] measuredAlt      - measured altitude       [cm]
+%   [4] targetAlt        - target altitude         [cm]
+%   [5] throttleOut      - controller output       (x 1000)
+%   [6] verticalVelocity - vertical speed          (x 10)
+%   [7] throttleOffset   - throttle offset
+sinarg       = ind.debug(1);
+meas_alt     = ind.debug(4);
+set_alt      = ind.debug(5);
+throttle_out = ind.debug(6);
+vertical_v   = ind.debug(7);
 
 % --- Figure 1: Raw signal inspection (full flight) ---
 figure(1)
 subplot(311)
-plot(time, set_alt); grid on;
-title('Set Altitude');
+plot(time, data(:, set_alt), '-b');
+hold on
+plot(time, data(:, meas_alt), '-r'); grid on;
+legend('Target Altitude', 'Measured Altitude', 'Location', 'best');
+title('Compare Target and Measured Altitude');
 xlabel('Time [s]'); ylabel('Altitude offset [cm]');
 
 subplot(312)
-plot(time, meas_alt); grid on;
-title('Measured Altitude');
-xlabel('Time [s]'); ylabel('Altitude offset [cm]');
+plot(time, data(:, throttle_out) / 1000, '-b'); grid on;
+title('Throttle Out');
+xlabel('Time [s]'); ylabel('Throttle');
 
 subplot(313)
-plot(time, motor1, time, motor2, time, motor3, time, motor4); grid on;
-legend('M1', 'M2', 'M3', 'M4', 'Location', 'best');
-title('Motor Commands');
-xlabel('Time [s]'); ylabel('Throttle');
-ylim([0 1000]);
+plot(time, data(:, vertical_v) / 10, '-b'); grid on;
+title('Vertical Speed');
+xlabel('Time [s]'); ylabel('Speed [cm/s]');
 
-% --- Select chirp evaluation window ---
-idx = get_ind_eval(sinarg, meas_alt);
 
-sinarg_ax = sinarg;
-sinarg_ax(~idx) = 0;
+% Scale data into working copy
+tdata(:,:) = data(:,:);
+
+tdata(:, sinarg)       = tdata(:, sinarg) / 5e3;
+tdata(:, meas_alt)     = tdata(:, meas_alt);           % already in cm
+tdata(:, set_alt)      = tdata(:, set_alt);             % already in cm
+tdata(:, throttle_out) = tdata(:, throttle_out) / 1000;
+tdata(:, vertical_v)   = tdata(:, vertical_v) / 10;
+
+% Fix initial values if needed
+if (tdata(1, sinarg) ~= 0)
+  disp("altered data")
+  tdata(:, sinarg)  = fix_signal(tdata(:, sinarg));
+  tdata(:, set_alt) = fix_signal(tdata(:, set_alt));
+end
+
+% first_nonzero = find(tdata(:, sinarg) ~= 0, 1);
+% tdata(:, meas_alt) = fix_startalt(tdata(:, meas_alt), first_nonzero);
+
+% Create logical mask for desired chirp window
+ind_eval = get_ind_eval(tdata(:, sinarg), tdata(:, meas_alt));
+idx = ind_eval;
+
+sinarg_ax = tdata(:, sinarg);
+sinarg_ax(~ind_eval) = 0;
 
 % --- Figure 2: Chirp window signals ---
 figure(2)
-subplot(411)
-plot(time(idx), set_alt(idx)); grid on;
-title('Set Altitude (chirp window)');
+subplot(311)
+plot(time(idx), tdata(idx, set_alt), '-b');
+hold on
+plot(time(idx), tdata(idx, meas_alt), '-r'); grid on;
+legend('Target Altitude', 'Measured Altitude', 'Location', 'best');
+title('Compare Target and Measured Altitude');
 xlabel('Time [s]'); ylabel('Altitude offset [cm]');
 
-subplot(412)
-plot(time(idx), meas_alt(idx)); grid on;
-title('Measured Altitude (chirp window)');
-xlabel('Time [s]'); ylabel('Altitude offset [cm]');
-
-subplot(413)
-plot(time(idx), motor_mean(idx)); grid on;
-title('Mean Motor Throttle (chirp window)');
+subplot(312)
+plot(time(idx), tdata(idx, throttle_out), '-b'); grid on;
+title('Throttle Out');
 xlabel('Time [s]'); ylabel('Throttle');
 
-subplot(414)
-plot(time(idx), sinarg(idx)); grid on;
-title('Chirp Signal');
-xlabel('Time [s]'); ylabel('Amplitude');
+subplot(313)
+plot(time(idx), tdata(idx, vertical_v), '-b'); grid on;
+title('Vertical Speed');
+xlabel('Time [s]'); ylabel('Speed [cm/s]');
+
 
 %% Estimate Transfer Functions
 
 % Welch parameters
-Nest     = round(15 / Ts_log);       % Window length [samples]
-Noverlap = floor(0.9 * Nest);        % Overlap between windows
-window   = hann(Nest, 'periodic');   % Hanning window
+Nest     = round(15 / Ts_log);          % Window length [samples]
+Noverlap = floor(0.9 * Nest);           % Overlap between windows
+window   = hann(Nest, 'periodic');      % Hanning window
 
-% Low-pass filter for rotating-frame filtering
+% Low-pass filter for rotating-frame filtering (apply_rotfiltfilt)
 Dlp = sqrt(3) / 2;    % Damping ratio
 wlp = 2 * pi * 10;    % Cutoff frequency [rad/s]
 Glp = c2d(tf(wlp^2, [1 2*Dlp*wlp wlp^2]), Ts_log, 'tustin');
 
 % Apply rotating-frame filter to all signals
-inp   = apply_rotfiltfilt(Glp, sinarg_ax, set_alt);    % w: altitude setpoint
-out   = apply_rotfiltfilt(Glp, sinarg_ax, meas_alt);   % y: altitude measurement
-out_v = apply_rotfiltfilt(Glp, sinarg_ax, motor_mean); % v: mean motor throttle (plant input)
+w = tdata(:, set_alt);
+inp = apply_rotfiltfilt(Glp, sinarg_ax, w);
 
-% Closed-loop altitude transfer function: set_alt → meas_alt
-[T_ax, C_T_ax] = estimate_frequency_response(inp(idx), out(idx), window, Noverlap, Nest, Ts_log);
+y = tdata(:, meas_alt);
+out = apply_rotfiltfilt(Glp, sinarg_ax, y);
 
-% Direct plant: motor_mean → meas_alt
-[G_vy, C_G_vy] = estimate_frequency_response(out_v(idx), out(idx), window, Noverlap, Nest, Ts_log);
+% Closed-loop: set_alt -> meas_alt
+[T_ax, C_T_ax] = estimate_frequency_response(inp(idx), ...
+  out(idx), window, Noverlap, Nest, Ts_log);
 
-% Reference to plant input: set_alt → motor_mean
-[G_wv, C_G_wv] = estimate_frequency_response(inp(idx), out_v(idx), window, Noverlap, Nest, Ts_log);
+% Controller output path: set_alt -> throttle_out
+c = tdata(:, throttle_out);
+out_c = apply_rotfiltfilt(Glp, sinarg_ax, c);
+
+[G_wc, C_G_wc] = estimate_frequency_response(inp(idx), out_c(idx), ...
+  window, Noverlap, Nest, Ts_log);
 
 % Indirect estimates
-P_alt = T_ax / G_wv;           % Indirect plant
-C_alt = G_wv / (1 - T_ax);    % Indirect controller
+P_alt  = T_ax / G_wc;          % Plant: throttle -> altitude
+C_alt  = G_wc / (1 - T_ax);   % Controller
+
+% Velocity path: set_alt -> vertical_v
+v = tdata(:, vertical_v);
+out_v = apply_rotfiltfilt(Glp, sinarg_ax, v);
+
+[G_wv, C_G_wv] = estimate_frequency_response(inp(idx), ...
+  out_v(idx), window, Noverlap, Nest, Ts_log);
+
+% Plant decomposition via velocity
+P_vel = G_wv / G_wc;           % Throttle -> velocity (indirect)
+
+% Direct plant: throttle_out -> meas_alt
+[G_cy, C_G_cy] = estimate_frequency_response(out_c(idx), ...
+  out(idx), window, Noverlap, Nest, Ts_log);
+
+% Direct throttle -> velocity
+[G_cv, C_G_cv] = estimate_frequency_response(out_c(idx), out_v(idx), ...
+  window, Noverlap, Nest, Ts_log);
 
 %% Analytical Model
 
 % Althold controller: P gain * low-pass filter
 C_P_Alt = 15;       % Althold P gain
-fc_ana  = 80;       % Filter cutoff [Hz]
+fc_ana  = 15;       % Filter cutoff [Hz]
 
 f = T_ax.Frequency * 2*pi;
 C_P_Alt_frd = frd(C_P_Alt * ones(size(f)), f, Ts_cntr);
@@ -184,12 +179,13 @@ Gf_ana = get_filter('pt1', fc_ana, Ts_cntr);
 C_alt_ana = C_P_Alt_frd * Gf_ana;
 C_alt_ana = downsample_frd(C_alt_ana, Ts_log, T_ax.Frequency);
 
-T_ana = (C_alt_ana * G_vy) / (1 + C_alt_ana * G_vy);
+% Closed-loop using direct plant (single-loop structure)
+T_ana = (C_alt_ana * G_cy) / (1 + C_alt_ana * G_cy);
 
 %% Tuning
 
 P_new  = 30;    % New P gain
-fc_new = 80;    % New filter cutoff [Hz]
+fc_new = 30;    % New filter cutoff [Hz]
 
 C_P_Alt_new_frd = frd(P_new * ones(size(f)), f, Ts_cntr);
 Gf_new = get_filter('pt1', fc_new, Ts_cntr);
@@ -197,7 +193,7 @@ Gf_new = get_filter('pt1', fc_new, Ts_cntr);
 C_alt_new = C_P_Alt_new_frd * Gf_new;
 C_alt_new = downsample_frd(C_alt_new, Ts_log, T_ax.Frequency);
 
-T_new = (C_alt_new * G_vy) / (1 + C_alt_new * G_vy);
+T_new = (C_alt_new * G_cy) / (1 + C_alt_new * G_cy);
 
 %% Plot Results
 
@@ -209,9 +205,9 @@ title('Altitude Hold Transfer Function');
 
 % Figure 4: Plant (indirect vs direct)
 figure(4)
-bode(P_alt, G_vy); grid on;
+bode(P_alt, G_cy); grid on;
 legend('Indirect', 'Direct', 'Location', 'best');
-title('Measured Plant (Throttle \rightarrow Altitude)');
+title('Measured Plant (Throttle -> Altitude)');
 
 % Figure 5: Controller (indirect vs analytical)
 figure(5)
@@ -219,15 +215,15 @@ bode(C_alt, C_alt_ana); grid on;
 legend('Indirect', 'Analytical', 'Location', 'best');
 title('Altitude Controller');
 
-% Figure 6: Coherence
+% Figure 6: Velocity plant (indirect vs direct)
 figure(6)
-bode(C_T_ax, C_G_vy, C_G_wv); grid on;
-legend('T_{ax}', 'G_{vy}', 'G_{wv}', 'Location', 'best');
-title('Coherence');
+bode(P_vel, G_cv); grid on;
+legend('Indirect', 'Direct', 'Location', 'best');
+title('Measured Plant (Throttle -> Velocity)');
 
 %% Step Response
 
-fmax = 10;    % Hz — althold bandwidth is much lower than the rate loop
+fmax = 10;    % Hz -- althold bandwidth is much lower than the rate loop
 
 step_time = (0:Nest-1) .* Ts_log;
 T_mean = 0.1 * [-1, 1] + (Nest * Ts_log) / 2;
