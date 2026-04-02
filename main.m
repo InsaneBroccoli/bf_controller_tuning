@@ -30,8 +30,8 @@ plotter = plot_utils(do_insert_legends);
 % =========================================================================
 
 log_folder = 'logs';
-flight_folder = '20251208';
-log_name = '01_20251208_OvershootExpress.csv';
+flight_folder = '20260401';
+log_name = 'Flipmini_Acro.csv';
 file_path = fullfile(log_folder, flight_folder, log_name);
 
 df = flight_data(file_path);
@@ -82,15 +82,15 @@ plotter.plot_Eval_Time(df.time);
 gyro_tuning = gyro_ctrl_tuning(df.data, df.ind, df.Ts_log, ...
     df.para, df.Ts_cntr);
 
-angle_tuning = angle_ctrl_tuning(df,gyro_tuning);
+%angle_tuning = angle_ctrl_tuning(df,gyro_tuning);
 
 resolution_factor_tf = 2;    % Window length for spectral analysis (seconds)
 overlap_tf = 0.9;              % Overlap factor for spectral analysis (0-1)
 gyro_tuning = gyro_tuning.calculate_transfer_func(resolution_factor_tf, overlap_tf);
-angle_tuning = angle_tuning.calculate_Angle_trans(resolution_factor_tf, overlap_tf);
+%angle_tuning = angle_tuning.calculate_Angle_trans(resolution_factor_tf, overlap_tf);
 
 plotter.plot_Bode_Plant(gyro_tuning, roll, 'Gyro');
-plotter.plot_Bode_Plant(angle_tuning, roll, 'Angle');
+%plotter.plot_Bode_Plant(angle_tuning, roll, 'Angle');
 
 %% Flight Analyser
 analysis_flight = flight_analyzer(df.data, df.ind, df.Ts_log);
