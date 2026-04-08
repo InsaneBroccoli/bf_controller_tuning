@@ -33,6 +33,14 @@ throttle_out    = data(:,ind.debug(6));
 vertical_v      = data(:,ind.debug(7));
 throttle_offset = data(:,ind.debug(8));
 
+time            = time(1:20:end);
+sinarg          = sinarg(1:20:end);
+meas_alt        = meas_alt(1:20:end);
+set_alt         = set_alt(1:20:end);
+throttle_out    = throttle_out(1:20:end);
+vertical_v      = vertical_v(1:20:end);
+throttle_offset = throttle_offset(1:20:end);
+
 figure(1)
 subplot(411)
 plot(time, meas_alt, '-r'); hold on
@@ -58,6 +66,7 @@ xlabel('Time [s]'); ylabel('Speed [cm/s]');
 
 
 idx = get_ind_eval(sinarg, meas_alt);
+meas_alt = fix_offset(meas_alt, idx);
 
 time_c            = time(idx);
 meas_alt_c        = meas_alt(idx);
@@ -89,3 +98,5 @@ subplot(414)
 plot(time_c, vertical_v_c); grid on;
 title('Vertical Speed');
 xlabel('Time [s]'); ylabel('Speed [cm/s]');
+
+Ts_log = 1 / 100;
