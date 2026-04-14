@@ -36,6 +36,16 @@ time = (data(:,ind.time) - data(1,ind.time)) * 1.0e-6;
 % Define numbers of axis
 axis = 1;       %roll = 1; pitch = 2;
 
+% Check Mode
+fm = median(uint32(data(:, ind.flightModeFlags)));
+isAngle   = bitand(fm, 2) ~= 0;
+isHorizon = bitand(fm, 4) ~= 0;
+isAcro    = ~isAngle && ~isHorizon;
+
+if isAngle
+    fprintf('Angle Mode\n');
+end
+
 % Define debugs
 sinarg = ind.debug(1);
 currentAngle = [ind.debug(2), ind.debug(5)];
@@ -116,7 +126,7 @@ xlabel('Time [s]'); ylabel('deg/s  [°/s]');
 %% Lets Measure the Transferfunction and such kind of things
 
 % Pararmeters
-Nest = round(15 / Ts_log);               % Window length in samples
+Nest = round(2 / Ts_log);               % Window length in samples
 Noverlap = floor(0.9 * Nest);           % Overlap between windows
 window   = hann(Nest, 'periodic');  % Hanning window for analysis
 
@@ -160,6 +170,41 @@ Cp_ax = G_wc / (1 - T_ax);
 % Transferfunction of the Gyro loop
 T_gy = G_wv / G_wc;
 
+% Calculate Plant Gyro through angle mode
+
+% Old style
+[T_gy_old,C_G_cv] = estimate_frequency_response(out_c(idx), out_v(idx), ...
+    window, Noverlap, Nest, Ts_log);
+
+u = tdata(:, ind.axisSum(axis));
+out_u = apply_rotfiltfilt(Glp, sinarg_ax, u);
+
+[G_cu,C_G_cu] = estimate_frequency_response(out_c(idx), out_u(idx), ...
+    window, Noverlap, Nest, Ts_log);
+
+P_gy_gef_old = T_gy_old / G_cu;
+Coh_gy_old = C_G_cv*C_G_cu;
+
+% New style
+[G_wu,C_G_wu] = estimate_frequency_response(inp(idx), out_u(idx), ...
+    window, Noverlap, Nest, Ts_log);
+
+P_gy_gef_new = G_wv / G_wu;
+
+coh_wv = squeeze(C_G_wv.ResponseData);
+coh_wc = squeeze(C_G_wc.ResponseData);
+
+coh_cv = squeeze(C_G_cv.ResponseData);
+coh_cu = squeeze(C_G_cu.ResponseData);
+
+freq = C_G_wv.Frequency;
+
+omega_bode = 2*pi*freq;
+
+Coh_new_eff = min(coh_wv, coh_wc);
+Coh_old_eff = min(coh_cv, coh_cu);
+
+Coh_gy_new = C_G_wu * C_G_wv;
 % Direct methode
 [G_cv,C_G_cv] = estimate_frequency_response(out_c(idx), out_v(idx), ...
     window, Noverlap, Nest, Ts_log);
@@ -217,7 +262,76 @@ title('Measured Controller Plant');
 
 % Bodeplot of the Gyro Loop
 figure(6)
-bode(T_gy, G_cv); grid on;
+bode(T_gy); grid on;
+title('Measured Transferfunction Gyro Loop')
+
+figure(9)
+subplot(211)
+bode(P_gy_gef_new, P_gy_gef_old); grid on;
+title('Plant Gyro')
+subplot(212)
+semilogx(freq, Coh_new_eff, 'LineWidth', 1.5)
+hold on
+semilogx(freq, Coh_old_eff, 'LineWidth', 1.5)
+
+grid on
+ylim([0 1.05])
+xlabel('Frequency [Hz]')
+ylabel('\gamma^2')
+legend('New','Old','Location','best')
+title('Effective coherence')
+
+figure(99)
+ax(1) = subplot(2,1,1);
+opt = bode_plot_options('dB', 'linear', 'deg', 'Hz');
+bode(ax(1), P_gy_gef_new,P_gy_gef_old, 'k', omega_bode, opt);
+title('Plant (Gyro)')
+
+ax(2) = subplot(2,1,2);
+opt_coh = bode_plot_options('abs', 'linear', 'deg', 'Hz');
+bodemag(ax(2), Coh_gy_new, Coh_gy_old, omega_bode, '-k', opt_coh);
+ylabel(ax(2), 'Coherence (abs)');
+ylim(ax(2), [0 1]);
+grid(ax(2), 'on');
+
+linkaxes(ax, 'x');
+
+%% Calculate Measured Step Response
+fmax = 600;     % Not sure which value I should choose so YOLO
+
+step_time = (0:Nest-1).*Ts_log;                 % Time vector [s]
+T_mean = 0.1 * [-1, 1] + (Nest * Ts_log) / 2;    % Analysis window [s]
+
+step_resp = [calculate_step_response_from_frd(T_ax , fmax), ...    % Used parameters
+             calculate_step_response_from_frd(T_ana, fmax), ...    % New parameters
+             calculate_step_response_from_frd(T_new, fmax)];  
+
+step_resp_mean = mean(step_resp(step_time > T_mean(1) & step_time < T_mean(2),:));
+step_resp_meas = step_resp ./ step_resp_mean;
+
+
+
+figure(7)
+plot(step_time, step_resp_meas);grid on;
+title('Step Response Measured')
+xlabel('Time [s]'); ylabel('Angle [°]');
+
+
+% Bodeplot of the plant angle
+figure(4)
+bode(P_angle, G_vy); grid on;
+legend('Indirect','Direct','Location','best');
+title('Measured Plant Angle');
+
+% Bodeplot of the Controller
+figure(5)
+bode(Cp_ax, C_Angle_ana); grid on;
+legend('Indirect','Simulation','Location','best');
+title('Measured Controller Plant');
+
+% Bodeplot of the Gyro Loop
+figure(6)
+bode(T_gy, T_gy_old); grid on;
 title('Measured Transferfunction Gyro Loop')
 
 %% Calculate Measured Step Response

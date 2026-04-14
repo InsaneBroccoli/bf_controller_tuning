@@ -1,4 +1,4 @@
-function CL = calculate_closed_loop_angle(C, T_gyro, P)
+function CL = calculate_closed_loop_angle(C, T_gyro, P_gyro, P)
 %CALCULATE_CLOSED_LOOP  Compute closed-loop transfer functions for a 2-DOF controller
 %   CL = calculate_closed_loop(Co, Ci, P, Gf, Gd)
 %
@@ -42,12 +42,12 @@ function CL = calculate_closed_loop_angle(C, T_gyro, P)
 % Co = Cpi, Ci = 1  , Gd = Cd * d/dt * Gf_d_part -> 2dof PID cntrl betaflight
 % Co = Kv , Ci = Cpi, Gd =      d/dt * Gf_d_part -> P-PI cntrl
 
-    L  =             P*C*T_gyro; % L
+    L  =       P*C*T_gyro; % L
     S  =       1/(1 + L); % S
     
     % T   = Co*Ci*P*Gf*S; % T  : w  -> y
     T   =    L*S; % T  : w  -> y_bar
-    SP  =          T_gyro*P*S; % SP : d  -> y_bar (from input disturbance)
+    SP  =         S*P*P_gyro; % SP : d  -> y_bar (from input disturbance)
     SC  =          C*S; % SC : n  -> u (from noise)
       
     CL.C   = C;

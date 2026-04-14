@@ -329,8 +329,8 @@ classdef plot_utils
                 bodemag(ax(2), td.Coh_C{ind_ax}, td.omega_bode, '-k', opt_coh);
             end
             title('');  % Remove auto-generated title
-            ylabel(ax(2), 'Coherence (abs)');
-            ylim(ax(2), [0 1]);
+            ylabel(ax(2), 'Coherence');
+            ylim(ax(2), [0 1.1]);
 
             linkaxes(ax, 'x');
             set(findall(fig, 'type', 'line'), 'LineWidth', obj.linewidth);
@@ -464,7 +464,7 @@ classdef plot_utils
         
             % ---- Formatting ----
             linkaxes(ax, 'x');
-            xlim(ax(1), [0 0.5]);
+            xlim(ax(1), [0 1]);
         
             set(findall(fig, 'type', 'line'), 'LineWidth', obj.linewidth);
         
