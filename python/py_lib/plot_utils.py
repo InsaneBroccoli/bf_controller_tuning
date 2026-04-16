@@ -168,7 +168,7 @@ class PlotUtils:
         for ax in axes:
             ax.set_xlim([0, nyq])
             try:
-                #ax.set_ylim([1e-3, 1e1])
+                # ax.set_ylim([1e-3, 1e1])
                 ax.autoscale(enable=True, axis='y', tight=False)
             except:
                 pass
@@ -208,7 +208,7 @@ class PlotUtils:
             if i == 0:
                 ax.set_ylabel('Throttle (%)')
             ax.set_xlabel('Frequency (Hz)')
-            ax.set_title(f'{axes_labels[i]} – without Filter')
+            ax.set_title(f'{axes_labels[i]} – without filter')
             ax.set_ylim([0, 100])
             plt.colorbar(im, ax=ax)
         
@@ -228,7 +228,7 @@ class PlotUtils:
             if i == 0:
                 ax.set_ylabel('Throttle (%)')
             ax.set_xlabel('Frequency (Hz)')
-            ax.set_title(f'{axes_labels[i]} – with Filter')
+            ax.set_title(f'{axes_labels[i]} – with filter')
             ax.set_ylim([0, 100])
             plt.colorbar(im, ax=ax)
         
