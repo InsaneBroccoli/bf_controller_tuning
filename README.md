@@ -9,8 +9,8 @@ The workflow:
 
 1. Enable and configure the **chirp signal generator** in Betaflight ([see implementation below](#implementation-of-the-chirp-signal-generator-in-betaflight)).
 2. Perform flights with chirp excitation and log data (`.bbl` files).
-3. Convert `.bbl` files to `.csv` using the [Betaflight Blackbox Explorer]
-4. Use the MATLAB script [`main.m`](./main.m) together with the functions in [`lib/`](./lib) and the [`class`](./class) to:
+3. Convert `.bbl` files to `.csv` using the [Betaflight Blackbox Explorer](https://blackbox.betaflight.com/)
+4. Use the Python script [`main.py`](./main.py) together with the functions in [`py_lib/`](./py_lib) to:
    - Extract log data
    - Compute frequency responses and spectra
    - Display spectra and spectrograms
@@ -25,14 +25,12 @@ This repository is intended for use with [Betaflight PR #13105](https://github.c
 
 The configurator and the blackbox explorer can be found here:
 
-- [Betaflight Configurator](https://master.app.betaflight.com/)
-- [Betaflight Blackbox Explorer](https://master.blackbox.betaflight.com/)
+- [Betaflight Configurator](https://app.betaflight.com)
+- [Betaflight Blackbox Explorer](https://blackbox.betaflight.com/)
 
 ## Requirements
-- **MATLAB** (last tested with R2024a)
-- **Control System Toolbox**
-- **Signal Processing Toolbox**
-
+- **Python**
+- **activated [environment](.\envs\tuning.yml)**
 
 ## Implementation of the CHIRP Signal Generator in betaflight
 The chirp signal generator in Betaflight provides an automated excitation input for analyzing the quadcopter’s dynamic response. It produces a sweep signal whose frequency rises exponentially from a defined starting point to a chosen final value over a preset duration.
@@ -78,7 +76,7 @@ If you want to test the mode before flight, it is also possible to do this safel
 - Adjust amplitude and lag filter if saturation occurs.
 
 ## Recommended procedure within one log file per flight
-1. Perform two to three throttle sweeps while in `ACRO` mode.
+1. Perform two to three throttle sweeps.
 2. Complete at least one full sequence of chirp signal excitation, covering roll, pitch, and yaw axes. It is preferable to
 cycle through all axes twice. Whether you choose ACRO or ANGLE mode does not matter. Fly in an open space and try to maintain altitude. Be prepared to adjust the throttle as the chirp generator runs. Aim for a smooth and steady flight during the chirp excitation. Ideally, the quadcopter should maintain a steady position and orientation (appart from the axes thats excited).
 3. Conduct some maneuvers to test propwash handling, including 180-degree and 360-degree flips. Enjoy yourself and have fun!
@@ -86,19 +84,18 @@ cycle through all axes twice. Whether you choose ACRO or ANGLE mode does not mat
 ## Data for evaluation
 To evaluate your flight data, the log file from the Blackbox is required. This has to be converted to a .csv file. You can do this with the [Betaflight Blackbox Explorer](https://blackbox.betaflight.com/).
 
-# Tuning via MATLAB
+# Tuning
 
-1. Open the main.m file. This is the only file you need to make changes to tune
+1. Open the main.py file. This is the only file you need to make changes to tune
 2. With `do_insert_legends` you can decide if you would like to have a legend on your plots
-3. Define a path to the csv file. For example your file is saved under `bf_controller_tuning\logs\20250908` you have to define `log_folder = 'logs';`, `log_name = '20250908'` and `log_name = '20250908_flipmini_00.bbl.csv` your filename.
-4. With `ind_ax` you can choose which axis (Roll = 1, Pitch = 2, Yaw = 3) you want to tune
+3. Define a path to the csv file. For example your file is saved under `bf_controller_tuning\logs\20260417` you have to define `log_folder = 'logs';`, `flight_folder = 20260417` and `log_name = '3.5_inch_drone_1.TXT.csv` your filename.
+4. With `ind_ax` you can choose which axis (Roll = 0, Pitch = 1, Yaw = 2) you want to tune
 5. `do_compensate_iterm` defines if you want to tune your drone with I-Term Relax (recommended) 
 6. For the first flight it is recommended to set default_parameters on `true`. In this case the plot uses the same parameters for the new tune as the old.
 7. After this you can define the filter types and you can change their frequencies
 8. Below that, you can enter the new PID parameters for Roll, Pitch and Yaw. You can either multiply them or just enter the new value. The values matching the values in Betaflight
-9. Now press on **run**, that the first calculation can start. After you pressed run, it should open nine figures. If you want to know, how to tune with them go to [Descriptions Figures](./markdown/Descriptions_Figures/).
-10. Now enter your new parameters in the main.m file.
-11. After the first time of tuning, you don't need to run the hole file anymore. It is enough if you just run the section **Tuninig Data** and **Plot Tuning Data**. Through that, the calculations will be faster and you don't have to wait that long for your plots.
+9. Now press on **run**, that the first calculation can start. After you pressed run, it should open several figures. If you want to know, how to tune with them go to [Descriptions Figures](./markdown/Descriptions_Figures/).
+10. Now enter your new parameters in the main.py file, hit run and repeat as many times as desired.
 
 # How the Calculations Work
 
@@ -113,36 +110,3 @@ You might wonder how we get our results an plots. We can totally understand your
 - [Frequency Response](https://github.com/InsaneBroccoli/bf_controller_tuning/tree/PA_final/markdown/Frequency_Response)
 - [Spectrum and Spectrogram](https://github.com/InsaneBroccoli/bf_controller_tuning/tree/PA_final/markdown/Spectrum_Spectogram)
 
-## Repository Structure
-```tree
-bf_controller_tuning/
-│
-├── class/
-│     ├─ flight_analyzer.m
-│     ├─ flight_data.m
-│     ├─ gyro_ctrl_tuning.m
-│     └── plot_utils.m
-├── lib/
-│     ├─ apply_rotfiltfilt.m
-│     ├─ calculate_closed_loop.m
-│     ├─ calculate_controllers.m
-│     ├─ calculate_step_response_from_frd.m
-│     ├─ calculate_transfer_functions.m
-│     ├─ downsample_frd.m
-│     ├─ estimate_frequency_response.m
-│     ├─ estimate_spectra.m
-│     ├─ estimate_spectrogram.m
-│     ├─ expand_multiple_figure_nr.m
-│     ├─ extract_header_information.m
-│     ├─ get_chirp_signals.m
-│     ├─ get_fcut_from_D_and_fcenter.m
-│     ├─ get_fcut_from_exp.m
-│     ├─ get_filter.m
-│     ├─ get_ind_eval.m
-│     ├─ get_my_colors.m
-│     ├─ get_notch_Q.m
-│     ├─ get_pid_scale.m
-│     └─ get_switch_case_text_from_para.m
-├── logs/
-└── main.m
-```
