@@ -436,7 +436,6 @@ classdef plot_utils
             end
         
             % ---- Plot 1: Tracking 
-            ----
             ax(1) = subplot(2,1,1);
             set(ax(1), 'XScale','linear', 'YScale','linear');
             plot(ax(1), td.step_time, td.step_resp_tra);
