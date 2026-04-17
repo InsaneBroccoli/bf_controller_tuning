@@ -46,8 +46,8 @@ def main():
     
     # Path to Log file
     log_folder = 'logs'
-    flight_folder = '20251212'
-    log_name = '06_20251212_OvershootExpress.TXT.csv'
+    flight_folder = '20260304'
+    log_name = '20260304_flipmini.csv'
     file_path = Path(log_folder) / flight_folder / log_name
     
     print(f"\nLoading flight log: {file_path}")
@@ -149,7 +149,7 @@ def main():
     analysis_flight = FlightAnalyzer(df.data, df.ind, df.Ts_log)
     
     # Calculate spectra
-    resolution_factor_spectra = 2.0
+    resolution_factor_spectra = 2.5
     overlap_spectra = 0.9
     
     print(f"\nCalculating spectra...")
@@ -227,16 +227,16 @@ def main():
     
     # Configure PID gains based on axis
     if ind_ax == 0:  # Roll
-        P_new = 38
-        I_new = 80
-        D_new = 27
+        P_new = 50
+        I_new = 60
+        D_new = 30
     elif ind_ax == 1:  # Pitch
-        P_new = 49
-        I_new = 96
-        D_new = 35
-    else:  # Yaw
-        P_new = 45
-        I_new = 86
+        P_new = 71
+        I_new = 118
+        D_new = 47
+    else:               # Yaw
+        P_new = 35
+        I_new = 70
         D_new = 1
     
     print(f"\nTuning axis: {plotter.axis_names[ind_ax]}")
@@ -244,8 +244,7 @@ def main():
     
     # Calculate new controller
     gyro_tuning = gyro_tuning.calculate_new_controller(
-        ind_ax, P_new, I_new, D_new,
-        default_parameters, para_new
+        ind_ax, P_new, I_new, D_new, default_parameters, para_new
     )
 
     # Get tuning data
