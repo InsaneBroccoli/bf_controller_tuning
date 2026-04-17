@@ -47,7 +47,7 @@ def main():
     # Path to Log file
     log_folder = 'logs'
     flight_folder = '20260417'
-    log_name = '20260417_flipmini_1.TXT.csv'
+    log_name = '6_inch_drone.TXT.csv'
     file_path = Path(log_folder) / flight_folder / log_name
     
     print(f"\nLoading flight log: {file_path}")
