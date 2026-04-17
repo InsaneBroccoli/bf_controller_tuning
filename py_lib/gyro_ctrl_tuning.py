@@ -340,13 +340,34 @@ class GyroCtrlTuning:
         
         # Display used parameters
         pu = self.para_used[ind_ax]
-        print('   used parameters are:')
-        for key in pu.data.keys():
+        filter_keys = (
+            'gyro_lpf',
+            'gyro_lowpass_hz',
+            'gyro_soft_type',
+            'gyro_lowpass_dyn_hz',
+            'gyro_lowpass2_hz',
+            'gyro_soft2_type',
+            'gyro_notch_hz',
+            'gyro_notch_cutoff',
+            'dterm_lpf_hz',
+            'dterm_filter_type',
+            'dterm_lpf_dyn_hz',
+            'dterm_lpf2_hz',
+            'dterm_filter2_type',
+            'dterm_notch_hz',
+            'dterm_notch_cutoff',
+            'yaw_lpf_hz',
+        )
+
+        print('\n   used filter parameters are:')
+        for key in filter_keys:
+            if key not in pu.data:
+                continue
             val = pu.data[key]
             try:
-                val_num = float(val.replace(',', '').split()[0])
+                val_num = float(str(val).replace(',', '').split()[0])
                 print(f'      {key}: {int(val_num)}')
-            except:
+            except Exception:
                 print(f'      {key}: {val}')
         
         # Get axis-specific scaling
@@ -361,31 +382,56 @@ class GyroCtrlTuning:
         PID_new[2] = D_new * pid_scale[2]
         PID_new[3] = 0  # No feedforward
         
-        print(f'   used fI is: {fI:.2f} Hz\n')
+        print(f'\n   used fI is: {fI:.2f} Hz\n')
         
         # Update parameters
-        print('   new PID parameters are:')
+        print('--------------------------------------------------')
+        print('\n   new PID values (Betaflight format):')
         para_new_pid = np.round(PID_new / pid_scale).astype(int)
         para_new_list = [para_new_pid[0], para_new_pid[1], para_new_pid[2], 
                         para_new_pid[2], para_new_pid[3]]
         para_new.data[pid_axis[ind_ax]] = ','.join(map(str, para_new_list))
-        print(f'      {pid_axis[ind_ax]}: {para_new_pid[:3]}')
+
+        # Betaflight axis naming for CLI commands
+        axis_name = ['roll', 'pitch', 'yaw'][ind_ax]
+        p_val = int(para_new_pid[0])
+        i_val = int(para_new_pid[1])
+        d_val = int(para_new_pid[2])
+
+        print(f'      p_{axis_name} = {p_val}')
+        print(f'      i_{axis_name} = {i_val}')
+        print(f'      d_{axis_name} = {d_val}')
+
+        print('\n   copy/paste into Betaflight CLI:')
+        print(f'      set p_{axis_name} = {p_val}')
+        print(f'      set i_{axis_name} = {i_val}')
+        print(f'      set d_{axis_name} = {d_val}')
+        print('      save')
         
         # Generate new transfer functions
         self.Cpi_ana_new, self.Cd_ana_new, self.Gf_ana_new, PID_new, para_used_new = \
             calculate_transfer_functions(para_new, ind_ax, self.throttle_avg, self.Ts_cntr)
         
         # Display new parameters
-        print('   new parameters are:')
-        for key in para_used_new.data.keys():
+        print('\n   new parameters are:')
+        for key in filter_keys:
+            if key not in para_used_new.data:
+                continue
             val = para_used_new.data[key]
             try:
-                val_num = float(val.replace(',', '').split()[0])
+                val_num = float(str(val).replace(',', '').split()[0])
                 print(f'      {key}: {int(val_num)}')
-            except:
+            except Exception:
                 print(f'      {key}: {val}')
+
+        print('\n   copy/paste filter settings into Betaflight CLI:')
+        for key in filter_keys:
+            if key not in para_used_new.data:
+                continue
+            print(f'      set {key} = {para_used_new.data[key]}')
+        print('      save')
         
-        print(f'   new used fI is: {fI_new:.2f} Hz\n')
+        print(f'\n   new used fI is: {fI_new:.2f} Hz\n')
         
         # Downsample if necessary
         if self.Gf_ana_new.dt < self.Ts_log:
