@@ -2,12 +2,14 @@ clc; close all;
 s = tf('s');
 
 %% Drone parameters
-m   = 0.255;        % kg
+m   = 0.300;        % kg
 g   = 9.81;         % m/s^2
-rho = 1.225;        % kg/m^3
-CT  = 0.10;         % thrust coefficient
+rho_m3  = 1.225;        % kg/m^3
+rho = rho_m3 * 1e-6; % kg/cm^3
+CT  = 0.20;         % thrust coefficient
 D   = 0.0889;       % m   (3.5 inch propeller)
-% D = 0.0762;       % m   (3 inch propeller)
+% D = 0.068;       % m   (3 inch propeller)
+D = D*100;
 
 %% Motor parameters
 R   = 0.08;         % Ohm
@@ -36,7 +38,7 @@ rpm0 = n0*60;                       % rpm
 P_Motor = k / (Jm*L*s^2 + Jm*R*s + k^2);
 
 % Thrust/speed linearization for all 4 motors together
-P_Alt_vel = (8*CT*rho*D^4*n0)/(m*s);
+P_Alt_vel = (8*CT*rho*D^4*n0)/(m*s*2*pi);
 
 % Velocity -> position
 P_Alt_pos = 1/s;
@@ -47,7 +49,7 @@ P_delay = exp(-Td*s);
 
 %% PI Controllers
 
-KI = 30;
+KI = 15;
 
 KP_inner = 15*0.005;
 KI_inner = KI*0.00012;
