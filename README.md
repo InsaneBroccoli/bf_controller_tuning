@@ -32,6 +32,16 @@ The configurator and the blackbox explorer can be found here:
 - **Python**
 - **activated [conda environment](./envs/tuning.yml)**
 
+## Quickstart
+
+The repo ships the Blackbox binary log at [`logs/20260417/6_inch_drone.TXT`](./logs/20260417/6_inch_drone.TXT). Open it in the [Betaflight Blackbox Explorer](https://blackbox.betaflight.com/) and export to CSV. **Save the exported `6_inch_drone.TXT.csv` in the same folder as the `.TXT` file** (i.e. `logs/20260417/`) — `main.py` looks for it there. Then run:
+
+```bash
+conda env create -f envs/tuning.yml   # first time
+conda activate tuning
+python main.py
+```
+
 ## Implementation of the CHIRP Signal Generator in betaflight
 The chirp signal generator in Betaflight provides an automated excitation input for analyzing the quadcopter’s dynamic response. It produces a sweep signal whose frequency rises exponentially from a defined starting point to a chosen final value over a preset duration.
 
@@ -88,7 +98,7 @@ To evaluate your flight data, the log file from the Blackbox is required. This h
 
 1. Open the main.py file. This is the only file you need to make changes to tune
 2. With `do_insert_legends` you can decide if you would like to have a legend on your plots
-3. Define a path to the csv file. For example your file is saved under `bf_controller_tuning\logs\20260417` you have to define `log_folder = 'logs';`, `flight_folder = 20260417` and `log_name = '3.5_inch_drone_1.TXT.csv` your filename.
+3. Define a path to the csv file. For example your file is saved under `bf_controller_tuning\logs\20260417` you have to define `log_folder = 'logs';`, `flight_folder = 20260417` and `log_name = '6_inch_drone.TXT.csv'` your filename.
 4. With `ind_ax` you can choose which axis (Roll = 0, Pitch = 1, Yaw = 2) you want to tune
 5. `do_compensate_iterm` defines if you want to tune your drone with I-Term Relax (recommended) 
 6. For the first flight it is recommended to set default_parameters on `true`. In this case the plot uses the same parameters for the new tune as the old.
