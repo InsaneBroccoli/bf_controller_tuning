@@ -42,7 +42,7 @@ conda activate tuning
 python main.py
 ```
 
-## Implementation of the CHIRP Signal Generator in betaflight
+## Implementation of the CHIRP Signal Generator in Betaflight
 The chirp signal generator in Betaflight provides an automated excitation input for analyzing the quadcopter’s dynamic response. It produces a sweep signal whose frequency rises exponentially from a defined starting point to a chosen final value over a preset duration.
 
 This generator outputs a signal that is added directly to currentPidSetpoint inside pid.c. Because of this, the pilot is still in full control over the aircraft during the measurement, and the test can be performed in both `ACRO` and `ANGLE` flight modes.
@@ -57,7 +57,7 @@ When `CHIRP` mode is active, the goggles show CHIR as flight-mode label. Once th
 
 If you want to test the mode before flight, it is also possible to do this safely on the bench. To prevent damages to your components, lower the PID gains (e.g., P = 10, I = 0, D = 0), and set the values for chirp_amplitude_roll, chirp_amplitude_pitch, and chirp_amplitude_yaw to 10 while the quadcopter is in `ACRO` mode.
 
-## CLI Paramters
+## CLI Parameters
 
 | Name                            | Default Value        | Explanation                                               |
 | ------------------------------- | -------------------- | --------------------------------------------------------- |
@@ -88,35 +88,41 @@ If you want to test the mode before flight, it is also possible to do this safel
 ## Recommended procedure within one log file per flight
 1. Perform two to three throttle sweeps.
 2. Complete at least one full sequence of chirp signal excitation, covering roll, pitch, and yaw axes. It is preferable to
-cycle through all axes twice. Whether you choose ACRO or ANGLE mode does not matter. Fly in an open space and try to maintain altitude. Be prepared to adjust the throttle as the chirp generator runs. Aim for a smooth and steady flight during the chirp excitation. Ideally, the quadcopter should maintain a steady position and orientation (appart from the axes thats excited).
+cycle through all axes twice. Whether you choose ACRO or ANGLE mode does not matter. Fly in an open space and try to maintain altitude. Be prepared to adjust the throttle as the chirp generator runs. Aim for a smooth and steady flight during the chirp excitation. Ideally, the quadcopter should maintain a steady position and orientation (apart from the axis that's excited).
 3. Conduct some maneuvers to test propwash handling, including 180-degree and 360-degree flips. Enjoy yourself and have fun!
 
 ## Data for evaluation
-To evaluate your flight data, the log file from the Blackbox is required. This has to be converted to a .csv file. You can do this with the [Betaflight Blackbox Explorer](https://blackbox.betaflight.com/).
+
+To analyze your own flight, export the `.bbl` from Blackbox to CSV with the [Betaflight Blackbox Explorer](https://blackbox.betaflight.com/), drop the resulting `<name>.TXT.csv` under `logs/<date>/`, and update `log_folder`, `flight_folder`, and `log_name` in [`main.py`](./main.py) to match. See the [Tuning](#tuning) section for what to tweak after that.
 
 # Tuning
 
 1. Open the main.py file. This is the only file you need to make changes to tune
 2. With `do_insert_legends` you can decide if you would like to have a legend on your plots
-3. Define a path to the csv file. For example your file is saved under `bf_controller_tuning\logs\20260417` you have to define `log_folder = 'logs';`, `flight_folder = 20260417` and `log_name = '6_inch_drone.TXT.csv'` your filename.
+3. Define a path to the csv file. For example, if your file is saved under `bf_controller_tuning/logs/20260417`, set:
+   ```python
+   log_folder = 'logs'
+   flight_folder = '20260417'
+   log_name = '6_inch_drone.TXT.csv'
+   ```
 4. With `ind_ax` you can choose which axis (Roll = 0, Pitch = 1, Yaw = 2) you want to tune
 5. `do_compensate_iterm` defines if you want to tune your drone with I-Term Relax (recommended) 
-6. For the first flight it is recommended to set default_parameters on `true`. In this case the plot uses the same parameters for the new tune as the old.
+6. For the first flight it is recommended to set `default_parameters = True`. In this case the plot uses the same parameters for the new tune as the old.
 7. After this you can define the filter types and you can change their frequencies
 8. Below that, you can enter the new PID parameters for Roll, Pitch and Yaw. You can either multiply them or just enter the new value. The values matching the values in Betaflight
-9. Now press on **run**, that the first calculation can start. After you pressed run, it should open several figures. If you want to know, how to tune with them go to [Descriptions Figures](./markdown/Descriptions_Figures/).
+9. Run the script (`python main.py`, or press **Run** in your IDE) to start the first calculation. It should open several figures. To learn how to tune with them, see [Descriptions Figures](./markdown/Descriptions_Figures/).
 10. Now enter your new parameters in the main.py file, hit run and repeat as many times as desired.
 
 # How the Calculations Work
 
-You might wonder how we get our results an plots. We can totally understand your wish. Therefore, we created a [detailed documentations](./markdown/). With this documentation and little prior knowledge you might be able to understand our calculations and how the code works.
+See the [detailed documentation](./markdown/) for the theory behind each calculation and plot. With a little prior background, it should be enough to follow how the code works.
 
 ## Example Flight
 - [YouTube Example](https://www.youtube.com/watch?v=bU63eY66QX0)
 
 ## Related Theory
-- [Chirp](https://github.com/InsaneBroccoli/bf_controller_tuning/tree/PA_final/markdown/Sinarg)
-- [Data](https://github.com/InsaneBroccoli/bf_controller_tuning/tree/PA_final/markdown/Data)
-- [Frequency Response](https://github.com/InsaneBroccoli/bf_controller_tuning/tree/PA_final/markdown/Frequency_Response)
-- [Spectrum and Spectrogram](https://github.com/InsaneBroccoli/bf_controller_tuning/tree/PA_final/markdown/Spectrum_Spectogram)
+- [Chirp](./markdown/Sinarg)
+- [Data](./markdown/Data)
+- [Frequency Response](./markdown/Frequency_Response)
+- [Spectrum and Spectrogram](./markdown/Spectrum_Spectrogram)
 
