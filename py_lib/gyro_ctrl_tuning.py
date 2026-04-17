@@ -1,9 +1,9 @@
 """
 ==========================================================================
-GYRO CTRL TUNING - Betaflight Controller Analysis GYRO TUNING CLASS
+GYRO CTRL TUNING - Betaflight Controller Analysis (Gyro tuning class)
 ==========================================================================
 Betaflight Controller Tuning Analysis Script
-Purpose: Calculation for Gyro Tuning
+Purpose: Calculations for gyro tuning
 
 Author: [Janick Dort, Yuri Bianchi, Dario Jurietti]
 Supervisor: [Michael Peter]
@@ -163,7 +163,7 @@ class GyroCtrlTuning:
         Noverlap = int(np.floor(koverlaptra * self.Nest))
         window = hann(self.Nest, sym=False)
         
-        # Design linear filter for zero phase excitation filter
+        # Design linear filter for zero-phase excitation
         Dlp = np.sqrt(3) / 2
         wlp = 2 * np.pi * 10
         Glp_cont = ct.tf([wlp**2], [1, 2*Dlp*wlp, wlp**2])

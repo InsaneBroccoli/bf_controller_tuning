@@ -57,7 +57,7 @@ def main():
     df = df.get_data()
     
     print(f"Data loaded: {len(df.time)} samples, Ts_log = {df.Ts_log*1000:.3f} ms")
-    # %%
+
     # =========================================================================
     # Plot Flight Data
     # =========================================================================
@@ -104,7 +104,7 @@ def main():
         },
         {
             'idx': np.array([df.ind.setpoint[3]]),
-            'ylabel': 'Throttle',
+            'ylabel': 'Throttle (‰)',
             'legend': ['Setpoint']
         }
     ]
@@ -112,7 +112,6 @@ def main():
     plotter.plot_flight_data(df, group2, 'Flight Overview')
     plotter.plot_eval_time(df.time)
     
-    # %%
     # =========================================================================
     # Bode Plots
     # =========================================================================
@@ -137,7 +136,6 @@ def main():
     # Plot Bode diagrams
     plotter.plot_bode_plant(gyro_tuning, roll, 'Gyro')
     
-    # %%
     # =========================================================================
     # Flight Analyzer
     # =========================================================================
@@ -178,7 +176,6 @@ def main():
     plotter.plot_spectrogram(analysis_flight, 3)
     plotter.plot_gyro_spectra(analysis_flight)
     
-    # %%
     # =========================================================================
     # Gyro Tuning
     # =========================================================================
@@ -207,10 +204,10 @@ def main():
     para_new = df.para.make_copy()
     
     # Configure filters
-    para_new.data['gyro_lpf'] = '0'                 # frequncy of static lpf
+    para_new.data['gyro_lpf'] = '0'                 # frequency of static lpf
     para_new.data['gyro_lowpass_hz'] = '0'          # frequency of gyro lpf 1
-    para_new.data['gyro_soft_type'] = '0'           # typo of gyro lpf 1
-    para_new.data['gyro_lowpass_dyn_hz'] = '0,0'    # dyn gyro lpf overwrites gyro_lowpass_hz
+    para_new.data['gyro_soft_type'] = '0'           # type of gyro lpf 1
+    para_new.data['gyro_lowpass_dyn_hz'] = '0,0'    # dyn gyro lpf (overwrites gyro_lowpass_hz)
     para_new.data['gyro_lowpass2_hz'] = '800'       # frequency of gyro lpf 2
     para_new.data['gyro_soft2_type'] = '0'          # type of gyro lpf 2
     para_new.data['gyro_notch_hz'] = '0,0'          # gyro notch cutoff 1 and 2
@@ -218,12 +215,12 @@ def main():
     
     para_new.data['dterm_lpf_hz'] = '0'             # frequency of dterm lpf 1
     para_new.data['dterm_filter_type'] = '0'        # type of dterm lpf 1
-    para_new.data['dterm_lpf_dyn_hz'] = '0,0'       #dyn dterm lpf overwrites dterm_lpf_hz
-    para_new.data['dterm_lpf2_hz'] = '102'          # frequnecy of dterm lpf 2
-    para_new.data['dterm_filter2_type'] = '3'       #type of dterm lpf 2
+    para_new.data['dterm_lpf_dyn_hz'] = '0,0'       # dyn dterm lpf (overwrites dterm_lpf_hz)
+    para_new.data['dterm_lpf2_hz'] = '102'          # frequency of dterm lpf 2
+    para_new.data['dterm_filter2_type'] = '3'       # type of dterm lpf 2
     para_new.data['dterm_notch_hz'] = '0'           # frequency of dterm notch
     para_new.data['dterm_notch_cutoff'] = '0'       # cutoff of dterm notch
-    para_new.data['yaw_lpf_hz'] = '200'             # frequncy of yaw lpf (PT1)
+    para_new.data['yaw_lpf_hz'] = '200'             # frequency of yaw lpf (PT1)
     
     # Configure PID gains based on axis
     if ind_ax == 0:  # Roll

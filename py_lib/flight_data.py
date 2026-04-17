@@ -1,9 +1,9 @@
 """
 ==========================================================================
-FLIGHT DATA - Betaflight Controller Analysis DATA IMPORT CLASS
+FLIGHT DATA - Betaflight Controller Analysis (data import class)
 ==========================================================================
 Betaflight Controller Tuning Analysis Script
-Purpose: Read Data for further calculations
+Purpose: Read Data for further analysis
 
 Author: [Janick Dort, Yuri Bianchi, Dario Jurietti]
 Supervisor: [Michael Peter]
