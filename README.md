@@ -30,7 +30,7 @@ The configurator and the blackbox explorer can be found here:
 
 ## Requirements
 - **Python**
-- **activated [environment](.\envs\tuning.yml)**
+- **activated [conda environment](./envs/tuning.yml)**
 
 ## Implementation of the CHIRP Signal Generator in betaflight
 The chirp signal generator in Betaflight provides an automated excitation input for analyzing the quadcopter’s dynamic response. It produces a sweep signal whose frequency rises exponentially from a defined starting point to a chosen final value over a preset duration.
