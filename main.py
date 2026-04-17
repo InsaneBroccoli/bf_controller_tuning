@@ -46,8 +46,8 @@ def main():
     
     # Path to Log file
     log_folder = 'logs'
-    flight_folder = '20260304'
-    log_name = '20260304_flipmini.csv'
+    flight_folder = '20260417'
+    log_name = 'LOG029.TXT.csv'
     file_path = Path(log_folder) / flight_folder / log_name
     
     print(f"\nLoading flight log: {file_path}")
@@ -236,8 +236,7 @@ def main():
         I_new = 70
         D_new = 1
     
-    print(f"\nTuning axis: {plotter.axis_names[ind_ax]}")
-    print(f"New PID gains: P={P_new}, I={I_new}, D={D_new}")
+    print(f"\nTuning axis: {plotter.axis_names[ind_ax]}\n")
     
     # Calculate new controller
     gyro_tuning = gyro_tuning.calculate_new_controller(
