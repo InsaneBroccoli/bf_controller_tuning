@@ -216,17 +216,17 @@ def main():
     para_new.data['dterm_lpf_hz'] = '0'             # frequency of dterm lpf 1
     para_new.data['dterm_filter_type'] = '0'        # type of dterm lpf 1
     para_new.data['dterm_lpf_dyn_hz'] = '0,0'       # dyn dterm lpf (overwrites dterm_lpf_hz)
-    para_new.data['dterm_lpf2_hz'] = '140'          # frequency of dterm lpf 2
+    para_new.data['dterm_lpf2_hz'] = '120'          # frequency of dterm lpf 2
     para_new.data['dterm_filter2_type'] = '3'       # type of dterm lpf 2
     para_new.data['dterm_notch_hz'] = '0'           # frequency of dterm notch
     para_new.data['dterm_notch_cutoff'] = '0'       # cutoff of dterm notch
     para_new.data['yaw_lpf_hz'] = '200'             # frequency of yaw lpf (PT1)
     
     # Configure PID gains based on axis
-    if ind_ax == 0:  # Rollcl
-        P_new = 40
-        I_new = 60
-        D_new = 25
+    if ind_ax == 0:  # Roll
+        P_new = 60
+        I_new = 92
+        D_new = 50
     elif ind_ax == 1:  # Pitch
         P_new = 71
         I_new = 118
@@ -253,6 +253,8 @@ def main():
     print("\n" + "="*70)
     print("Analysis Complete!")
     print("="*70)
+    
+    plt.show()
 
 
 if __name__ == '__main__':

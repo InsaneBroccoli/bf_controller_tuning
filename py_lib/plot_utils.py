@@ -36,9 +36,16 @@ class PlotUtils:
         self.axis_names = ['Roll', 'Pitch', 'Yaw']
         
         # Set matplotlib style
-        plt.style.use('seaborn-v0_8-darkgrid')
+        # plt.style.use('seaborn-v0_8-darkgrid')
         plt.rcParams['figure.figsize'] = (12, 8)
         plt.rcParams['lines.linewidth'] = self.linewidth
+        # plt.rcParams['axes.facecolor'] = 'white'
+        # plt.rcParams['figure.facecolor'] = 'white'
+        # plt.rcParams['axes.edgecolor'] = 'black'
+        # plt.rcParams['axes.grid'] = True
+        # plt.rcParams['grid.color'] = '0.8'
+        # plt.rcParams['grid.linestyle'] = '-'
+        # plt.rcParams['grid.linewidth'] = 0.5
     
     # ======================================================================
     # Figure Flight Data
@@ -325,6 +332,7 @@ class PlotUtils:
         ], title='Tracking T')
 
         # Sensitivity S
+        axes[0, 1].axhline(6, color='k', linestyle='--', linewidth=self.linewidth)
         plot_frd(axes[0, 1], [
             (td.CloLoAan.S,    '--', 'actual'),
             (td.CloLoAanNew.S, '-',  'new'),
@@ -390,4 +398,3 @@ class PlotUtils:
         ax.set_xlim([0, 0.5])
         
         plt.tight_layout()
-        plt.show()
