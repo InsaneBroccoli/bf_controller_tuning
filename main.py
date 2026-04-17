@@ -47,7 +47,7 @@ def main():
     # Path to Log file
     log_folder = 'logs'
     flight_folder = '20260417'
-    log_name = 'LOG029.TXT.csv'
+    log_name = '20260417_flipmini_1.TXT.csv'
     file_path = Path(log_folder) / flight_folder / log_name
     
     print(f"\nLoading flight log: {file_path}")
@@ -216,17 +216,17 @@ def main():
     para_new.data['dterm_lpf_hz'] = '0'             # frequency of dterm lpf 1
     para_new.data['dterm_filter_type'] = '0'        # type of dterm lpf 1
     para_new.data['dterm_lpf_dyn_hz'] = '0,0'       # dyn dterm lpf (overwrites dterm_lpf_hz)
-    para_new.data['dterm_lpf2_hz'] = '102'          # frequency of dterm lpf 2
+    para_new.data['dterm_lpf2_hz'] = '140'          # frequency of dterm lpf 2
     para_new.data['dterm_filter2_type'] = '3'       # type of dterm lpf 2
     para_new.data['dterm_notch_hz'] = '0'           # frequency of dterm notch
     para_new.data['dterm_notch_cutoff'] = '0'       # cutoff of dterm notch
     para_new.data['yaw_lpf_hz'] = '200'             # frequency of yaw lpf (PT1)
     
     # Configure PID gains based on axis
-    if ind_ax == 0:  # Roll
-        P_new = 50
+    if ind_ax == 0:  # Rollcl
+        P_new = 40
         I_new = 60
-        D_new = 30
+        D_new = 25
     elif ind_ax == 1:  # Pitch
         P_new = 71
         I_new = 118
