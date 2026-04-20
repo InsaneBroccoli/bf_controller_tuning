@@ -7,7 +7,7 @@ addpath(genpath("../logs/"));
 % Add file information
 log_folder = '../logs';
 flight_folder = '20260420';
-log_name = 'LOG187.TXT.csv';
+log_name = 'LOG000.TXT.csv';
 file_path = fullfile(log_folder, flight_folder, log_name);
 
 % --- Load and Process Flight Log Data ---
@@ -34,13 +34,12 @@ data = data(1:20:end, :);
 time = (data(:, ind.time) - data(1, ind.time)) * 1e-6;
 
 % Undo firmware-side debug scaling so all signals are in physical units.
-% Firmware logs (alt_hold_multirotor.c, autopilot_multirotor.c):
-%   debug[0] = 5e3*sinarg, debug[3] = altOffsetCm,    debug[4] = setAltOffsetCm
-%   debug[5] = throttleOut*1000 (0..1000), debug[6] = verticalVelocityCmS*10
-%   debug[7] = throttleOffset (PWM units, P+I-D+F before hover/tilt)
+% Firmware logs (alt_hold_multirotor.c, autopilot_multirotor.c)
 sinarg          = data(:,ind.debug(1)) / 5e3;
-meas_alt        = data(:,ind.debug(4));
-set_alt         = data(:,ind.debug(5));
+meas_alt        = data(:,ind.debug(2));
+set_alt         = data(:,ind.debug(3));
+meas_pi         = data(:,ind.debug(4));
+meas_d          = data(:,ind.debug(5));
 throttle_out    = data(:,ind.debug(6)) / 1e3;   % normalised throttle 0..1
 vertical_v      = data(:,ind.debug(7)) / 10;    % cm/s
 throttle_offset = data(:,ind.debug(8));         % PWM units
@@ -69,8 +68,6 @@ title('Throttle Offset');
 xlabel('Time [s]'); ylabel('Throttle [PWM units]');
 
 idx = get_ind_eval(sinarg, meas_alt);
-meas_alt = fix_offset(meas_alt, idx);
-
 
 time_c            = time(idx);
 meas_alt_c        = meas_alt(idx);
@@ -289,6 +286,7 @@ plot(step_time, step_resp_tra); grid on;
 legend('Analytical', 'New', 'Measured', 'Location', 'best');
 title('Step Response - Tracking (Normalized)');
 xlabel('Time [s]'); ylabel('Altitude [cm]');
+xlim([0 10]);
 
 % Disturbance rejection
 step_resp_d = [calculate_step_response_from_frd(CL_ana.SP, fmax), ...
@@ -302,3 +300,4 @@ plot(step_time, step_resp_d); grid on;
 legend('Analytical', 'New', 'Location', 'best');
 title('Step Response - Disturbance Rejection');
 xlabel('Time [s]'); ylabel('Altitude [cm]');
+xlim([0 10]);
