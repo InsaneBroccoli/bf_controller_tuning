@@ -31,8 +31,8 @@ plotter = plot_utils(do_insert_legends);
 
 log_folder = 'logs';
 
-flight_folder = '20260417';
-log_name = '20260417_flipmini_2.TXT.csv';
+flight_folder = '20260420';
+log_name = 'LOG048.TXT.csv';
 file_path = fullfile(log_folder, flight_folder, log_name);
 
 df = flight_data(file_path);
@@ -96,7 +96,7 @@ plotter.plot_Eval_Time(df.time);
 gyro_tuning = gyro_ctrl_tuning(df);
 
 
-resolution_factor_tuning = 2;    % Window length for spectral analysis (seconds)
+resolution_factor_tuning = 2.5;    % Window length for spectral analysis (seconds)
 overlap_tuning = 0.9;              % Overlap factor for spectral analysis (0-1)
 gyro_tuning = gyro_tuning.calculate_transfer_func(resolution_factor_tuning, overlap_tuning);
 
@@ -184,9 +184,9 @@ para_new.yaw_lpf_hz          = 200;     % frequency of yaw lpf (pt1)
 
 switch ind_ax
     case 1 % Roll PID values [default: 45, 80, 30]
-        P_new       = 40;
-        I_new       = 60;
-        D_new       = 25;
+        P_new       = 46;
+        I_new       = 74;
+        D_new       = 30;
     case 2 % Pitch PID values [default: 47, 84, 34]
         P_new       = 49;
         I_new       = 96;
@@ -219,7 +219,7 @@ default_parameters_angle = false;
 
 % PT3 Angle Control
 para_new.angle_lpf_hz = 50;     % frequency of Angle lpf (PT3)
-P_Angle = 100;
+P_Angle = 80;
 
 angle_tuning = angle_tuning.calculate_new_controller(ind_ax, P_Angle, ...
     default_parameters_angle, para_new, para);
