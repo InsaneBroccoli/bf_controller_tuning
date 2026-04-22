@@ -10,6 +10,7 @@ pos_bode = [0.1514, 0.5838-0.2, 0.7536, 0.3472+0.2; ... % this is a bit hacky
             0.1514, 0.1100    , 0.7536, 0.1917    ];
 opt = bodeoptions('cstprefs');
 
+
 % Add file information
 log_folder = '../logs';
 flight_folder = '20260420';
@@ -85,7 +86,7 @@ Ts_cntr = Ts_log;   % althold control loop runs at logging rate SURE?
 %% Estimate Transfer Functions
 
 % Welch parameters
-Nest     = round(30 / (Ts_log));
+Nest     = round(15 / (Ts_log));
 Noverlap = floor(0.9 * Nest);
 window   = hann(Nest, 'periodic');
 
@@ -112,8 +113,8 @@ out_d = apply_rotfiltfilt(Glp, sinarg_ax, meas_d);
 [T, C_T] = estimate_frequency_response(inp(idx), out_y(idx), ...
   window, Noverlap, Nest, Ts_log);
 C_T_data = squeeze(C_T.ResponseData);
-omega_bode = squeeze(C_T.Frequency);
-f_bode = omega_bode / (2*pi);
+f_bode = squeeze(C_T.Frequency);
+omega_bode = 2*pi*f_bode;
 
 linewidth = 1.5;
 
@@ -124,6 +125,7 @@ opt.MagUnits = 'dB';
 opt.MagScale = 'linear';
 opt.PhaseUnits = 'deg';
 opt.FreqUnits = 'Hz';
+opt.PhaseWrapping = 'on';
 opt.YLim = {[-60 20], [-180 180]};
 
 bode(ax(1), T, 'k', omega_bode, opt)   % bode bekommt weiter rad/s
@@ -157,6 +159,7 @@ opt.MagUnits = 'dB';
 opt.MagScale = 'linear';
 opt.PhaseUnits = 'deg';
 opt.FreqUnits = 'Hz';
+opt.PhaseWrapping = 'on';
 opt.YLim = {[-60 50], [-180 180]};
 
 bode(ax(1), P, 'k', omega_bode, opt)   % bode bekommt weiter rad/s
@@ -164,7 +167,7 @@ title('Bode Plot Plant')
 grid(ax(1), 'on')
 
 ax(2) = subplot('Position', pos_bode(2,:));
-semilogx(ax(2), f_bode, C_P, 'k', 'LineWidth', linewidth)
+semilogx(ax(2), omega_bode, C_P, 'k', 'LineWidth', linewidth)
 grid(ax(2), 'on')
 ylabel(ax(2), 'Coherence')
 xlabel(ax(2), 'Frequency [Hz]')
@@ -191,11 +194,17 @@ Cpi_ana = ss(Kp_alt + Ki_alt*Ts_cntr*tf([1 0],[1 -1], Ts_cntr));
 Cpi_ana  = downsample_frd(Cpi_ana , Ts_log, P.Frequency);
 
 % Iterm Relax
-% Cpi_com = Cpi / Cpi_ana;
-% Cpi_ana = Cpi_ana * Cpi_com;
+Cpi_com = Cpi / Cpi_ana;
+Cpi_ana = Cpi_ana * Cpi_com;
 
 figure(4)
-bode(Cpi, Cpi_ana);grid on;
+opt = bodeoptions('cstprefs');
+opt.MagUnits = 'dB';
+opt.MagScale = 'linear';
+opt.PhaseUnits = 'deg';
+opt.FreqUnits = 'Hz';
+opt.PhaseWrapping = 'on';
+bode(Cpi, Cpi_ana, opt);grid on;
 title('Bode Plot PI Controller')
 legend('Measured','Calculated')
 
@@ -215,7 +224,13 @@ Cd_ana = Cd_only * Gf_D_Term;
 Cd_ana  = downsample_frd(Cd_ana , Ts_log, P.Frequency);
 
 figure(5)
-bode(Cd, Cd_ana);grid on;
+opt = bodeoptions('cstprefs');
+opt.MagUnits = 'dB';
+opt.MagScale = 'linear';
+opt.PhaseUnits = 'deg';
+opt.FreqUnits = 'Hz';
+opt.PhaseWrapping = 'on';
+bode(Cd, Cd_ana, opt);grid on;
 title('Bode Plot DT2 Controller')
 legend('Measured','Calculated')
 
@@ -229,7 +244,7 @@ opt.MagUnits = 'dB';
 opt.MagScale = 'linear';
 opt.PhaseUnits = 'deg';
 opt.FreqUnits = 'Hz';
-
+opt.PhaseWrapping = 'on';
 bode(T, CL_ana.T, omega_bode, opt)
 xlim([1e-2 10])
 title('Comparison Measured to Analytical Transfer Function')
@@ -238,7 +253,7 @@ legend('Measured','Calculated')
 
 %% Get Step Response
 % Step responses
-f_max = 10;
+f_max = 3;
 T_mean = 0.1 * [-1, 1] + (Nest * Ts_log) / 2;
 step_time = (0:Nest-1).'*Ts_log;
 
@@ -252,5 +267,5 @@ figure(7)
 plot(step_time, step_resp), grid on, ylabel('Altitude (cm)')
 title('Step Response Altitude Hold')
 legend('actual', 'measured', 'location', 'best')
-ylim([0 1.8]); xlim([0 15]);
+ylim([-0.5 1.8]); xlim([0 7.5]);
 
