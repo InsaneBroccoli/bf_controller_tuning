@@ -1,6 +1,7 @@
 
 % Initialize workspace
-clc, clear variables, close all
+clc, clear variables, 
+% close all
 addpath("../lib/");
 addpath(genpath("../logs/"));
 
@@ -13,7 +14,7 @@ opt = bodeoptions('cstprefs');
 
 % Add file information
 log_folder = '../logs';
-flight_folder = '20260420';
+flight_folder = '20260423';
 log_name = 'LOG000.TXT.csv';
 file_path = fullfile(log_folder, flight_folder, log_name);
 
@@ -86,7 +87,7 @@ Ts_cntr = Ts_log;   % althold control loop runs at logging rate SURE?
 %% Estimate Transfer Functions
 
 % Welch parameters
-Nest     = round(15 / (Ts_log));
+Nest     = round(12.5 / (Ts_log));
 Noverlap = floor(0.9 * Nest);
 window   = hann(Nest, 'periodic');
 
@@ -186,16 +187,16 @@ Cpi = Gvw / (1 - T);
 
 % Calculated Transfer function PI
 
-Kp_alt = 15 * 0.01;
-Ki_alt = 15 * 0.003;
+Kp_alt = 20 * 0.01;
+Ki_alt = 20 * 0.003;
 
 Cpi_ana = ss(Kp_alt + Ki_alt*Ts_cntr*tf([1 0],[1 -1], Ts_cntr));
 
 Cpi_ana  = downsample_frd(Cpi_ana , Ts_log, P.Frequency);
 
 % Iterm Relax
-Cpi_com = Cpi / Cpi_ana;
-Cpi_ana = Cpi_ana * Cpi_com;
+% Cpi_com = Cpi / Cpi_ana;
+% Cpi_ana = Cpi_ana * Cpi_com;
 
 figure(4)
 opt = bodeoptions('cstprefs');
@@ -213,7 +214,7 @@ legend('Measured','Calculated')
 %Measured Transfer function PI
 Cd  = Guw * Gvw / T * (1 / Guw - 1 / Gvw);
 
-Kd_alt = 15 * 0.01;
+Kd_alt = 18 * 0.01;
 fc_pt2 = 1;
 
 Cd_only = ss( Kd_alt/Ts_cntr*tf([1 -1], [1 0], Ts_cntr) );
@@ -251,6 +252,19 @@ title('Comparison Measured to Analytical Transfer Function')
 grid on
 legend('Measured','Calculated')
 
+
+figure(8)
+opt = bodeoptions('cstprefs');
+opt.MagUnits = 'dB';
+opt.MagScale = 'linear';
+opt.PhaseUnits = 'deg';
+opt.FreqUnits = 'Hz';
+opt.PhaseWrapping = 'on';
+bode(CL_ana.S, omega_bode, opt);
+xlim([1e-2 10])
+title('Sensitivity of Calulated Loop')
+grid on;
+
 %% Get Step Response
 % Step responses
 f_max = 3;
@@ -267,5 +281,5 @@ figure(7)
 plot(step_time, step_resp), grid on, ylabel('Altitude (cm)')
 title('Step Response Altitude Hold')
 legend('actual', 'measured', 'location', 'best')
-ylim([-0.5 1.8]); xlim([0 7.5]);
+ylim([-0.1 1.4]); xlim([0 6.25]);
 
