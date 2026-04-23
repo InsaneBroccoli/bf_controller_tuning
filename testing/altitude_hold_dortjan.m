@@ -1,21 +1,20 @@
 
 % Initialize workspace
-clc, clear variables, 
-% close all
+clc, clear variables, close all
 addpath("../lib/");
 addpath(genpath("../logs/"));
 
 s = tf('s');
 
 pos_bode = [0.1514, 0.5838-0.2, 0.7536, 0.3472+0.2; ... % this is a bit hacky
-            0.1514, 0.1100    , 0.7536, 0.1917    ];
+  0.1514, 0.1100    , 0.7536, 0.1917    ];
 opt = bodeoptions('cstprefs');
 
 
 % Add file information
 log_folder = '../logs';
 flight_folder = '20260423';
-log_name = 'LOG000.TXT.csv';
+log_name = 'LOG012.TXT.csv';
 file_path = fullfile(log_folder, flight_folder, log_name);
 
 % --- Load and Process Flight Log Data ---
@@ -181,7 +180,7 @@ linkaxes(ax, 'x')
 
 %Measured Transfer function PI
 [Gvw, C_Gvw] = estimate_frequency_response(inp(idx), out_v(idx), ...
-    window, Noverlap, Nest, Ts_log);
+  window, Noverlap, Nest, Ts_log);
 
 Cpi = Gvw / (1 - T);
 
@@ -273,7 +272,7 @@ step_time = (0:Nest-1).'*Ts_log;
 
 % Actual controller parameters
 step_resp = [calculate_step_response_from_frd(CL_ana.T    , f_max), ...
-             calculate_step_response_from_frd(T           , f_max)];
+  calculate_step_response_from_frd(T           , f_max)];
 step_resp_mean = mean(step_resp(step_time > T_mean(1) & step_time < T_mean(2),:));
 step_resp = step_resp ./ step_resp_mean;
 
