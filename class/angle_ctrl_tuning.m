@@ -192,10 +192,12 @@ classdef angle_ctrl_tuning < handle
             gyro = obj.gyro_tuning;
             
             obj.CL_ana = calculate_closed_loop_angle(obj.C_ana, ...
-                gyro.T{obj.ind_ax}, gyro.P{obj.ind_ax}, obj.P{obj.ind_ax});
+                gyro.T{obj.ind_ax}, gyro.P{obj.ind_ax}, obj.P{obj.ind_ax}, ...
+                gyro.CL_ana.C);
             
             obj.CL_ana_new = calculate_closed_loop_angle(obj.C_ana_new, ...
-                gyro.CL_ana_new.T, obj.P{obj.ind_ax});
+                gyro.T{obj.ind_ax}, gyro.P{obj.ind_ax}, obj.P{obj.ind_ax}, ...
+                gyro.CL_ana.C);
         
             f_max = 500;
         

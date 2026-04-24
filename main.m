@@ -202,7 +202,7 @@ gyro_tuning = gyro_tuning.get_tuning_data(do_compensate_iterm);
 
 % plotter.plot_Bode_Contr(ind_ax, do_insert_legends);
 plotter.plot_Gang_of_Four(gyro_tuning,  'Gyro');
-plotter.plot_Step_Response(gyro_tuning,  'Gyro', 'Gyro (deg/sec)');
+plotter.plot_Step_Compliance(gyro_tuning,  'Gyro', 'Gyro (deg/sec)');
 
 %% Angle Tuning Data
 
@@ -214,7 +214,7 @@ plotter.plot_Bode_Plant(angle_tuning, roll, 'Angle', 'Plant');
 default_parameters_angle = false;
 
 % PT3 Angle Control
-P_Angle = 100;
+P_Angle = 120;
 
 angle_tuning = angle_tuning.calculate_new_controller(ind_ax, P_Angle, ...
     default_parameters_angle);

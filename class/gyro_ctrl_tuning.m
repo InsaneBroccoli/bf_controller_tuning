@@ -106,11 +106,6 @@ classdef gyro_ctrl_tuning < handle
                 sinarg_ax = sinarg_full;
                 sinarg_ax(~ind_eval) = 0;
 
-                fm = median(uint32(dataf.data(ind_eval, dataf.ind.flightModeFlags)));
-                isAngle   = bitand(fm, 2) ~= 0;
-                isHorizon = bitand(fm, 4) ~= 0;
-                isAcro    = ~isAngle && ~isHorizon;
-
                 % Calculate average throttle
                 obj.throttle_avg = median(dataf.data(ind_eval,dataf.ind.setpoint(4))) / 1.0e3;
 
@@ -142,35 +137,9 @@ classdef gyro_ctrl_tuning < handle
                 [Gvw_ax, ~] = estimate_frequency_response( ...
                     inp(ind_eval), out_v(ind_eval), window, Noverlap, obj.Nest, dataf.Ts_log);
 
-                % Calculation in case of Angle Mode
-                % if isAngle 
-                %     a = dataf.data(:, dataf.ind.angleTarget(ind_axis));
-                %     out_a = apply_rotfiltfilt(Glp, sinarg_ax, a);
-                % 
-                %     [Gya_ax, Cya_ax] = estimate_frequency_response( ...
-                %         out_a(ind_eval), out_y(ind_eval), window, Noverlap, obj.Nest, dataf.Ts_log);
-                % 
-                %     [Gua_ax, Cua_ax] = estimate_frequency_response( ...
-                %         out_a(ind_eval), out_u(ind_eval), window, Noverlap, obj.Nest, dataf.Ts_log);
-                % 
-                %     [Gwa_ax, Cwa_ax] = estimate_frequency_response( ...
-                %         out_a(ind_eval), inp(ind_eval), window, Noverlap, obj.Nest, dataf.Ts_log);
-                % 
-                % end
-                % Calculate plant response (indirect method: P = T/Guw for better noise immunity)
-                % P  , Gyu: u -> y
-
                 P_gef_ax = T_ax / Guw_ax;
                 Coh_Plant = C_T_ax .* C_Guw_ax;   
-                 
-                % if isAngle
-                %     T_ax = Gya_ax / Gwa_ax;
-                %     C_T_ax =  Cya_ax*Cwa_ax;
-                %     P_gef_ax = Gya_ax / Gua_ax;
-                %     Coh_Plant = Cya_ax .* Cua_ax;    
-                %     fprintf('Angle Mode\n');
-                % end
-
+             
                 % Calculate controller frequency responses
                 % Split into PI and D components for analysis
                 Cpi_ax = Gvw_ax / (1 - T_ax);

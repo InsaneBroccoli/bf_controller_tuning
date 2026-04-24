@@ -464,8 +464,8 @@ classdef plot_utils
         
             % ---- Formatting ----
             linkaxes(ax, 'x');
-            xlim(ax(1), [0 0.3]);
-                    
+            xlim(ax(1), [0 1]);
+        
             set(findall(fig, 'type', 'line'), 'LineWidth', obj.linewidth);
         
             sgtitle(sprintf('Step Response %s - %s', label, axName));
@@ -496,11 +496,10 @@ classdef plot_utils
             end
         
             % ---- Plot 1: Tracking 
-            plot(td.step_time, td.step_resp_tra, LineWidth=1.5);
+            plot(td.step_time, td.step_resp_tra);
             grid on;
             ylabel(ylab);
-            xlim([0 1]);
-
+            
             title(sprintf('Tracking T - %s', axName));
         
             if obj.do_insert_legends
