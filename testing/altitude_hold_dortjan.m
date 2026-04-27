@@ -4,10 +4,6 @@ clc, clear variables, close all
 addpath("../lib/");
 addpath(genpath("../logs/"));
 
-AP_P_SCALE = 0.01;
-AP_I_SCALE = 0.003;
-AP_D_SCALE = 0.01;
-
 s = tf('s');
 
 pos_bode = [0.1514, 0.5838-0.2, 0.7536, 0.3472+0.2; ... % this is a bit hacky
@@ -190,14 +186,19 @@ linkaxes(ax, 'x')
 
 Cpi = Gvw / (1 - T);
 
-% Calculated Transfer function PI
-
-Kp_alt = 20 * AP_P_SCALE;
-Ki_alt = 20 * AP_I_SCALE;
-
-Cpi_ana = ss(Kp_alt + Ki_alt*Ts_cntr*tf([1 0],[1 -1], Ts_cntr));
-
-Cpi_ana  = downsample_frd(Cpi_ana , Ts_log, P.Frequency);
+% Analytical PI + D (current tune)
+P_cur = 20;
+I_cur = 20;
+D_cur = 18;
+fc_pt2_cur = 1;
+[Cpi_ana, Cd_ana] = calculate_althold_controllers( ...
+  P_cur,...
+  I_cur,...
+  D_cur,...
+  fc_pt2_cur,...
+  Ts_cntr,...
+  Ts_log,...
+  P.Frequency);
 
 % Iterm Relax
 % Cpi_com = Cpi / Cpi_ana;
@@ -218,16 +219,6 @@ legend('Measured','Calculated')
 
 %Measured Transfer function PI
 Cd  = Guw * Gvw / T * (1 / Guw - 1 / Gvw);
-
-Kd_alt = 18 * 0.01;
-fc_pt2 = 1;
-
-Cd_only = ss( Kd_alt/Ts_cntr*tf([1 -1], [1 0], Ts_cntr) );
-Gf_D_Term = get_filter('pt2', fc_pt2, Ts_cntr);
-
-Cd_ana = Cd_only * Gf_D_Term;
-
-Cd_ana  = downsample_frd(Cd_ana , Ts_log, P.Frequency);
 
 figure(5)
 opt = bodeoptions('cstprefs');
@@ -252,28 +243,25 @@ CL_ana= calculate_closed_loop(Cpi_ana, tf(1,1,Ts_log), P, tf(1,1,Ts_log), Cd_ana
 default_parameters = false;
 
 if default_parameters
-  Kp_alt_new = Kp_alt;
-  Ki_alt_new = Ki_alt;
-  Kd_alt_new = Kd_alt;
-  fc_pt2_new = fc_pt2;
+  P_new = P_cur;
+  I_new = I_cur;
+  D_new = D_cur;
+  fc_pt2_new = fc_pt2_cur;
 else
-  P_new      = 22;
-  I_new      = 22;
-  D_new      = 20;
+  P_new = 22;
+  I_new = 22;
+  D_new = 20;
   fc_pt2_new = 1;
-  
-  Kp_alt_new = P_new * AP_P_SCALE;
-  Ki_alt_new = I_new * AP_I_SCALE;
-  Kd_alt_new = D_new * AP_D_SCALE;
 end
 
-Cpi_ana_new = ss(Kp_alt_new + Ki_alt_new*Ts_cntr*tf([1 0],[1 -1], Ts_cntr));
-Cpi_ana_new = downsample_frd(Cpi_ana_new, Ts_log, P.Frequency);
-
-Cd_only_new   = ss( Kd_alt_new/Ts_cntr*tf([1 -1], [1 0], Ts_cntr) );
-Gf_D_Term_new = get_filter('pt2', fc_pt2_new, Ts_cntr);
-Cd_ana_new    = Cd_only_new * Gf_D_Term_new;
-Cd_ana_new    = downsample_frd(Cd_ana_new, Ts_log, P.Frequency);
+[Cpi_ana_new, Cd_ana_new] = calculate_althold_controllers( ...
+  P_new,...
+  I_new,...
+  D_new,...
+  fc_pt2_new,...
+  Ts_cntr,...
+  Ts_log,...
+  P.Frequency);
 
 CL_ana_new = calculate_closed_loop(Cpi_ana_new, tf(1,1,Ts_log), P, tf(1,1,Ts_log), Cd_ana_new);
 
