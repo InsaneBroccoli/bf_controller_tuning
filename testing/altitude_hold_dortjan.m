@@ -4,12 +4,8 @@ clc, clear variables, close all
 addpath("../lib/");
 addpath(genpath("../logs/"));
 
-s = tf('s');
-
 pos_bode = [0.1514, 0.5838-0.2, 0.7536, 0.3472+0.2; ... % this is a bit hacky
-  0.1514, 0.1100    , 0.7536, 0.1917    ];
-opt = bodeoptions('cstprefs');
-
+    0.1514, 0.1100    , 0.7536, 0.1917    ];
 
 % Add file information
 log_folder = '../logs';
@@ -25,17 +21,22 @@ file_path = fullfile(log_folder, flight_folder, log_name);
 mat_path = fullfile(folder, [base '.mat']);
 
 try
-  S = load(mat_path);
-  data = S.data;
+    S = load(mat_path);
+    data = S.data;
 catch
   data = readmatrix(file_path, "NumHeaderLines", Nheader);
   save(mat_path, "data");
 end
 
-% Decimate the full matrix once (blackbox runs at the FC loop rate; althold
-% debug values update at 100 Hz, so 20:1 brings the effective rate to ~100 Hz
-% while keeping a single decimation factor in one place).
-data = data(1:20:end, :);
+% Derive sample times from the log header. Blackbox frame period is
+% looptime * pid_process_denom * frameIntervalPDenom; althold updates at
+% 100 Hz, so we decimate down to that rate and run the controller analysis
+% at the same Ts.
+Ts_log_raw = para.looptime * 1e-6 * para.pid_process_denom * para.frameIntervalPDenom;
+dec        = round((1/Ts_log_raw) / 100);
+data       = data(1:dec:end, :);
+Ts_log     = Ts_log_raw * dec;
+Ts_cntr    = Ts_log;   % althold control loop runs at logging rate
 
 % ind.time column is in microseconds (Betaflight blackbox convention).
 time = (data(:, ind.time) - data(1, ind.time)) * 1e-6;
@@ -46,7 +47,6 @@ sinarg          = data(:,ind.debug(1)) / 5e3;
 meas_alt        = data(:,ind.debug(2));
 set_alt         = data(:,ind.debug(3));
 meas_pi         = data(:,ind.debug(4));
-meas_d          = data(:,ind.debug(5));
 throttle_out    = data(:,ind.debug(6)) / 1e3;   % normalised throttle 0..1
 vertical_v      = data(:,ind.debug(7)) / 10;    % cm/s
 throttle_offset = data(:,ind.debug(8));         % PWM units
@@ -80,10 +80,6 @@ xlabel('Time [s]'); ylabel('Throttle [PWM units]');
 sinarg = fix_signal(sinarg);
 idx = get_ind_eval(sinarg, meas_alt);
 
-
-Ts_log  = 1 / 100;  % DO WE HAVE THIS IN THE LOG FILE?
-Ts_cntr = Ts_log;   % althold control loop runs at logging rate SURE?
-
 %% Estimate Transfer Functions
 
 % Welch parameters
@@ -109,7 +105,6 @@ inp   = apply_rotfiltfilt(Glp, sinarg_ax, set_alt);
 out_y = apply_rotfiltfilt(Glp, sinarg_ax, meas_alt);
 out_u = apply_rotfiltfilt(Glp, sinarg_ax, throttle_offset);
 out_v = apply_rotfiltfilt(Glp, sinarg_ax, meas_pi);
-out_d = apply_rotfiltfilt(Glp, sinarg_ax, meas_d);
 
 %% Estimation Transferfunction T
 [T, C_T] = estimate_frequency_response(inp(idx), out_y(idx), ...
@@ -218,8 +213,7 @@ legend('Measured','Calculated')
 %% Calculation of the D-Controller
 
 %Measured Transfer function PI
-Cd  = Guw * Gvw / T * (1 / Guw - 1 / Gvw);
-
+Cd  = (Gvw - Guw) / T;
 figure(5)
 opt = bodeoptions('cstprefs');
 opt.MagUnits = 'dB';
@@ -279,7 +273,7 @@ grid on
 legend('Measured','Calculated')
 
 
-figure(8)
+figure(7)
 opt = bodeoptions('cstprefs');
 opt.MagUnits = 'dB';
 opt.MagScale = 'linear';
@@ -328,7 +322,7 @@ step_resp = [calculate_step_response_from_frd(CL_ana.T    , f_max), ...
 step_resp_mean = mean(step_resp(step_time > T_mean(1) & step_time < T_mean(2),:));
 step_resp = step_resp ./ step_resp_mean;
 
-figure(7)
+figure(8)
 plot(step_time, step_resp), grid on, ylabel('Altitude (cm)')
 title('Step Response Altitude Hold')
 legend('actual', 'new', 'measured', 'location', 'best')
