@@ -77,6 +77,7 @@ plot(time, throttle_offset); grid on;
 title('Throttle Offset');
 xlabel('Time [s]'); ylabel('Throttle [PWM units]');
 
+sinarg = fix_signal(sinarg);
 idx = get_ind_eval(sinarg, meas_alt);
 
 
