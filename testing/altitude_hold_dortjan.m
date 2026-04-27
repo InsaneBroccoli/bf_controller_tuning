@@ -244,6 +244,39 @@ legend('Measured','Calculated')
 
 CL_ana= calculate_closed_loop(Cpi_ana, tf(1,1,Ts_log), P, tf(1,1,Ts_log), Cd_ana);
 
+%% New Controller (proposed tune)
+
+% When true, the "new" controller mirrors the current analytical one — useful
+% as a sanity check on the first pass. Flip to false and edit P_new/I_new/
+% D_new/fc_pt2_new below to propose a different tune.
+default_parameters = false;
+
+if default_parameters
+  Kp_alt_new = Kp_alt;
+  Ki_alt_new = Ki_alt;
+  Kd_alt_new = Kd_alt;
+  fc_pt2_new = fc_pt2;
+else
+  P_new      = 22;
+  I_new      = 22;
+  D_new      = 20;
+  fc_pt2_new = 1;
+  
+  Kp_alt_new = P_new * AP_P_SCALE;
+  Ki_alt_new = I_new * AP_I_SCALE;
+  Kd_alt_new = D_new * AP_D_SCALE;
+end
+
+Cpi_ana_new = ss(Kp_alt_new + Ki_alt_new*Ts_cntr*tf([1 0],[1 -1], Ts_cntr));
+Cpi_ana_new = downsample_frd(Cpi_ana_new, Ts_log, P.Frequency);
+
+Cd_only_new   = ss( Kd_alt_new/Ts_cntr*tf([1 -1], [1 0], Ts_cntr) );
+Gf_D_Term_new = get_filter('pt2', fc_pt2_new, Ts_cntr);
+Cd_ana_new    = Cd_only_new * Gf_D_Term_new;
+Cd_ana_new    = downsample_frd(Cd_ana_new, Ts_log, P.Frequency);
+
+CL_ana_new = calculate_closed_loop(Cpi_ana_new, tf(1,1,Ts_log), P, tf(1,1,Ts_log), Cd_ana_new);
+
 figure(6)
 opt = bodeoptions('cstprefs');
 opt.MagUnits = 'dB';
@@ -267,24 +300,27 @@ opt.FreqUnits = 'Hz';
 opt.PhaseWrapping = 'on';
 
 ax(1) = subplot(2,2,1);
-bodemag(ax(1), CL_ana.T, T, omega_bode, opt);
+bodemag(ax(1), CL_ana.T, CL_ana_new.T, T, omega_bode, opt);
 title('Tracking T')
-legend('Calculated','Measured','Location','best')
+legend('Actual','New','Measured','Location','best')
 grid on
 
 ax(2) = subplot(2,2,2);
-bodemag(ax(2), CL_ana.S, omega_bode, opt);
+bodemag(ax(2), CL_ana.S, CL_ana_new.S, omega_bode, opt);
 title('Sensitivity S')
+legend('Actual','New','Location','northwest')
 grid on
 
 ax(3) = subplot(2,2,3);
-bodemag(ax(3), CL_ana.SC, omega_bode, opt);
+bodemag(ax(3), CL_ana.SC, CL_ana_new.SC, omega_bode, opt);
 title('Controller Effort SC')
+legend('Actual','New','Location','northwest')
 grid on
 
 ax(4) = subplot(2,2,4);
-bodemag(ax(4), CL_ana.SP, omega_bode, opt);
+bodemag(ax(4), CL_ana.SP, CL_ana_new.SP, omega_bode, opt);
 title('Compliance SP')
+legend('Actual','New','Location','southwest')
 grid on
 
 linkaxes(ax,'x');
@@ -299,6 +335,7 @@ step_time = (0:Nest-1).'*Ts_log;
 
 % Actual controller parameters
 step_resp = [calculate_step_response_from_frd(CL_ana.T    , f_max), ...
+  calculate_step_response_from_frd(CL_ana_new.T, f_max), ...
   calculate_step_response_from_frd(T           , f_max)];
 step_resp_mean = mean(step_resp(step_time > T_mean(1) & step_time < T_mean(2),:));
 step_resp = step_resp ./ step_resp_mean;
@@ -306,6 +343,6 @@ step_resp = step_resp ./ step_resp_mean;
 figure(7)
 plot(step_time, step_resp), grid on, ylabel('Altitude (cm)')
 title('Step Response Altitude Hold')
-legend('actual', 'measured', 'location', 'best')
+legend('actual', 'new', 'measured', 'location', 'best')
 ylim([-0.1 1.4]); xlim([0 frame/2]);
 
