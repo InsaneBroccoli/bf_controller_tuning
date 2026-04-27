@@ -4,6 +4,10 @@ clc, clear variables, close all
 addpath("../lib/");
 addpath(genpath("../logs/"));
 
+AP_P_SCALE = 0.01;
+AP_I_SCALE = 0.003;
+AP_D_SCALE = 0.01;
+
 s = tf('s');
 
 pos_bode = [0.1514, 0.5838-0.2, 0.7536, 0.3472+0.2; ... % this is a bit hacky
@@ -87,7 +91,8 @@ Ts_cntr = Ts_log;   % althold control loop runs at logging rate SURE?
 %% Estimate Transfer Functions
 
 % Welch parameters
-Nest     = round(12.5 / (Ts_log));
+frame    = 12.5;
+Nest     = round(frame / (Ts_log));
 Noverlap = floor(0.9 * Nest);
 window   = hann(Nest, 'periodic');
 
@@ -187,8 +192,8 @@ Cpi = Gvw / (1 - T);
 
 % Calculated Transfer function PI
 
-Kp_alt = 20 * 0.01;
-Ki_alt = 20 * 0.003;
+Kp_alt = 20 * AP_P_SCALE;
+Ki_alt = 20 * AP_I_SCALE;
 
 Cpi_ana = ss(Kp_alt + Ki_alt*Ts_cntr*tf([1 0],[1 -1], Ts_cntr));
 
@@ -260,10 +265,31 @@ opt.MagScale = 'linear';
 opt.PhaseUnits = 'deg';
 opt.FreqUnits = 'Hz';
 opt.PhaseWrapping = 'on';
-bode(CL_ana.S, omega_bode, opt);
-xlim([1e-2 10])
-title('Sensitivity of Calulated Loop')
-grid on;
+
+ax(1) = subplot(2,2,1);
+bodemag(ax(1), CL_ana.T, T, omega_bode, opt);
+title('Tracking T')
+legend('Calculated','Measured','Location','best')
+grid on
+
+ax(2) = subplot(2,2,2);
+bodemag(ax(2), CL_ana.S, omega_bode, opt);
+title('Sensitivity S')
+grid on
+
+ax(3) = subplot(2,2,3);
+bodemag(ax(3), CL_ana.SC, omega_bode, opt);
+title('Controller Effort SC')
+grid on
+
+ax(4) = subplot(2,2,4);
+bodemag(ax(4), CL_ana.SP, omega_bode, opt);
+title('Compliance SP')
+grid on
+
+linkaxes(ax,'x');
+xlim(ax(1), [1e-2 10])
+sgtitle('Gang of Four - Altitude Hold')
 
 %% Get Step Response
 % Step responses
@@ -281,5 +307,5 @@ figure(7)
 plot(step_time, step_resp), grid on, ylabel('Altitude (cm)')
 title('Step Response Altitude Hold')
 legend('actual', 'measured', 'location', 'best')
-ylim([-0.1 1.4]); xlim([0 6.25]);
+ylim([-0.1 1.4]); xlim([0 frame/2]);
 
