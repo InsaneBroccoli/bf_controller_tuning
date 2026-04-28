@@ -31,8 +31,8 @@ plotter = plot_utils(do_insert_legends);
 
 log_folder = 'logs';
 
-flight_folder = '20260420';
-log_name = 'LOG048.TXT.csv';
+flight_folder = '20260424';
+log_name = '20260424_flipmini_2.TXT.csv';
 file_path = fullfile(log_folder, flight_folder, log_name);
 
 df = flight_data(file_path);
@@ -184,9 +184,9 @@ para_new.yaw_lpf_hz          = 200;     % frequency of yaw lpf (pt1)
 
 switch ind_ax
     case 1 % Roll PID values [default: 45, 80, 30]
-        P_new       = 46;
-        I_new       = 74;
-        D_new       = 30;
+        P_new       = 30;%46
+        I_new       = 70;%74
+        D_new       = 30;%30
     case 2 % Pitch PID values [default: 47, 84, 34]
         P_new       = 49;
         I_new       = 96;
@@ -210,7 +210,7 @@ plotter.plot_Step_Response(gyro_tuning,  'Gyro', 'Gyro (deg/sec)');
 angle_tuning = angle_ctrl_tuning(df,gyro_tuning);
 angle_tuning = angle_tuning.calculate_Angle_trans(resolution_factor_tuning, overlap_tuning);
 
-plotter.plot_Bode_Plant(angle_tuning, roll, 'Angle', 'Complementary Sensitivity');
+plotter.plot_Bode_Plant(angle_tuning, roll, 'Angle', 'Plant');
 
 % Old PT3
 para.angle_lpf_hz = 50;     % frequency of Angle lpf (PT3) (Check if we can add this to logfile)
