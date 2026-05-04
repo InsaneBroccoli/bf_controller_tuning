@@ -4,13 +4,13 @@ clc, clear variables, close all
 addpath("../lib/");
 addpath(genpath("../logs/"));
 
-pos_bode = [0.1514, 0.5838-0.2, 0.7536, 0.3472+0.2; ... % this is a bit hacky
-    0.1514, 0.1100    , 0.7536, 0.1917    ];
+pos_bode = [0.1514+0.05, 0.5838-0.2, 0.7536, 0.3472+0.2; ...
+                           0.1, 0.08,       0.7536+0.05, 0.2017]
 
 % Add file information
 log_folder = '../logs';
 flight_folder = '20260423';
-log_name = 'LOG012.TXT.csv';
+log_name = 'LOG005.TXT.csv';
 file_path = fullfile(log_folder, flight_folder, log_name);
 
 % --- Load and Process Flight Log Data ---
@@ -119,13 +119,13 @@ figure(2)
 ax(1) = subplot('Position', pos_bode(1,:));
 opt = bodeoptions('cstprefs');
 opt.MagUnits = 'dB';
-opt.MagScale = 'linear';
 opt.PhaseUnits = 'deg';
 opt.FreqUnits = 'Hz';
 opt.PhaseWrapping = 'on';
+opt.PhaseWrappingBranch = -180;
 opt.YLim = {[-60 20], [-180 180]};
 
-bode(ax(1), T, 'k', omega_bode, opt)   % bode bekommt weiter rad/s
+bode(ax(1), T, 'k', omega_bode, opt)
 title('Bode Plot Transfer Function')
 grid(ax(1), 'on')
 
@@ -164,7 +164,7 @@ title('Bode Plot Plant')
 grid(ax(1), 'on')
 
 ax(2) = subplot('Position', pos_bode(2,:));
-semilogx(ax(2), omega_bode, C_P, 'k', 'LineWidth', linewidth)
+semilogx(ax(2), f_bode, C_P, 'k', 'LineWidth', linewidth)
 grid(ax(2), 'on')
 ylabel(ax(2), 'Coherence')
 xlabel(ax(2), 'Frequency [Hz]')
@@ -234,7 +234,7 @@ CL_ana= calculate_closed_loop(Cpi_ana, tf(1,1,Ts_log), P, tf(1,1,Ts_log), Cd_ana
 % When true, the "new" controller mirrors the current analytical one — useful
 % as a sanity check on the first pass. Flip to false and edit P_new/I_new/
 % D_new/fc_pt2_new below to propose a different tune.
-default_parameters = false;
+default_parameters = true;
 
 if default_parameters
   P_new = P_cur;
@@ -267,7 +267,7 @@ opt.PhaseUnits = 'deg';
 opt.FreqUnits = 'Hz';
 opt.PhaseWrapping = 'on';
 bode(T, CL_ana.T, omega_bode, opt)
-xlim([1e-2 10])
+xlim([min(f_bode) 10])
 title('Comparison Measured to Analytical Transfer Function')
 grid on
 legend('Measured','Calculated')
@@ -306,7 +306,7 @@ legend('Actual','New','Location','southwest')
 grid on
 
 linkaxes(ax,'x');
-xlim(ax(1), [1e-2 10])
+xlim(ax(1), [min(f_bode) 10])
 sgtitle('Gang of Four - Altitude Hold')
 
 %% Get Step Response
