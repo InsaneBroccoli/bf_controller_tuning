@@ -1,10 +1,9 @@
-function [Cpid] = calculate_poshold_controller(P, I, D, A, fc_pt1, fc_pt3, Ts_cntr, Ts_log, freq)
+function [Cpid] = calculate_poshold_controller(P, I, D, A, fc_pt1, Ts_cntr, Ts_log, freq)
 %CALCULATE_POSHOLD_CONTROLLER  Discrete-time analytical position hold PIDA controller.
 %
 % INPUTS
 %   P, I, D, A  Betaflight CLI integer gains (e.g. 30, 30, 30, 30)
 %   fc_pt1      velocity/acceleration PT1 filter cutoff [Hz] (positionCutoff * 0.01)
-%   fc_pt3      output upsample PT3 filter cutoff [Hz]
 %   Ts_cntr     poshold control loop sample time [s]
 %   Ts_log      sample time of the returned FRDs [s]
 %   freq        target frequency vector [Hz]
@@ -23,7 +22,7 @@ function [Cpid] = calculate_poshold_controller(P, I, D, A, fc_pt1, fc_pt3, Ts_cn
     Kd = D * AP_D_SCALE;
     Ka = A * AP_A_SCALE;
 
-    z = tf('z', Ts_cntr);
+    z = tf('z');
 
     % PT1 filter for velocity and acceleration (vaLpfCutoff in firmware)
     Gpt1 = get_filter('pt1', fc_pt1, Ts_cntr);
@@ -41,10 +40,7 @@ function [Cpid] = calculate_poshold_controller(P, I, D, A, fc_pt1, fc_pt3, Ts_cn
             + Kd * diff_z * Gpt1 ...
             + Ka * diff_z^2 * Gpt1^2;
 
-    % PT3 upsampling filter on the output
-    Gf_pt3 = get_filter('pt3', fc_pt3, Ts_cntr);
-
     % Complete controller with filter
-    Cpid_full = Cpid_tf * Gf_pt3;
+    Cpid_full = Cpid_tf;
     Cpid = downsample_frd(Cpid_full, Ts_log, freq);
 end

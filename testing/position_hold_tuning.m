@@ -9,8 +9,8 @@ pos_bode = [0.1514, 0.5838-0.2, 0.7536, 0.3472+0.2; ...
 
 % Add file information
 log_folder = '../logs';
-flight_folder = '20260507';
-log_name = '20260507_6_inch.csv';
+flight_folder = '20260508';
+log_name = '20260508_6_inch_1.csv';
 file_path = fullfile(log_folder, flight_folder, log_name);
 
 % --- Load and Process Flight Log Data ---
@@ -48,7 +48,8 @@ chirp_inst_freq = data(:,ind.debug(4)) / 100;   % Hz
 pid_sum_EF      = data(:,ind.debug(5)) / 10;    % PID_sum Earth Frame
 sinarg          = data(:,ind.debug(6)) / 5e3;   % Injected Chirp Signal
 active_axis     = data(:,ind.debug(7)) * 2;     % Low = LON/ROLL, High = LAT/PITCH
-bfAnglNoChirp   = data(:,ind.debug(8)) / 10;    % deg
+% bfAnglNoChirp   = data(:,ind.debug(8)) / 10;    % deg
+pidDA_limit     = data(:,ind.debug(8)) / 10;    % deg
 
 % calculate current and target position from gps error and chirp
 target_position = chirp;
@@ -168,7 +169,6 @@ I_cur = 30;
 D_cur = 30;
 A_cur = 30;
 fc_pt1_cur = 0.8;
-fc_pt3_cur = 5;
 
 [Cpid_ana] = calculate_poshold_controller( ...
   P_cur,...
@@ -176,7 +176,6 @@ fc_pt3_cur = 5;
   D_cur,...
   A_cur,...
   fc_pt1_cur,...
-  fc_pt3_cur,...
   Ts_cntr,...
   Ts_log,...
   freq_vector);
@@ -251,14 +250,12 @@ if default_parameters
   D_new = D_cur;
   A_new = A_cur;
   fc_pt1_new = fc_pt1_cur;
-  fc_pt3_new = fc_pt3_cur;
 else
   P_new = 20;
   I_new = 20;
   D_new = 20;
   A_new = 20;
   fc_pt1_new = 1;
-  fc_pt3_new = 1;
 end
 
 [Cpid_ana_new] = calculate_poshold_controller( ...
@@ -267,7 +264,6 @@ end
   D_new,...
   A_new,...
   fc_pt1_new,...
-  fc_pt3_new,...
   Ts_cntr,...
   Ts_log,...
   P.Frequency);
