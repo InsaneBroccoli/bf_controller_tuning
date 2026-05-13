@@ -7,10 +7,12 @@ addpath(genpath("../logs/"));
 pos_bode = [0.1514, 0.5838-0.2, 0.7536, 0.3472+0.2; ...
             0.1514, 0.1100    , 0.7536, 0.1917    ];
 
+linewidth = 1.5;
+
 % Add file information
 log_folder = '../logs';
-flight_folder = '20260508';
-log_name = '20260508_6_inch_1.csv';
+flight_folder = '20260512';
+log_name = '20260512_6_inch.csv';
 file_path = fullfile(log_folder, flight_folder, log_name);
 
 % --- Load and Process Flight Log Data ---
@@ -52,8 +54,12 @@ active_axis     = data(:,ind.debug(7)) * 2;     % Low = LON/ROLL, High = LAT/PIT
 pidDA_limit     = data(:,ind.debug(8)) / 10;    % deg
 
 % calculate current and target position from gps error and chirp
-target_position = chirp;
+target_position  = chirp;
 current_position = chirp - gps_error;
+
+% Plot pidDA Limit, to see if clipping occurs
+% plot(time, pidDA_limit); hold on
+% plot(time, chirp_inst_freq*10); grid on
 
 %% Overview Plots
 
@@ -96,7 +102,7 @@ idx = get_ind_eval(sinarg, chirp);
 %% Estimate Transfer Functions
 
 % Welch parameters
-frame = 12.5;
+frame = 15;
 Nest     = round(frame / (Ts_log));
 Noverlap = floor(0.9 * Nest);
 window   = hann(Nest, 'periodic');
@@ -110,22 +116,20 @@ Glp = c2d(tf(wlp^2, [1 2*Dlp*wlp wlp^2]), Ts_log, 'tustin');
 sinarg_ax = sinarg;
 sinarg_ax(~idx) = 0;
 
-inp = apply_rotfiltfilt(Glp, sinarg_ax, target_position);
-out_v = apply_rotfiltfilt(Glp, sinarg_ax, current_position);
+inp   = apply_rotfiltfilt(Glp, sinarg_ax, target_position);
+out_y = apply_rotfiltfilt(Glp, sinarg_ax, current_position);
 out_u = apply_rotfiltfilt(Glp, sinarg_ax, pid_sum_EF);
 
-out_3 = apply_rotfiltfilt(Glp, sinarg_ax, angle_target);
+out_v = apply_rotfiltfilt(Glp, sinarg_ax, angle_target);
 
 %% Estimation Transferfunction T
 % current position - target position
 
-[T, C_T] = estimate_frequency_response(inp(idx), out_v(idx), ...
+[T, C_T] = estimate_frequency_response(inp(idx), out_y(idx), ...
   window, Noverlap, Nest, Ts_log);
 C_T_data = squeeze(C_T.ResponseData);
 f_bode = squeeze(C_T.Frequency);
 omega_bode = 2*pi*f_bode;
-
-linewidth = 1.5;
 
 figure(3)
 ax(1) = subplot('Position', pos_bode(1,:));
@@ -222,7 +226,7 @@ linkaxes(ax, 'x')
 %% 
 % angle_target - current position
 
-% [T3, C_T3] = estimate_frequency_response(out_v(idx), out_3(idx), ...
+% [T3, C_T3] = estimate_frequency_response(out_v(idx), out_v(idx), ...
 %   window, Noverlap, Nest, Ts_log);
 % C_T3_data = squeeze(C_T3.ResponseData);
 % 

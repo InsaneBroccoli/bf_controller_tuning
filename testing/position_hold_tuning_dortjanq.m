@@ -11,8 +11,8 @@ linewidth = 1.5;
 
 % Add file information
 log_folder = '../logs';
-flight_folder = '20260505';
-log_name = '20260505_6_inch.TXT.csv';
+flight_folder = '20260512';
+log_name = '20260512_6_inch.csv';
 file_path = fullfile(log_folder, flight_folder, log_name);
 
 % --- Load and Process Flight Log Data ---
@@ -98,7 +98,7 @@ idx = get_ind_eval(sinarg, chirp);
 %% Estimate Transfer Functions
 
 % Welch parameters
-frame = 10;
+frame    = 10;
 Nest     = round(frame / (Ts_log));
 Noverlap = floor(0.9 * Nest);
 window   = hann(Nest, 'periodic');
@@ -112,7 +112,7 @@ Glp = c2d(tf(wlp^2, [1 2*Dlp*wlp wlp^2]), Ts_log, 'tustin');
 sinarg_ax = sinarg;
 sinarg_ax(~idx) = 0;
 
-inp = apply_rotfiltfilt(Glp, sinarg_ax, target_position);
+inp   = apply_rotfiltfilt(Glp, sinarg_ax, target_position);
 out_y = apply_rotfiltfilt(Glp, sinarg_ax, current_position);
 out_u = apply_rotfiltfilt(Glp, sinarg_ax, pid_sum_EF);
 
@@ -126,7 +126,6 @@ out_v = apply_rotfiltfilt(Glp, sinarg_ax, angle_target);
 C_T_data = squeeze(C_T.ResponseData);
 f_bode = squeeze(C_T.Frequency);
 omega_bode = 2*pi*f_bode;
-
 
 figure(3)
 ax(1) = subplot('Position', pos_bode(1,:));
