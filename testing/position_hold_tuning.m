@@ -12,7 +12,7 @@ linewidth = 1.5;
 % Add file information
 log_folder = '../logs';
 flight_folder = '20260512';
-log_name = '20260512_6_inch.csv';
+log_name = '20260512_6_inch_2.csv';
 file_path = fullfile(log_folder, flight_folder, log_name);
 
 % --- Load and Process Flight Log Data ---
@@ -58,8 +58,10 @@ target_position  = chirp;
 current_position = chirp - gps_error;
 
 % Plot pidDA Limit, to see if clipping occurs
-% plot(time, pidDA_limit); hold on
-% plot(time, chirp_inst_freq*10); grid on
+figure(10)
+plot(time, pidDA_limit); hold on
+plot(time, chirp_inst_freq*10); grid on
+legend('combined D+A vector length', 'Instantaneous chirp frequency (scaled)', Location='northwest');
 
 %% Overview Plots
 
@@ -109,7 +111,7 @@ window   = hann(Nest, 'periodic');
 
 % Low-pass filter for rotating-frame filtering
 Dlp = sqrt(3) / 2;
-wlp = 2 * pi * 10;
+wlp = 2 * pi * 1;
 Glp = c2d(tf(wlp^2, [1 2*Dlp*wlp wlp^2]), Ts_log, 'tustin');
 
 % Build sinarg mask (zero outside chirp window)
