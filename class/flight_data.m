@@ -58,7 +58,7 @@ classdef flight_data
             % Current version
             obj.ind.currentAngle = [obj.ind.debug(2), obj.ind.debug(5)];
             obj.ind.angleTarget = [obj.ind.debug(3), obj.ind.debug(6)];
-            obj.ind.angleRate = [obj.ind.debug(4), obj.ind.debug(7)];
+            % obj.ind.angleRate = [obj.ind.debug(4), obj.ind.debug(7)];
             
             % New Verion in the future
             % obj.ind.currentAngle = [obj.ind.debug(2), obj.ind.debug(4)];

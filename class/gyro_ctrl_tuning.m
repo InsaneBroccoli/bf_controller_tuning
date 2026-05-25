@@ -85,7 +85,7 @@ classdef gyro_ctrl_tuning < handle
                     dataf.Ts_log, 'tustin');                   % Using Tustin transform
 
             % Preallocate cells for 3 axes
-            n_axes = 2;
+            n_axes = 3;
             obj.T   = cell(1, n_axes);
             obj.Guw = cell(1, n_axes);
             obj.Gvw = cell(1, n_axes);

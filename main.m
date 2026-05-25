@@ -30,8 +30,8 @@ plotter = plot_utils(do_insert_legends);
 % =========================================================================
 
 log_folder = 'logs';
-flight_folder = '20260408';
-log_name = 'Flipmini_P100.TXT.csv';
+flight_folder = '20260424';
+log_name = '20260424_flipmini_2.TXT.csv';
 file_path = fullfile(log_folder, flight_folder, log_name);
 
 df = flight_data(file_path);
