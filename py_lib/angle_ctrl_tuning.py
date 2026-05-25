@@ -3,11 +3,18 @@
 ANGLE CTRL TUNING - Betaflight Controller Analysis (Angle tuning class)
 ==========================================================================
 Betaflight Controller Tuning Analysis Script
-Purpose: Calculations for angle tuning
 
-Author: [Janick Dort, Yuri Bianchi, Dario Jurietti]
-Supervisor: [Michael Peter]
-Date: [28.02.2026]
+Purpose:
+    Calculations for angle tuning
+
+Author:
+    Janick Dort, Yuri Bianchi, Dario Jurietti
+
+Supervisor:
+    Michael Peter
+
+Date:
+    28.02.2026
 ==========================================================================
 """
 
@@ -33,7 +40,18 @@ from .pidtuninglib import (
 
 
 class AngleCtrlTuning:
-    """Angle controller tuning and analysis."""
+    """
+    Angle controller tuning and analysis.
+
+    Estimates and calculates frequency responses for system identification
+    and controller analysis.
+
+    Main components:
+        T    : Complementary sensitivity of the angle loop
+        P    : Angle plant
+        C    : Estimated angle controller
+        T_gy : Inner gyro loop transfer function
+    """
 
     def __init__(
         self,
@@ -45,43 +63,70 @@ class AngleCtrlTuning:
         gyro_tuning
     ):
 
+        # =============================================================
+        # Flight Data and Inner Cascade
+        # =============================================================
+
         self.data = data
         self.ind = ind
         self.Ts_log = Ts_log
         self.para = para
         self.Ts_cntr = Ts_cntr
+
+        # Values from inner gyro loop
         self.gyro_tuning = gyro_tuning
 
         self.TargetAngle = None
 
-        # Transfer functions
+        # =============================================================
+        # Transfer Functions
+        # =============================================================
+
         self.T: List[ct.FRD] = []
         self.P: List[ct.FRD] = []
         self.C: List[ct.FRD] = []
         self.T_gy: List[ct.FRD] = []
 
+        # =============================================================
         # Coherence
+        # =============================================================
+
         self.Coh_T: List[ct.FRD] = []
         self.Coh_P: List[ct.FRD] = []
         self.Coh_C: List[ct.FRD] = []
 
-        # Controller
+        # =============================================================
+        # Filters / Controller
+        # =============================================================
+
         self.C_ana: Optional[ct.FRD] = None
         self.C_ana_new: Optional[ct.FRD] = None
 
+        # =============================================================
         # Axis
+        # =============================================================
+
         self.ind_ax: Optional[int] = None
 
-        # Helpers
+        # =============================================================
+        # Analysis Helpers
+        # =============================================================
+
         self.omega_bode: Optional[np.ndarray] = None
         self.Nest: Optional[int] = None
         self.step_time: Optional[np.ndarray] = None
 
-        # Closed-loop results
+        # =============================================================
+        # Closed Loop Results
+        # =============================================================
+
         self.CL_ana: Optional[ClosedLoop] = None
         self.CL_ana_new: Optional[ClosedLoop] = None
 
-        # Step response
+        # =============================================================
+        # Step Response
+        # =============================================================
+
         self.step_resp_tra: Optional[np.ndarray] = None
         self.step_resp_com: Optional[np.ndarray] = None
 
@@ -92,25 +137,37 @@ class AngleCtrlTuning:
     ) -> "AngleCtrlTuning":
 
         # =============================================================
-        # Analysis window parameters
+        # Analysis Window Parameters
+        # =============================================================
+        # Nest:
+        #     Window length in samples
+        #
+        # Noverlap:
+        #     Overlap between windows
         # =============================================================
 
         self.Nest = int(np.round(Nestfatra / self.Ts_log))
         Noverlap = int(np.floor(koverlaptra * self.Nest))
+
+        # Hanning window for spectral analysis
         window = hann(self.Nest, sym=False)
 
         # =============================================================
-        # Excitation filter
+        # Excitation Filter
+        # =============================================================
+        # Design linear filter for zero-phase excitation filtering
+        # using apply_rotfiltfilt.
         # =============================================================
 
-        Dlp = np.sqrt(3) / 2
-        wlp = 2 * np.pi * 10
+        Dlp = np.sqrt(3) / 2       # Damping ratio
+        wlp = 2 * np.pi * 10       # Cutoff frequency [rad/s]
 
         Glp_cont = ct.tf(
             [wlp**2],
             [1, 2 * Dlp * wlp, wlp**2]
         )
 
+        # Discrete filter using Tustin transform
         Glp = ct.c2d(
             Glp_cont,
             self.Ts_log,
@@ -118,7 +175,12 @@ class AngleCtrlTuning:
         )
 
         # =============================================================
-        # Preallocate, angle controller only roll and pitch
+        # Preallocate
+        # =============================================================
+        # Angle mode only uses roll and pitch.
+        #
+        # 0 = Roll
+        # 1 = Pitch
         # =============================================================
 
         n_axes = 2
@@ -135,10 +197,14 @@ class AngleCtrlTuning:
         sinarg_full = self.data[:, self.ind.sinarg].copy()
 
         # =============================================================
-        # Process roll and pitch
+        # Process Roll and Pitch
         # =============================================================
 
         for ind_axis in range(n_axes):
+
+            # =========================================================
+            # Select Valid Evaluation Regions
+            # =========================================================
 
             ind_eval = get_ind_eval(
                 self.data[:, self.ind.sinarg],
@@ -148,9 +214,12 @@ class AngleCtrlTuning:
             sinarg_ax = sinarg_full.copy()
             sinarg_ax[~ind_eval] = 0
 
-            # ---------------------------------------------------------
-            # Input signal: Target Angle
-            # ---------------------------------------------------------
+            # =========================================================
+            # Input Signal
+            # =========================================================
+            # w:
+            #     Target angle
+            # =========================================================
 
             w = self.data[:, self.ind.angleTarget[ind_axis]]
 
@@ -160,9 +229,12 @@ class AngleCtrlTuning:
                 w[:, np.newaxis]
             )
 
-            # ---------------------------------------------------------
-            # Output signal: Current Angle
-            # ---------------------------------------------------------
+            # =========================================================
+            # Output Signal
+            # =========================================================
+            # y:
+            #     Current angle
+            # =========================================================
 
             y = self.data[:, self.ind.currentAngle[ind_axis]]
 
@@ -171,6 +243,13 @@ class AngleCtrlTuning:
                 sinarg_ax,
                 y[:, np.newaxis]
             )
+
+            # =========================================================
+            # System Transfer Function
+            # =========================================================
+            # T:
+            #     Target angle -> current angle
+            # =========================================================
 
             T_ax, C_T_ax, _, _ = estimate_frequency_response(
                 inp[ind_eval].ravel(),
@@ -181,9 +260,18 @@ class AngleCtrlTuning:
                 self.Ts_log
             )
 
-            # ---------------------------------------------------------
-            # Plant calculation: target angle to gyro
-            # ---------------------------------------------------------
+            # =========================================================
+            # Plant Calculation
+            # =========================================================
+            # v:
+            #     Gyro signal
+            #
+            # G_wv:
+            #     Target angle -> gyro signal
+            #
+            # P_angle:
+            #     Angle plant
+            # =========================================================
 
             v = self.data[:, self.ind.gyroADC[ind_axis]]
 
@@ -204,9 +292,18 @@ class AngleCtrlTuning:
 
             P_angle_ax = T_ax / G_wv_ax
 
-            # ---------------------------------------------------------
-            # Controller calculation: target angle to setpoint
-            # ---------------------------------------------------------
+            # =========================================================
+            # Controller Calculation
+            # =========================================================
+            # c:
+            #     Rate setpoint generated by angle controller
+            #
+            # G_wc:
+            #     Target angle -> rate setpoint
+            #
+            # Cp:
+            #     Estimated angle controller
+            # =========================================================
 
             c = self.data[:, self.ind.setpoint[ind_axis]]
 
@@ -227,15 +324,18 @@ class AngleCtrlTuning:
 
             Cp_ax = G_wc_ax / (1 - T_ax)
 
-            # ---------------------------------------------------------
-            # Inner gyro loop transfer function
-            # ---------------------------------------------------------
+            # =========================================================
+            # Inner Gyro Loop Transfer Function
+            # =========================================================
+            # T_gy:
+            #     Rate setpoint -> gyro signal
+            # =========================================================
 
             T_gy_ax = G_wv_ax / G_wc_ax
 
-            # ---------------------------------------------------------
-            # Store results
-            # ---------------------------------------------------------
+            # =========================================================
+            # Store Results
+            # =========================================================
 
             self.T[ind_axis] = T_ax
             self.P[ind_axis] = P_angle_ax
@@ -258,13 +358,16 @@ class AngleCtrlTuning:
     ) -> "AngleCtrlTuning":
 
         # =============================================================
-        # Angle controller filter
+        # Angle Controller Filter
+        # =============================================================
+        # Old PT3 filter is not changeable here.
+        # Frequency is given in Hz.
         # =============================================================
 
         angle_lpf_hz = 50
 
         # =============================================================
-        # Use default Betaflight angle P if requested
+        # Default Parameters
         # =============================================================
 
         if default_parameters:
@@ -279,14 +382,17 @@ class AngleCtrlTuning:
         print(f"      P: {P_new}")
 
         # =============================================================
-        # New controller
+        # New Angle Controller
         # =============================================================
 
+        # Betaflight scaling
         C_P_Angle = P_new * 0.1
 
+        # Frequency vector
         freq_hz = self.T[ind_ax].omega / (2 * np.pi)
         omega = 2 * np.pi * freq_hz
 
+        # Constant P controller as FRD object
         response_new = C_P_Angle * np.ones_like(omega)
 
         C_P_Angle_frd = ct.FRD(
@@ -295,7 +401,14 @@ class AngleCtrlTuning:
             dt=self.Ts_cntr
         )
 
-        Gf_ana = get_filter("pt3", angle_lpf_hz, self.Ts_cntr)[0]
+        # PT3 angle lowpass filter
+        Gf_ana = get_filter(
+            "pt3",
+            angle_lpf_hz,
+            self.Ts_cntr
+        )[0]
+
+        # New analytical angle controller
         C_Angle_new = C_P_Angle_frd * Gf_ana
 
         self.C_ana_new = downsample_frd(
@@ -305,7 +418,7 @@ class AngleCtrlTuning:
         )
 
         # =============================================================
-        # Old controller
+        # Old Angle Controller
         # =============================================================
 
         C_P_Angle_old = P_old * 0.1
@@ -318,7 +431,12 @@ class AngleCtrlTuning:
             dt=self.Ts_cntr
         )
 
-        Gf_ana_old = get_filter("pt3", angle_lpf_hz, self.Ts_cntr)[0]
+        Gf_ana_old = get_filter(
+            "pt3",
+            angle_lpf_hz,
+            self.Ts_cntr
+        )[0]
+
         C_Angle_ana = C_P_Angle_frd_old * Gf_ana_old
 
         self.C_ana = downsample_frd(
@@ -336,7 +454,13 @@ class AngleCtrlTuning:
         gyro = self.gyro_tuning
 
         # =============================================================
-        # Closed loop calculation
+        # Closed Loop Calculation
+        # =============================================================
+        # Calculate angle closed loop responses for:
+        #   - current parameters
+        #   - new parameters
+        #
+        # The inner gyro loop values are taken from gyro_tuning.
         # =============================================================
 
         self.CL_ana = calculate_closed_loop_angle(
@@ -356,20 +480,31 @@ class AngleCtrlTuning:
         )
 
         # =============================================================
-        # Step response analysis
+        # Step Response Analysis
         # =============================================================
 
         f_max = 500
 
+        # Time window for normalization
         T_mean = (
             0.1 * np.array([-1, 1])
             + (self.Nest * self.Ts_log) / 2
         )
 
+        # Time vector consistent with Nest
         self.step_time = (
             np.arange(self.Nest)
             * self.Ts_log
         )
+
+        # =============================================================
+        # Tracking Performance
+        # =============================================================
+        # Compare:
+        #   - used parameters
+        #   - new parameters
+        #   - measured transfer function
+        # =============================================================
 
         step_resp = np.column_stack([
             calculate_step_response_from_frd(
@@ -386,6 +521,7 @@ class AngleCtrlTuning:
             )
         ])
 
+        # Normalize around mean window
         idx_mean = (
             (self.step_time > T_mean[0])
             & (self.step_time < T_mean[1])
@@ -399,7 +535,9 @@ class AngleCtrlTuning:
         self.step_resp_tra = step_resp / step_resp_mean
 
         # =============================================================
-        # Disturbance rejection
+        # Disturbance Rejection Analysis
+        # =============================================================
+        # Calculate responses to disturbance inputs.
         # =============================================================
 
         self.step_resp_com = np.column_stack([
@@ -413,6 +551,7 @@ class AngleCtrlTuning:
             )
         ])
 
+        # Center responses around their mean
         step_resp_mean = np.mean(
             self.step_resp_com[idx_mean, :],
             axis=0
