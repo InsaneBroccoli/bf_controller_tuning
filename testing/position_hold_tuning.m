@@ -7,6 +7,16 @@ addpath(genpath("../logs/"));
 pos_bode = [0.1514, 0.5838-0.2, 0.7536, 0.3472+0.2; ...
             0.1514, 0.1100    , 0.7536, 0.1917    ];
 
+set(cstprefs.tbxprefs, 'MagnitudeUnits', 'dB');
+set(cstprefs.tbxprefs, 'FrequencyUnits', 'Hz');
+set(cstprefs.tbxprefs, 'PhaseUnits',     'deg');
+set(cstprefs.tbxprefs, 'UnwrapPhase',    'Off');
+set(cstprefs.tbxprefs, 'Grid',           'On');
+
+opt = bodeoptions('cstprefs');
+opt.MagScale      = 'linear';
+opt.PhaseWrapping = 'on';
+
 linewidth = 1.5;
 
 % Add file information
@@ -50,7 +60,6 @@ chirp_inst_freq = data(:,ind.debug(4)) / 100;   % Hz
 pid_sum_EF      = data(:,ind.debug(5)) / 10;    % PID_sum Earth Frame
 sinarg          = data(:,ind.debug(6)) / 5e3;   % Injected Chirp Signal
 active_axis     = data(:,ind.debug(7)) * 2;     % Low = LON/ROLL, High = LAT/PITCH
-% bfAnglNoChirp   = data(:,ind.debug(8)) / 10;    % deg
 pidDA_limit     = data(:,ind.debug(8)) / 10;    % deg
 
 % calculate current and target position from gps error and chirp
@@ -135,14 +144,6 @@ omega_bode = 2*pi*f_bode;
 
 figure(3)
 ax(1) = subplot('Position', pos_bode(1,:));
-opt = bodeoptions('cstprefs');
-opt.MagUnits = 'dB';
-opt.MagScale = 'linear';
-opt.PhaseUnits = 'deg';
-opt.FreqUnits = 'Hz';
-opt.PhaseWrapping = 'on';
-opt.Grid = 'on';
-
 bode(ax(1), T, 'k', omega_bode, opt);
 title('Bode Plot Transfer Function');
 
@@ -187,13 +188,6 @@ fc_pt1_cur = 0.8;
   freq_vector);
 
 figure(4)
-opt = bodeoptions('cstprefs');
-opt.MagUnits = 'dB';
-opt.MagScale = 'linear';
-opt.PhaseUnits = 'deg';
-opt.FreqUnits = 'Hz';
-opt.PhaseWrapping = 'on';
-
 bode(Cpid, 'k', omega_bode, opt); hold on
 bode(Cpid_ana, 'r', omega_bode, opt)
 legend('measured', 'analytical')
@@ -205,13 +199,6 @@ P = T / Guw;
 
 figure(5)
 ax(1) = subplot('Position', pos_bode(1,:));
-opt = bodeoptions('cstprefs');
-opt.MagUnits = 'dB';
-opt.MagScale = 'linear';
-opt.PhaseUnits = 'deg';
-opt.FreqUnits = 'Hz';
-opt.PhaseWrapping = 'on';
-
 bode(ax(1), P, 'k', omega_bode, opt);
 title('Bode Plot Plant');
 
@@ -277,12 +264,6 @@ end
 CL_ana_new = calculate_closed_loop(Cpid_ana_new, tf(1,1,Ts_log), P, tf(1,1,Ts_log), tf(0,1));
 
 figure(6)
-opt = bodeoptions('cstprefs');
-opt.MagUnits = 'dB';
-opt.MagScale = 'linear';
-opt.PhaseUnits = 'deg';
-opt.FreqUnits = 'Hz';
-opt.PhaseWrapping = 'on';
 bode(T, CL_ana.T, omega_bode, opt)
 xlim([1e-2 10])
 title('Comparison Measured to Analytical Transfer Function')
@@ -290,13 +271,6 @@ grid on
 legend('Measured','Calculated')
 
 figure(7)
-opt = bodeoptions('cstprefs');
-opt.MagUnits = 'dB';
-opt.MagScale = 'linear';
-opt.PhaseUnits = 'deg';
-opt.FreqUnits = 'Hz';
-opt.PhaseWrapping = 'on';
-
 ax(1) = subplot(2,2,1);
 bodemag(ax(1), CL_ana.T, CL_ana_new.T, T, omega_bode, opt);
 title('Tracking T')
@@ -326,5 +300,4 @@ xlim(ax(1), [1e-2 10])
 sgtitle('Gang of Four - Position Hold')
 
 %% Get Step Response
-
 
