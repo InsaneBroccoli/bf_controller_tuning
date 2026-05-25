@@ -4,13 +4,13 @@ clc, clear variables, close all
 addpath("../lib/");
 addpath(genpath("../logs/"));
 
-pos_bode = [0.1514+0.05, 0.5838-0.2, 0.7536, 0.3472+0.2; ...
-                           0.1, 0.08,       0.7536+0.05, 0.2017]
+pos_bode = [0.1514+0.05, 0.5838-0.2, 0.7536,      0.3472+0.2; ...
+            0.1,         0.08,       0.7536+0.05, 0.2017]
 
 % Add file information
 log_folder = '../logs';
 flight_folder = '20260423';
-log_name = 'LOG005.TXT.csv';
+log_name = 'LOG012.TXT.csv';
 file_path = fullfile(log_folder, flight_folder, log_name);
 
 % --- Load and Process Flight Log Data ---
@@ -123,7 +123,6 @@ opt.PhaseUnits = 'deg';
 opt.FreqUnits = 'Hz';
 opt.PhaseWrapping = 'on';
 opt.PhaseWrappingBranch = -180;
-opt.YLim = {[-60 20], [-180 180]};
 
 bode(ax(1), T, 'k', omega_bode, opt)
 title('Bode Plot Transfer Function')
@@ -157,7 +156,6 @@ opt.MagScale = 'linear';
 opt.PhaseUnits = 'deg';
 opt.FreqUnits = 'Hz';
 opt.PhaseWrapping = 'on';
-opt.YLim = {[-60 50], [-180 180]};
 
 bode(ax(1), P, 'k', omega_bode, opt)   % bode bekommt weiter rad/s
 title('Bode Plot Plant')
