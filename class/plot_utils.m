@@ -228,57 +228,63 @@ classdef plot_utils
                 clf(fig);
             end
         
-            sgtitle('Gyro Spectrograms')
+            sgtitle(fig, 'Gyro Spectrograms')
         
             axes_labels = {'Roll', 'Pitch', 'Yaw'};
             c_lim = [5e-2 3e0];
-            colormap('jet')
         
             % --- Unfiltered Spectrograms ---
             for spectrogram_nr = 1:num_spectrograms
-                subplot(230 + spectrogram_nr)
-                qmesh = pcolor( ...
+        
+                ax = subplot(2, 3, spectrogram_nr);
+        
+                qmesh = pcolor(ax, ...
                     fa.freq_spectogram{spectrogram_nr}, ...
                     fa.throttle_all{spectrogram_nr}, ...
                     fa.spectrogram_unf{spectrogram_nr});
         
-                set(qmesh, 'EdgeColor', 'flat');
-                set(qmesh, 'LineWidth', obj.linewidth);
+                shading(ax, 'flat')
+                set(qmesh, 'EdgeColor', 'none');
+        
+                colormap(ax, 'jet')
+                set(ax, 'ColorScale', 'log')
+                clim(ax, c_lim)
+                ylim(ax, [0 100])
+        
+                xlabel(ax, 'Frequency (Hz)')
+                title(ax, [axes_labels{spectrogram_nr}, ' – without Filter'])
         
                 if spectrogram_nr == 1
-                    ylabel('Throttle (%)')
+                    ylabel(ax, 'Throttle (%)')
                 end
-        
-                xlabel('Frequency (Hz)')
-                title([axes_labels{spectrogram_nr}, ' – without Filter'])
-                set(gca, 'ColorScale', 'log')
-                clim(c_lim)
-                ylim([0 100])
             end
         
             % --- Filtered Spectrograms ---
             for spectrogram_nr = 1:num_spectrograms
-                subplot(230 + spectrogram_nr + 3)
-                qmesh = pcolor( ...
+        
+                ax = subplot(2, 3, spectrogram_nr + 3);
+        
+                qmesh = pcolor(ax, ...
                     fa.freq_spectogram{spectrogram_nr}, ...
                     fa.throttle_all{spectrogram_nr}, ...
                     fa.spectrogram_fil{spectrogram_nr});
         
-                set(qmesh, 'EdgeColor', 'flat');
-                set(qmesh, 'LineWidth', obj.linewidth);
+                shading(ax, 'flat')
+                set(qmesh, 'EdgeColor', 'none');
+        
+                colormap(ax, 'jet')
+                set(ax, 'ColorScale', 'log')
+                clim(ax, c_lim)
+                ylim(ax, [0 100])
+        
+                xlabel(ax, 'Frequency (Hz)')
+                title(ax, [axes_labels{spectrogram_nr}, ' – with Filter'])
         
                 if spectrogram_nr == 1
-                    ylabel('Throttle (%)')
+                    ylabel(ax, 'Throttle (%)')
                 end
-        
-                xlabel('Frequency (Hz)')
-                title([axes_labels{spectrogram_nr}, ' – with Filter'])
-                set(gca, 'ColorScale', 'log')
-                clim(c_lim)
-                ylim([0 100])
             end
         end
-
         %%
         % =================================================================
         %  FIGURE BODE PLOTS
