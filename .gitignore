@@ -3,6 +3,12 @@
 
 *.csv
 
+# Logfiles
+logs/*/
+
+# Backups
+backups/*
+
 # Matlab compiled files
 *.mat
 
