@@ -56,13 +56,13 @@ classdef flight_data
             obj.ind.axisSumPI = ind_cntr + (1:3);
             obj.ind.sinarg = obj.ind.debug(1);
             % Current version
-            obj.ind.currentAngle = [obj.ind.debug(2), obj.ind.debug(5)];
-            obj.ind.angleTarget = [obj.ind.debug(3), obj.ind.debug(6)];
+            % obj.ind.currentAngle = [obj.ind.debug(2), obj.ind.debug(5)];
+            % obj.ind.angleTarget = [obj.ind.debug(3), obj.ind.debug(6)];
             % obj.ind.angleRate = [obj.ind.debug(4), obj.ind.debug(7)];
             
             % New Verion in the future
-            % obj.ind.currentAngle = [obj.ind.debug(2), obj.ind.debug(4)];
-            % obj.ind.angleTarget = [obj.ind.debug(3), obj.ind.debug(5)];
+            obj.ind.currentAngle = [obj.ind.debug(5), obj.ind.debug(7)];
+            obj.ind.angleTarget = [obj.ind.debug(6), obj.ind.debug(8)];
             
             % Convert microseconds to seconds for time vector
             obj.time = (obj.data(:,obj.ind.time) - obj.data(1,obj.ind.time)) * 1.0e-6;
