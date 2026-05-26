@@ -92,7 +92,7 @@ classdef gyro_ctrl_tuning < handle
             obj.P   = cell(1, n_axes);
             obj.Cpi = cell(1, n_axes);
             obj.Cd  = cell(1, n_axes);
-            obj.Coh_T   = cell(1, n_axes);
+            obj.Coh_P   = cell(1, n_axes);
             obj.Coh_C = cell(1, n_axes);
             obj.P_gef = cell(1, n_axes);
             obj.Coh_T = cell(1, n_axes);
@@ -136,11 +136,10 @@ classdef gyro_ctrl_tuning < handle
                 out_v = apply_rotfiltfilt(Glp, sinarg_ax, v);
                 [Gvw_ax, ~] = estimate_frequency_response( ...
                     inp(ind_eval), out_v(ind_eval), window, Noverlap, obj.Nest, dataf.Ts_log);
-                
-                % Calculate plant response (indirect method: P = T/Guw for better noise immunity)
-                % P  , Gyu: u -> y
+
                 P_gef_ax = T_ax / Guw_ax;
-                
+                Coh_Plant = C_T_ax .* C_Guw_ax;   
+             
                 % Calculate controller frequency responses
                 % Split into PI and D components for analysis
                 Cpi_ax = Gvw_ax / (1 - T_ax);
@@ -179,7 +178,7 @@ classdef gyro_ctrl_tuning < handle
                 obj.PID{ind_axis} = PID_ax;
                 obj.para_used{ind_axis} = para_used_ax;  
                 obj.P{ind_axis} = P_gef_ax / Gf_ana_ax;
-                obj.Coh_P{ind_axis} = C_T_ax * C_Guw_ax;
+                obj.Coh_P{ind_axis} = Coh_Plant;
                
             end
         end
@@ -353,9 +352,9 @@ classdef gyro_ctrl_tuning < handle
             step_resp_mean = mean(step_resp(obj.step_time > T_mean(1) & obj.step_time < T_mean(2),:));
             step_resp = step_resp - step_resp_mean;
             % Store disturbance response results
-            obj.step_resp_com = step_resp;
-                       
+            obj.step_resp_com = step_resp;                     
             toc
+            
         end
 
    end

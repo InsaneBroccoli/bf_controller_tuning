@@ -30,7 +30,6 @@ plotter = plot_utils(do_insert_legends);
 % =========================================================================
 
 log_folder = 'logs';
-
 flight_folder = '20260424';
 log_name = '20260424_flipmini_2.TXT.csv';
 file_path = fullfile(log_folder, flight_folder, log_name);
@@ -128,7 +127,7 @@ plotter.plot_Gyro_spectra(analysis_flight);
 %% Gyro Tuning Data
 
 % =========================================================================
-%  Axis Selection: 1: roll, 2: pitch, 3: yaw
+%  ¨ Selection: 1: roll, 2: pitch, 3: yaw
 % =========================================================================
 
 ind_ax = 1;     % keep it now until plot_utils is finished
@@ -137,7 +136,7 @@ ind_ax = 1;     % keep it now until plot_utils is finished
 do_compensate_iterm = true;
 
 % New and old parameters are the same
-default_parameters_gyro = false; 
+default_parameters_gyro = true; 
 
 % =========================================================================
 %  First flight: Parameters
@@ -203,7 +202,7 @@ gyro_tuning = gyro_tuning.get_tuning_data(do_compensate_iterm);
 
 % plotter.plot_Bode_Contr(ind_ax, do_insert_legends);
 plotter.plot_Gang_of_Four(gyro_tuning,  'Gyro');
-plotter.plot_Step_Response(gyro_tuning,  'Gyro', 'Gyro (deg/sec)');
+plotter.plot_Step_Compliance(gyro_tuning,  'Gyro', 'Gyro (deg/sec)');
 
 %% Angle Tuning Data
 
@@ -212,17 +211,13 @@ angle_tuning = angle_tuning.calculate_Angle_trans(resolution_factor_tuning, over
 
 plotter.plot_Bode_Plant(angle_tuning, roll, 'Angle', 'Plant');
 
-% Old PT3
-para.angle_lpf_hz = 50;     % frequency of Angle lpf (PT3) (Check if we can add this to logfile)
-
 default_parameters_angle = false;
 
 % PT3 Angle Control
-para_new.angle_lpf_hz = 50;     % frequency of Angle lpf (PT3)
-P_Angle = 80;
+P_Angle = 120;
 
 angle_tuning = angle_tuning.calculate_new_controller(ind_ax, P_Angle, ...
-    default_parameters_angle, para_new, para);
+    default_parameters_angle);
 angle_tuning = angle_tuning.get_tuning_data();
 
 plotter.plot_Gang_of_Four(angle_tuning,  'Angle');

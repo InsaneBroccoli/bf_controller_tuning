@@ -2,6 +2,13 @@
 .env
 
 *.csv
+.env
+
+# Logs
+logs/*/
+
+# Backups
+backups/*
 
 # Logfiles
 logs/*/

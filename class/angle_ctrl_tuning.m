@@ -122,9 +122,11 @@ classdef angle_ctrl_tuning < handle
                     out_c(ind_eval), window, Noverlap, obj.Nest, dataf.Ts_log);
     
                 Cp_ax = G_wc_ax / (1 - T_ax);
-
+                
                 % Transferfunction of the Gyro loop
                 T_gy_ax = G_wv_ax / G_wc_ax;
+
+
         
                 % ----- Store for this axis -----
                 obj.T{ind_axis} = T_ax;
@@ -139,9 +141,13 @@ classdef angle_ctrl_tuning < handle
             end
        end
 
-       function obj = calculate_new_controller(obj, ind_ax, P_new, default_parameters, para_new, para)
+       function obj = calculate_new_controller(obj, ind_ax, P_new, default_parameters)
 
             dataf = obj.data_flight;
+            
+            % Old PT3 not changeable
+            angle_lpf_hz = 50;     % frequency of Angle lpf (PT3) 
+            
         
             if default_parameters
                 P_new = dataf.para.levelPID(1);
@@ -158,7 +164,7 @@ classdef angle_ctrl_tuning < handle
 
             C_P_Angle_frd = frd(C_P_Angle * ones(size(f)), f, dataf.Ts_cntr);
            
-            Gf_ana = get_filter('pt3', para_new.angle_lpf_hz, dataf.Ts_cntr);  % should be discrete
+            Gf_ana = get_filter('pt3', angle_lpf_hz, dataf.Ts_cntr);  % should be discrete
             
             C_Angle_new = C_P_Angle_frd * Gf_ana;
             obj.C_ana_new = downsample_frd(C_Angle_new, dataf.Ts_log, obj.T{ind_ax}.Frequency);
@@ -170,7 +176,7 @@ classdef angle_ctrl_tuning < handle
 
             C_P_Angle_frd_old = frd(C_P_Angle_old * ones(size(f)), f, dataf.Ts_cntr);
            
-            Gf_ana_old = get_filter('pt3', para.angle_lpf_hz, dataf.Ts_cntr);  % should be discrete
+            Gf_ana_old = get_filter('pt3', angle_lpf_hz, dataf.Ts_cntr);  % should be discrete
             
             C_Angle_ana = C_P_Angle_frd_old * Gf_ana_old;
             obj.C_ana = downsample_frd(C_Angle_ana, dataf.Ts_log, obj.T{ind_ax}.Frequency);
@@ -186,10 +192,12 @@ classdef angle_ctrl_tuning < handle
             gyro = obj.gyro_tuning;
             
             obj.CL_ana = calculate_closed_loop_angle(obj.C_ana, ...
-                gyro.CL_ana.T, obj.P{obj.ind_ax});
+                gyro.T{obj.ind_ax}, gyro.P{obj.ind_ax}, obj.P{obj.ind_ax}, ...
+                gyro.CL_ana.C);
             
             obj.CL_ana_new = calculate_closed_loop_angle(obj.C_ana_new, ...
-                gyro.CL_ana_new.T, obj.P{obj.ind_ax});
+                gyro.T{obj.ind_ax}, gyro.P{obj.ind_ax}, obj.P{obj.ind_ax}, ...
+                gyro.CL_ana.C);
         
             f_max = 500;
         
@@ -198,9 +206,9 @@ classdef angle_ctrl_tuning < handle
             obj.step_time = (0:obj.Nest-1).' * dataf.Ts_log;
         
             % Step responses
-            step_resp = [calculate_step_response_from_frd(obj.T{obj.ind_ax} , f_max), ...    % Measured Transferfunction
-                        calculate_step_response_from_frd(obj.CL_ana.T, f_max), ...    % Old parameters
-                        calculate_step_response_from_frd(obj.CL_ana_new.T, f_max)];  % New parameters
+            step_resp = [calculate_step_response_from_frd(obj.CL_ana.T, f_max), ...    % Measured Transferfunction
+                        calculate_step_response_from_frd(obj.CL_ana_new.T, f_max), ...    % Old parameters
+                        calculate_step_response_from_frd(obj.T{obj.ind_ax}, f_max)];  % New parameters
         
             % Normalize around mean window
             idx_mean = (obj.step_time > T_mean(1)) & (obj.step_time < T_mean(2));
@@ -215,6 +223,8 @@ classdef angle_ctrl_tuning < handle
             % Center responses around their mean
             step_resp_mean = mean(obj.step_resp_com(obj.step_time > T_mean(1) & obj.step_time < T_mean(2),:));
             obj.step_resp_com = obj.step_resp_com - step_resp_mean;
+
+
 
         end
     end
