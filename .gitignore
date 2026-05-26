@@ -1,4 +1,11 @@
 *.csv
+.env
+
+# Logs
+logs/*/
+
+# Backups
+backups/*
 
 # Matlab compiled files
 *.mat
