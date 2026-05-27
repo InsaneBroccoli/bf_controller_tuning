@@ -22,7 +22,7 @@ linewidth = 1.5;
 % Add file information
 log_folder = '../logs';
 flight_folder = '20260526';
-log_name = '20260526_6_inch_1.csv';
+log_name = '20260526_6_inch_3.csv';
 file_path = fullfile(log_folder, flight_folder, log_name);
 
 % --- Load and Process Flight Log Data ---
@@ -56,7 +56,6 @@ time = (data(:, ind.time) - data(1, ind.time)) * 1e-6;
 gps_error       = data(:,ind.debug(1)) / 10;    % gps error
 angle_target    = data(:,ind.debug(2)) / 10;    % target angle
 chirp           = data(:,ind.debug(3)) / 10;    % cm (injected position setpoint)
-% chirp_inst_freq = data(:,ind.debug(4)) / 100;   % Hz
 current_angle   = data(:,ind.debug(4)) / 10;    % current angle in BF [deg]
 pid_sum_EF      = data(:,ind.debug(5)) / 10;    % PID_sum Earth Frame
 sinarg          = data(:,ind.debug(6)) / 5e3;   % Injected Chirp Signal
@@ -69,8 +68,13 @@ current_position = chirp - gps_error;
 
 % Plot pidDA Limit, to see if clipping occurs
 figure(10)
-plot(time, pidDA_limit); grid on
+plot(time, pidDA_limit); grid on;
+yline(35, '--', sprintf('D+A vector saturation limit'), ...
+      'LineWidth', 2, 'LabelHorizontalAlignment', 'right');
+title('Combined D+A Vector length with 35° tilt Limit');
 legend('combined D+A vector length', Location='northwest');
+xlabel('Time [s]'); ylabel('Angle [deg]');
+xlim([time(1) time(end)]);
 
 %% Overview Plots
 
@@ -81,6 +85,7 @@ grid on;
 title('GPS error');
 xlabel('Time [s]');
 ylabel('Error [cm]');
+xlim([time(1) time(end)]);
 
 % Angle Plots
 subplot(212)
@@ -92,6 +97,7 @@ plot(time, current_angle, 'g');
 grid on;
 legend('PID Sum EF', 'Target Angle BF', 'Current Angle BF')
 xlabel('Time [s]'); ylabel('Angle [deg]');
+xlim([time(1) time(end)]);
 
 % Chirp Plots
 figure(2)
@@ -101,6 +107,7 @@ plot(time, active_axis, '-k');grid on
 legend('sinarg', 'axis (low = roll, high = pitch)');
 title('Chirp Excitation');
 ylabel('Excitation Signal');
+xlim([time(1) time(end)]);
 ylim([-1 7]);
 
 subplot(212)
@@ -109,6 +116,7 @@ plot(time, chirp, '-m'); %hold on;
 grid on
 legend('chirp exc');
 xlabel('Time [s]'); ylabel('Amplitude [cm]');
+xlim([time(1) time(end)]);
 ylim([-100 100]);
 
 % Find the active chirp window
@@ -132,7 +140,7 @@ sinarg_ax = sinarg;
 sinarg_ax(~idx) = 0;
 
 inp   = apply_rotfiltfilt(Glp, sinarg_ax, target_position);
-out_w = apply_rotfiltfilt(Glp, sinarg_ax, current_angle);
+out_q = apply_rotfiltfilt(Glp, sinarg_ax, current_angle);
 out_y = apply_rotfiltfilt(Glp, sinarg_ax, current_position);
 out_u = apply_rotfiltfilt(Glp, sinarg_ax, pid_sum_EF);
 
@@ -153,14 +161,14 @@ bode(ax(1), T, 'k', omega_bode, opt);
 title('Bode Plot Transfer Function');
 
 ax(2) = subplot('Position', pos_bode(2,:));
-semilogx(ax(2), f_bode, C_T_data, 'k', 'LineWidth', linewidth)
-grid(ax(2), 'on')
-ylabel(ax(2), 'Coherence')
-xlabel(ax(2), 'Frequency [Hz]')
-ylim(ax(2), [0 1])
-xlim(ax(2), [f_bode(2,:) max(f_bode)])
+semilogx(ax(2), f_bode, C_T_data, 'k', 'LineWidth', linewidth);
+grid(ax(2), 'on');
+ylabel(ax(2), 'Coherence');
+xlabel(ax(2), 'Frequency [Hz]');
+ylim(ax(2), [0 1]);
+xlim(ax(2), [f_bode(2,:) max(f_bode)]);
 
-linkaxes(ax, 'x')
+linkaxes(ax, 'x');
 
 %% Get the Controller PID
 % PID sum - target position
@@ -175,7 +183,7 @@ C_P = C_uw_data.* C_T_data;
 
 freq_vector = Guw.Frequency;
 
-% Analytical PID (current tune)
+% Analytical PID (standard parameters)
 P_cur = 30;
 I_cur = 30;
 D_cur = 30;
@@ -193,10 +201,10 @@ fc_pt1_cur = 0.8;
   freq_vector);
 
 figure(4)
-bode(Cpid, 'k', omega_bode, opt); hold on
-bode(Cpid_ana, 'r', omega_bode, opt)
+bode(Cpid, 'k', omega_bode, opt); hold on;
+bode(Cpid_ana, 'r', omega_bode, opt);
 xlim([f_bode(2,:) max(f_bode)]);
-legend('measured', 'analytical')
+legend('measured', 'analytical');
 title('Bode Plot PID Controller');
 
 %% Estimation Plant
@@ -209,42 +217,41 @@ bode(ax(1), P, 'k', omega_bode, opt);
 title('Bode Plot Plant');
 
 ax(2) = subplot('Position', pos_bode(2,:));
-semilogx(ax(2), f_bode, C_P, 'k', 'LineWidth', linewidth)
-grid(ax(2), 'on')
-ylabel(ax(2), 'Coherence')
-xlabel(ax(2), 'Frequency [Hz]')
-ylim(ax(2), [0 1])
-xlim(ax(2), [f_bode(2,:) max(f_bode)])
+semilogx(ax(2), f_bode, C_P, 'k', 'LineWidth', linewidth);
+grid(ax(2), 'on');
+ylabel(ax(2), 'Coherence');
+xlabel(ax(2), 'Frequency [Hz]');
+ylim(ax(2), [0 1]);
+xlim(ax(2), [f_bode(2,:) max(f_bode)]);
 
-linkaxes(ax, 'x')
-
-[P_inner, C_P_inner] = estimate_frequency_response( ...
-    inp(idx), out_w(idx), ...
-    window, Noverlap, Nest, Ts_log);
-
-C_inner_data = squeeze(C_P_inner.ResponseData);
+linkaxes(ax, 'x');
 
 % Estimate Outer Plant (current_angle -> current_position)
-P_outer = P / P_inner;
+[Gqw, C_Gqw] = estimate_frequency_response(inp(idx), out_q(idx), ...
+  window, Noverlap, Nest, Ts_log);
+
+C_qw_data = squeeze(C_Gqw.ResponseData);
+
+P_outer = T / Gqw;
 
 % Plot
 figure(55)
 ax(1) = subplot('Position', pos_bode(1,:));
-bode(ax(1), P, 'k', P_inner, 'r', P_outer, 'b', omega_bode, opt);
-title('Plant Decomposition')
-legend('P total (T/Guw)', 'P inner (angle)', 'P outer (kinematics)')
+bode(ax(1), P, 'k', P_outer, 'b', omega_bode, opt);
+title('Plant Decomposition');
+legend('P total (T/Guw)', 'P outer (kinematics)');
 
 ax(2) = subplot('Position', pos_bode(2,:));
-semilogx(ax(2), f_bode, C_P,          'k', 'LineWidth', linewidth); hold on
-semilogx(ax(2), f_bode, C_inner_data, 'r', 'LineWidth', linewidth);
-grid(ax(2), 'on')
-ylabel(ax(2), 'Coherence')
-xlabel(ax(2), 'Frequency [Hz]')
-ylim(ax(2), [0 1])
-xlim(ax(2), [f_bode(2,:) max(f_bode)])
-legend(ax(2), 'C_P total', 'C_P inner')
+semilogx(ax(2), f_bode, C_P,          'k', 'LineWidth', linewidth); hold on;
+semilogx(ax(2), f_bode, C_qw_data,    'r', 'LineWidth', linewidth);
+grid(ax(2), 'on');
+ylabel(ax(2), 'Coherence');
+xlabel(ax(2), 'Frequency [Hz]');
+ylim(ax(2), [0 1]);
+xlim(ax(2), [f_bode(2,:) max(f_bode)]);
+legend(ax(2), 'C_P total', 'C_P outer');
 
-linkaxes(ax, 'x')
+linkaxes(ax, 'x');
 
 %% 
 % angle_target - current position
@@ -298,18 +305,18 @@ end
 CL_ana_new = calculate_closed_loop(Cpid_ana_new, tf(1,1,Ts_log), P, tf(1,1,Ts_log), tf(0,1));
 
 figure(6)
-bode(T, CL_ana.T, omega_bode, opt)
-xlim([3e-2 100])
-title('Comparison Measured to Analytical Transfer Function')
-grid on
-legend('Measured','Calculated')
+bode(T, CL_ana.T, omega_bode, opt);
+xlim([3e-2 100]);
+title('Comparison Measured to Analytical Transfer Function');
+grid on;
+legend('Measured','Calculated');
 
 figure(7)
 ax(1) = subplot(2,2,1);
 bodemag(ax(1), CL_ana.T, CL_ana_new.T, T, omega_bode, opt);
-title('Tracking T')
-legend('Actual','New','Measured','Location','best')
-grid on
+title('Tracking T');
+legend('Actual','New','Measured','Location','best');
+grid on;
 
 ax(2) = subplot(2,2,2);
 bodemag(ax(2), CL_ana.S, CL_ana_new.S, omega_bode, opt);
@@ -319,19 +326,49 @@ grid on
 
 ax(3) = subplot(2,2,3);
 bodemag(ax(3), CL_ana.SC, CL_ana_new.SC, omega_bode, opt);
-title('Controller Effort SC')
-legend('Actual','New','Location','northwest')
-grid on
+title('Controller Effort SC');
+legend('Actual','New','Location','northwest');
+grid on;
 
 ax(4) = subplot(2,2,4);
 bodemag(ax(4), CL_ana.SP, CL_ana_new.SP, omega_bode, opt);
-title('Compliance SP')
-legend('Actual','New','Location','southwest')
-grid on
+title('Compliance SP');
+legend('Actual','New','Location','southwest');
+grid on;
 
 linkaxes(ax,'x');
-xlim(ax(1), [3e-2 100])
-sgtitle('Gang of Four - Position Hold')
+xlim(ax(1), [3e-2 100]);
+sgtitle('Gang of Four - Position Hold');
 
 %% Get Step Response
 
+f_max = 2.5;
+
+% Nur sauberen Mittelteil anzeigen (wrap-around am Ende abschneiden)
+t_plot_max = 10;  % s
+
+% Normierung auf eingeschwungenen Bereich verschieben (weg von t_mid)
+T_mean = [6, 9];  % s – dort sind analytical curves eingeschwungen
+
+step_time = (0:Nest-1).' * Ts_log;
+
+step_resp = [calculate_step_response_from_frd(CL_ana.T,     f_max), ...
+             calculate_step_response_from_frd(CL_ana_new.T, f_max), ...
+             calculate_step_response_from_frd(T,            f_max)];
+
+% Normierung
+step_resp_mean = mean(step_resp(step_time > T_mean(1) & step_time < T_mean(2), :));
+step_resp = step_resp ./ step_resp_mean;
+
+% Plot nur bis t_plot_max
+idx_plot = step_time <= t_plot_max;
+
+figure(8)
+plot(step_time(idx_plot), step_resp(idx_plot,:))
+grid on;
+xlabel('Time [s]');
+ylabel('Position [norm.]');
+title('Step Response Position Hold');
+legend('actual', 'new', 'measured', 'location', 'best');
+xlim([0, t_plot_max]);
+ylim([-0.3, 1.8]);
