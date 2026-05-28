@@ -9,11 +9,32 @@ pos_bode = [0.1514+0.05, 0.5838-0.2, 0.7536,      0.3472+0.2; ...
 
 % Add file information
 log_folder = 'logs';
-flight_folder = '20260527';
-% p = i = d = 15
-% log_name = 'althold-default.csv';
-% p = 18, i = d = 16
-log_name = 'althold-tuned.csv';
+flight_folder = '20260528';
+
+% Aggressive
+% p = 18
+% i = 16
+% d = 16
+% log_name = 'althold-tuned.csv';
+
+% Default
+% p = 15
+% i = 15
+% d = 15
+log_name = 'althold-default.csv';
+
+% Meh
+% p = 13
+% i = 13
+% d = 13
+% log_name = 'althold-medium.csv';
+
+% Bad
+% p = 10
+% i = 10
+% d = 10
+% log_name = 'althold-bad.csv';
+
 file_path = fullfile(log_folder, flight_folder, log_name);
 
 % --- Load and Process Flight Log Data ---
@@ -86,7 +107,7 @@ idx = get_ind_eval(sinarg, meas_alt);
 %% Estimate Transfer Functions
 
 % Welch parameters
-frame    = 12.5;
+frame    = 15;
 Nest     = round(frame / (Ts_log));
 Noverlap = floor(0.9 * Nest);
 window   = hann(Nest, 'periodic');
@@ -183,9 +204,9 @@ linkaxes(ax, 'x')
 Cpi = Gvw / (1 - T);
 
 % Analytical PI + D (current tune)
-P_cur = 15;
-I_cur = 15;
-D_cur = 15;
+P_cur = 18;
+I_cur = 16;
+D_cur = 16;
 fc_pt2_cur = 1;
 [Cpi_ana, Cd_ana] = calculate_althold_controllers( ...
   P_cur,...
@@ -235,7 +256,7 @@ CL_ana= calculate_closed_loop(Cpi_ana, tf(1,1,Ts_log), P, tf(1,1,Ts_log), Cd_ana
 % When true, the "new" controller mirrors the current analytical one — useful
 % as a sanity check on the first pass. Flip to false and edit P_new/I_new/
 % D_new/fc_pt2_new below to propose a different tune.
-default_parameters = true;
+default_parameters = false;
 
 if default_parameters
   P_new = P_cur;
@@ -243,9 +264,9 @@ if default_parameters
   D_new = D_cur;
   fc_pt2_new = fc_pt2_cur;
 else
-  P_new = 18;
-  I_new = 16;
-  D_new = 16;
+  P_new = 10;
+  I_new = 10;
+  D_new = 10;
   fc_pt2_new = 1;
 end
 
