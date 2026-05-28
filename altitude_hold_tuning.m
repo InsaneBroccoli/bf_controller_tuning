@@ -1,16 +1,19 @@
 
 % Initialize workspace
 clc, clear variables, close all
-addpath("../lib/");
-addpath(genpath("../logs/"));
+addpath("lib/");
+addpath(genpath("logs/"));
 
 pos_bode = [0.1514+0.05, 0.5838-0.2, 0.7536,      0.3472+0.2; ...
-            0.1,         0.08,       0.7536+0.05, 0.2017]
+            0.1,         0.08,       0.7536+0.05, 0.2017];
 
 % Add file information
-log_folder = '../logs';
-flight_folder = '20260423';
-log_name = 'LOG012.TXT.csv';
+log_folder = 'logs';
+flight_folder = '20260527';
+% p = i = d = 15
+% log_name = 'althold-default.csv';
+% p = 18, i = d = 16
+log_name = 'althold-tuned.csv';
 file_path = fullfile(log_folder, flight_folder, log_name);
 
 % --- Load and Process Flight Log Data ---
@@ -180,9 +183,9 @@ linkaxes(ax, 'x')
 Cpi = Gvw / (1 - T);
 
 % Analytical PI + D (current tune)
-P_cur = 20;
-I_cur = 20;
-D_cur = 18;
+P_cur = 15;
+I_cur = 15;
+D_cur = 15;
 fc_pt2_cur = 1;
 [Cpi_ana, Cd_ana] = calculate_althold_controllers( ...
   P_cur,...
@@ -240,9 +243,9 @@ if default_parameters
   D_new = D_cur;
   fc_pt2_new = fc_pt2_cur;
 else
-  P_new = 22;
-  I_new = 22;
-  D_new = 20;
+  P_new = 18;
+  I_new = 16;
+  D_new = 16;
   fc_pt2_new = 1;
 end
 
