@@ -1,16 +1,15 @@
-# custom
 .env
-
-*.csv
 
 # Logs
 logs/*/
+*.csv
 
 # Backups
 backups/*
 
 # Matlab compiled files
 *.mat
+*.asv
 
 # Python compiled files
 *.pkl
