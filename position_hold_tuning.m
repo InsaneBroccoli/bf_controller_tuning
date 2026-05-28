@@ -1,8 +1,8 @@
 
 % Initialize workspace
 clc, clear, close all
-addpath("../lib/");
-addpath(genpath("../logs/"));
+addpath("./lib/");
+addpath(genpath("./logs/"));
 
 pos_bode = [0.1514, 0.5838-0.2, 0.7536, 0.3472+0.2; ...
             0.1514, 0.1100    , 0.7536, 0.1917    ];
@@ -20,9 +20,9 @@ opt.PhaseWrapping = 'on';
 linewidth = 1.5;
 
 % Add file information
-log_folder = '../logs';
-flight_folder = '20260526';
-log_name = '20260526_6_inch_3.csv';
+log_folder = './logs';
+flight_folder = '20260527';
+log_name = '20260527_6_inch_1.csv';
 file_path = fullfile(log_folder, flight_folder, log_name);
 
 % --- Load and Process Flight Log Data ---
@@ -70,7 +70,8 @@ current_position = chirp - gps_error;
 figure(10)
 plot(time, pidDA_limit); grid on;
 yline(35, '--', sprintf('D+A vector saturation limit'), ...
-      'LineWidth', 2, 'LabelHorizontalAlignment', 'right');
+      'LineWidth', 2, 'LabelHorizontalAlignment', 'right', ...
+      'LabelVerticalAlignment', 'bottom');
 title('Combined D+A Vector length with 35° tilt Limit');
 legend('combined D+A vector length', Location='northwest');
 xlabel('Time [s]'); ylabel('Angle [deg]');
@@ -275,7 +276,7 @@ linkaxes(ax, 'x');
 
 CL_ana = calculate_closed_loop(Cpid_ana, tf(1,1,Ts_log), P, tf(1,1,Ts_log), tf(0,1));
 
-%% New Controller (proposed tune)
+%% New Controller
 default_parameters = false;
 
 if default_parameters
@@ -285,10 +286,10 @@ if default_parameters
   A_new = A_cur;
   fc_pt1_new = fc_pt1_cur;
 else
-  P_new = 52;
+  P_new = 42;
   I_new = 80;
-  D_new = 62;
-  A_new = 22;
+  D_new = 55;
+  A_new = 10;
   fc_pt1_new = 0.8;
 end
 
