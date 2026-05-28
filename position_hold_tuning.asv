@@ -21,8 +21,8 @@ linewidth = 1.5;
 
 % Add file information
 log_folder = './logs';
-flight_folder = '20260526';
-log_name = '20260526_6_inch_1.csv';
+flight_folder = '20260527';
+log_name = '20260527_6_inch_1.csv';
 file_path = fullfile(log_folder, flight_folder, log_name);
 
 % --- Load and Process Flight Log Data ---
@@ -40,14 +40,14 @@ catch
   save(mat_path, "data");
 end
 
-% Decimate the full matrix once (blackbox runs at the FC loop rate; poshold
-% debug values update at ~100 Hz via GPS updates, so decimation brings the 
-% effective analysis rate to ~100 Hz while keeping a single decimation factor).
+% Decimate the full matrix once (blackbox runs at the FC loop rate; althold
+% debug values update at 100 Hz, so 20:1 brings the effective rate to ~100 Hz
+% while keeping a single decimation factor in one place).
 Ts_log_raw = para.looptime * 1e-6 * para.pid_process_denom * para.frameIntervalPDenom;
 dec        = round((1/Ts_log_raw) / 10);
 data       = data(1:dec:end, :);
 Ts_log     = Ts_log_raw * dec;
-Ts_cntr    = Ts_log;   % poshold control loop runs at logging rate (GPS-limited)
+Ts_cntr    = Ts_log;   % althold control loop runs at logging rate
 
 % ind.time column is in microseconds (Betaflight blackbox convention).
 time = (data(:, ind.time) - data(1, ind.time)) * 1e-6;
@@ -286,10 +286,10 @@ if default_parameters
   A_new = A_cur;
   fc_pt1_new = fc_pt1_cur;
 else
-  P_new = 35;
-  I_new = 36;
-  D_new = 33;
-  A_new = 25;
+  P_new = 42;
+  I_new = 80;
+  D_new = 55;
+  A_new = 10;
   fc_pt1_new = 0.8;
 end
 
