@@ -315,7 +315,7 @@ if default_parameters
   A_new = A_cur;
   fc_pt1_new = fc_pt1_cur;
 else
-  P_new = 35;
+  P_new = 50;
   I_new = 36;
   D_new = 33;
   A_new = 25;
@@ -411,8 +411,9 @@ T_mean = 0.1 * [-1, 1] + (Nest * Ts_log) / 2;
 
 step_time = (0:Nest-1).' * Ts_log;
 
-step_resp = [calculate_step_response_from_frd(CL_ana_roll.T,     f_max), ...
+step_resp = [calculate_step_response_from_frd(CL_new_pitch.T,     f_max), ...
              calculate_step_response_from_frd(CL_new_roll.T, f_max), ...
+             calculate_step_response_from_frd(T_pitch, f_max), ...
              calculate_step_response_from_frd(T_roll,            f_max)];
 
 % Normalization
@@ -425,6 +426,6 @@ grid on;
 xlabel('Time [s]');
 ylabel('Position [cm]');
 title('Step Response Position Hold');
-legend('actual', 'new', 'measured', 'location', 'best');
+legend('New Pitch', 'New Roll', 'Measured Pitch','Measured Roll' , 'location', 'best');
 xlim([0, frame/2]);
 ylim([-0.3, 1.8]);
