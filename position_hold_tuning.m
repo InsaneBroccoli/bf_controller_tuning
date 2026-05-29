@@ -24,7 +24,8 @@ linewidth = 1.5;
 % Add file information
 log_folder = './logs';
 flight_folder = '20260529';
-log_name = '20260528_6_inch_1.TXT.csv';
+log_name = '20260529_6_inch.csv';
+
 file_path = fullfile(log_folder, flight_folder, log_name);
 
 % --- Load and Process Flight Log Data ---
@@ -76,10 +77,10 @@ current_position = chirp - gps_error;
 %% DA Limit Plot
 
 % Plot pidDA Limit, to see if clipping occurs
-figure(10)
+figure(11)
 plot(time, pidDA_limit); grid on;
 yline(35, '--', sprintf('D+A vector saturation limit'), ...
-      'LineWidth', 2, 'LabelHorizontalAlignment', 'right', ...
+      'LineWidth', 2, 'LabelHorizontalAlignment', 'left', ...
       'LabelVerticalAlignment', 'bottom');
 title('Combined D+A Vector length with 35° tilt Limit');
 legend('combined D+A vector length', Location='northwest');
@@ -232,10 +233,10 @@ C_P_pitch = C_Guw_pitch.* C_T_pitch;
 freq_vector = Guw_roll.Frequency;
 
 % Analytical PID (standard parameters)
-P_cur = 30;
-I_cur = 30;
-D_cur = 30;
-A_cur = 30;
+P_cur = 35;
+I_cur = 36;
+D_cur = 33;
+A_cur = 25;
 fc_pt1_cur = 0.8;
 
 [Cpid_ana] = calculate_poshold_controller( ...
@@ -315,7 +316,7 @@ if default_parameters
   A_new = A_cur;
   fc_pt1_new = fc_pt1_cur;
 else
-  P_new = 50;
+  P_new = 35;
   I_new = 36;
   D_new = 33;
   A_new = 25;
