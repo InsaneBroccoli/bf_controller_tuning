@@ -67,7 +67,7 @@ chirp           = data(:,ind.debug(3)) / 10;    % cm (injected position setpoint
 current_angle   = data(:,ind.debug(4)) / 10;    % current angle in BF [deg]
 pid_sum_EF      = data(:,ind.debug(5)) / 10;    % PID_sum Earth Frame
 sinarg          = data(:,ind.debug(6)) / 5e3;   % Injected Chirp Signal
-active_axis     = data(:,ind.debug(7)) * 2;     % Low = LON/ROLL, High = LAT/PITCH
+active_axis     = data(:,ind.debug(7));         % Low = LON/ROLL, High = LAT/PITCH
 pidDA_limit     = data(:,ind.debug(8)) / 10;    % deg
 
 % calculate current and target position from gps error and chirp
@@ -138,8 +138,8 @@ idx = get_ind_eval(sinarg, chirp);
 %   active_axis < 1  -> Roll  (LON)
 %   active_axis >= 1 -> Pitch (LAT)
 % -------------------------------------------------------------------------
-idx_roll  = idx & (active_axis < 1);
-idx_pitch = idx & (active_axis >= 1);
+idx_roll  = idx & (active_axis == 0);
+idx_pitch = idx & (active_axis == 1);
 
 
 
@@ -178,7 +178,7 @@ inp_p   = apply_rotfiltfilt(Glp, sinarg_pitch, target_position);
 out_y_p = apply_rotfiltfilt(Glp, sinarg_pitch, current_position);
 out_u_p = apply_rotfiltfilt(Glp, sinarg_pitch, pid_sum_EF);
 out_v_p = apply_rotfiltfilt(Glp, sinarg_pitch, angle_target);
-out_q_p = apply_rotfiltfilt(Glp, sinarg_roll, current_angle);
+out_q_p = apply_rotfiltfilt(Glp, sinarg_pitch, current_angle);
 
 
 %% Estimation Transferfunction T
@@ -187,8 +187,8 @@ out_q_p = apply_rotfiltfilt(Glp, sinarg_roll, current_angle);
 [T_roll, C_T_roll] = estimate_frequency_response(inp_r(idx_roll), ...
     out_y_r(idx_roll), window, Noverlap, Nest, Ts_log);
 
-[T_pitch, C_T_pitch] = estimate_frequency_response(inp_p(idx_roll), ...
-    out_y_p(idx_roll), window, Noverlap, Nest, Ts_log);
+[T_pitch, C_T_pitch] = estimate_frequency_response(inp_p(idx_pitch), ...
+    out_y_p(idx_pitch), window, Noverlap, Nest, Ts_log);
 
 f_bode = squeeze(C_T_roll.Frequency);
 
