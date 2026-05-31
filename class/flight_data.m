@@ -53,7 +53,15 @@ classdef flight_data
             
             % --- Data Preprocessing ---
             % Expand obj.indices for additional data columns
-            obj.ind.axisSumPI = ind_cntr + (1:3);
+            % obj.ind.axisSumPI = ind_cntr + (1:3);
+            
+            % Create an additional entry for the PI sum
+            axisSumPI_data = obj.data(:,obj.ind.axisP) + obj.data(:,obj.ind.axisI);
+            obj.data = [obj.data, axisSumPI_data];
+
+            % Now assign the new indices from actual data size
+            obj.ind.axisSumPI = size(obj.data,2)-2 : size(obj.data,2);
+
             obj.ind.sinarg = obj.ind.debug(1);
             % Current version
             % obj.ind.currentAngle = [obj.ind.debug(2), obj.ind.debug(5)];
