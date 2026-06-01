@@ -50,6 +50,7 @@ classdef angle_ctrl_tuning < handle
         % step response
         step_resp_tra
         step_resp_com
+
     end
     methods
 
@@ -84,12 +85,19 @@ classdef angle_ctrl_tuning < handle
             
             sinarg_full = dataf.data(:, dataf.ind.sinarg);  % Copy Data to adjust it
 
+            modeFlags = uint32(dataf.data(:, dataf.ind.flightModeFlags));
+            bit1 = bitand(modeFlags, uint32(2)) ~= 0;
+            angle_active = bit1;
+
             for ind_axis = 1:n_axes
         
                 ind_eval = get_ind_eval( ...
                     dataf.data(:,dataf.ind.sinarg), ...
                     dataf.data(:,dataf.ind.gyroADC(ind_axis)));
-        
+
+                % Only use data recorded while Angle mode was active
+                ind_eval = ind_eval & angle_active;
+                
                 sinarg_ax = sinarg_full;
                 sinarg_ax(~ind_eval) = 0;
         

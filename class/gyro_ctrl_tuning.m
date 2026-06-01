@@ -101,8 +101,10 @@ classdef gyro_ctrl_tuning < handle
 
             for ind_axis = 1:n_axes       % Calculate Transferfunction for Roll, Pitch and Yaw
             
-                ind_eval = get_ind_eval(dataf.data(:,dataf.ind.sinarg), dataf.data(:,dataf.ind.gyroADC(ind_axis)));
-                
+                ind_eval = get_ind_eval( ...
+                    dataf.data(:,dataf.ind.sinarg), ...
+                    dataf.data(:,dataf.ind.gyroADC(ind_axis)));
+
                 sinarg_ax = sinarg_full;
                 sinarg_ax(~ind_eval) = 0;
 

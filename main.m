@@ -20,6 +20,9 @@ addpath class/
 % Show Legends
 do_insert_legends = true;
 
+% Angle Tuning Required 
+angle_tuning_required = true;
+
 % Create Plotter Class
 plotter = plot_utils(do_insert_legends);
 
@@ -30,7 +33,7 @@ plotter = plot_utils(do_insert_legends);
 % =========================================================================
 
 log_folder = 'logs';
-flight_folder = '20260531';
+flight_folder = '20260530';
 log_name = '20260529_apex5_00.bbl.csv';
 file_path = fullfile(log_folder, flight_folder, log_name);
 
@@ -205,20 +208,25 @@ plotter.plot_Gang_of_Four(gyro_tuning,  'Gyro');
 plotter.plot_Step_Compliance(gyro_tuning,  'Gyro', 'Gyro (deg/sec)');
 
 %% Angle Tuning Data
+modeFlags = df.data(:, df.ind.flightModeFlags);
+angle_tuning_possible = any(modeFlags == 8388675);
 
-angle_tuning = angle_ctrl_tuning(df,gyro_tuning);
-angle_tuning = angle_tuning.calculate_Angle_trans(resolution_factor_tuning, overlap_tuning);
+if angle_tuning_possible && angle_tuning_required && ind_ax ~= yaw
 
-plotter.plot_Bode_Plant(angle_tuning, roll, 'Angle', 'Plant');
+    angle_tuning = angle_ctrl_tuning(df,gyro_tuning);
+    angle_tuning = angle_tuning.calculate_Angle_trans(resolution_factor_tuning, overlap_tuning);
 
-default_parameters_angle = false;
+    plotter.plot_Bode_Plant(angle_tuning, roll, 'Angle', 'Plant');
 
-% PT3 Angle Control
-P_Angle = 120;
+    default_parameters_angle = false;
 
-angle_tuning = angle_tuning.calculate_new_controller(ind_ax, P_Angle, ...
-    default_parameters_angle);
-angle_tuning = angle_tuning.get_tuning_data();
+    % PT3 Angle Control
+    P_Angle = 120;
 
-plotter.plot_Gang_of_Four(angle_tuning,  'Angle');
-plotter.plot_Step_Response(angle_tuning,  'Angle', 'Angle (deg)');
+    angle_tuning = angle_tuning.calculate_new_controller(ind_ax, P_Angle, ...
+        default_parameters_angle);
+    angle_tuning = angle_tuning.get_tuning_data();
+    
+    plotter.plot_Gang_of_Four(angle_tuning,  'Angle');
+    plotter.plot_Step_Response(angle_tuning,  'Angle', 'Angle (deg)');
+end

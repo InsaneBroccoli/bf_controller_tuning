@@ -90,9 +90,6 @@ classdef flight_data
 
             % Unscale and remap heading
             obj.data(:,obj.ind.heading(1:3)) = obj.data(:,obj.ind.heading(1:3)) * 100;
-                        
-            % Create an additional entry for the pi sum
-            obj.data = [obj.data, obj.data(:,obj.ind.axisP) + obj.data(:,obj.ind.axisI)];
             
             % Create different sampling times
             Ts      = obj.para.looptime * 1.0e-6;             % Gyro loop
