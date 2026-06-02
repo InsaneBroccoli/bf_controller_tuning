@@ -410,7 +410,7 @@ classdef plot_utils
         
             % ---- Formatting ----
             linkaxes(ax,'x');
-            xlim(ax(1),'auto');
+            xlim(ax(1),[0.4 600]);
         
             set(findall(fig,'type','line'),'LineWidth',obj.linewidth);
         
@@ -470,7 +470,7 @@ classdef plot_utils
         
             % ---- Formatting ----
             linkaxes(ax, 'x');
-            xlim(ax(1), [0 1.0]);
+            xlim(ax(1), [0 0.3]);
                     
             set(findall(fig, 'type', 'line'), 'LineWidth', obj.linewidth);
         

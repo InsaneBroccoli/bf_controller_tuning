@@ -33,8 +33,8 @@ plotter = plot_utils(do_insert_legends);
 % =========================================================================
 
 log_folder = 'logs';
-flight_folder = '20260530';
-log_name = '20260529_apex5_00.bbl.csv';
+flight_folder = '20260601';
+log_name = 'Bad_flipmini.TXT.csv';
 file_path = fullfile(log_folder, flight_folder, log_name);
 
 df = flight_data(file_path);
@@ -139,7 +139,7 @@ ind_ax = 1;     % keep it now until plot_utils is finished
 do_compensate_iterm = true;
 
 % New and old parameters are the same
-default_parameters_gyro = true; 
+default_parameters_gyro = false; 
 
 % =========================================================================
 %  First flight: Parameters
@@ -186,9 +186,9 @@ para_new.yaw_lpf_hz          = 200;     % frequency of yaw lpf (pt1)
 
 switch ind_ax
     case 1 % Roll PID values [default: 45, 80, 30]
-        P_new       = 30;%46
+        P_new       =35;%46
         I_new       = 70;%74
-        D_new       = 30;%30
+        D_new       = 22;%30
     case 2 % Pitch PID values [default: 47, 84, 34]
         P_new       = 49;
         I_new       = 96;
