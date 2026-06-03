@@ -292,45 +292,36 @@ class FlightData:
         # =============================================================
         # Debug Signal Remapping
         # =============================================================
-        # Current version:
-        #   debug[0] = sinarg
-        #   debug[1] = currentAngle roll
-        #   debug[2] = angleTarget roll
-        #   debug[3] = angleRate roll
-        #   debug[4] = currentAngle pitch
-        #   debug[5] = angleTarget pitch
-        #   debug[6] = angleRate pitch
-        # =============================================================
+        
+        #self.ind.currentAngle = np.array([
+        #    self.ind.debug[1],
+         #   self.ind.debug[4],
+        #])
 
-        self.ind.currentAngle = np.array([
-            self.ind.debug[1],
-            self.ind.debug[4],
-        ])
+        #self.ind.angleTarget = np.array([
+        #    self.ind.debug[2],
+        #    self.ind.debug[5],
+        #])
 
-        self.ind.angleTarget = np.array([
-            self.ind.debug[2],
-            self.ind.debug[5],
-        ])
-
-        self.ind.angleRate = np.array([
-            self.ind.debug[3],
-            self.ind.debug[6],
-        ])
+        #self.ind.angleRate = np.array([
+        #    self.ind.debug[3],
+        #    self.ind.debug[6],
+        #])
 
         # =============================================================
         # Future Debug Mapping
         # =============================================================
 
         # Future version would be:
-        # self.ind.currentAngle = np.array([
-        #     self.ind.debug[1],
-        #     self.ind.debug[3],
-        # ])
-        #
-        # self.ind.angleTarget = np.array([
-        #     self.ind.debug[2],
-        #     self.ind.debug[4],
-        # ])
+        self.ind.currentAngle = np.array([
+             self.ind.debug[4],
+             self.ind.debug[6],
+        ])
+        
+        self.ind.angleTarget = np.array([
+             self.ind.debug[5],
+             self.ind.debug[7],
+        ])
 
         # =============================================================
         # Time Vector

@@ -53,8 +53,8 @@ def main():
     # =========================================================================
 
     log_folder = "logs"
-    flight_folder = "20260424"
-    log_name = "20260424_flipmini_2.TXT.csv"
+    flight_folder = "20260601"
+    log_name = "Tuned_flipmini.TXT.csv"
 
     file_path = Path(log_folder) / flight_folder / log_name
 
@@ -233,7 +233,7 @@ def main():
     # -------------------------------------------------------------------------
 
     # Window length for spectral estimation
-    resolution_factor_spectra = 2.0
+    resolution_factor_spectra = 0.2
 
     # Overlap factor for Welch estimation
     overlap_spectra = 0.9
@@ -248,7 +248,7 @@ def main():
     # -------------------------------------------------------------------------
 
     # Window length for spectrogram estimation
-    resolution_factor_spectrogram = 2.0
+    resolution_factor_spectrogram = 0.2
 
     # Overlap factor for spectrogram estimation
     overlap_spectrogram = 0.9

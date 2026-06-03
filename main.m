@@ -34,7 +34,7 @@ plotter = plot_utils(do_insert_legends);
 
 log_folder = 'logs';
 flight_folder = '20260601';
-log_name = 'Bad_flipmini.TXT.csv';
+log_name = 'Tuned_flipmini.TXT.csv';
 file_path = fullfile(log_folder, flight_folder, log_name);
 
 df = flight_data(file_path);
