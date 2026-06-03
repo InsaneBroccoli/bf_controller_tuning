@@ -448,6 +448,7 @@ classdef plot_utils
             grid(ax(1), 'on');
             ylabel(ax(1), ylab);
             title(ax(1), sprintf('Tracking T - %s', axName));
+            xlim(ax(1), [0 0.3]);
         
             if obj.do_insert_legends
                 legend(ax(1), 'actual calculated', 'new calculated', 'measured', ...
@@ -470,7 +471,7 @@ classdef plot_utils
         
             % ---- Formatting ----
             linkaxes(ax, 'x');
-            xlim(ax(1), [0 0.3]);
+            xlim(ax(2), [0 0.3]);
                     
             set(findall(fig, 'type', 'line'), 'LineWidth', obj.linewidth);
         

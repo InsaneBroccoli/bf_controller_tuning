@@ -196,6 +196,10 @@ class AngleCtrlTuning:
 
         sinarg_full = self.data[:, self.ind.sinarg].copy()
 
+        mode_flags = self.data[:, self.ind.flightModeFlags].astype(np.uint32)
+        bit1 = (mode_flags & np.uint32(2)) != 0
+        angle_active = bit1
+
         # =============================================================
         # Process Roll and Pitch
         # =============================================================
@@ -210,6 +214,8 @@ class AngleCtrlTuning:
                 self.data[:, self.ind.sinarg],
                 self.data[:, self.ind.gyroADC[ind_axis]]
             )
+
+            ind_eval = ind_eval & angle_active
 
             sinarg_ax = sinarg_full.copy()
             sinarg_ax[~ind_eval] = 0

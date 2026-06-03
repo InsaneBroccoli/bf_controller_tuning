@@ -149,7 +149,7 @@ def calculate_closed_loop_angle(
 
     T = L * S
     SP = S * P
-    SC = C * C_gyro * S
+    SC = C * S
 
     return ClosedLoop(
         C,

@@ -43,6 +43,9 @@ def main():
     # Show legends in plots
     do_insert_legends = True
 
+    # Angle Tuning Required
+    angle_tuning_required = True
+
     # Create plot utility class
     plotter = PlotUtils(do_insert_legends)
 
@@ -53,8 +56,8 @@ def main():
     # =========================================================================
 
     log_folder = "logs"
-    flight_folder = "20260601"
-    log_name = "Tuned_flipmini.TXT.csv"
+    flight_folder = "20260530"
+    log_name = "20260529_apex5_00.bbl.csv"
 
     file_path = Path(log_folder) / flight_folder / log_name
 
@@ -414,63 +417,71 @@ def main():
     print("Angle Controller Tuning")
     print("=" * 70)
 
-    # Create angle tuning object
-    angle_tuning = AngleCtrlTuning(
-        df.data,
-        df.ind,
-        df.Ts_log,
-        df.para,
-        df.Ts_cntr,
-        gyro_tuning,
+    mode_flags = df.data[:, df.ind.flightModeFlags]
+
+    angle_tuning_possible = np.any(
+    mode_flags == 8388675
     )
 
-    # Calculate angle transfer functions
-    angle_tuning = angle_tuning.calculate_angle_trans(
-        resolution_factor_tf,
-        overlap_tf,
-    )
+    if angle_tuning_possible and angle_tuning_required and ind_ax != yaw:
 
-    # Plot angle plant bode plot
-    plotter.plot_bode_plant(
-        angle_tuning,
-        roll,
-        "Angle",
-    )
+        # Create angle tuning object
+        angle_tuning = AngleCtrlTuning(
+            df.data,
+            df.ind,
+            df.Ts_log,
+            df.para,
+            df.Ts_cntr,
+            gyro_tuning,
+        )
 
-    # Use same parameters as original flight
-    default_parameters_angle = False
+        # Calculate angle transfer functions
+        angle_tuning = angle_tuning.calculate_angle_trans(
+            resolution_factor_tf,
+            overlap_tf,
+        )
 
-    # -------------------------------------------------------------------------
-    # Angle controller tuning
-    # -------------------------------------------------------------------------
+        # Plot angle plant bode plot
+        plotter.plot_bode_plant(
+            angle_tuning,
+            roll,
+            "Angle",
+        )
 
-    # PT3 Angle Control
-    P_angle = 120
+        # Use same parameters as original flight
+        default_parameters_angle = False
 
-    # Calculate new controller
-    angle_tuning = angle_tuning.calculate_new_controller(
-        ind_ax,
-        P_angle,
-        default_parameters_angle,
-    )
+        # -------------------------------------------------------------------------
+        # Angle controller tuning
+        # -------------------------------------------------------------------------
 
-    # Calculate tuning data
-    angle_tuning = angle_tuning.get_tuning_data()
+        # PT3 Angle Control
+        P_angle = 120
 
-    # -------------------------------------------------------------------------
-    # Plot tuning evaluation
-    # -------------------------------------------------------------------------
+        # Calculate new controller
+        angle_tuning = angle_tuning.calculate_new_controller(
+            ind_ax,
+            P_angle,
+            default_parameters_angle,
+        )
 
-    plotter.plot_gang_of_four(
-        angle_tuning,
-        "Angle",
-    )
+        # Calculate tuning data
+        angle_tuning = angle_tuning.get_tuning_data()
 
-    plotter.plot_step_response(
-        angle_tuning,
-        "Angle",
-        "Angle (deg)",
-    )
+        # -------------------------------------------------------------------------
+        # Plot tuning evaluation
+        # -------------------------------------------------------------------------
+
+        plotter.plot_gang_of_four(
+            angle_tuning,
+            "Angle",
+        )
+
+        plotter.plot_step_response(
+            angle_tuning,
+            "Angle",
+            "Angle (deg)",
+        )
 
     # =========================================================================
     # Finished

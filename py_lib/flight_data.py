@@ -201,7 +201,7 @@ class FlightData:
             col.strip().strip('"')
             for col in header_line.strip().split(",")
         ]
-
+        
         gyro_unfilt = []
         gyro_adc = []
         setpoint = []
@@ -254,6 +254,16 @@ class FlightData:
             elif col.startswith("heading["):
                 heading.append(idx)
 
+            elif col == "flightModeFlags":
+                ind.flightModeFlags = idx
+
+            elif col == "stateFlags":
+                ind.stateFlags = idx
+
+            elif col == "failsafePhase":
+                ind.failsafePhase = idx
+
+            
         # Store parsed column indices
         ind.gyroUnfilt = np.array(gyro_unfilt)
         ind.gyroADC = np.array(gyro_adc)
@@ -285,7 +295,7 @@ class FlightData:
         # Expand indices for additional calculated data columns.
         # =============================================================
 
-        self.ind.axisSumPI = np.arange(ind_cntr, ind_cntr + 3)
+        
 
         self.ind.sinarg = self.ind.debug[0]
 
@@ -388,6 +398,7 @@ class FlightData:
         #     axisP + axisI
         # =============================================================
 
+        # Create an additional entry for the PI sum
         pi_sum = (
             self.data[:, self.ind.axisP]
             + self.data[:, self.ind.axisI]
@@ -397,6 +408,12 @@ class FlightData:
             self.data,
             pi_sum,
         ])
+
+        # Now assign the new indices from actual data size
+        self.ind.axisSumPI = np.arange(
+            self.data.shape[1] - 3,
+            self.data.shape[1]
+)
 
         # =============================================================
         # Create Different Sampling Times
