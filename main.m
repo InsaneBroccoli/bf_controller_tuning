@@ -30,8 +30,8 @@ plotter = plot_utils(do_insert_legends);
 % =========================================================================
 
 log_folder = 'logs';
-flight_folder = '20260424';
-log_name = '20260424_flipmini_2.TXT.csv';
+flight_folder = '20260527';
+log_name = '20260527_1_overshootexpress.TXT.csv';
 file_path = fullfile(log_folder, flight_folder, log_name);
 
 df = flight_data(file_path);
@@ -109,13 +109,13 @@ plotter.plot_Bode_Plant(gyro_tuning, roll, 'Gyro', 'Plant');
 analysis_flight = flight_analyzer(df.data, df.ind, df.Ts_log);
 
 % Data for Spectra
-resolution_factor_spectra = 2;    % Window length for spectral analysis (seconds)
+resolution_factor_spectra = 0.2;    % Window length for spectral analysis (seconds)
 overlap_spectra = 0.9;              % Overlap factor for spectral analysis (0-1)
 analysis_flight = analysis_flight.calculate_spectra(resolution_factor_spectra, ...
     overlap_spectra);
 
 % Data for Spectogram
-resolution_factor_spectogram = 2;    % Window length for spectral analysis (seconds)
+resolution_factor_spectogram = 0.2;    % Window length for spectral analysis (seconds)
 overlap_spectogram = 0.9;              % Overlap factor for spectral analysis (0-1)
 analysis_flight = analysis_flight.calculate_spectogram(resolution_factor_spectogram, ...
     overlap_spectogram);

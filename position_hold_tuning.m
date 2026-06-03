@@ -4,8 +4,10 @@ clc, clear, close all
 addpath("./lib/");
 addpath(genpath("./logs/"));
 
-pos_bode = [0.1514, 0.5838-0.2, 0.7536, 0.3472+0.2; ...
-            0.1514, 0.1100    , 0.7536, 0.1917    ];
+% pos_bode = [0.1514, 0.5838-0.2, 0.7536, 0.3472+0.2; ...
+%             0.1514, 0.1100    , 0.7536, 0.1917    ];
+pos_bode = [0.204, 0.5838-0.2, 0.748, 0.3472+0.2; ...
+            0.1, 0.1    , 0.8, 0.1917    ];
 
 set(cstprefs.tbxprefs, 'MagnitudeUnits', 'dB');
 set(cstprefs.tbxprefs, 'FrequencyUnits', 'Hz');
@@ -23,8 +25,8 @@ linewidth = 1.5;
 
 % Add file information
 log_folder = './logs';
-flight_folder = '20260529';
-log_name = '20260529_6_inch.csv';
+flight_folder = '20260528';
+log_name = '20260528_6_inch.csv';
 
 file_path = fullfile(log_folder, flight_folder, log_name);
 
