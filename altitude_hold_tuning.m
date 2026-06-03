@@ -5,7 +5,7 @@ addpath("lib/");
 addpath(genpath("logs/"));
 
 pos_bode = [0.1514+0.05, 0.5838-0.2, 0.7536,      0.3472+0.2; ...
-            0.1,         0.08,       0.7536+0.05, 0.2017];
+            0.21,         0.08,       0.7+0.05, 0.25];
 
 % Add file information
 log_folder = 'logs';
