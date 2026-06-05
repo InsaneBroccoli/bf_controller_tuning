@@ -21,8 +21,8 @@ linewidth = 1.5;
 
 % Add file information
 log_folder = './logs';
-flight_folder = '20260526';
-log_name = '20260526_6_inch_1.csv';
+flight_folder = 'example_logs';
+log_name = 'PosHold.csv';
 file_path = fullfile(log_folder, flight_folder, log_name);
 
 % --- Load and Process Flight Log Data ---
