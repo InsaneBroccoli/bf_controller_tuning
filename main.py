@@ -1,20 +1,21 @@
 """
 ==========================================================================
-MAIN - Betaflight Controller Analysis Main File
+MAIN - Betaflight Controller Analysis File
 ==========================================================================
-Betaflight Controller Tuning Analysis Script
-
 Purpose:
-    Analyzes flight logs and tunes PID controllers for a quadcopter.
+    Tool for analysing flight logs and tuning PID controllers for a quadcopter
 
-Author:
-    Janick Dort, Yuri Bianchi, Dario Jurietti
+Authors:
+    Yuri Bianchi
+    Janick Dort
+    Dario Jurietti
 
-Supervisor:
+Supervisors:
     Michael Peter
+    Prof. Dr. Ruprecht Altenburger
 
 Date:
-    25.11.2025
+    05.06.2026
 ==========================================================================
 """
 
