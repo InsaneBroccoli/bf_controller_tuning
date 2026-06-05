@@ -1,3 +1,26 @@
+"""
+==========================================================================
+PID Tuning Library
+==========================================================================
+
+Purpose:
+    Core control theory and signal processing functions for offline PID 
+    controller analysis and tuning from Betaflight flight logs.
+
+Authors:
+    Yuri Bianchi
+    Janick Dort
+    Dario Jurietti
+
+Supervisors:
+    Michael Peter
+    Prof. Dr. Ruprecht Altenburger
+
+Date:
+    05.06.2026
+==========================================================================
+"""
+
 import numpy as np
 import warnings
 import control as ct

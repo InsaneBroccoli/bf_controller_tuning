@@ -14,10 +14,9 @@
 %   Prof. Dr. Ruprecht Altenburger
 %
 % Date: 05.06.2026
-
 %==========================================================================
 %  ADDITIONAL INFORMATION
-% =============================================================
+%==========================================================================
 % Estimates and calculates frequency responses for system identification
 % and controller analysis.
 %
