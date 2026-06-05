@@ -515,15 +515,13 @@ classdef plot_utils
             ylabel(ylab);
             xlim([0 1]);
 
-            title(sprintf('Tracking T - %s', axName));
+            title(sprintf('Step Response %s - %s', label, axName), 'FontSize', 15);
+            subtitle(sprintf('Tracking T - %s', axName), 'FontSize', 11);
         
             if obj.do_insert_legends
                 legend('actual calculated', 'new calculated', 'measured', ...
                        'Location', 'best');
             end
         end
-
-
     end
-
 end

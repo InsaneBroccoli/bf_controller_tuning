@@ -4,13 +4,16 @@
 *.csv
 
 # Logs
-logs/*/
+logs/*
+!logs/example_logs/
+!logs/example_logs/**
 
 # Backups
 backups/*
 
 # Matlab compiled files
 *.mat
+*.asv
 
 # Python compiled files
 *.pkl
