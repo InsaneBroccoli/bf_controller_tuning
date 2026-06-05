@@ -57,8 +57,8 @@ def main():
     # =========================================================================
 
     log_folder = "logs"
-    flight_folder = "20260530"
-    log_name = "20260529_apex5_00.bbl.csv"
+    flight_folder = "example_logs"
+    log_name = "Gyro_Angle.csv"
 
     file_path = Path(log_folder) / flight_folder / log_name
 

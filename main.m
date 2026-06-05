@@ -41,7 +41,7 @@ plotter = plot_utils(do_insert_legends);
 
 log_folder = 'logs';
 flight_folder = 'example_logs';
-log_name = 'Gyro_Angle.TXT.csv';
+log_name = 'Gyro_Angle.csv';
 file_path = fullfile(log_folder, flight_folder, log_name);
 
 df = flight_data(file_path);
