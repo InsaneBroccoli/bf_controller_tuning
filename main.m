@@ -1,12 +1,19 @@
 %==========================================================================
-% MAIN - Betaflight Controller Analysis Main File
+% MAIN - Betaflight Controller Analysis File
 %==========================================================================
-% Betaflight Controller Tuning Analysis Script
-% Purpose: Analyzes flight logs and tunes PID controllers for a quadcopter
+% Purpose: 
+%   Tool for analysing flight logs and tuning PID controllers for a quadcopter
 %
-% Author: [Janick Dort, Yuri Bianchi, Dario Jurietti]
-% Supervisor: [Michael Peter]
-% Date: [25.11.2025]
+% Authors: 
+%   Yuri Bianchi
+%   Janick Dort
+%   Dario Jurietti
+%
+% Supervisors: 
+%   Michael Peter
+%   Prof. Dr. Ruprecht Altenburger
+%
+% Date: 05.06.2026
 %==========================================================================
 
 %% General
@@ -20,6 +27,9 @@ addpath class/
 % Show Legends
 do_insert_legends = true;
 
+% Angle Tuning Required 
+angle_tuning_required = true;
+
 % Create Plotter Class
 plotter = plot_utils(do_insert_legends);
 
@@ -30,8 +40,8 @@ plotter = plot_utils(do_insert_legends);
 % =========================================================================
 
 log_folder = 'logs';
-flight_folder = '20260527';
-log_name = '20260527_1_overshootexpress.TXT.csv';
+flight_folder = 'example_logs';
+log_name = 'Gyro_Angle.csv';
 file_path = fullfile(log_folder, flight_folder, log_name);
 
 df = flight_data(file_path);
@@ -136,7 +146,7 @@ ind_ax = 1;     % keep it now until plot_utils is finished
 do_compensate_iterm = true;
 
 % New and old parameters are the same
-default_parameters_gyro = true; 
+default_parameters_gyro = false; 
 
 % =========================================================================
 %  First flight: Parameters
@@ -183,9 +193,9 @@ para_new.yaw_lpf_hz          = 200;     % frequency of yaw lpf (pt1)
 
 switch ind_ax
     case 1 % Roll PID values [default: 45, 80, 30]
-        P_new       = 30;%46
+        P_new       =35;%46
         I_new       = 70;%74
-        D_new       = 30;%30
+        D_new       = 22;%30
     case 2 % Pitch PID values [default: 47, 84, 34]
         P_new       = 49;
         I_new       = 96;
@@ -205,20 +215,25 @@ plotter.plot_Gang_of_Four(gyro_tuning,  'Gyro');
 plotter.plot_Step_Compliance(gyro_tuning,  'Gyro', 'Gyro (deg/sec)');
 
 %% Angle Tuning Data
+modeFlags = df.data(:, df.ind.flightModeFlags);
+angle_tuning_possible = any(modeFlags == 8388675);
 
-angle_tuning = angle_ctrl_tuning(df,gyro_tuning);
-angle_tuning = angle_tuning.calculate_Angle_trans(resolution_factor_tuning, overlap_tuning);
+if angle_tuning_possible && angle_tuning_required && ind_ax ~= yaw
 
-plotter.plot_Bode_Plant(angle_tuning, roll, 'Angle', 'Plant');
+    angle_tuning = angle_ctrl_tuning(df,gyro_tuning);
+    angle_tuning = angle_tuning.calculate_Angle_trans(resolution_factor_tuning, overlap_tuning);
 
-default_parameters_angle = false;
+    plotter.plot_Bode_Plant(angle_tuning, roll, 'Angle', 'Plant');
 
-% PT3 Angle Control
-P_Angle = 120;
+    default_parameters_angle = false;
 
-angle_tuning = angle_tuning.calculate_new_controller(ind_ax, P_Angle, ...
-    default_parameters_angle);
-angle_tuning = angle_tuning.get_tuning_data();
+    % PT3 Angle Control
+    P_Angle = 120;
 
-plotter.plot_Gang_of_Four(angle_tuning,  'Angle');
-plotter.plot_Step_Response(angle_tuning,  'Angle', 'Angle (deg)');
+    angle_tuning = angle_tuning.calculate_new_controller(ind_ax, P_Angle, ...
+        default_parameters_angle);
+    angle_tuning = angle_tuning.get_tuning_data();
+    
+    plotter.plot_Gang_of_Four(angle_tuning,  'Angle');
+    plotter.plot_Step_Response(angle_tuning,  'Angle', 'Angle (deg)');
+end

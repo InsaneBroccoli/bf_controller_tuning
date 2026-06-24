@@ -1,16 +1,22 @@
 %==========================================================================
 % ANGLE CTRL TUNING - Betaflight Controller Analysis ANGLE TUNING CLASS
 %==========================================================================
-% Betaflight Controller Tuning Analysis Script
-% Purpose: Calculation for Angle Tuning
+% Purpose: 
+%   Calculation for Angle Tuning
 %
-% Author: [Janick Dort, Yuri Bianchi, Dario Jurietti]
-% Supervisor: [Michael Peter]
-% Date: [25.11.2025]
-
+% Authors: 
+%   Yuri Bianchi
+%   Janick Dort
+%   Dario Jurietti
+%
+% Supervisors: 
+%   Michael Peter
+%   Prof. Dr. Ruprecht Altenburger
+%
+% Date: 05.06.2026
 %==========================================================================
 %  ADDITIONAL INFORMATION
-% =============================================================
+%==========================================================================
 % Estimates and calculates frequency responses for system identification
 % and controller analysis.
 
@@ -50,6 +56,7 @@ classdef angle_ctrl_tuning < handle
         % step response
         step_resp_tra
         step_resp_com
+
     end
     methods
 
@@ -84,12 +91,19 @@ classdef angle_ctrl_tuning < handle
             
             sinarg_full = dataf.data(:, dataf.ind.sinarg);  % Copy Data to adjust it
 
+            modeFlags = uint32(dataf.data(:, dataf.ind.flightModeFlags));
+            bit1 = bitand(modeFlags, uint32(2)) ~= 0;
+            angle_active = bit1;
+
             for ind_axis = 1:n_axes
         
                 ind_eval = get_ind_eval( ...
                     dataf.data(:,dataf.ind.sinarg), ...
                     dataf.data(:,dataf.ind.gyroADC(ind_axis)));
-        
+
+                % Only use data recorded while Angle mode was active
+                ind_eval = ind_eval & angle_active;
+                
                 sinarg_ax = sinarg_full;
                 sinarg_ax(~ind_eval) = 0;
         
@@ -192,12 +206,10 @@ classdef angle_ctrl_tuning < handle
             gyro = obj.gyro_tuning;
             
             obj.CL_ana = calculate_closed_loop_angle(obj.C_ana, ...
-                gyro.T{obj.ind_ax}, gyro.P{obj.ind_ax}, obj.P{obj.ind_ax}, ...
-                gyro.CL_ana.C);
+                gyro.T{obj.ind_ax}, obj.P{obj.ind_ax});
             
             obj.CL_ana_new = calculate_closed_loop_angle(obj.C_ana_new, ...
-                gyro.T{obj.ind_ax}, gyro.P{obj.ind_ax}, obj.P{obj.ind_ax}, ...
-                gyro.CL_ana.C);
+                gyro.T{obj.ind_ax}, obj.P{obj.ind_ax});
         
             f_max = 500;
         

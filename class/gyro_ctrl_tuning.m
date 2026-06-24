@@ -1,16 +1,22 @@
 %==========================================================================
 % GYRO CTRL TUNING - Betaflight Controller Analysis GYRO TUNING CLASS
 %==========================================================================
-% Betaflight Controller Tuning Analysis Script
-% Purpose: Calculation for Gyro Tuning
+% Purpose: 
+%   Calculation for Gyro Tuning
 %
-% Author: [Janick Dort, Yuri Bianchi, Dario Jurietti]
-% Supervisor: [Michael Peter]
-% Date: [25.11.2025]
-
+% Authors: 
+%   Yuri Bianchi
+%   Janick Dort
+%   Dario Jurietti
+%
+% Supervisors: 
+%   Michael Peter
+%   Prof. Dr. Ruprecht Altenburger
+%
+% Date: 05.06.2026
 %==========================================================================
 %  ADDITIONAL INFORMATION
-% =============================================================
+%==========================================================================
 % Estimates and calculates frequency responses for system identification
 % and controller analysis.
 %
@@ -101,8 +107,10 @@ classdef gyro_ctrl_tuning < handle
 
             for ind_axis = 1:n_axes       % Calculate Transferfunction for Roll, Pitch and Yaw
             
-                ind_eval = get_ind_eval(dataf.data(:,dataf.ind.sinarg), dataf.data(:,dataf.ind.gyroADC(ind_axis)));
-                
+                ind_eval = get_ind_eval( ...
+                    dataf.data(:,dataf.ind.sinarg), ...
+                    dataf.data(:,dataf.ind.gyroADC(ind_axis)));
+
                 sinarg_ax = sinarg_full;
                 sinarg_ax(~ind_eval) = 0;
 

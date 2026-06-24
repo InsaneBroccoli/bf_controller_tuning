@@ -1,7 +1,9 @@
 .env
 
 # Logs
-logs/*/
+logs/*
+!logs/example_logs/
+!logs/example_logs/**
 *.csv
 
 # Backups

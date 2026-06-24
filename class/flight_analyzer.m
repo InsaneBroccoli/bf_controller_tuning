@@ -1,12 +1,19 @@
 %==========================================================================
 % FLIGHT ANALYZER - Betaflight Controller Analysis ANALYSIS CLASS
 %==========================================================================
-% Betaflight Controller Tuning Analysis Script
-% Purpose: Get Spectra and Spectogram out of Data
+% Purpose: 
+%   Get Spectra and Spectogram out of Data
 %
-% Author: [Janick Dort, Yuri Bianchi, Dario Jurietti]
-% Supervisor: [Michael Peter]
-% Date: [25.11.2025]
+% Authors: 
+%   Yuri Bianchi
+%   Janick Dort
+%   Dario Jurietti
+%
+% Supervisors: 
+%   Michael Peter
+%   Prof. Dr. Ruprecht Altenburger
+%
+% Date: 05.06.2026
 %==========================================================================
 
 classdef flight_analyzer

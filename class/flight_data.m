@@ -1,12 +1,19 @@
 %==========================================================================
 % FLIGHT DATA - Betaflight Controller Analysis DATA IMPORT CLASS
 %==========================================================================
-% Betaflight Controller Tuning Analysis Script
-% Purpose: Read Data for further calculations
+% Purpose: 
+%   Read Data for further calculations
 %
-% Author: [Janick Dort, Yuri Bianchi, Dario Jurietti]
-% Supervisor: [Michael Peter]
-% Date: [25.11.2025]
+% Authors: 
+%   Yuri Bianchi
+%   Janick Dort
+%   Dario Jurietti
+%
+% Supervisors: 
+%   Michael Peter
+%   Prof. Dr. Ruprecht Altenburger
+%
+% Date: 05.06.2026
 %==========================================================================
 
 classdef flight_data
@@ -53,7 +60,15 @@ classdef flight_data
             
             % --- Data Preprocessing ---
             % Expand obj.indices for additional data columns
-            obj.ind.axisSumPI = ind_cntr + (1:3);
+            % obj.ind.axisSumPI = ind_cntr + (1:3);
+            
+            % Create an additional entry for the PI sum
+            axisSumPI_data = obj.data(:,obj.ind.axisP) + obj.data(:,obj.ind.axisI);
+            obj.data = [obj.data, axisSumPI_data];
+
+            % Now assign the new indices from actual data size
+            obj.ind.axisSumPI = size(obj.data,2)-2 : size(obj.data,2);
+
             obj.ind.sinarg = obj.ind.debug(1);
             % Current version
             % obj.ind.currentAngle = [obj.ind.debug(2), obj.ind.debug(5)];
@@ -82,9 +97,6 @@ classdef flight_data
 
             % Unscale and remap heading
             obj.data(:,obj.ind.heading(1:3)) = obj.data(:,obj.ind.heading(1:3)) * 100;
-                        
-            % Create an additional entry for the pi sum
-            obj.data = [obj.data, obj.data(:,obj.ind.axisP) + obj.data(:,obj.ind.axisI)];
             
             % Create different sampling times
             Ts      = obj.para.looptime * 1.0e-6;             % Gyro loop

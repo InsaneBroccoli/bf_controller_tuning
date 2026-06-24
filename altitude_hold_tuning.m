@@ -5,11 +5,11 @@ addpath("lib/");
 addpath(genpath("logs/"));
 
 pos_bode = [0.1514+0.05, 0.5838-0.2, 0.7536,      0.3472+0.2; ...
-            0.21,         0.08,       0.7+0.05, 0.25];
+            0.1,         0.08,       0.7536+0.05, 0.2017];
 
 % Add file information
 log_folder = 'logs';
-flight_folder = '20260528';
+flight_folder = 'example_logs';
 
 % Aggressive
 % p = 18
@@ -21,7 +21,7 @@ flight_folder = '20260528';
 % p = 15
 % i = 15
 % d = 15
-log_name = 'althold-default.csv';
+log_name = 'AltHold.csv';
 
 % Meh
 % p = 13

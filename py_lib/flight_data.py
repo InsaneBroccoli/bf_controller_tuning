@@ -2,19 +2,21 @@
 ==========================================================================
 FLIGHT DATA - Betaflight Controller Analysis (data import class)
 ==========================================================================
-Betaflight Controller Tuning Analysis Script
 
 Purpose:
     Read data for further analysis
 
-Author:
-    Janick Dort, Yuri Bianchi, Dario Jurietti
+Authors:
+    Yuri Bianchi
+    Janick Dort
+    Dario Jurietti
 
-Supervisor:
+Supervisors:
     Michael Peter
+    Prof. Dr. Ruprecht Altenburger
 
 Date:
-    28.02.2026
+    05.06.2026
 ==========================================================================
 """
 
@@ -201,7 +203,7 @@ class FlightData:
             col.strip().strip('"')
             for col in header_line.strip().split(",")
         ]
-
+        
         gyro_unfilt = []
         gyro_adc = []
         setpoint = []
@@ -254,6 +256,16 @@ class FlightData:
             elif col.startswith("heading["):
                 heading.append(idx)
 
+            elif col == "flightModeFlags":
+                ind.flightModeFlags = idx
+
+            elif col == "stateFlags":
+                ind.stateFlags = idx
+
+            elif col == "failsafePhase":
+                ind.failsafePhase = idx
+
+            
         # Store parsed column indices
         ind.gyroUnfilt = np.array(gyro_unfilt)
         ind.gyroADC = np.array(gyro_adc)
@@ -285,52 +297,43 @@ class FlightData:
         # Expand indices for additional calculated data columns.
         # =============================================================
 
-        self.ind.axisSumPI = np.arange(ind_cntr, ind_cntr + 3)
+        
 
         self.ind.sinarg = self.ind.debug[0]
 
         # =============================================================
         # Debug Signal Remapping
         # =============================================================
-        # Current version:
-        #   debug[0] = sinarg
-        #   debug[1] = currentAngle roll
-        #   debug[2] = angleTarget roll
-        #   debug[3] = angleRate roll
-        #   debug[4] = currentAngle pitch
-        #   debug[5] = angleTarget pitch
-        #   debug[6] = angleRate pitch
-        # =============================================================
+        
+        #self.ind.currentAngle = np.array([
+        #    self.ind.debug[1],
+         #   self.ind.debug[4],
+        #])
 
-        self.ind.currentAngle = np.array([
-            self.ind.debug[1],
-            self.ind.debug[4],
-        ])
+        #self.ind.angleTarget = np.array([
+        #    self.ind.debug[2],
+        #    self.ind.debug[5],
+        #])
 
-        self.ind.angleTarget = np.array([
-            self.ind.debug[2],
-            self.ind.debug[5],
-        ])
-
-        self.ind.angleRate = np.array([
-            self.ind.debug[3],
-            self.ind.debug[6],
-        ])
+        #self.ind.angleRate = np.array([
+        #    self.ind.debug[3],
+        #    self.ind.debug[6],
+        #])
 
         # =============================================================
         # Future Debug Mapping
         # =============================================================
 
         # Future version would be:
-        # self.ind.currentAngle = np.array([
-        #     self.ind.debug[1],
-        #     self.ind.debug[3],
-        # ])
-        #
-        # self.ind.angleTarget = np.array([
-        #     self.ind.debug[2],
-        #     self.ind.debug[4],
-        # ])
+        self.ind.currentAngle = np.array([
+             self.ind.debug[4],
+             self.ind.debug[6],
+        ])
+        
+        self.ind.angleTarget = np.array([
+             self.ind.debug[5],
+             self.ind.debug[7],
+        ])
 
         # =============================================================
         # Time Vector
@@ -397,6 +400,7 @@ class FlightData:
         #     axisP + axisI
         # =============================================================
 
+        # Create an additional entry for the PI sum
         pi_sum = (
             self.data[:, self.ind.axisP]
             + self.data[:, self.ind.axisI]
@@ -406,6 +410,12 @@ class FlightData:
             self.data,
             pi_sum,
         ])
+
+        # Now assign the new indices from actual data size
+        self.ind.axisSumPI = np.arange(
+            self.data.shape[1] - 3,
+            self.data.shape[1]
+)
 
         # =============================================================
         # Create Different Sampling Times

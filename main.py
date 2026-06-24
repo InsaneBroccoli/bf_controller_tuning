@@ -1,20 +1,21 @@
 """
 ==========================================================================
-MAIN - Betaflight Controller Analysis Main File
+MAIN - Betaflight Controller Analysis File
 ==========================================================================
-Betaflight Controller Tuning Analysis Script
-
 Purpose:
-    Analyzes flight logs and tunes PID controllers for a quadcopter.
+    Tool for analysing flight logs and tuning PID controllers for a quadcopter
 
-Author:
-    Janick Dort, Yuri Bianchi, Dario Jurietti
+Authors:
+    Yuri Bianchi
+    Janick Dort
+    Dario Jurietti
 
-Supervisor:
+Supervisors:
     Michael Peter
+    Prof. Dr. Ruprecht Altenburger
 
 Date:
-    25.11.2025
+    05.06.2026
 ==========================================================================
 """
 
@@ -43,6 +44,9 @@ def main():
     # Show legends in plots
     do_insert_legends = True
 
+    # Angle Tuning Required
+    angle_tuning_required = True
+
     # Create plot utility class
     plotter = PlotUtils(do_insert_legends)
 
@@ -53,8 +57,8 @@ def main():
     # =========================================================================
 
     log_folder = "logs"
-    flight_folder = "20260424"
-    log_name = "20260424_flipmini_2.TXT.csv"
+    flight_folder = "example_logs"
+    log_name = "Gyro_Angle.csv"
 
     file_path = Path(log_folder) / flight_folder / log_name
 
@@ -233,7 +237,7 @@ def main():
     # -------------------------------------------------------------------------
 
     # Window length for spectral estimation
-    resolution_factor_spectra = 2.0
+    resolution_factor_spectra = 0.2
 
     # Overlap factor for Welch estimation
     overlap_spectra = 0.9
@@ -248,7 +252,7 @@ def main():
     # -------------------------------------------------------------------------
 
     # Window length for spectrogram estimation
-    resolution_factor_spectrogram = 2.0
+    resolution_factor_spectrogram = 0.2
 
     # Overlap factor for spectrogram estimation
     overlap_spectrogram = 0.9
@@ -414,63 +418,71 @@ def main():
     print("Angle Controller Tuning")
     print("=" * 70)
 
-    # Create angle tuning object
-    angle_tuning = AngleCtrlTuning(
-        df.data,
-        df.ind,
-        df.Ts_log,
-        df.para,
-        df.Ts_cntr,
-        gyro_tuning,
+    mode_flags = df.data[:, df.ind.flightModeFlags]
+
+    angle_tuning_possible = np.any(
+    mode_flags == 8388675
     )
 
-    # Calculate angle transfer functions
-    angle_tuning = angle_tuning.calculate_angle_trans(
-        resolution_factor_tf,
-        overlap_tf,
-    )
+    if angle_tuning_possible and angle_tuning_required and ind_ax != yaw:
 
-    # Plot angle plant bode plot
-    plotter.plot_bode_plant(
-        angle_tuning,
-        roll,
-        "Angle",
-    )
+        # Create angle tuning object
+        angle_tuning = AngleCtrlTuning(
+            df.data,
+            df.ind,
+            df.Ts_log,
+            df.para,
+            df.Ts_cntr,
+            gyro_tuning,
+        )
 
-    # Use same parameters as original flight
-    default_parameters_angle = False
+        # Calculate angle transfer functions
+        angle_tuning = angle_tuning.calculate_angle_trans(
+            resolution_factor_tf,
+            overlap_tf,
+        )
 
-    # -------------------------------------------------------------------------
-    # Angle controller tuning
-    # -------------------------------------------------------------------------
+        # Plot angle plant bode plot
+        plotter.plot_bode_plant(
+            angle_tuning,
+            roll,
+            "Angle",
+        )
 
-    # PT3 Angle Control
-    P_angle = 120
+        # Use same parameters as original flight
+        default_parameters_angle = False
 
-    # Calculate new controller
-    angle_tuning = angle_tuning.calculate_new_controller(
-        ind_ax,
-        P_angle,
-        default_parameters_angle,
-    )
+        # -------------------------------------------------------------------------
+        # Angle controller tuning
+        # -------------------------------------------------------------------------
 
-    # Calculate tuning data
-    angle_tuning = angle_tuning.get_tuning_data()
+        # PT3 Angle Control
+        P_angle = 120
 
-    # -------------------------------------------------------------------------
-    # Plot tuning evaluation
-    # -------------------------------------------------------------------------
+        # Calculate new controller
+        angle_tuning = angle_tuning.calculate_new_controller(
+            ind_ax,
+            P_angle,
+            default_parameters_angle,
+        )
 
-    plotter.plot_gang_of_four(
-        angle_tuning,
-        "Angle",
-    )
+        # Calculate tuning data
+        angle_tuning = angle_tuning.get_tuning_data()
 
-    plotter.plot_step_response(
-        angle_tuning,
-        "Angle",
-        "Angle (deg)",
-    )
+        # -------------------------------------------------------------------------
+        # Plot tuning evaluation
+        # -------------------------------------------------------------------------
+
+        plotter.plot_gang_of_four(
+            angle_tuning,
+            "Angle",
+        )
+
+        plotter.plot_step_response(
+            angle_tuning,
+            "Angle",
+            "Angle (deg)",
+        )
 
     # =========================================================================
     # Finished
